@@ -1,19 +1,34 @@
 @import "tailwindcss";
 
+/*
+ * Tokens follow the mockups in docs/mockups: a light interface on slate,
+ * white surfaces, and a single blue accent. Semantic names are used so the
+ * planner surfaces can reuse them without repeating raw palette values.
+ */
 :root {
-  --background: #0c0a09;
-  --foreground: #fafaf9;
+  --canvas: #f8fafc;
+  --ink: #0f172a;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: Arial, Helvetica, sans-serif;
-  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --color-canvas: var(--canvas);
+  --color-surface: #ffffff;
+  --color-surface-muted: #f1f5f9;
+  --color-line: #e2e8f0;
+
+  --color-ink: var(--ink);
+  --color-ink-muted: #475569;
+  --color-ink-subtle: #64748b;
+
+  --color-brand: #2563eb;
+  --color-brand-strong: #1d4ed8;
+  --color-brand-soft: #eff6ff;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
 }
