@@ -1,0 +1,25 @@
+{
+  "minLines": 5,
+  "minTokens": 50,
+  "threshold": 3,
+  "gitignore": true,
+  "reporters": ["console"],
+  "format": ["typescript", "tsx", "javascript", "jsx"],
+  "ignore": [
+    "**/node_modules/**",
+    "**/.next/**",
+    "**/build/**",
+    "**/dist/**",
+    "**/coverage/**",
+    "**/public/**",
+    "**/reports/**",
+    "**/assets/**",
+    "**/__mocks__/**",
+    "**/__tests__/**",
+    "**/test/**",
+    "**/tests/**",
+    "**/*.test.{js,jsx,ts,tsx}",
+    "**/*.spec.{js,jsx,ts,tsx}",
+    "**/*.config.{js,mjs,cjs,ts,mts,cts}"
+  ]
+}

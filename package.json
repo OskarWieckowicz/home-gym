@@ -6,7 +6,16 @@
     "dev": "next dev",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "npm run lint:report",
+    "lint:check": "eslint . --quiet",
+    "lint:report": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "dupes:check": "jscpd .",
+    "check:file-lines": "node scripts/check-file-lines.mjs",
+    "quality:quick": "npm run lint:check && npm run typecheck && npm run check:file-lines && npm run dupes:check",
+    "agent:verify": "npm run lint:check && npm run typecheck && npm run test && npm run dupes:check && npm run check:file-lines"
   },
   "dependencies": {
     "next": "16.3.3",
@@ -20,7 +29,10 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.3",
+    "eslint-plugin-sonarjs": "^4.2.0",
+    "jscpd": "^5.0.16",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.11"
   }
 }

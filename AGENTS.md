@@ -35,6 +35,16 @@ Treat time-sensitive external claims as candidates for verification rather than 
 - Do not invent package-manager, build, lint, or test commands before the repository defines them.
 - Summaries should identify changed behavior, validation performed, and any remaining risk or unverified assumption.
 
+## Validation ladder
+
+- During implementation, run the narrowest relevant test or check for the files being changed.
+- Run `npm run quality:quick` after a coherent implementation slice. It checks blocking ESLint errors, TypeScript, the hard file-size limit, and duplicated code.
+- Run `npm run lint:report` during cleanup or review to inspect advisory complexity and maintainability warnings. Warnings do not fail the blocking lint gate.
+- Run `npm run agent:verify` before declaring implementation work complete. It is the canonical local gate and includes lint errors, TypeScript, Vitest, duplicate detection, and the file-size guard.
+- Run `npm run build` in addition to `agent:verify` when changing routing, Server/Client Component boundaries, Next.js configuration, build behavior, or deployment-sensitive code.
+- A non-test source or configuration file must not exceed 500 physical lines. There are no legacy baselines or exceptions; split the file instead.
+- New behavior requires proportionate tests. Do not weaken, skip, or remove a check merely to make the validation ladder pass.
+
 ## Subagent orchestration
 
 The primary agent owns task decomposition, final decisions, repository-wide edits, and synthesis. Subagents must stay within their assigned scope and must not spawn further agents unless the primary agent explicitly asks them to.
