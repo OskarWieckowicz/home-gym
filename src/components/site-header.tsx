@@ -7,7 +7,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-20 border-b border-line bg-surface">
       <nav
         aria-label="Main"
-        className="mx-auto flex w-full max-w-6xl items-center justify-between gap-6 px-6 py-3"
+        className="mx-auto flex w-full max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:gap-6 sm:px-6"
       >
         <BrandMark />
         <div className="flex items-center gap-2">

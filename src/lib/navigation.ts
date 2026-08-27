@@ -22,6 +22,10 @@ export function creatorRoute(start: CreatorStartMode) {
   return `${routes.creator}?start=${start}` as const;
 }
 
+export function productRoute(slug: string) {
+  return `${routes.catalog}/${slug}` as const;
+}
+
 export const siteLinks = {
   logo: { label: "Home Gym Creator", href: routes.home },
   catalog: { label: "Equipment", href: routes.catalog },

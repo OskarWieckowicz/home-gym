@@ -9,14 +9,15 @@ catalog are fictional.
 
 ## Status
 
-Early development. The routes and navigation exist; the planner, the catalog, and the WebMCP
-tools are being built. The current plan is in
+Early development. A validated starter catalog with URL filters and product pages is available;
+the planner and WebMCP tools are being built. The current plan is in
 [`plans/README.md`](./plans/README.md).
 
 | Route | Purpose | State |
 | --- | --- | --- |
 | `/` | Landing page | Hero shell |
-| `/catalog` | Equipment catalog | Placeholder |
+| `/catalog` | Equipment catalog | Browse and URL filters |
+| `/catalog/[slug]` | Product details | Static product pages |
 | `/creator?start=demo` | Creator with the sample project | Placeholder |
 | `/creator?start=new` | Creator with an empty project | Placeholder |
 

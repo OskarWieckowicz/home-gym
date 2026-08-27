@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { creatorRoute, routes, siteLinks } from "./navigation";
+import { creatorRoute, productRoute, routes, siteLinks } from "./navigation";
 
 describe("navigation", () => {
   it("keeps the destinations defined by the landing page specification", () => {
@@ -26,5 +26,11 @@ describe("navigation", () => {
   it("builds creator routes from the supported start modes", () => {
     expect(creatorRoute("demo")).toBe(`${routes.creator}?start=demo`);
     expect(creatorRoute("new")).toBe(`${routes.creator}?start=new`);
+  });
+
+  it("builds canonical product routes", () => {
+    expect(productRoute("forge-fold-rack")).toBe(
+      "/catalog/forge-fold-rack",
+    );
   });
 });
