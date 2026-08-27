@@ -2,7 +2,7 @@
 
 > Stan informacji: 27 sierpnia 2026. WebMCP jest eksperymentalnym i rozwijającym się standardem. Przed wdrożeniem oraz nagraniem filmu należy ponownie sprawdzić specyfikację, status implementacji i zachowanie obsługiwanych przeglądarek.
 
-## Trzy główne źródła
+## Pięć głównych źródeł
 
 ### 1. OpenAI WebMCP Showcase
 
@@ -66,13 +66,52 @@ Do sprawdzenia:
 
 Planer posiłków, przepisów i zakupów. Może być przydatny jako wzorzec łączenia preferencji użytkownika, ograniczeń, wyboru elementów i końcowej listy zakupowej.
 
-### 2. Repozytorium i specyfikacja WebMCP
+### 2. Oficjalna specyfikacja WebMCP
+
+**Link:** [webmachinelearning.github.io/webmcp](https://webmachinelearning.github.io/webmcp/)
+
+**Test suite:** [wpt.fyi/results/webmcp](https://wpt.fyi/results/webmcp)
+
+To kanoniczny kontrakt API: Draft Community Group Report z 26 sierpnia 2026, publikowany przez Web Machine Learning Community Group. Nie jest to standard W3C ani dokument na ścieżce standaryzacji W3C.
+
+Redaktorzy: Brandon Walderman (Microsoft), Khushal Sagar (Google), Dominic Farolino (Google).
+
+Specyfikacja definiuje, że strona z WebMCP działa jak serwer MCP, którego narzędzia wykonują się w skrypcie klienckim, a nie na backendzie. Umożliwia to wspólną pracę użytkownika i agenta w tym samym interfejsie.
+
+Powierzchnia API (`document.modelContext`):
+
+- `registerTool(tool, options?)` — rejestracja narzędzia,
+- `getTools(options?)` — odczyt narzędzi z dokumentu i jego potomków (dla agentów in-page w JavaScript),
+- `executeTool(tool, inputObject?, options?)` — wywołanie narzędzia; wynik jest serializowany do JSON string,
+- `ontoolchange` — zdarzenie przy zmianie zestawu narzędzi.
+
+Definicja narzędzia (`ModelContextTool`):
+
+- `name` — 1–128 znaków; tylko ASCII alfanumeryczne oraz `_`, `-`, `.`,
+- `title` — etykieta UI (lokalizowana),
+- `description` — opis naturalny dla agenta,
+- `inputSchema` — obiekt JSON Schema,
+- `execute(inputObject, { signal })` — callback; `signal` to `AbortSignal` anulowania wykonania,
+- `annotations.readOnlyHint` — narzędzie tylko czyta stan,
+- `annotations.untrustedContentHint` — wynik zawiera treść niezaufaną.
+
+Opcje rejestracji: `exposedTo` (originy, którym narzędzie jest widoczne) oraz `signal` (`AbortSignal` wyrejestrowuje narzędzie po abort).
+
+Istotne ograniczenia ze specyfikacji:
+
+- API wymaga secure context oraz origin-keyed agent cluster (poza `file:`); w przeciwnym razie `SecurityError`.
+- Dostęp jest za Permissions Policy `"tools"` z domyślnym allowlist `'self'`.
+- Nazwa narzędzia musi być unikalna w danym `ModelContext`; ponowna rejestracja tej samej nazwy odrzuca promise (`InvalidStateError`).
+- Declarative API w specyfikacji jest nadal TODO — na razie obowiązuje [Declarative API explainer](https://github.com/webmachinelearning/webmcp/blob/main/declarative-api-explainer.md).
+- Agent przeglądarki nie korzysta z `getTools()`; odkrywa narzędzia własnym mechanizmem obserwacji strony.
+
+Specyfikację należy sprawdzać, gdy potrzebujemy odpowiedzi na pytania dotyczące dokładnego kontraktu API, błędów, anulowania, origin isolation, iframe'ów i zdarzeń.
+
+### 3. Repozytorium WebMCP
 
 **Repozytorium:** [github.com/webmachinelearning/webmcp](https://github.com/webmachinelearning/webmcp)
 
-**Renderowana specyfikacja:** [webmachinelearning.github.io/webmcp](https://webmachinelearning.github.io/webmcp/)
-
-Repozytorium jest głównym źródłem wiedzy o projektowanym standardzie. Zawiera specyfikację, explainery, status implementacji, kwestie bezpieczeństwa i aktywne dyskusje.
+Repozytorium uzupełnia renderowaną specyfikację o explainery, status implementacji, kwestie bezpieczeństwa i aktywne dyskusje.
 
 Najważniejsze dokumenty:
 
@@ -85,17 +124,12 @@ Najważniejsze dokumenty:
 
 Repozytorium należy sprawdzać, gdy potrzebujemy odpowiedzi na pytania dotyczące:
 
-- dokładnego kontraktu API,
-- `document.modelContext`,
-- rejestracji i wyrejestrowywania narzędzi,
-- struktury definicji narzędzia,
-- `inputSchema`,
-- funkcji `execute`,
-- dynamicznych zmian dostępnego zestawu narzędzi,
-- uprawnień i iframe'ów,
-- planowanych, ale jeszcze niedostępnych możliwości.
+- statusu implementacji w przeglądarkach,
+- planowanych, ale jeszcze niedostępnych możliwości,
+- dyskusji nad multimodalnymi argumentami i bezpieczeństwem,
+- praktycznych przykładów i typów TypeScript.
 
-### 3. Dokumentacja WebMCP dla Chrome
+### 4. Dokumentacja WebMCP dla Chrome
 
 **Polska wersja:** [developer.chrome.com/docs/ai/webmcp?hl=pl](https://developer.chrome.com/docs/ai/webmcp?hl=pl)
 
@@ -109,6 +143,7 @@ Powiązane dokumenty:
 - [Declarative API](https://developer.chrome.com/docs/ai/webmcp/declarative-api)
 - [Best practices](https://developer.chrome.com/docs/ai/webmcp/best-practices)
 - [Tool security](https://developer.chrome.com/docs/ai/webmcp/secure-tools)
+- [Evals](https://developer.chrome.com/docs/ai/webmcp/evals)
 - [Origin trial](https://developer.chrome.com/origintrials/#/view_trial/4365061253447380993)
 
 Dokumentację Chrome należy sprawdzać podczas:
@@ -119,6 +154,55 @@ Dokumentację Chrome należy sprawdzać podczas:
 - testowania schematów wejściowych,
 - weryfikowania ograniczeń aktualnej wersji Chrome,
 - przygotowania aplikacji do origin trial lub publicznego hostingu.
+
+[Evals for WebMCP](https://developer.chrome.com/docs/ai/webmcp/evals) opisuje, jak testować narzędzia wobec modelu generatywnego. Testy deterministyczne sprawdzają logikę narzędzia; evals sprawdzają, czy agent wybiera właściwe narzędzie, argumenty i kolejność wywołań.
+
+Przed udostępnieniem narzędzi trzeba potwierdzić, że agent:
+
+- rozumie cel narzędzia z opisu i schematu,
+- wybiera właściwe narzędzie z poprawnymi parametrami,
+- używa wyniku jednego narzędzia do kolejnego wywołania,
+- potrafi dokończyć scenariusz użytkownika dostępnym zestawem narzędzi.
+
+Typowe tryby awarii:
+
+- agent pomija narzędzie lub woła złe,
+- agent woła narzędzia w złej kolejności,
+- argumenty nie mapują intencji użytkownika na `inputSchema`,
+- wynik narzędzia jest zbyt skąpy, zbyt gadatliwy albo nie nadaje się do kolejnego kroku,
+- błąd JavaScript nie wraca do agenta w czytelnej formie.
+
+Dokumentacja zaleca najpierw testować narzędzia w izolacji (`expectedCall` względem pełnego zestawu narzędzi w danym stanie), potem scenariusze end-to-end z łańcuchami `ordered` / `unordered`, oraz awarie w środku łańcucha. Narzędzie CLI jest w [webmcp-evals](https://github.com/GoogleChromeLabs/webmcp-tools/tree/main/webmcp-evals).
+
+### 5. Narzędzia i dema Google Chrome Labs
+
+**Repozytorium:** [github.com/GoogleChromeLabs/webmcp-tools](https://github.com/GoogleChromeLabs/webmcp-tools/tree/main)
+
+**Awesome list:** [AWESOME_WEBMCP.md](https://github.com/GoogleChromeLabs/webmcp-tools/blob/main/AWESOME_WEBMCP.md)
+
+Zestaw narzędzi deweloperskich i oficjalnych dem Google Chrome Labs do wdrażania WebMCP. To źródło praktycznych wzorców implementacji i debugowania, a nie specyfikacja API.
+
+Narzędzia deweloperskie:
+
+- [Model Context Tool Inspector](https://github.com/beaufortfrancois/model-context-tool-inspector) — rozszerzenie Chrome do inspekcji zarejestrowanych narzędzi, schematów wejścia i problemów z połączeniem,
+- [WebMCP Evals](https://developer.chrome.com/docs/ai/webmcp/evals) — dokumentacja Chrome i [CLI](https://github.com/GoogleChromeLabs/webmcp-tools/tree/main/webmcp-evals) do sprawdzania, czy agent wywołuje narzędzia zgodnie z przypadkami testowymi,
+- [WebMCP Studio](https://github.com/GoogleChromeLabs/webmcp-tools/tree/main/webmcp-studio) — środowisko do pracy z narzędziami WebMCP,
+- polyfill — pozwala uruchamiać narzędzia i związane z nimi pseudo-klasy CSS w przeglądarkach bez natywnego API.
+
+Najbardziej przydatne dema dla Home Gym Creatora:
+
+- [The Morning Ritual](https://googlechromelabs.github.io/webmcp-tools/demos/coffee-shop/) — katalog, specyfikacje produktu i nawigacja (imperative),
+- [Luxe Leather](https://googlechromelabs.github.io/webmcp-tools/demos/leather-bag/) oraz [WebMCP Sports](https://googlechromelabs.github.io/webmcp-tools/demos/sport-shop-angular/) — sklep: wyszukiwanie, polityki, koszyk,
+- [UrbanEstates](https://googlechromelabs.github.io/webmcp-tools/demos/real-estate-map/) — filtry i widok mapy (imperative),
+- [WebMCP Smart Home](https://googlechromelabs.github.io/webmcp-tools/demos/smart-home/) — dashboard, w którym agent rekonfiguruje elementy przestrzenne,
+- [Explainer mini-site](https://googlechromelabs.github.io/webmcp-tools/demos/explainer/) — porównanie scrapingu strony z narzędziami WebMCP.
+
+Repozytorium należy sprawdzać podczas:
+
+- podglądu, jak inne aplikacje rejestrują narzędzia imperative i declarative,
+- debugowania ekspozycji narzędzi w Chrome,
+- oceny polyfilla, jeśli natywne API nie jest dostępne,
+- szukania gotowych wzorców katalogu, koszyka i filtrów.
 
 ## Czym jest WebMCP
 
@@ -248,25 +332,27 @@ Przed publicznym wdrożeniem należy sprawdzić aktualne wymagania origin trial 
 
 ### Podczas projektowania kontraktów narzędzi
 
-1. repozytorium i specyfikacja WebMCP,
+1. oficjalna specyfikacja WebMCP,
 2. dokumentacja Imperative API Chrome,
 3. dokumentacja bezpieczeństwa,
-4. status implementacji.
+4. status implementacji i issues w repozytorium.
 
 ### Podczas developmentu i debugowania
 
 1. dokumentacja Chrome dla aktualnie używanej wersji,
-2. `implementation-status.md`,
-3. otwarte issues WebMCP,
-4. przykładowe aplikacje i ich publiczne implementacje, jeśli są dostępne.
+2. Tool Inspector i dema z `webmcp-tools`,
+3. `implementation-status.md`,
+4. otwarte issues WebMCP,
+5. przykładowe aplikacje i ich publiczne implementacje, jeśli są dostępne.
 
 ### Przed submission
 
 1. oficjalny regulamin challenge'u,
 2. aktualna dokumentacja OpenAI Docs dotycząca site tools,
 3. dokumentacja Chrome i wymagania origin trial,
-4. test w świeżej sesji ChatGPT/Codex,
-5. test w świeżej sesji Chrome.
+4. evals narzędzi w izolacji i scenariusza end-to-end,
+5. test w świeżej sesji ChatGPT/Codex,
+6. test w świeżej sesji Chrome.
 
 ## Powiązane dokumenty projektu
 
@@ -285,4 +371,5 @@ Przed publicznym wdrożeniem należy sprawdzić aktualne wymagania origin trial 
 - [ ] Sprawdzić aktualne wymagania origin trial.
 - [ ] Przetestować zachowanie narzędzi w błędnym i pustym stanie projektu.
 - [ ] Przetestować długą sekwencję: odczyt → wyszukiwanie → mutacja → walidacja → poprawka.
+- [ ] Napisać evals izolowane i end-to-end dla głównego scenariusza agent–użytkownik.
 - [ ] Porównać zachowanie tej samej aplikacji w ChatGPT i Chrome.
