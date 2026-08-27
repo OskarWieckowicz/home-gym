@@ -1,28 +1,69 @@
 @import "tailwindcss";
 
 /*
- * Tokens follow the mockups in docs/mockups: a light interface on slate,
- * white surfaces, and a single blue accent. Semantic names are used so the
- * planner surfaces can reuse them without repeating raw palette values.
+ * Tokens follow the mockups in docs/mockups: a light slate canvas, white
+ * surfaces, one blue accent, emerald for "fits", amber for warnings and
+ * plan selection. :root holds the raw values so SVG can use var(--name)
+ * while Tailwind utilities use the @theme aliases.
  */
 :root {
   --canvas: #f8fafc;
+  --surface: #ffffff;
+  --surface-muted: #f1f5f9;
+  --line: #e2e8f0;
+
   --ink: #0f172a;
+  --ink-muted: #475569;
+  --ink-subtle: #64748b;
+
+  --brand: #2563eb;
+  --brand-strong: #1d4ed8;
+  --brand-soft: #eff6ff;
+  --brand-muted: #dbeafe;
+
+  --success: #059669;
+  --success-soft: #ecfdf5;
+
+  --caution: #d97706;
+  --caution-soft: #fffbeb;
+
+  --footprint: #334155;
+  --clearance: #3b82f6;
+  --clearance-soft: rgb(59 130 246 / 0.18);
+
+  --select: #f59e0b;
+  --select-soft: rgb(245 158 11 / 0.2);
 }
 
 @theme inline {
   --color-canvas: var(--canvas);
-  --color-surface: #ffffff;
-  --color-surface-muted: #f1f5f9;
-  --color-line: #e2e8f0;
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-line: var(--line);
 
   --color-ink: var(--ink);
-  --color-ink-muted: #475569;
-  --color-ink-subtle: #64748b;
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
 
-  --color-brand: #2563eb;
-  --color-brand-strong: #1d4ed8;
-  --color-brand-soft: #eff6ff;
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-muted: var(--brand-muted);
+
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+
+  --color-caution: var(--caution);
+  --color-caution-soft: var(--caution-soft);
+
+  --color-footprint: var(--footprint);
+  --color-clearance: var(--clearance);
+  --color-clearance-soft: var(--clearance-soft);
+
+  --color-select: var(--select);
+  --color-select-soft: var(--select-soft);
+
+  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.06);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }

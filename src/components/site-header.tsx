@@ -12,7 +12,7 @@ export function SiteHeader() {
         <BrandMark />
         <div className="flex items-center gap-2">
           {headerLinks.map((link) => (
-            <LinkButton key={link.href} href={link.href} variant="secondary">
+            <LinkButton key={link.href} href={link.href} variant="quiet">
               {link.label}
             </LinkButton>
           ))}

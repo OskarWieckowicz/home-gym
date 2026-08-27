@@ -19,9 +19,9 @@ Already in the repository:
 - Product, architecture, requirements, landing page and editor specifications in `docs/`.
 - MIT license, English README, and the `/`, `/catalog`, `/creator` routes with shared navigation
   and the destinations defined by the landing page specification.
+- Light design tokens, button and card primitives, and the shell restyled to the mockup palette.
 
-Not yet present: the design system, any domain code, the catalog, the editor, WebMCP, and a
-public deployment.
+Not yet present: any domain code, the catalog, the editor, WebMCP, and a public deployment.
 
 ## 2. Sequencing principle
 
@@ -78,7 +78,7 @@ catalog and the editor exist means restyling pages instead of tokens.
 | ID | Slice | Timebox |
 |---|---|---|
 | S0 | Skeleton: routes, navigation, license, README | done |
-| S1 | Design tokens and shared components from the mockups | 1 h |
+| S1 | Design tokens and shared components from the mockups | done |
 | S2 | Minimal catalog | 4 h |
 | S3 | WebMCP theory | 2 h |
 | S4 | Read-only WebMCP over the catalog | 3 h |

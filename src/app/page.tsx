@@ -1,3 +1,5 @@
+import { HeroPlanSketch } from "@/components/landing/hero-plan-sketch";
+import { Card } from "@/components/ui/card";
 import { LinkButton } from "@/components/ui/link-button";
 import { siteLinks } from "@/lib/navigation";
 
@@ -26,12 +28,13 @@ export default function Home() {
             </LinkButton>
           </div>
         </div>
-        <div className="rounded-2xl border border-line bg-surface p-4 shadow-sm">
-          <div className="flex aspect-4/3 items-center justify-center rounded-xl border border-line bg-[linear-gradient(to_right,var(--color-line)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-line)_1px,transparent_1px)] bg-[size:20px_20px] p-8 text-center text-sm text-ink-subtle">
-            The 2D floor plan preview, with clearance zones and layout
-            warnings, arrives with the editor.
-          </div>
-        </div>
+        <Card className="p-4">
+          <HeroPlanSketch />
+          <p className="mt-3 rounded-lg bg-caution-soft px-3 py-2 text-sm text-caution">
+            Bench clearance is tight against the rack — the kind of warning the
+            planner will raise.
+          </p>
+        </Card>
       </section>
     </main>
   );

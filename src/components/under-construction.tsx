@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/card";
 import { LinkButton } from "@/components/ui/link-button";
 import type { SiteLink } from "@/lib/navigation";
 
@@ -27,10 +28,7 @@ export function UnderConstruction({
       <p className="mt-4 max-w-2xl text-lg leading-8 text-ink-muted">
         {description}
       </p>
-      <section
-        aria-label="Planned for this page"
-        className="mt-10 rounded-2xl border border-line bg-surface p-6 shadow-sm sm:p-8"
-      >
+      <Card className="mt-10 p-6 sm:p-8">
         <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-ink-subtle">
           Coming next
         </h2>
@@ -44,7 +42,7 @@ export function UnderConstruction({
             </li>
           ))}
         </ul>
-      </section>
+      </Card>
       <div className="mt-8">
         <LinkButton href={action.href} variant="secondary">
           {action.label}

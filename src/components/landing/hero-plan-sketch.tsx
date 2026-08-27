@@ -36,6 +36,18 @@ const PLAN_ITEMS: readonly PlanItem[] = [
 const GRID_STEP = 20;
 const ROOM = { x: 56, y: 56, width: 300, height: 210 } as const;
 
+const LEGEND = [
+  { label: "Physical outline", swatch: "bg-footprint" },
+  {
+    label: "Clearance",
+    swatch: "border border-dashed border-clearance bg-clearance-soft",
+  },
+  {
+    label: "Needs more space",
+    swatch: "border border-dashed border-caution bg-caution-soft",
+  },
+] as const;
+
 function gridLines() {
   const vertical = [];
   const horizontal = [];
@@ -55,69 +67,96 @@ export function HeroPlanSketch() {
   const { vertical, horizontal } = gridLines();
 
   return (
-    <svg
-      viewBox="0 0 400 300"
-      role="img"
-      aria-label="Top-down floor plan showing equipment outlines and the clearance each one needs"
-      className="w-full"
-    >
-      <g stroke="var(--line)" strokeWidth="1">
-        {vertical.map((x) => (
-          <line key={`v${x}`} x1={x} y1={ROOM.y} x2={x} y2={ROOM.y + ROOM.height} />
-        ))}
-        {horizontal.map((y) => (
-          <line key={`h${y}`} x1={ROOM.x} y1={y} x2={ROOM.x + ROOM.width} y2={y} />
-        ))}
-      </g>
-
-      <rect
-        {...ROOM}
-        fill="none"
-        stroke="var(--footprint)"
-        strokeWidth="5"
-        rx="2"
-      />
-
-      {PLAN_ITEMS.map((item) => (
-        <g key={item.label}>
-          <rect
-            {...item.clearance}
-            rx="6"
-            fill={item.tight ? "var(--caution-soft)" : "var(--clearance-soft)"}
-            stroke={item.tight ? "var(--caution)" : "var(--clearance)"}
-            strokeWidth="1.5"
-            strokeDasharray="5 4"
-          />
-          <rect {...item.footprint} rx="2" fill="var(--footprint)" />
-        </g>
-      ))}
-
-      <g
-        stroke="var(--ink-muted)"
-        strokeWidth="1"
-        fill="var(--ink-muted)"
-        fontSize="11"
+    <figure>
+      <svg
+        viewBox="0 0 400 300"
+        role="img"
+        aria-label="Top-down floor plan showing equipment outlines and the clearance each one needs"
+        className="w-full rounded-xl bg-surface-muted"
       >
-        <line x1={ROOM.x} y1="38" x2={ROOM.x + ROOM.width} y2="38" />
-        <text
-          x={ROOM.x + ROOM.width / 2}
-          y="30"
-          textAnchor="middle"
-          stroke="none"
+        <rect {...ROOM} fill="var(--surface)" rx="2" />
+
+        <g stroke="var(--line)" strokeWidth="1">
+          {vertical.map((x) => (
+            <line
+              key={`v${x}`}
+              x1={x}
+              y1={ROOM.y}
+              x2={x}
+              y2={ROOM.y + ROOM.height}
+            />
+          ))}
+          {horizontal.map((y) => (
+            <line
+              key={`h${y}`}
+              x1={ROOM.x}
+              y1={y}
+              x2={ROOM.x + ROOM.width}
+              y2={y}
+            />
+          ))}
+        </g>
+
+        <rect
+          {...ROOM}
+          fill="none"
+          stroke="var(--footprint)"
+          strokeWidth="5"
+          rx="2"
+        />
+
+        {PLAN_ITEMS.map((item) => (
+          <g key={item.label}>
+            <rect
+              {...item.clearance}
+              rx="6"
+              fill={item.tight ? "var(--caution-soft)" : "var(--clearance-soft)"}
+              stroke={item.tight ? "var(--caution)" : "var(--clearance)"}
+              strokeWidth="1.5"
+              strokeDasharray="5 4"
+            />
+            <rect {...item.footprint} rx="2" fill="var(--footprint)" />
+          </g>
+        ))}
+
+        <g
+          stroke="var(--ink-muted)"
+          strokeWidth="1"
+          fill="var(--ink-muted)"
+          fontSize="11"
         >
-          5.80 m
-        </text>
-        <line x1="38" y1={ROOM.y} x2="38" y2={ROOM.y + ROOM.height} />
-        <text
-          x="26"
-          y={ROOM.y + ROOM.height / 2}
-          textAnchor="middle"
-          stroke="none"
-          transform={`rotate(-90 26 ${ROOM.y + ROOM.height / 2})`}
-        >
-          4.20 m
-        </text>
-      </g>
-    </svg>
+          <line x1={ROOM.x} y1="38" x2={ROOM.x + ROOM.width} y2="38" />
+          <text
+            x={ROOM.x + ROOM.width / 2}
+            y="30"
+            textAnchor="middle"
+            stroke="none"
+          >
+            5.80 m
+          </text>
+          <line x1="38" y1={ROOM.y} x2="38" y2={ROOM.y + ROOM.height} />
+          <text
+            x="26"
+            y={ROOM.y + ROOM.height / 2}
+            textAnchor="middle"
+            stroke="none"
+            transform={`rotate(-90 26 ${ROOM.y + ROOM.height / 2})`}
+          >
+            4.20 m
+          </text>
+        </g>
+      </svg>
+      <figcaption className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs text-ink-muted">
+        {LEGEND.map((item) => (
+          <span key={item.label} className="inline-flex items-center gap-2">
+            <span
+              aria-hidden="true"
+              className={`size-2.5 rounded-sm ${item.swatch}`}
+            />
+            {item.label}
+          </span>
+        ))}
+      </figcaption>
+    </figure>
   );
 }
