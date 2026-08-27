@@ -11,7 +11,7 @@ catalog are fictional.
 
 Early development. The routes and navigation exist; the planner, the catalog, and the WebMCP
 tools are being built. The current plan is in
-[`docs/IMPLEMENTATION_PLAN.md`](./docs/IMPLEMENTATION_PLAN.md).
+[`plans/README.md`](./plans/README.md).
 
 | Route | Purpose | State |
 | --- | --- | --- |
@@ -56,8 +56,9 @@ Once the tools are registered on `/creator`, they can be exercised in either env
 
 ## Documentation
 
-Product concept, technical architecture, implementation plan, challenge requirements, and UI
-mockups live in the [`docs`](./docs) directory.
+Product concept, technical architecture, challenge requirements, and UI mockups live in the
+[`docs`](./docs) directory. The active implementation queue and detailed phase plans live in
+[`plans`](./plans).
 
 ## License
 
