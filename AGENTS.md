@@ -6,11 +6,11 @@ Home Gym Creator is a WebMCP-first home-gym planning application. The defining p
 
 Before changing behavior, read only the project documents relevant to the task:
 
-- `PRODUCT_CONCEPT.md` for product intent and MVP scope.
-- `TECHNICAL_ARCHITECTURE.md` for module boundaries and implementation decisions.
-- `HACKATHON_REQUIREMENTS.md` for submission constraints.
-- `WEBMCP_SOURCES.md` for the project's current WebMCP research and source map.
-- `LANDING_PAGE.md` and `EDITOR_MOCKUP.md` for their respective UI surfaces.
+- `docs/PRODUCT_CONCEPT.md` for product intent and MVP scope.
+- `docs/TECHNICAL_ARCHITECTURE.md` for module boundaries and implementation decisions.
+- `docs/HACKATHON_REQUIREMENTS.md` for submission constraints.
+- `docs/WEBMCP_SOURCES.md` for the project's current WebMCP research and source map.
+- `docs/LANDING_PAGE.md` and `docs/EDITOR_MOCKUP.md` for their respective UI surfaces.
 
 Treat time-sensitive external claims as candidates for verification rather than permanent facts.
 
@@ -48,3 +48,13 @@ The primary agent owns task decomposition, final decisions, repository-wide edit
 - Give every delegated task a bounded question, relevant context, expected evidence, and required return format. The primary agent waits for required results and delivers one consolidated answer.
 
 These development subagents are separate from the end-user AI agent demonstrated by the Home Gym Creator product.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
