@@ -9,10 +9,13 @@ import type { GymProject } from "@/features/project/schemas/project";
 
 import {
   createAddObstacleHandler,
+  createAddWallElementHandler,
   createConfigureRoomHandler,
   createGetProjectStateHandler,
   createRemoveObstacleHandler,
+  createRemoveWallElementHandler,
   createUpdateObstacleHandler,
+  createUpdateWallElementHandler,
   createUpdateProjectSettingsHandler,
   createValidateLayoutHandler,
 } from "./room-tool-handlers";
@@ -28,7 +31,10 @@ const obstacleInput = {
 
 function createStore(initialProject: GymProject = createDefaultProject()) {
   return createProjectStore(initialProject, {
-    dependencies: { generateObstacleId: () => "obstacle_generated" },
+    dependencies: {
+      generateObstacleId: () => "obstacle_generated",
+      generateWallElementId: () => "wall-element_generated",
+    },
   });
 }
 
@@ -48,7 +54,12 @@ describe("room read handlers", () => {
       revision: 1,
       canUndo: true,
       canRedo: false,
-      project: { budget: 12_500, trainingGoals: ["strength"] },
+      project: {
+        version: 2,
+        wallElements: [],
+        budget: 12_500,
+        trainingGoals: ["strength"],
+      },
       validation: { valid: true, issueCount: 0, issues: [] },
     });
     if (!result.ok) throw new Error("Expected successful state read.");
@@ -119,7 +130,7 @@ describe("room read handlers", () => {
           kind: "unavailable-zone",
           name: "Door swing",
           position: { xCm: 75, zCm: 75 },
-          dimensions: { widthCm: 25, depthCm: 25, heightCm: 200 },
+          dimensions: { widthCm: 25, depthCm: 25 },
           rotation: 0,
           locked: false,
         },
@@ -135,6 +146,8 @@ describe("room read handlers", () => {
         outsideRoom: 1,
         physicalCollision: 1,
         unavailableZoneConflict: 2,
+        outsideWall: 0,
+        wallElementOverlap: 0,
       },
     });
     if (!result.ok) throw new Error("Expected successful validation read.");
@@ -215,6 +228,7 @@ describe("room mutation handlers", () => {
 
   it("adds, updates, and removes the executor-generated canonical obstacle", () => {
     const store = createStore();
+    const dispatch = vi.spyOn(store.getState(), "dispatch");
     const added = createAddObstacleHandler(store)(obstacleInput);
     expect(added).toMatchObject({
       ok: true,
@@ -249,8 +263,162 @@ describe("room mutation handlers", () => {
       affectedEntityIds: ["obstacle_generated"],
     });
     expect(store.getState().project.obstacles).toEqual([]);
+    expect(dispatch).toHaveBeenCalledTimes(3);
   });
 
+  it("rejects dimension updates incompatible with the target obstacle kind", () => {
+    const physicalProject: GymProject = {
+      ...createDefaultProject(),
+      obstacles: [{ id: "obstacle_physical", ...obstacleInput }],
+    };
+    const physicalStore = createStore(physicalProject);
+    expect(createUpdateObstacleHandler(physicalStore)({
+      obstacleId: "obstacle_physical",
+      patch: { dimensions: { widthCm: 40, depthCm: 40 } },
+    })).toMatchObject({
+      ok: false,
+      error: {
+        code: "INVALID_COMMAND",
+        message: "Obstacle dimensions do not match the target obstacle kind.",
+      },
+    });
+    expect(physicalStore.getState()).toMatchObject({ revision: 0, canUndo: false });
+
+    const zoneProject: GymProject = {
+      ...createDefaultProject(),
+      obstacles: [{
+        id: "obstacle_zone",
+        kind: "unavailable-zone",
+        name: "Access zone",
+        position: { xCm: 0, zCm: 0 },
+        dimensions: { widthCm: 100, depthCm: 80 },
+        rotation: 0,
+        locked: false,
+      }],
+    };
+    const zoneStore = createStore(zoneProject);
+    expect(createUpdateObstacleHandler(zoneStore)({
+      obstacleId: "obstacle_zone",
+      patch: { dimensions: { widthCm: 100, depthCm: 80, heightCm: 200 } },
+    })).toMatchObject({ ok: false, error: { code: "INVALID_COMMAND" } });
+    expect(zoneStore.getState()).toMatchObject({ revision: 0, canUndo: false });
+  });
+});
+
+describe("wall element WebMCP handlers", () => {
+  it("adds, updates, and removes a wall element without creating an unavailable zone", () => {
+    const store = createStore();
+    const dispatch = vi.spyOn(store.getState(), "dispatch");
+    const added = createAddWallElementHandler(store)({
+      kind: "door",
+      name: "Main door",
+      wall: "top",
+      offsetCm: 350,
+      widthCm: 90,
+    });
+
+    expect(added).toMatchObject({
+      ok: true,
+      revision: 1,
+      wallElementId: "wall-element_generated",
+      wallElement: {
+        id: "wall-element_generated",
+        kind: "door",
+        wall: "top",
+      },
+      validation: {
+        valid: false,
+        issueCounts: { outsideWall: 1, wallElementOverlap: 0 },
+      },
+    });
+    expect(store.getState().project.obstacles).toEqual([]);
+
+    const updated = createUpdateWallElementHandler(store)({
+      wallElementId: "wall-element_generated",
+      patch: { kind: "window" },
+    });
+    expect(updated).toMatchObject({
+      ok: false,
+      error: { code: "INVALID_INPUT" },
+    });
+    expect(dispatch).toHaveBeenCalledOnce();
+
+    expect(
+      createUpdateWallElementHandler(store)({
+        wallElementId: "wall-element_generated",
+        patch: { offsetCm: 200, widthCm: 100, name: "Side door" },
+      }),
+    ).toMatchObject({
+      ok: true,
+      revision: 2,
+      wallElement: { name: "Side door", offsetCm: 200, widthCm: 100 },
+      validation: { valid: true },
+    });
+    expect(
+      createRemoveWallElementHandler(store)({
+        wallElementId: "wall-element_generated",
+      }),
+    ).toMatchObject({
+      ok: true,
+      revision: 3,
+      removedWallElementId: "wall-element_generated",
+    });
+    expect(store.getState().project.wallElements).toEqual([]);
+    expect(store.getState().project.obstacles).toEqual([]);
+    expect(dispatch).toHaveBeenCalledTimes(3);
+  });
+
+  it("serializes wall bounds and overlap validation as detached data", () => {
+    const base = createDefaultProject();
+    const store = createStore({
+      ...base,
+      wallElements: [
+        {
+          id: "wall-element_door",
+          kind: "door",
+          name: "Door",
+          wall: "top",
+          offsetCm: 350,
+          widthCm: 90,
+        },
+        {
+          id: "wall-element_window",
+          kind: "window",
+          name: "Window",
+          wall: "top",
+          offsetCm: 360,
+          widthCm: 30,
+        },
+      ],
+    });
+
+    const result = createValidateLayoutHandler(store)({});
+    expect(result).toMatchObject({
+      ok: true,
+      valid: false,
+      issueCount: 2,
+      issueCounts: { outsideWall: 1, wallElementOverlap: 1 },
+      issues: [
+        { code: "OUTSIDE_WALL" },
+        { code: "WALL_ELEMENT_OVERLAP" },
+      ],
+    });
+    if (!result.ok) throw new Error("Expected successful validation read.");
+    const overlap = result.issues.find(
+      ({ code }) => code === "WALL_ELEMENT_OVERLAP",
+    );
+    const stored = store.getState().validation.find(
+      ({ code }) => code === "WALL_ELEMENT_OVERLAP",
+    );
+    if (overlap?.code !== "WALL_ELEMENT_OVERLAP" || stored?.code !== "WALL_ELEMENT_OVERLAP") {
+      throw new Error("Expected wall-element overlap issues.");
+    }
+    (overlap.details.overlap as { startCm: number }).startCm = 0;
+    expect(stored.details.overlap.startCm).toBe(360);
+  });
+});
+
+describe("room mutation handler failures", () => {
   it("passes through locked and not-found domain failures without history", () => {
     const project = {
       ...createDefaultProject(),

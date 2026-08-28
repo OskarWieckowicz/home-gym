@@ -2,14 +2,17 @@ import { z } from "zod";
 
 import {
   dimensionsSchema,
+  footprintDimensionsSchema,
   positionSchema,
   rotationSchema,
 } from "./geometry";
 import {
-  obstacleKindSchema,
-  obstacleSchema,
+  physicalObstacleSchema,
   projectSettingsSchema,
   roomSchema,
+  unavailableZoneSchema,
+  wallElementSchema,
+  wallSchema,
 } from "./project";
 
 export const PROJECT_COMMAND_TYPES = [
@@ -18,6 +21,9 @@ export const PROJECT_COMMAND_TYPES = [
   "OBSTACLE_ADDED",
   "OBSTACLE_UPDATED",
   "OBSTACLE_REMOVED",
+  "WALL_ELEMENT_ADDED",
+  "WALL_ELEMENT_UPDATED",
+  "WALL_ELEMENT_REMOVED",
 ] as const;
 
 const settingsFields = {
@@ -35,24 +41,46 @@ export const projectSettingsPatchSchema = z.union([
     .strict(),
 ]);
 
-export const obstacleInputSchema = obstacleSchema.omit({ id: true });
+export const obstacleInputSchema = z.discriminatedUnion("kind", [
+  physicalObstacleSchema.omit({ id: true }),
+  unavailableZoneSchema.omit({ id: true }),
+]);
+
+const obstacleDimensionsSchema = z.union([
+  dimensionsSchema,
+  footprintDimensionsSchema,
+]);
 
 const obstaclePatchFields = {
-  kind: obstacleKindSchema.optional(),
-  name: obstacleSchema.shape.name.optional(),
+  name: physicalObstacleSchema.shape.name.optional(),
   position: positionSchema.optional(),
-  dimensions: dimensionsSchema.optional(),
+  dimensions: obstacleDimensionsSchema.optional(),
   rotation: rotationSchema.optional(),
   locked: z.boolean().optional(),
 };
 
 export const obstaclePatchSchema = z.union([
-  z.object({ ...obstaclePatchFields, kind: obstacleKindSchema }).strict(),
-  z.object({ ...obstaclePatchFields, name: obstacleSchema.shape.name }).strict(),
+  z.object({ ...obstaclePatchFields, name: physicalObstacleSchema.shape.name }).strict(),
   z.object({ ...obstaclePatchFields, position: positionSchema }).strict(),
-  z.object({ ...obstaclePatchFields, dimensions: dimensionsSchema }).strict(),
+  z.object({ ...obstaclePatchFields, dimensions: obstacleDimensionsSchema }).strict(),
   z.object({ ...obstaclePatchFields, rotation: rotationSchema }).strict(),
   z.object({ ...obstaclePatchFields, locked: z.boolean() }).strict(),
+]);
+
+export const wallElementInputSchema = wallElementSchema.omit({ id: true });
+
+const wallElementPatchFields = {
+  name: wallElementSchema.shape.name.optional(),
+  wall: wallSchema.optional(),
+  offsetCm: wallElementSchema.shape.offsetCm.optional(),
+  widthCm: wallElementSchema.shape.widthCm.optional(),
+};
+
+export const wallElementPatchSchema = z.union([
+  z.object({ ...wallElementPatchFields, name: wallElementSchema.shape.name }).strict(),
+  z.object({ ...wallElementPatchFields, wall: wallSchema }).strict(),
+  z.object({ ...wallElementPatchFields, offsetCm: wallElementSchema.shape.offsetCm }).strict(),
+  z.object({ ...wallElementPatchFields, widthCm: wallElementSchema.shape.widthCm }).strict(),
 ]);
 
 const roomConfiguredCommandSchema = z
@@ -81,7 +109,7 @@ const obstacleUpdatedCommandSchema = z
     type: z.literal("OBSTACLE_UPDATED"),
     payload: z
       .object({
-        obstacleId: obstacleSchema.shape.id,
+        obstacleId: physicalObstacleSchema.shape.id,
         patch: obstaclePatchSchema,
       })
       .strict(),
@@ -91,7 +119,33 @@ const obstacleUpdatedCommandSchema = z
 const obstacleRemovedCommandSchema = z
   .object({
     type: z.literal("OBSTACLE_REMOVED"),
-    payload: z.object({ obstacleId: obstacleSchema.shape.id }).strict(),
+    payload: z.object({ obstacleId: physicalObstacleSchema.shape.id }).strict(),
+  })
+  .strict();
+
+const wallElementAddedCommandSchema = z
+  .object({
+    type: z.literal("WALL_ELEMENT_ADDED"),
+    payload: wallElementInputSchema,
+  })
+  .strict();
+
+const wallElementUpdatedCommandSchema = z
+  .object({
+    type: z.literal("WALL_ELEMENT_UPDATED"),
+    payload: z
+      .object({
+        wallElementId: wallElementSchema.shape.id,
+        patch: wallElementPatchSchema,
+      })
+      .strict(),
+  })
+  .strict();
+
+const wallElementRemovedCommandSchema = z
+  .object({
+    type: z.literal("WALL_ELEMENT_REMOVED"),
+    payload: z.object({ wallElementId: wallElementSchema.shape.id }).strict(),
   })
   .strict();
 
@@ -101,6 +155,9 @@ export const projectCommandSchema = z.discriminatedUnion("type", [
   obstacleAddedCommandSchema,
   obstacleUpdatedCommandSchema,
   obstacleRemovedCommandSchema,
+  wallElementAddedCommandSchema,
+  wallElementUpdatedCommandSchema,
+  wallElementRemovedCommandSchema,
 ]);
 
 export type ProjectCommandType = (typeof PROJECT_COMMAND_TYPES)[number];

@@ -5,8 +5,11 @@ import {
   gymProjectSchema,
   obstacleKindSchema,
   obstacleSchema,
+  physicalObstacleSchema,
   PROJECT_NAME_MAX_LENGTH,
   roomSchema,
+  unavailableZoneSchema,
+  wallElementSchema,
 } from "./project";
 
 const validObstacle = {
@@ -20,9 +23,10 @@ const validObstacle = {
 } as const;
 
 const validProject = {
-  version: 1,
+  version: 2,
   room: { widthCm: 400, depthCm: 320, heightCm: 240 },
   obstacles: [validObstacle],
+  wallElements: [],
   budget: 10_000,
   trainingGoals: ["strength", "mobility"],
 } as const;
@@ -44,7 +48,7 @@ describe("project schemas", () => {
     ["zero dimensions", { room: { ...validProject.room, widthCm: 0 } }],
     ["negative budget", { budget: -1 }],
     ["fractional budget", { budget: 99.5 }],
-    ["unsupported version", { version: 2 }],
+    ["unsupported version", { version: 3 }],
     ["unsupported training goal", { trainingGoals: ["powerlifting"] }],
   ])("rejects %s", (_label, replacement) => {
     expect(gymProjectSchema.safeParse({ ...validProject, ...replacement }).success).toBe(
@@ -81,6 +85,40 @@ describe("project schemas", () => {
     ).toBe(false);
   });
 
+  it("keeps unavailable zones strictly 2D", () => {
+    const zone = {
+      ...validObstacle,
+      kind: "unavailable-zone",
+      dimensions: { widthCm: 120, depthCm: 100 },
+    } as const;
+
+    expect(unavailableZoneSchema.safeParse(zone).success).toBe(true);
+    expect(
+      unavailableZoneSchema.safeParse({
+        ...zone,
+        dimensions: { ...zone.dimensions, heightCm: 1 },
+      }).success,
+    ).toBe(false);
+  });
+
+  it("parses minimal wall elements and rejects duplicate IDs", () => {
+    const door = {
+      id: "wall-element_door",
+      kind: "door",
+      name: "Door",
+      wall: "top",
+      offsetCm: 50,
+      widthCm: 90,
+    } as const;
+    expect(wallElementSchema.parse(door)).toEqual(door);
+    expect(
+      gymProjectSchema.safeParse({
+        ...validProject,
+        wallElements: [door, { ...door, name: "Other door" }],
+      }).success,
+    ).toBe(false);
+  });
+
   it("rejects unknown keys at project and nested boundaries", () => {
     expect(gymProjectSchema.safeParse({ ...validProject, placements: [] }).success).toBe(
       false,
@@ -104,7 +142,7 @@ describe("project schemas", () => {
       type: "object",
       additionalProperties: false,
     });
-    expect(z.toJSONSchema(obstacleSchema)).toMatchObject({
+    expect(z.toJSONSchema(physicalObstacleSchema)).toMatchObject({
       type: "object",
       additionalProperties: false,
     });

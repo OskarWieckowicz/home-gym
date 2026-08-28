@@ -29,7 +29,7 @@ export function getRotatedFootprintDimensions(
 
 export function createRectangleFootprint(
   position: Position,
-  dimensions: Dimensions,
+  dimensions: Pick<Dimensions, "widthCm" | "depthCm">,
   rotation: Rotation,
 ): RectangleFootprint {
   const rotated = getRotatedFootprintDimensions(dimensions, rotation);

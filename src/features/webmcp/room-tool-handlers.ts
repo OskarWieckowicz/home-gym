@@ -3,17 +3,23 @@ import type { DispatchResult } from "@/features/project/commands/command-results
 
 import {
   addObstacleInputSchema,
+  addWallElementInputSchema,
   configureRoomInputSchema,
   getProjectStateInputSchema,
   mapRoomToolInputIssues,
   removeObstacleInputSchema,
+  removeWallElementInputSchema,
   updateObstacleInputSchema,
+  updateWallElementInputSchema,
   updateProjectSettingsInputSchema,
   validateLayoutInputSchema,
   type AddObstacleInput,
+  type AddWallElementInput,
   type ConfigureRoomInput,
   type RemoveObstacleInput,
+  type RemoveWallElementInput,
   type UpdateObstacleInput,
+  type UpdateWallElementInput,
   type UpdateProjectSettingsInput,
 } from "./room-tool-schemas";
 import {
@@ -23,6 +29,7 @@ import {
   serializeRoom,
   serializeSettings,
   serializeValidation,
+  serializeWallElement,
   type RoomToolName,
 } from "./room-tool-results";
 import type { WebMcpExecuteOptions } from "./types";
@@ -41,6 +48,9 @@ const FAILURE_MESSAGES: Readonly<Record<RoomToolName, string>> = {
   add_obstacle: "Obstacle could not be added.",
   update_obstacle: "Obstacle could not be updated.",
   remove_obstacle: "Obstacle could not be removed.",
+  add_wall_element: "Wall element could not be added.",
+  update_wall_element: "Wall element could not be updated.",
+  remove_wall_element: "Wall element could not be removed.",
 };
 
 function cancelled(tool: RoomToolName) {
@@ -295,6 +305,105 @@ export function createRemoveObstacleHandler(store: ProjectStore) {
       };
     } catch {
       return unexpected("remove_obstacle");
+    }
+  };
+}
+
+export function createAddWallElementHandler(store: ProjectStore) {
+  return (input: unknown, options?: WebMcpExecuteOptions) => {
+    const parsed = readInput<AddWallElementInput>(
+      "add_wall_element",
+      addWallElementInputSchema,
+      input,
+      options,
+    );
+    if (isToolError(parsed)) return parsed;
+
+    try {
+      const execution = executeMutation(store, "add_wall_element", {
+        type: "WALL_ELEMENT_ADDED",
+        payload: parsed,
+      });
+      if ("error" in execution) return execution.error;
+      const wallElementId = execution.result.affectedEntityIds[0];
+      const wallElement = execution.state.project.wallElements.find(
+        ({ id }) => id === wallElementId,
+      );
+      if (!wallElement) return unexpected("add_wall_element");
+      return {
+        ...mutationBase("add_wall_element", execution.result),
+        wallElementId,
+        wallElement: serializeWallElement(wallElement),
+        validation: serializeValidation(execution.state.validation),
+      };
+    } catch {
+      return unexpected("add_wall_element");
+    }
+  };
+}
+
+export function createUpdateWallElementHandler(store: ProjectStore) {
+  return (input: unknown, options?: WebMcpExecuteOptions) => {
+    const parsed = readInput<UpdateWallElementInput>(
+      "update_wall_element",
+      updateWallElementInputSchema,
+      input,
+      options,
+    );
+    if (isToolError(parsed)) return parsed;
+
+    try {
+      const execution = executeMutation(store, "update_wall_element", {
+        type: "WALL_ELEMENT_UPDATED",
+        payload: parsed,
+      });
+      if ("error" in execution) return execution.error;
+      const wallElement = execution.state.project.wallElements.find(
+        ({ id }) => id === parsed.wallElementId,
+      );
+      if (!wallElement) return unexpected("update_wall_element");
+      return {
+        ...mutationBase("update_wall_element", execution.result),
+        wallElementId: wallElement.id,
+        wallElement: serializeWallElement(wallElement),
+        validation: serializeValidation(execution.state.validation),
+      };
+    } catch {
+      return unexpected("update_wall_element");
+    }
+  };
+}
+
+export function createRemoveWallElementHandler(store: ProjectStore) {
+  return (input: unknown, options?: WebMcpExecuteOptions) => {
+    const parsed = readInput<RemoveWallElementInput>(
+      "remove_wall_element",
+      removeWallElementInputSchema,
+      input,
+      options,
+    );
+    if (isToolError(parsed)) return parsed;
+
+    try {
+      const execution = executeMutation(store, "remove_wall_element", {
+        type: "WALL_ELEMENT_REMOVED",
+        payload: parsed,
+      });
+      if ("error" in execution) return execution.error;
+      if (
+        execution.state.project.wallElements.some(
+          ({ id }) => id === parsed.wallElementId,
+        )
+      ) {
+        return unexpected("remove_wall_element");
+      }
+      return {
+        ...mutationBase("remove_wall_element", execution.result),
+        removedWallElementId: parsed.wallElementId,
+        validation: serializeValidation(execution.state.validation),
+      };
+    } catch {
+      return unexpected("remove_wall_element");
     }
   };
 }

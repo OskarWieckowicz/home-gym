@@ -46,7 +46,7 @@ describe("shared room editing scenario", () => {
         kind: "unavailable-zone",
         name: "Door swing",
         position: { xCm: 150, zCm: 0 },
-        dimensions: { widthCm: 90, depthCm: 90, heightCm: 210 },
+        dimensions: { widthCm: 90, depthCm: 90 },
         rotation: 0,
         locked: false,
       },

@@ -33,26 +33,19 @@ Product scope and architecture live in the [product concept](../docs/PRODUCT_CON
 - Keep the application deployable; routing or deployment-sensitive changes require a production
   build in addition to the canonical local gate.
 
-## Detailed plans ready to execute
-
-| Order | Phase | Detailed plan | Exit gate |
-|---|---|---|---|
-| 1 | Phase 8 — WebMCP for the room | [Phase 8 plan](./phase-08-webmcp-room.md) | The agent can read, configure, mutate, and validate the same room state and history used by manual editing. |
-| 2 | Phase 9 — Local project persistence | [Phase 9 plan](./phase-09-local-project-persistence.md) | The current project survives refresh and rebuild under the same origin, with safe restore, autosave, reset, and validated JSON import/export. |
-
-## Later queue
+## Active queue
 
 These phases remain intentionally brief until they reach the front of the queue. Their detailed
 plans should use the evidence and decisions produced by earlier work rather than guessing ahead.
 
 | Order | Phase | Depends on | Exit gate |
 |---|---|---|---|
-| 3 | Phase 10 — Catalog depth | Phases 2 and 8 | The catalog covers the full planned product range and filtering fields with complete spatial and training data. |
-| 4 | Phase 11 — Equipment in the room | Phases 6, 7, 9, and 10 | Catalog equipment can be placed and validated against collisions, clearance, height, and budget, and survives the established persistence and import/export paths. |
-| 5 | Phase 12 — WebMCP placements and suggestions | Phases 8 and 11 | The agent can place and revise equipment using deterministic candidate generation and structured validation results. |
-| 6 | Phase 13 — Shared-editing demo and activity feed | Phase 12 | The public demo proves the complete human-change → agent-read → agent-change → validation → correction loop and makes tool activity visible. |
-| 7 | Phase 14 — Landing page and catalog polish | Phase 13 | Both surfaces match their specifications and use real screenshots and figures from the finished demo project. |
-| 8 | Phase 15 — Submission | Phase 14 | The public URL, repository, English description, sub-three-minute video, and Devpost checklist are complete and verified while logged out. |
+| 1 | Phase 11 — Catalog depth | Phases 2 and 8 | The catalog covers the full planned product range and filtering fields with complete spatial and training data. |
+| 2 | Phase 12 — Equipment in the room | Phases 6, 7, 9, 10, and 11 | Catalog equipment can be placed and validated against collisions, clearance, height, and budget, and survives the established persistence and import/export paths. |
+| 3 | Phase 13 — WebMCP placements and suggestions | Phases 8 and 12 | The agent can place and revise equipment using deterministic candidate generation and structured validation results. |
+| 4 | Phase 14 — Shared-editing demo and activity feed | Phase 13 | The public demo proves the complete human-change → agent-read → agent-change → validation → correction loop and makes tool activity visible. |
+| 5 | Phase 15 — Landing page and catalog polish | Phase 14 | Both surfaces match their specifications and use real screenshots and figures from the finished demo project. |
+| 6 | Phase 16 — Submission | Phase 15 | The public URL, repository, English description, sub-three-minute video, and Devpost checklist are complete and verified while logged out. |
 
 ## Global exit gate
 

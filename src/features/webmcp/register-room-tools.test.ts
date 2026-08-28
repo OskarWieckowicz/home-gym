@@ -11,8 +11,13 @@ function documentWith(modelContext?: WebMcpModelContext): Document {
 }
 
 function expectStrictObjectSchema(schema: Readonly<Record<string, unknown>>) {
-  if (Array.isArray(schema.anyOf)) {
-    for (const branch of schema.anyOf) {
+  const branches = Array.isArray(schema.anyOf)
+    ? schema.anyOf
+    : Array.isArray(schema.oneOf)
+      ? schema.oneOf
+      : null;
+  if (branches) {
+    for (const branch of branches) {
       expect(branch).toMatchObject({ type: "object", additionalProperties: false });
     }
     return;
@@ -21,7 +26,7 @@ function expectStrictObjectSchema(schema: Readonly<Record<string, unknown>>) {
 }
 
 describe("room WebMCP tool definitions", () => {
-  it("defines exactly seven unique, strict and correctly annotated tools", () => {
+  it("defines exactly ten unique, strict and correctly annotated tools", () => {
     const tools = createRoomWebMcpTools(createProjectStore(createDefaultProject()));
 
     expect(tools.map(({ name }) => name)).toEqual([
@@ -31,9 +36,12 @@ describe("room WebMCP tool definitions", () => {
       "add_obstacle",
       "update_obstacle",
       "remove_obstacle",
+      "add_wall_element",
+      "update_wall_element",
+      "remove_wall_element",
       "validate_layout",
     ]);
-    expect(new Set(tools.map(({ name }) => name))).toHaveLength(7);
+    expect(new Set(tools.map(({ name }) => name))).toHaveLength(10);
     for (const tool of tools) {
       expect(tool.description.length).toBeGreaterThan(40);
       expectStrictObjectSchema(tool.inputSchema);
@@ -42,6 +50,15 @@ describe("room WebMCP tool definitions", () => {
         ["get_project_state", "validate_layout"].includes(tool.name)
           ? { readOnlyHint: true }
           : undefined,
+      );
+    }
+    for (const toolName of [
+      "add_wall_element",
+      "update_wall_element",
+      "remove_wall_element",
+    ]) {
+      expect(tools.find(({ name }) => name === toolName)?.description).toContain(
+        "unavailable zone",
       );
     }
   });
@@ -65,7 +82,7 @@ describe("registerRoomTools", () => {
         createProjectStore(createDefaultProject()),
       ),
     ).resolves.toEqual({ status: "ready" });
-    expect(registered).toHaveLength(7);
+    expect(registered).toHaveLength(10);
   });
 
   it("preserves unsupported and all-or-unavailable lifecycle behavior", async () => {

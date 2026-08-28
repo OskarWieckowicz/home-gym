@@ -2,19 +2,25 @@ import type { ProjectStore } from "@/features/creator/store/project-store";
 
 import {
   createAddObstacleHandler,
+  createAddWallElementHandler,
   createConfigureRoomHandler,
   createGetProjectStateHandler,
   createRemoveObstacleHandler,
+  createRemoveWallElementHandler,
   createUpdateObstacleHandler,
+  createUpdateWallElementHandler,
   createUpdateProjectSettingsHandler,
   createValidateLayoutHandler,
 } from "./room-tool-handlers";
 import {
   addObstacleJsonSchema,
+  addWallElementJsonSchema,
   configureRoomJsonSchema,
   getProjectStateJsonSchema,
   removeObstacleJsonSchema,
+  removeWallElementJsonSchema,
   updateObstacleJsonSchema,
+  updateWallElementJsonSchema,
   updateProjectSettingsJsonSchema,
   validateLayoutJsonSchema,
 } from "./room-tool-schemas";
@@ -30,7 +36,7 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "get_project_state",
       title: "Get current room project state",
       description:
-        "Read the live room project, settings, obstacles, deterministic validation, revision, and manual undo/redo availability. Canonical obstacle IDs from this result can be used by update and remove tools.",
+        "Read the live version-2 room project, settings, floor obstacles, wall elements, deterministic validation, revision, and manual undo/redo availability. Canonical IDs from this result can be used by update and remove tools.",
       inputSchema: getProjectStateJsonSchema,
       annotations: { readOnlyHint: true },
       execute: createGetProjectStateHandler(store),
@@ -73,10 +79,34 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       execute: createRemoveObstacleHandler(store),
     },
     {
+      name: "add_wall_element",
+      title: "Add a door or window",
+      description:
+        "Add a minimal door or window to a wall using its offset and width in integer centimeters. The project generates and returns its canonical ID. No unavailable zone is created or implied.",
+      inputSchema: addWallElementJsonSchema,
+      execute: createAddWallElementHandler(store),
+    },
+    {
+      name: "update_wall_element",
+      title: "Update a door or window",
+      description:
+        "Update one door or window by canonical wall-element ID using a non-empty patch of name, wall, offset, or width. Its kind is immutable. This never creates or changes an unavailable zone.",
+      inputSchema: updateWallElementJsonSchema,
+      execute: createUpdateWallElementHandler(store),
+    },
+    {
+      name: "remove_wall_element",
+      title: "Remove a door or window",
+      description:
+        "Remove a door or window using a canonical wall-element ID returned by get_project_state or add_wall_element. Removing it does not remove or otherwise change any unavailable zone.",
+      inputSchema: removeWallElementJsonSchema,
+      execute: createRemoveWallElementHandler(store),
+    },
+    {
       name: "validate_layout",
       title: "Validate the current room layout",
       description:
-        "Read the live deterministic layout validation and its revision without changing state or history. Reports out-of-room, height, collision, and unavailable-zone issues for canonical obstacle IDs.",
+        "Read the live deterministic layout validation and its revision without changing state or history. Reports floor bounds, height, collision, unavailable-zone, wall bounds, and same-wall overlap issues for canonical entity IDs.",
       inputSchema: validateLayoutJsonSchema,
       annotations: { readOnlyHint: true },
       execute: createValidateLayoutHandler(store),

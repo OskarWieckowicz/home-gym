@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   addObstacleInputSchema,
   addObstacleJsonSchema,
+  addWallElementInputSchema,
+  addWallElementJsonSchema,
   configureRoomInputSchema,
   configureRoomJsonSchema,
   getProjectStateInputSchema,
@@ -10,8 +12,12 @@ import {
   mapRoomToolInputIssues,
   removeObstacleInputSchema,
   removeObstacleJsonSchema,
+  removeWallElementInputSchema,
+  removeWallElementJsonSchema,
   updateObstacleInputSchema,
   updateObstacleJsonSchema,
+  updateWallElementInputSchema,
+  updateWallElementJsonSchema,
   updateProjectSettingsInputSchema,
   updateProjectSettingsJsonSchema,
   validateLayoutInputSchema,
@@ -25,6 +31,14 @@ const validObstacle = {
   dimensions: { widthCm: 1, depthCm: 1, heightCm: 1 },
   rotation: 270,
   locked: false,
+} as const;
+
+const validWallElement = {
+  kind: "door",
+  name: "Main door",
+  wall: "top",
+  offsetCm: 100,
+  widthCm: 90,
 } as const;
 
 describe("room tool input schemas", () => {
@@ -86,6 +100,21 @@ describe("room tool input schemas", () => {
     }
   });
 
+  it("models unavailable zones as strict 2D entities", () => {
+    const zone = {
+      ...validObstacle,
+      kind: "unavailable-zone",
+      dimensions: { widthCm: 50, depthCm: 70 },
+    } as const;
+    expect(addObstacleInputSchema.parse(zone)).toEqual(zone);
+    expect(
+      addObstacleInputSchema.safeParse({
+        ...zone,
+        dimensions: { ...zone.dimensions, heightCm: 200 },
+      }).success,
+    ).toBe(false);
+  });
+
   it("requires canonical IDs and non-empty strict update patches", () => {
     expect(
       updateObstacleInputSchema.parse({
@@ -108,6 +137,48 @@ describe("room tool input schemas", () => {
     expect(removeObstacleInputSchema.safeParse({ obstacleId: "bad-id" }).success).toBe(
       false,
     );
+    expect(
+      updateObstacleInputSchema.safeParse({
+        obstacleId: "obstacle_column",
+        patch: { kind: "unavailable-zone" },
+      }).success,
+    ).toBe(false);
+  });
+
+  it("requires strict generated-ID-separated wall element inputs and immutable kind", () => {
+    expect(addWallElementInputSchema.parse(validWallElement)).toEqual(validWallElement);
+    expect(
+      updateWallElementInputSchema.parse({
+        wallElementId: "wall-element_main-door",
+        patch: { wall: "left", offsetCm: 20 },
+      }),
+    ).toEqual({
+      wallElementId: "wall-element_main-door",
+      patch: { wall: "left", offsetCm: 20 },
+    });
+    expect(
+      removeWallElementInputSchema.parse({
+        wallElementId: "wall-element_main-door",
+      }),
+    ).toEqual({ wallElementId: "wall-element_main-door" });
+
+    for (const input of [
+      { ...validWallElement, id: "wall-element_caller" },
+      { ...validWallElement, kind: "opening" },
+      { ...validWallElement, wall: "ceiling" },
+      { ...validWallElement, offsetCm: -1 },
+      { ...validWallElement, widthCm: 0 },
+    ]) {
+      expect(addWallElementInputSchema.safeParse(input).success).toBe(false);
+    }
+    for (const input of [
+      { wallElementId: "bad-id", patch: { name: "Window" } },
+      { wallElementId: "wall-element_main-door", patch: {} },
+      { wallElementId: "wall-element_main-door", patch: { kind: "window" } },
+      { wallElementId: "wall-element_main-door", patch: { widthCm: 80, extra: true } },
+    ]) {
+      expect(updateWallElementInputSchema.safeParse(input).success).toBe(false);
+    }
   });
 
   it("advertises strict JSON Schema equivalents that serialize cleanly", () => {
@@ -118,8 +189,24 @@ describe("room tool input schemas", () => {
       addObstacleJsonSchema,
       updateObstacleJsonSchema,
       removeObstacleJsonSchema,
+      addWallElementJsonSchema,
+      updateWallElementJsonSchema,
+      removeWallElementJsonSchema,
     ]) {
-      expect(schema).toMatchObject({ type: "object", additionalProperties: false });
+      const branches = "oneOf" in schema ? schema.oneOf : undefined;
+      if (Array.isArray(branches)) {
+        for (const branch of branches) {
+          expect(branch).toMatchObject({
+            type: "object",
+            additionalProperties: false,
+          });
+        }
+      } else {
+        expect(schema).toMatchObject({
+          type: "object",
+          additionalProperties: false,
+        });
+      }
       expect(() => JSON.stringify(schema)).not.toThrow();
     }
     expect(configureRoomJsonSchema).toMatchObject({
@@ -135,6 +222,10 @@ describe("room tool input schemas", () => {
     expect(addObstacleJsonSchema).not.toHaveProperty("properties.id");
     expect(updateObstacleJsonSchema).toMatchObject({
       required: ["obstacleId", "patch"],
+    });
+    expect(addWallElementJsonSchema).not.toHaveProperty("properties.id");
+    expect(updateWallElementJsonSchema).toMatchObject({
+      required: ["wallElementId", "patch"],
     });
   });
 

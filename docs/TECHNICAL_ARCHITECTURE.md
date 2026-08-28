@@ -180,13 +180,40 @@ type Room = {
   heightCm: number;
 };
 
-type Obstacle = {
+type PhysicalObstacle = {
   id: string;
+  kind: "obstacle";
   name: string;
   position: Position2D;
   dimensions: Dimensions3D;
   rotation: Rotation;
   locked: boolean;
+};
+
+type UnavailableZone = {
+  id: string;
+  kind: "unavailable-zone";
+  name: string;
+  position: Position2D;
+  dimensions: {
+    widthCm: number;
+    depthCm: number;
+  };
+  rotation: Rotation;
+  locked: boolean;
+};
+
+type Obstacle = PhysicalObstacle | UnavailableZone;
+
+type Wall = "top" | "right" | "bottom" | "left";
+
+type WallElement = {
+  id: string;
+  kind: "door" | "window";
+  name: string;
+  wall: Wall;
+  offsetCm: number;
+  widthCm: number;
 };
 
 type ProductClearance = {
@@ -223,6 +250,7 @@ type GymProject = {
   version: number;
   room: Room;
   obstacles: Obstacle[];
+  wallElements: WallElement[];
   placements: Placement[];
   budget: number;
   trainingGoals: string[];
@@ -232,6 +260,8 @@ type GymProject = {
 Domain coordinates start in one corner of the room. The renderer is responsible for converting them into the Three.js scene coordinate system, which is centered.
 
 The `version` field will allow later migration of saved projects.
+
+`offsetCm` is measured left-to-right on horizontal walls and top-to-bottom on vertical walls. Doors and windows deliberately have no hinge side, opening direction, swing arc, sill height, opening height, or derived unavailable zone in this MVP phase. They are validated against their wall and neighboring wall elements, but they do not participate in floor collision checks.
 
 ## 7. Store and domain commands
 
@@ -259,6 +289,9 @@ type ProjectCommand =
   | { type: "OBSTACLE_ADDED"; payload: Obstacle }
   | { type: "OBSTACLE_UPDATED"; payload: UpdateObstacleInput }
   | { type: "OBSTACLE_REMOVED"; payload: { obstacleId: string } }
+  | { type: "WALL_ELEMENT_ADDED"; payload: WallElement }
+  | { type: "WALL_ELEMENT_UPDATED"; payload: UpdateWallElementInput }
+  | { type: "WALL_ELEMENT_REMOVED"; payload: { wallElementId: string } }
   | { type: "PRODUCT_PLACED"; payload: Placement }
   | { type: "PLACEMENT_MOVED"; payload: MovePlacementInput }
   | { type: "PLACEMENT_REMOVED"; payload: { placementId: string } }
@@ -277,6 +310,8 @@ Command flow:
 
 The UI and WebMCP may prepare different input objects, but they must ultimately use the same `dispatch`.
 
+The active palette tool is transient editor state, not project state. The manual placement flow is **palette → plan → inspector**: choose one of the four tools, create the element with one valid plan interaction and one domain command, then edit the selected entity in the inspector. WebMCP mutations call the same commands and therefore share validation, history, persistence, and observable state with manual edits.
+
 ### Undo/redo
 
 History will allow undoing both manual changes and agent operations. For the MVP, a limited number of project snapshots can be stored, for example 30–50 states.
@@ -288,12 +323,13 @@ The geometry engine will be pure TypeScript.
 The MVP supports:
 
 - a rectangular room,
-- rectangular obstacles,
+- rectangular physical obstacles with height,
+- rectangular 2D unavailable zones,
+- wall-bound doors and windows that do not block the floor,
 - rectangular equipment footprints,
 - rotation in 90-degree steps,
 - separate physical and working zones,
-- a minimum ceiling height,
-- rectangular unavailable zones, for example door swing.
+- a minimum ceiling height.
 
 With these constraints, collisions can be checked as AABB rectangle intersections after rotation is applied.
 
@@ -363,6 +399,8 @@ Basic scene elements:
 - floor and walls,
 - a 10 cm grid,
 - obstacles as cuboids,
+- unavailable zones as flat floor overlays,
+- minimal door and window marks on walls,
 - equipment as simplified solids,
 - translucent working zones,
 - selected-element outline,
@@ -485,17 +523,24 @@ Handlers must read the current state at execution time. They must not work on a 
 - `add_obstacle`
 - `update_obstacle`
 - `remove_obstacle`
+- `add_wall_element`
+- `update_wall_element`
+- `remove_wall_element`
 - `place_product`
 - `update_placement`
 - `remove_product`
 - `apply_layout_changes`
 
-The tool set is delivered in route-scoped phases. Phase 8 registers only the room tools on
+The tool set is delivered in route-scoped phases. Phase 8 registers the initial room tools on
 `/creator`: `get_project_state`, `validate_layout`, `configure_room`,
-`update_project_settings`, `add_obstacle`, `update_obstacle`, and `remove_obstacle`.
+`update_project_settings`, `add_obstacle`, `update_obstacle`, and `remove_obstacle`. Phase 10
+extends the same room-tool registration with `add_wall_element`, `update_wall_element`, and
+`remove_wall_element`.
 `configure_room` changes dimensions only; budget and training goals use the separate settings
 command so every successful tool mutation creates at most one shared undo step. Catalog tools
 remain scoped to `/catalog` until the complete creator tool set is composed in a later phase.
+
+Wall-element tool descriptions and results use the same canonical wall and offset convention as the project schema. They make explicit that doors and windows do not generate unavailable zones and do not participate in floor collision validation.
 
 Each handler:
 
@@ -633,7 +678,7 @@ Do not add security headers based on guesses. Deployment configuration is decide
 ### React Testing Library
 
 - room configurator,
-- obstacle form,
+- four-tool placement palette and selection inspector,
 - catalog filters,
 - properties panel,
 - validation messages,
@@ -644,6 +689,7 @@ Do not add security headers based on guesses. Deployment configuration is decide
 - entering the creator,
 - changing dimensions,
 - adding an obstacle,
+- adding an unavailable zone, door, and window directly from the plan,
 - placing a product,
 - dragging and rotating,
 - saving and restoring state,

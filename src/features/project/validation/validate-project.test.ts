@@ -1,12 +1,18 @@
 import { describe, expect, it } from "vitest";
 
-import type { GymProject, Obstacle } from "../schemas/project";
+import type {
+  GymProject,
+  Obstacle,
+  PhysicalObstacle,
+  UnavailableZone,
+  WallElement,
+} from "../schemas/project";
 import { validateProject } from "./validate-project";
 
 function obstacle(
   id: string,
-  overrides: Partial<Obstacle> = {},
-): Obstacle {
+  overrides: Partial<PhysicalObstacle> = {},
+): PhysicalObstacle {
   return {
     id,
     kind: "obstacle",
@@ -19,11 +25,31 @@ function obstacle(
   };
 }
 
-function project(obstacles: Obstacle[]): GymProject {
+function zone(
+  id: string,
+  overrides: Partial<UnavailableZone> = {},
+): UnavailableZone {
   return {
-    version: 1,
+    id,
+    kind: "unavailable-zone",
+    name: id,
+    position: { xCm: 0, zCm: 0 },
+    dimensions: { widthCm: 50, depthCm: 50 },
+    rotation: 0,
+    locked: false,
+    ...overrides,
+  };
+}
+
+function project(
+  obstacles: Obstacle[],
+  wallElements: WallElement[] = [],
+): GymProject {
+  return {
+    version: 2,
     room: { widthCm: 300, depthCm: 250, heightCm: 220 },
     obstacles,
+    wallElements,
     budget: 10_000,
     trainingGoals: [],
   };
@@ -72,12 +98,10 @@ describe("validateProject", () => {
       project([
         obstacle("obstacle_b", { position: { xCm: 30, zCm: 30 } }),
         obstacle("obstacle_a"),
-        obstacle("obstacle_zone", {
-          kind: "unavailable-zone",
+        zone("obstacle_zone", {
           position: { xCm: 40, zCm: 40 },
         }),
-        obstacle("obstacle_zone-two", {
-          kind: "unavailable-zone",
+        zone("obstacle_zone-two", {
           position: { xCm: 45, zCm: 45 },
         }),
         obstacle("obstacle_outside", {
@@ -119,8 +143,7 @@ describe("validateProject", () => {
     const obstacles = [
       obstacle("obstacle_z", { position: { xCm: 20, zCm: 20 } }),
       obstacle("obstacle_a"),
-      obstacle("obstacle_zone", {
-        kind: "unavailable-zone",
+      zone("obstacle_zone", {
         position: { xCm: 10, zCm: 10 },
       }),
     ];
@@ -191,5 +214,60 @@ describe("validateProject", () => {
       code: "PHYSICAL_COLLISION",
       details: { overlap: { minX: 49, maxX: 50, minZ: 0, maxZ: 50 } },
     });
+  });
+
+  it("does not apply ceiling-height validation to unavailable zones", () => {
+    expect(validateProject(project([zone("obstacle_zone")]))).toEqual([]);
+  });
+
+  it("validates wall bounds and positive same-wall overlap", () => {
+    const elements: WallElement[] = [
+      {
+        id: "wall-element_door",
+        kind: "door",
+        name: "Door",
+        wall: "top",
+        offsetCm: 250,
+        widthCm: 60,
+      },
+      {
+        id: "wall-element_window-overlap",
+        kind: "window",
+        name: "Window",
+        wall: "top",
+        offsetCm: 200,
+        widthCm: 60,
+      },
+      {
+        id: "wall-element_window-touching",
+        kind: "window",
+        name: "Window 2",
+        wall: "top",
+        offsetCm: 140,
+        widthCm: 60,
+      },
+      {
+        id: "wall-element_other-wall",
+        kind: "window",
+        name: "Window 3",
+        wall: "bottom",
+        offsetCm: 250,
+        widthCm: 60,
+      },
+    ];
+
+    expect(
+      validateProject(project([], elements)).map(({ code, entityIds }) => ({
+        code,
+        entityIds,
+      })),
+    ).toEqual([
+      { code: "OUTSIDE_WALL", entityIds: ["wall-element_door"] },
+      {
+        code: "WALL_ELEMENT_OVERLAP",
+        entityIds: ["wall-element_door", "wall-element_window-overlap"],
+      },
+      { code: "OUTSIDE_WALL", entityIds: ["wall-element_other-wall"] },
+    ]);
   });
 });

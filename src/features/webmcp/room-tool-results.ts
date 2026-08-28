@@ -4,6 +4,7 @@ import type {
   Obstacle,
   ProjectSettings,
   Room,
+  WallElement,
 } from "@/features/project/schemas/project";
 import type { ValidationIssue } from "@/features/project/validation/validation-issues";
 
@@ -16,7 +17,10 @@ export type RoomToolName =
   | "update_project_settings"
   | "add_obstacle"
   | "update_obstacle"
-  | "remove_obstacle";
+  | "remove_obstacle"
+  | "add_wall_element"
+  | "update_wall_element"
+  | "remove_wall_element";
 
 export type RoomToolErrorCode = "INVALID_INPUT" | CommandErrorCode;
 
@@ -52,11 +56,16 @@ export function serializeObstacle(obstacle: Obstacle) {
   };
 }
 
+export function serializeWallElement(wallElement: WallElement) {
+  return { ...wallElement };
+}
+
 export function serializeProject(project: GymProject) {
   return {
     version: project.version,
     room: serializeRoom(project.room),
     obstacles: project.obstacles.map(serializeObstacle),
+    wallElements: project.wallElements.map(serializeWallElement),
     budget: project.budget,
     trainingGoals: [...project.trainingGoals],
   };
@@ -72,6 +81,25 @@ export function serializeValidationIssue(issue: ValidationIssue): ValidationIssu
         axes: [...issue.details.axes],
         footprint: { ...issue.details.footprint },
         room: { ...issue.details.room },
+      },
+    };
+  }
+
+  if (issue.code === "OUTSIDE_WALL") {
+    return {
+      ...issue,
+      entityIds: [...issue.entityIds] as [string],
+      details: { ...issue.details },
+    };
+  }
+
+  if (issue.code === "WALL_ELEMENT_OVERLAP") {
+    return {
+      ...issue,
+      entityIds: [...issue.entityIds] as [string, string],
+      details: {
+        ...issue.details,
+        overlap: { ...issue.details.overlap },
       },
     };
   }
@@ -95,6 +123,10 @@ export function serializeValidation(issues: readonly ValidationIssue[]) {
       ).length,
       unavailableZoneConflict: clonedIssues.filter(
         ({ code }) => code === "UNAVAILABLE_ZONE_CONFLICT",
+      ).length,
+      outsideWall: clonedIssues.filter(({ code }) => code === "OUTSIDE_WALL").length,
+      wallElementOverlap: clonedIssues.filter(
+        ({ code }) => code === "WALL_ELEMENT_OVERLAP",
       ).length,
     },
     issues: clonedIssues,

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { createDefaultProject } from "../defaults";
-import type { GymProject } from "../schemas/project";
+import { gymProjectSchema, type GymProject } from "../schemas/project";
 import {
   decodeProject,
   decodeProjectJson,
@@ -26,12 +26,13 @@ const project: GymProject = {
 };
 
 describe("project codec", () => {
-  it("round-trips a version-1 project through canonical pretty JSON", () => {
+  it("round-trips a version-2 project through canonical pretty JSON", () => {
     const serialized = serializeProject(project);
+    const canonicalProject = gymProjectSchema.parse(project);
 
     expect(serialized).toEqual({
       success: true,
-      json: `${JSON.stringify(project, null, 2)}\n`,
+      json: `${JSON.stringify(canonicalProject, null, 2)}\n`,
     });
     expect(serialized.success && decodeProjectJson(serialized.json)).toEqual({
       success: true,
@@ -53,6 +54,48 @@ describe("project codec", () => {
     expect(decoded.success && serializeProject(decoded.project)).toEqual({
       success: true,
       json: `${JSON.stringify(createDefaultProject(), null, 2)}\n`,
+    });
+  });
+
+  it("decodes a version-1 unavailable zone as 2D without inferring an opening", () => {
+    const decoded = decodeProject({
+      version: 1,
+      room: { widthCm: 400, depthCm: 320, heightCm: 240 },
+      obstacles: [
+        {
+          id: "obstacle_door-swing",
+          kind: "unavailable-zone",
+          name: "Door swing",
+          position: { xCm: 0, zCm: 0 },
+          dimensions: { widthCm: 90, depthCm: 90, heightCm: 10 },
+          rotation: 0,
+          locked: false,
+        },
+      ],
+      budget: 10_000,
+      trainingGoals: [],
+    });
+
+    expect(decoded).toEqual({
+      success: true,
+      project: {
+        version: 2,
+        room: { widthCm: 400, depthCm: 320, heightCm: 240 },
+        obstacles: [
+          {
+            id: "obstacle_door-swing",
+            name: "Door swing",
+            position: { xCm: 0, zCm: 0 },
+            rotation: 0,
+            locked: false,
+            kind: "unavailable-zone",
+            dimensions: { widthCm: 90, depthCm: 90 },
+          },
+        ],
+        wallElements: [],
+        budget: 10_000,
+        trainingGoals: [],
+      },
     });
   });
 
@@ -79,7 +122,7 @@ describe("project codec", () => {
 
   it("rejects future versions before schema parsing", () => {
     expectErrorCode(
-      decodeProject({ ...createDefaultProject(), version: 2 }),
+      decodeProject({ ...createDefaultProject(), version: 3 }),
       "unsupported-version",
     );
   });

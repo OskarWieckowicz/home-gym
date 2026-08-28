@@ -7,7 +7,11 @@ import {
   fitsRoomHeight,
   getOutsideHorizontalAxes,
 } from "@/features/geometry/room-bounds";
-import type { GymProject, Obstacle } from "@/features/project/schemas/project";
+import type {
+  GymProject,
+  Obstacle,
+  Wall,
+} from "@/features/project/schemas/project";
 
 import type {
   CollisionIssue,
@@ -51,7 +55,10 @@ function createBoundsIssue(
     project.room,
   );
 
-  if (!fitsRoomHeight(item.obstacle.dimensions.heightCm, project.room)) {
+  if (
+    item.obstacle.kind === "obstacle" &&
+    !fitsRoomHeight(item.obstacle.dimensions.heightCm, project.room)
+  ) {
     axes.push("height");
   }
 
@@ -72,7 +79,9 @@ function createBoundsIssue(
         maxZ: item.footprint.maxZ,
       },
       room: { ...project.room },
-      entityHeightCm: item.obstacle.dimensions.heightCm,
+      ...(item.obstacle.kind === "obstacle"
+        ? { entityHeightCm: item.obstacle.dimensions.heightCm }
+        : {}),
     },
   };
 }
@@ -126,6 +135,67 @@ export function validateProject(project: GymProject): ValidationIssue[] {
       });
     }
   }
+  issues.push(...validateWallElements(project));
 
   return issues.sort(compareIssues);
+}
+
+function getWallLength(project: GymProject, wall: Wall): number {
+  return wall === "top" || wall === "bottom"
+    ? project.room.widthCm
+    : project.room.depthCm;
+}
+
+function validateWallElements(project: GymProject): ValidationIssue[] {
+  const issues: ValidationIssue[] = [];
+
+  for (const wallElement of project.wallElements) {
+    const wallLengthCm = getWallLength(project, wallElement.wall);
+    if (wallElement.offsetCm + wallElement.widthCm > wallLengthCm) {
+      issues.push({
+        code: "OUTSIDE_WALL",
+        severity: "error",
+        entityIds: [wallElement.id],
+        details: {
+          wall: wallElement.wall,
+          wallLengthCm,
+          offsetCm: wallElement.offsetCm,
+          widthCm: wallElement.widthCm,
+        },
+      });
+    }
+  }
+
+  for (let firstIndex = 0; firstIndex < project.wallElements.length; firstIndex += 1) {
+    for (
+      let secondIndex = firstIndex + 1;
+      secondIndex < project.wallElements.length;
+      secondIndex += 1
+    ) {
+      const first = project.wallElements[firstIndex];
+      const second = project.wallElements[secondIndex];
+      if (first.wall !== second.wall) {
+        continue;
+      }
+
+      const startCm = Math.max(first.offsetCm, second.offsetCm);
+      const endCm = Math.min(
+        first.offsetCm + first.widthCm,
+        second.offsetCm + second.widthCm,
+      );
+      if (startCm >= endCm) {
+        continue;
+      }
+
+      const entityIds = [first.id, second.id].sort() as [string, string];
+      issues.push({
+        code: "WALL_ELEMENT_OVERLAP",
+        severity: "error",
+        entityIds,
+        details: { wall: first.wall, overlap: { startCm, endCm } },
+      });
+    }
+  }
+
+  return issues;
 }

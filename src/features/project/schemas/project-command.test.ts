@@ -6,6 +6,8 @@ import {
   obstaclePatchSchema,
   projectCommandSchema,
   projectSettingsPatchSchema,
+  wallElementInputSchema,
+  wallElementPatchSchema,
 } from "./project-command";
 
 const obstacleInput = {
@@ -25,6 +27,9 @@ describe("projectCommandSchema", () => {
     { type: "OBSTACLE_ADDED", payload: obstacleInput },
     { type: "OBSTACLE_UPDATED", payload: { obstacleId: "obstacle_wardrobe", patch: { rotation: 90 } } },
     { type: "OBSTACLE_REMOVED", payload: { obstacleId: "obstacle_wardrobe" } },
+    { type: "WALL_ELEMENT_ADDED", payload: { kind: "door", name: "Door", wall: "left", offsetCm: 40, widthCm: 90 } },
+    { type: "WALL_ELEMENT_UPDATED", payload: { wallElementId: "wall-element_door", patch: { offsetCm: 50 } } },
+    { type: "WALL_ELEMENT_REMOVED", payload: { wallElementId: "wall-element_door" } },
   ] as const)("parses $type", (command) => {
     expect(projectCommandSchema.parse(command)).toEqual(command);
   });
@@ -32,6 +37,45 @@ describe("projectCommandSchema", () => {
   it("rejects empty settings and obstacle patches", () => {
     expect(projectSettingsPatchSchema.safeParse({}).success).toBe(false);
     expect(obstaclePatchSchema.safeParse({}).success).toBe(false);
+    expect(wallElementPatchSchema.safeParse({}).success).toBe(false);
+  });
+
+  it("keeps obstacle and wall-element kinds immutable", () => {
+    expect(obstaclePatchSchema.safeParse({ kind: "unavailable-zone" }).success).toBe(false);
+    expect(wallElementPatchSchema.safeParse({ kind: "window" }).success).toBe(false);
+  });
+
+  it("requires unavailable-zone inputs to use 2D dimensions", () => {
+    const zone = {
+      ...obstacleInput,
+      kind: "unavailable-zone",
+      dimensions: { widthCm: 80, depthCm: 50 },
+    } as const;
+    expect(obstacleInputSchema.safeParse(zone).success).toBe(true);
+    expect(
+      obstaclePatchSchema.safeParse({
+        dimensions: { widthCm: 100, depthCm: 60 },
+      }).success,
+    ).toBe(true);
+    expect(
+      obstacleInputSchema.safeParse({
+        ...zone,
+        dimensions: { ...zone.dimensions, heightCm: 1 },
+      }).success,
+    ).toBe(false);
+  });
+
+  it("rejects generated wall-element IDs in add input", () => {
+    expect(
+      wallElementInputSchema.safeParse({
+        id: "wall-element_bad",
+        kind: "window",
+        name: "Window",
+        wall: "top",
+        offsetCm: 10,
+        widthCm: 120,
+      }).success,
+    ).toBe(false);
   });
 
   it("rejects generated IDs and unknown Phase 6 fields in add input", () => {
@@ -80,6 +124,7 @@ describe("projectCommandSchema", () => {
     for (const schema of [
       projectSettingsPatchSchema,
       obstaclePatchSchema,
+      wallElementPatchSchema,
       projectCommandSchema,
     ]) {
       const jsonSchema = z.toJSONSchema(schema);

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { createDefaultProject } from "../defaults";
-import type { GymProject, Obstacle } from "../schemas/project";
+import type { GymProject, PhysicalObstacle } from "../schemas/project";
 import {
   applyProjectCommand,
   type ProjectCommandDependencies,
@@ -16,7 +16,7 @@ const obstacleInput = {
   locked: false,
 } as const;
 
-function withObstacle(overrides: Partial<Obstacle> = {}): GymProject {
+function withObstacle(overrides: Partial<PhysicalObstacle> = {}): GymProject {
   const project = createDefaultProject();
   return {
     ...project,
@@ -25,7 +25,10 @@ function withObstacle(overrides: Partial<Obstacle> = {}): GymProject {
 }
 
 function dependencies(id = "obstacle_generated"): ProjectCommandDependencies {
-  return { generateObstacleId: () => id };
+  return {
+    generateObstacleId: () => id,
+    generateWallElementId: () => "wall-element_generated",
+  };
 }
 
 describe("applyProjectCommand", () => {
@@ -129,7 +132,7 @@ describe("applyProjectCommand", () => {
   });
 
   it("updates only the selected obstacle and preserves structural sharing", () => {
-    const untouched: Obstacle = {
+    const untouched: PhysicalObstacle = {
       id: "obstacle_untouched",
       ...obstacleInput,
       position: { xCm: 250, zCm: 100 },
@@ -169,6 +172,152 @@ describe("applyProjectCommand", () => {
     });
     expect(execution.project).toBe(project);
   });
+
+  it("rejects dimension patches that do not match the target obstacle kind", () => {
+    const physicalProject = withObstacle();
+    const physicalExecution = applyProjectCommand(physicalProject, {
+      type: "OBSTACLE_UPDATED",
+      payload: {
+        obstacleId: "obstacle_existing",
+        patch: { dimensions: { widthCm: 100, depthCm: 80 } },
+      },
+    });
+    expect(physicalExecution.result).toMatchObject({
+      ok: false,
+      error: {
+        code: "INVALID_COMMAND",
+        message: "Obstacle dimensions do not match the target obstacle kind.",
+      },
+    });
+    expect(physicalExecution.project).toBe(physicalProject);
+
+    const zoneProject: GymProject = {
+      ...createDefaultProject(),
+      obstacles: [{
+        id: "obstacle_zone",
+        kind: "unavailable-zone",
+        name: "Access zone",
+        position: { xCm: 0, zCm: 0 },
+        dimensions: { widthCm: 100, depthCm: 80 },
+        rotation: 0,
+        locked: false,
+      }],
+    };
+    const zoneExecution = applyProjectCommand(zoneProject, {
+      type: "OBSTACLE_UPDATED",
+      payload: {
+        obstacleId: "obstacle_zone",
+        patch: { dimensions: { widthCm: 100, depthCm: 80, heightCm: 200 } },
+      },
+    });
+    expect(zoneExecution.result).toMatchObject({
+      ok: false,
+      error: { code: "INVALID_COMMAND" },
+    });
+    expect(zoneExecution.project).toBe(zoneProject);
+  });
+
+  it("adds, updates, and removes wall elements with generated IDs", () => {
+    const project = createDefaultProject();
+    const added = applyProjectCommand(
+      project,
+      {
+        type: "WALL_ELEMENT_ADDED",
+        payload: {
+          kind: "door",
+          name: "Door",
+          wall: "top",
+          offsetCm: 20,
+          widthCm: 90,
+        },
+      },
+      dependencies(),
+    );
+    expect(added.result).toMatchObject({
+      ok: true,
+      changed: true,
+      affectedEntityIds: ["wall-element_generated"],
+    });
+    expect(added.project.wallElements[0]).toMatchObject({
+      id: "wall-element_generated",
+      kind: "door",
+    });
+
+    const updated = applyProjectCommand(added.project, {
+      type: "WALL_ELEMENT_UPDATED",
+      payload: {
+        wallElementId: "wall-element_generated",
+        patch: { wall: "left", offsetCm: 30 },
+      },
+    });
+    expect(updated.project.wallElements[0]).toMatchObject({
+      wall: "left",
+      offsetCm: 30,
+    });
+
+    const removed = applyProjectCommand(updated.project, {
+      type: "WALL_ELEMENT_REMOVED",
+      payload: { wallElementId: "wall-element_generated" },
+    });
+    expect(removed.result).toMatchObject({ ok: true, changed: true });
+    expect(removed.project.wallElements).toEqual([]);
+  });
+
+  it("reports wall-element no-ops, ID conflicts, and missing entities", () => {
+    const project = {
+      ...createDefaultProject(),
+      wallElements: [
+        {
+          id: "wall-element_existing",
+          kind: "window" as const,
+          name: "Window",
+          wall: "right" as const,
+          offsetCm: 40,
+          widthCm: 100,
+        },
+      ],
+    };
+    const noOp = applyProjectCommand(project, {
+      type: "WALL_ELEMENT_UPDATED",
+      payload: {
+        wallElementId: "wall-element_existing",
+        patch: { widthCm: 100 },
+      },
+    });
+    expect(noOp.result).toMatchObject({ ok: true, changed: false });
+    expect(noOp.project).toBe(project);
+
+    const conflict = applyProjectCommand(
+      project,
+      {
+        type: "WALL_ELEMENT_ADDED",
+        payload: {
+          kind: "door",
+          name: "Door",
+          wall: "top",
+          offsetCm: 0,
+          widthCm: 90,
+        },
+      },
+      {
+        generateObstacleId: () => "obstacle_unused",
+        generateWallElementId: () => "wall-element_existing",
+      },
+    );
+    expect(conflict.result).toMatchObject({
+      ok: false,
+      error: { code: "ID_CONFLICT" },
+    });
+
+    const missing = applyProjectCommand(project, {
+      type: "WALL_ELEMENT_REMOVED",
+      payload: { wallElementId: "wall-element_missing" },
+    });
+    expect(missing.result).toMatchObject({
+      ok: false,
+      error: { code: "ENTITY_NOT_FOUND" },
+    });
+  });
 });
 
 describe("applyProjectCommand preconditions and failures", () => {
@@ -184,6 +333,13 @@ describe("applyProjectCommand preconditions and failures", () => {
         payload: {
           obstacleId: "obstacle_existing",
           patch: { locked: false, name: "Moved" },
+        },
+      },
+      {
+        type: "OBSTACLE_UPDATED",
+        payload: {
+          obstacleId: "obstacle_existing",
+          patch: { dimensions: { widthCm: 100, depthCm: 80 } },
         },
       },
       {

@@ -1,6 +1,6 @@
 import { PROJECT_VERSION } from "../schemas/project";
 
-export const SUPPORTED_PROJECT_VERSIONS = [PROJECT_VERSION] as const;
+export const SUPPORTED_PROJECT_VERSIONS = [1, PROJECT_VERSION] as const;
 export const CURRENT_PROJECT_VERSION = PROJECT_VERSION;
 
 export type ProjectMigrationError = {
@@ -14,7 +14,49 @@ export type ProjectMigrationResult =
 
 type ProjectMigration = (project: unknown) => unknown;
 
-const migrations = new Map<number, ProjectMigration>();
+const migrations = new Map<number, ProjectMigration>([[1, migrateV1ToV2]]);
+
+function migrateV1ToV2(project: unknown): unknown {
+  if (typeof project !== "object" || project === null || Array.isArray(project)) {
+    throw new Error("Invalid version 1 project.");
+  }
+
+  const obstacles = Reflect.get(project, "obstacles");
+  const migratedObstacles = Array.isArray(obstacles)
+    ? obstacles.map((obstacle) => migrateV1Obstacle(obstacle))
+    : obstacles;
+
+  return {
+    ...project,
+    version: 2,
+    obstacles: migratedObstacles,
+    wallElements: [],
+  };
+}
+
+function migrateV1Obstacle(obstacle: unknown): unknown {
+  if (
+    typeof obstacle !== "object" ||
+    obstacle === null ||
+    Array.isArray(obstacle) ||
+    Reflect.get(obstacle, "kind") !== "unavailable-zone"
+  ) {
+    return obstacle;
+  }
+
+  const dimensions = Reflect.get(obstacle, "dimensions");
+  if (
+    typeof dimensions !== "object" ||
+    dimensions === null ||
+    Array.isArray(dimensions)
+  ) {
+    return obstacle;
+  }
+
+  const footprintDimensions = { ...dimensions };
+  Reflect.deleteProperty(footprintDimensions, "heightCm");
+  return { ...obstacle, dimensions: footprintDimensions };
+}
 
 export function migrateProjectToCurrent(
   project: unknown,

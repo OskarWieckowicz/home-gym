@@ -13,7 +13,7 @@ import { useProjectPersistence } from "../persistence/project-persistence-bounda
 import { useProjectStore } from "../store/project-store-context";
 
 export const PROJECT_IMPORT_MAX_BYTES = 1024 * 1024;
-export const PROJECT_EXPORT_FILENAME = "home-gym-project-v1.json";
+export const PROJECT_EXPORT_FILENAME = "home-gym-project-v2.json";
 
 export function ProjectFileActions() {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -119,7 +119,7 @@ export function ProjectFileActions() {
 
   return (
     <div className="creator-file-actions">
-      <div aria-label="Project file actions" className="creator-file-action-buttons">
+      <div aria-label="Project file actions" className="creator-file-action-buttons" role="group">
         <button onClick={exportProject} type="button">
           <Download aria-hidden="true" size={17} /> Export
         </button>

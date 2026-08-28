@@ -28,9 +28,9 @@ export function CreatorToolbar() {
           </p>
         ) : null}
       </div>
-      <div className="creator-toolbar-actions" aria-label="Editor controls">
+      <div className="creator-toolbar-actions" aria-label="Editor controls" role="group">
         <ProjectFileActions />
-        <div className="creator-view-switch" aria-label="Plan view">
+        <div className="creator-view-switch" aria-label="Plan view" role="group">
           <span aria-current="true">2D</span>
           <button disabled title="3D preview arrives in a later phase" type="button">3D</button>
         </div>

@@ -46,7 +46,7 @@ describe("creator WebMCP shared editing flow", () => {
         initialProject={createDefaultProject()}
       />,
     );
-    await waitFor(() => expect(tools.size).toBe(7));
+    await waitFor(() => expect(tools.size).toBe(10));
 
     fireEvent.click(screen.getByRole("button", { name: "Project settings" }));
     setNumber("Budget", "12500");

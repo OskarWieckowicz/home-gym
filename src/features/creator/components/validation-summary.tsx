@@ -12,7 +12,13 @@ export function describeValidationIssue(
   if (issue.code === "OUTSIDE_ROOM") {
     return `${label(issue.entityIds[0])} is outside the room on ${issue.details.axes.join(", ")}.`;
   }
+  if (issue.code === "OUTSIDE_WALL") {
+    return `${label(issue.entityIds[0])} does not fit on the ${issue.details.wall} wall.`;
+  }
   const pair = `${label(issue.entityIds[0])} and ${label(issue.entityIds[1])}`;
+  if (issue.code === "WALL_ELEMENT_OVERLAP") {
+    return `${pair} overlap on the ${issue.details.wall} wall.`;
+  }
   return issue.code === "PHYSICAL_COLLISION"
     ? `${pair} physically overlap.`
     : `${pair} conflict with an unavailable zone.`;
@@ -21,7 +27,11 @@ export function describeValidationIssue(
 export function ValidationSummary() {
   const validation = useProjectStore((state) => state.validation);
   const obstacles = useProjectStore((state) => state.project.obstacles);
-  const names = new Map(obstacles.map((obstacle) => [obstacle.id, obstacle.name]));
+  const wallElements = useProjectStore((state) => state.project.wallElements);
+  const names = new Map([
+    ...obstacles.map((obstacle) => [obstacle.id, obstacle.name] as const),
+    ...wallElements.map((element) => [element.id, element.name] as const),
+  ]);
 
   return (
     <section className="creator-validation" aria-labelledby="validation-title">

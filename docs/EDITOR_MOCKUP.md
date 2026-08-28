@@ -14,19 +14,22 @@ The bar contains the project name, a **2D / 3D** view switch, undo and redo, and
 
 ### Element panel
 
-The left panel provides elements that can be added to the project:
+The left panel is a placement palette. Its room-structure section exposes four explicit tools:
 
-- the room and its walls,
-- doors and their swing zones,
-- windows,
-- obstacles such as a wardrobe, radiator, or unavailable area,
-- training equipment from the catalog.
+- **Physical obstacle**,
+- **Unavailable zone**,
+- **Door**,
+- **Window**.
 
-Elements can be dragged onto the plan, then moved, rotated, and removed.
+Selecting a tool enters a temporary placement mode. The next valid plan interaction creates the element directly: obstacles and unavailable zones are placed on the floor, while doors and windows are placed on a wall. The created element becomes the current selection and the placement tool exits. The flow is **palette → plan → inspector**; the user does not confirm creation in a second panel. Training equipment remains available from the catalog as that part of the MVP is introduced.
 
 ### Workspace
 
-The center of the interface is occupied by the room plan. Dimensions, walls, doors, windows, obstacles, and equipment are visible on it.
+The center of the interface is occupied by the room plan. Dimensions, walls, doors, windows, obstacles, unavailable zones, and equipment are visible on it.
+
+A physical obstacle is a rectangular volume with width, depth, and height. An unavailable zone is a 2D floor constraint with width and depth only. Doors and windows are intentionally minimal wall elements described by a name, wall, offset along the wall, and width.
+
+In this MVP phase, doors and windows have no hinge side, opening direction, swing arc, sill height, or opening height. Adding either one does not automatically add an unavailable zone, and wall elements do not block floor collision checks. If a real doorway needs free floor space, the user or agent adds an independent unavailable zone explicitly.
 
 Each piece of equipment can present two areas:
 
@@ -48,6 +51,8 @@ The right panel shows parameters of the selected element:
 
 Changes made in the form immediately update both views.
 
+The panel is an inspector for an existing selection, not a creation wizard. The displayed fields depend on the selected kind: physical obstacles include height, unavailable zones do not, and doors/windows expose only their minimal wall properties.
+
 ## 2D / 3D switch
 
 The switch changes how the same project is presented. The views do not have separate data — they use a shared geometric model.
@@ -60,7 +65,7 @@ The 2D view is the primary editing mode. It shows the room from above and allows
 - changing element dimensions and positions,
 - controlling distances,
 - comparing the physical footprint with the clearance zone,
-- checking collisions with obstacles and door-swing zones.
+- checking collisions with physical obstacles and explicit unavailable zones.
 
 ### 3D view
 

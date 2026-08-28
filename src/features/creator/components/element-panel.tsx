@@ -1,19 +1,36 @@
 "use client";
 
-import { Box, Plus, Ruler, Settings } from "lucide-react";
+import { Ban, Box, DoorOpen, PanelTop, Ruler, Settings } from "lucide-react";
 
-import type { EditorPanel } from "../editor-types";
+import type { EditorPanel, PlacementTool } from "../editor-types";
 import { useProjectStore } from "../store/project-store-context";
 
 type ElementPanelProps = {
   readonly activePanel: EditorPanel;
+  readonly activeTool: PlacementTool | null;
   readonly onPanelChange: (panel: EditorPanel) => void;
+  readonly onToolChange: (tool: PlacementTool) => void;
   readonly selectedId: string | null;
   readonly onSelect: (id: string) => void;
 };
 
-export function ElementPanel({ activePanel, onPanelChange, selectedId, onSelect }: ElementPanelProps) {
+const TOOLS = [
+  { id: "obstacle", label: "Physical obstacle", icon: Box },
+  { id: "unavailable-zone", label: "Unavailable zone", icon: Ban },
+  { id: "door", label: "Door", icon: DoorOpen },
+  { id: "window", label: "Window", icon: PanelTop },
+] as const;
+
+export function ElementPanel({
+  activePanel,
+  activeTool,
+  onPanelChange,
+  onToolChange,
+  selectedId,
+  onSelect,
+}: ElementPanelProps) {
   const obstacles = useProjectStore((state) => state.project.obstacles);
+  const wallElements = useProjectStore((state) => state.project.wallElements);
   return (
     <aside className="creator-side creator-elements" aria-label="Room elements">
       <h2>Build the room</h2>
@@ -24,12 +41,26 @@ export function ElementPanel({ activePanel, onPanelChange, selectedId, onSelect 
         <button aria-current={activePanel === "settings" ? "page" : undefined} onClick={() => onPanelChange("settings")} type="button">
           <Settings aria-hidden="true" size={18} /> Project settings
         </button>
-        <button aria-current={activePanel === "add" ? "page" : undefined} onClick={() => onPanelChange("add")} type="button">
-          <Plus aria-hidden="true" size={18} /> Add an area
-        </button>
       </nav>
+
+      <section className="creator-tool-palette" aria-labelledby="placement-tools-title">
+        <h3 id="placement-tools-title">Add to the room</h3>
+        <div className="creator-tool-grid">
+          {TOOLS.map(({ id, label, icon: Icon }) => (
+            <button
+              aria-pressed={activeTool === id}
+              key={id}
+              onClick={() => onToolChange(id)}
+              type="button"
+            >
+              <Icon aria-hidden="true" size={18} /> {label}
+            </button>
+          ))}
+        </div>
+      </section>
+
       <div className="creator-element-list">
-        <h3>Areas in this room</h3>
+        <h3>Floor areas</h3>
         {obstacles.length === 0 ? <p>No obstacles or unavailable zones yet.</p> : (
           <ul>
             {obstacles.map((obstacle) => (
@@ -39,8 +70,35 @@ export function ElementPanel({ activePanel, onPanelChange, selectedId, onSelect 
                   onClick={() => onSelect(obstacle.id)}
                   type="button"
                 >
-                  <Box aria-hidden="true" size={17} />
-                  <span><strong>{obstacle.name}</strong><small>{obstacle.kind === "obstacle" ? "Physical obstacle" : "Unavailable zone"}{obstacle.locked ? " · Locked" : ""}</small></span>
+                  {obstacle.kind === "obstacle"
+                    ? <Box aria-hidden="true" size={17} />
+                    : <Ban aria-hidden="true" size={17} />}
+                  <span>
+                    <strong>{obstacle.name}</strong>
+                    <small>{obstacle.kind === "obstacle" ? "Physical obstacle" : "Unavailable zone"}{obstacle.locked ? " · Locked" : ""}</small>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="creator-element-list">
+        <h3>Wall elements</h3>
+        {wallElements.length === 0 ? <p>No doors or windows yet.</p> : (
+          <ul>
+            {wallElements.map((element) => (
+              <li key={element.id}>
+                <button
+                  aria-current={selectedId === element.id ? "true" : undefined}
+                  onClick={() => onSelect(element.id)}
+                  type="button"
+                >
+                  {element.kind === "door"
+                    ? <DoorOpen aria-hidden="true" size={17} />
+                    : <PanelTop aria-hidden="true" size={17} />}
+                  <span><strong>{element.name}</strong><small>{element.kind === "door" ? "Door" : "Window"} · {element.wall} wall</small></span>
                 </button>
               </li>
             ))}

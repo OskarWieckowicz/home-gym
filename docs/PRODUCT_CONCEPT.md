@@ -9,7 +9,7 @@ The project’s most important element is human–agent collaboration on the sam
 ## Main scenario
 
 1. The user specifies the room dimensions or asks the agent to create an approximate model from a photo and provided reference measurements.
-2. The user or agent marks occupied areas, such as a wardrobe, bed, desk, radiator, or door-swing zone.
+2. The user or agent adds physical obstacles, explicit unavailable floor zones, and simple doors or windows where relevant.
 3. The user provides training goals, preferences, and a maximum budget.
 4. The agent reads the room model and searches the product catalog.
 5. The agent selects equipment and places simplified models of it in the room.
@@ -24,12 +24,14 @@ The planner is not intended to be a professional CAD program or a realistic inte
 
 - the floor outline,
 - room height,
-- doors and their swing zones,
-- windows and other wall elements when relevant,
-- obstacles represented by rectangles, polygons, or cuboids,
+- simple wall-bound doors and windows,
+- physical obstacles represented by rectangles or cuboids,
+- unavailable floor zones represented as 2D rectangles,
 - equipment described by a footprint, height, and additional space required for use.
 
 For example, a wardrobe can be stored as a cuboid with a position, width, depth, and height. It does not need a realistic graphical model.
+
+A physical obstacle and an unavailable zone are related editor tools but remain different domain concepts. A physical obstacle has height and participates as a volume in the spatial model. An unavailable zone is only a 2D floor constraint. Doors and windows are minimal wall elements with a name, wall, offset along that wall, and width. In the MVP they do not model hinges, opening direction, swing arcs, sill or opening height, and they do not create an unavailable zone automatically. They also do not participate in floor collision checks.
 
 Gym equipment should have at least two areas:
 
@@ -74,8 +76,9 @@ Products placed in a design create a shopping list and affect the current budget
 The user should be able to:
 
 - change room dimensions,
-- add and edit obstacles,
-- mark unavailable areas,
+- select one of four placement tools: physical obstacle, unavailable zone, door, or window,
+- place the selected element directly on a valid floor or wall target,
+- edit the newly created or selected element in the properties inspector,
 - drag products from the catalog into the room,
 - move and rotate elements,
 - remove equipment from the design,
@@ -85,6 +88,8 @@ The user should be able to:
 - undo and redo changes.
 
 Manual user operations and operations performed through WebMCP should use the same domain logic. This keeps the project consistent regardless of who made a change.
+
+The editor follows a **palette → plan → inspector** interaction: the left panel chooses what to add, the plan determines where it is created, and the right panel edits an existing selection. The inspector is not a second creation step.
 
 ## Agent role
 
@@ -107,6 +112,9 @@ The agent should not decide for itself whether the geometry is valid. A determin
 - `add_obstacle` — add furniture, an obstacle, or an unavailable zone,
 - `update_obstacle` — change an obstacle’s dimensions or position,
 - `remove_obstacle` — remove an obstacle,
+- `add_wall_element` — add a minimal door or window to a wall,
+- `update_wall_element` — change a door or window’s name, wall, offset, or width,
+- `remove_wall_element` — remove a door or window,
 - `search_products` — search products by price, size, and use case,
 - `get_product_details` — retrieve complete product data,
 - `place_product` — place a product in the room,
@@ -147,6 +155,7 @@ The MVP should focus on one complete, reliable flow:
 - a fictional catalog of several dozen products,
 - a rectangular room with editable dimensions,
 - simple obstacles and unavailable zones,
+- simple wall-bound doors and windows without automatic clearance or swing zones,
 - a 2D plan and an optional simple 3D preview,
 - manual equipment placement and rotation,
 - budget and training goals,

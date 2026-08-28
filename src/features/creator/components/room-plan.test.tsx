@@ -7,6 +7,7 @@ import { createDefaultProject } from "@/features/project/defaults";
 import type { GymProject } from "@/features/project/schemas/project";
 
 import { ProjectStoreProvider, useProjectStore } from "../store/project-store-context";
+import type { PlacementTool } from "../editor-types";
 import { RoomPlan } from "./room-plan";
 
 const obstacle = {
@@ -40,7 +41,15 @@ function renderPlan(locked = false) {
   render(
     <ProjectStoreProvider initialProject={projectWithObstacle(locked)}>
       <StoreProbe />
-      <RoomPlan onSelect={vi.fn()} selectedId={null} />
+      <RoomPlan
+        activeTool={null}
+        onCancelPlacement={vi.fn()}
+        onPlacementComplete={vi.fn()}
+        onPlacementError={vi.fn()}
+        onSelect={vi.fn()}
+        placementError=""
+        selectedId={null}
+      />
     </ProjectStoreProvider>,
   );
   const plan = screen.getByRole("group", { name: "Top-down editable room plan" });
@@ -56,6 +65,49 @@ function renderPlan(locked = false) {
     toJSON: () => undefined,
   });
   return screen.getByRole("button", { name: /Wardrobe, physical obstacle/ });
+}
+
+function PlacementProbe() {
+  const state = useProjectStore((value) => value);
+  return (
+    <output aria-label="Placement state">
+      {state.revision}:{state.project.obstacles.length}:{state.project.wallElements.length}
+    </output>
+  );
+}
+
+function renderPlacement(tool: PlacementTool, bounds = {
+  bottom: 560,
+  height: 560,
+  left: 0,
+  right: 760,
+  top: 0,
+  width: 760,
+  x: 0,
+  y: 0,
+  toJSON: () => undefined,
+}) {
+  const onPlacementComplete = vi.fn();
+  render(
+    <ProjectStoreProvider dependencies={{
+      generateObstacleId: () => "obstacle_placed",
+      generateWallElementId: () => "wall-element_placed",
+    }} initialProject={createDefaultProject()}>
+      <PlacementProbe />
+      <RoomPlan
+        activeTool={tool}
+        onCancelPlacement={vi.fn()}
+        onPlacementComplete={onPlacementComplete}
+        onPlacementError={vi.fn()}
+        onSelect={vi.fn()}
+        placementError=""
+        selectedId={null}
+      />
+    </ProjectStoreProvider>,
+  );
+  const plan = screen.getByRole("group", { name: "Top-down editable room plan" });
+  vi.spyOn(plan, "getBoundingClientRect").mockReturnValue(bounds);
+  return { plan, onPlacementComplete };
 }
 
 beforeEach(() => {
@@ -97,5 +149,49 @@ describe("RoomPlan dragging", () => {
     fireEvent.pointerMove(lockedEntity, { clientX: 129, clientY: 129, pointerId: 5 });
     fireEvent.pointerUp(lockedEntity, { clientX: 129, clientY: 129, pointerId: 5 });
     expect(screen.getByRole("status", { name: "Store state" }).textContent).toBe("0:20:30:false");
+  });
+});
+
+describe("RoomPlan placement", () => {
+  it("places a floor area directly from the active tool", () => {
+    const { plan, onPlacementComplete } = renderPlacement("unavailable-zone");
+    fireEvent.pointerDown(plan, { button: 0, clientX: 380, clientY: 280 });
+
+    expect(screen.getByRole("status", { name: "Placement state" }).textContent).toBe("1:1:0");
+    expect(onPlacementComplete).toHaveBeenCalledWith("obstacle_placed");
+    expect(screen.getByRole("button", { name: /Unavailable zone, unavailable zone/ })).toBeTruthy();
+  });
+
+  it("places a door on a wall without adding an unavailable zone", () => {
+    const { plan, onPlacementComplete } = renderPlacement("door");
+    fireEvent.pointerDown(plan, { button: 0, clientX: 380, clientY: 48 });
+
+    expect(screen.getByRole("status", { name: "Placement state" }).textContent).toBe("1:0:1");
+    expect(onPlacementComplete).toHaveBeenCalledWith("wall-element_placed");
+    expect(screen.getByRole("button", { name: /Door, door, top wall/ })).toBeTruthy();
+  });
+
+  it("places wall elements on a side wall in a letterboxed SVG", () => {
+    const bounds = {
+      bottom: 667,
+      height: 417,
+      left: 298,
+      right: 919,
+      top: 250,
+      width: 621,
+      x: 298,
+      y: 250,
+      toJSON: () => undefined,
+    };
+    const scale = bounds.height / 560;
+    const horizontalInset = (bounds.width - 760 * scale) / 2;
+    const { plan } = renderPlacement("window", bounds);
+    fireEvent.pointerDown(plan, {
+      button: 0,
+      clientX: bounds.left + horizontalInset + 667.5 * scale,
+      clientY: bounds.top + 280 * scale,
+    });
+
+    expect(screen.getByRole("button", { name: /Window, window, right wall/ })).toBeTruthy();
   });
 });
