@@ -1,19 +1,17 @@
 import { z } from "zod";
 
+import {
+  TRAINING_GOALS,
+  trainingGoalSchema,
+  type TrainingGoal,
+} from "@/shared/schemas/training-goal";
+
 export const PRODUCT_CATEGORIES = [
   "racks",
   "benches",
   "cardio",
   "weights",
   "accessories",
-] as const;
-
-export const TRAINING_GOALS = [
-  "strength",
-  "muscle-gain",
-  "conditioning",
-  "general-fitness",
-  "mobility",
 ] as const;
 
 export const ANCHORING_REQUIREMENTS = ["recommended", "required"] as const;
@@ -71,7 +69,7 @@ export const productSchema = z
     dimensions: dimensionsSchema,
     clearance: clearanceSchema,
     exercises: z.array(z.string().trim().min(1)).min(1),
-    trainingGoals: z.array(z.enum(TRAINING_GOALS)).min(1),
+    trainingGoals: z.array(trainingGoalSchema).min(1),
     muscleGroups: z.array(z.string().trim().min(1)).min(1),
     weightKg: z.number().positive().optional(),
     maximumLoadKg: positiveInteger.optional(),
@@ -90,5 +88,5 @@ export const productSchema = z
   );
 
 export type ProductCategory = (typeof PRODUCT_CATEGORIES)[number];
-export type TrainingGoal = (typeof TRAINING_GOALS)[number];
+export { TRAINING_GOALS, type TrainingGoal };
 export type Product = z.infer<typeof productSchema>;

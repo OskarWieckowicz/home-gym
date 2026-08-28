@@ -1,0 +1,90 @@
+import { describe, expect, it } from "vitest";
+import { z } from "zod";
+
+import {
+  obstacleInputSchema,
+  obstaclePatchSchema,
+  projectCommandSchema,
+  projectSettingsPatchSchema,
+} from "./project-command";
+
+const obstacleInput = {
+  kind: "obstacle",
+  name: "Wardrobe",
+  position: { xCm: 10, zCm: 20 },
+  dimensions: { widthCm: 80, depthCm: 50, heightCm: 210 },
+  rotation: 0,
+  locked: true,
+} as const;
+
+describe("projectCommandSchema", () => {
+  it.each([
+    { type: "ROOM_CONFIGURED", payload: { widthCm: 500, depthCm: 400, heightCm: 250 } },
+    { type: "PROJECT_SETTINGS_UPDATED", payload: { budget: 12_000 } },
+    { type: "PROJECT_SETTINGS_UPDATED", payload: { trainingGoals: ["strength"] } },
+    { type: "OBSTACLE_ADDED", payload: obstacleInput },
+    { type: "OBSTACLE_UPDATED", payload: { obstacleId: "obstacle_wardrobe", patch: { rotation: 90 } } },
+    { type: "OBSTACLE_REMOVED", payload: { obstacleId: "obstacle_wardrobe" } },
+  ] as const)("parses $type", (command) => {
+    expect(projectCommandSchema.parse(command)).toEqual(command);
+  });
+
+  it("rejects empty settings and obstacle patches", () => {
+    expect(projectSettingsPatchSchema.safeParse({}).success).toBe(false);
+    expect(obstaclePatchSchema.safeParse({}).success).toBe(false);
+  });
+
+  it("rejects generated IDs and unknown Phase 6 fields in add input", () => {
+    expect(obstacleInputSchema.safeParse({ ...obstacleInput, id: "obstacle_bad" }).success).toBe(
+      false,
+    );
+    expect(obstacleInputSchema.safeParse({ ...obstacleInput, productId: "rack" }).success).toBe(
+      false,
+    );
+  });
+
+  it("rejects unknown keys at command, payload, and patch boundaries", () => {
+    expect(
+      projectCommandSchema.safeParse({
+        type: "ROOM_CONFIGURED",
+        payload: { widthCm: 500, depthCm: 400, heightCm: 250 },
+        source: "agent",
+      }).success,
+    ).toBe(false);
+    expect(
+      projectCommandSchema.safeParse({
+        type: "OBSTACLE_REMOVED",
+        payload: { obstacleId: "obstacle_wardrobe", force: true },
+      }).success,
+    ).toBe(false);
+    expect(
+      projectCommandSchema.safeParse({
+        type: "OBSTACLE_UPDATED",
+        payload: {
+          obstacleId: "obstacle_wardrobe",
+          patch: { rotation: 90, selected: true },
+        },
+      }).success,
+    ).toBe(false);
+  });
+
+  it.each([
+    { type: "PROJECT_RESET", payload: {} },
+    { type: "OBSTACLE_UPDATED", payload: { obstacleId: "bad-id", patch: { locked: false } } },
+    { type: "PROJECT_SETTINGS_UPDATED", payload: { budget: -1 } },
+  ])("rejects malformed command %#", (command) => {
+    expect(projectCommandSchema.safeParse(command).success).toBe(false);
+  });
+
+  it("converts command inputs to unambiguous union JSON Schemas", () => {
+    for (const schema of [
+      projectSettingsPatchSchema,
+      obstaclePatchSchema,
+      projectCommandSchema,
+    ]) {
+      const jsonSchema = z.toJSONSchema(schema);
+      expect(jsonSchema).toEqual(expect.objectContaining({ $schema: expect.any(String) }));
+      expect("anyOf" in jsonSchema || "oneOf" in jsonSchema).toBe(true);
+    }
+  });
+});
