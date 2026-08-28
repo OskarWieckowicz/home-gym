@@ -192,13 +192,16 @@ body {
 .creator-plan-entity.is-placement-disabled,
 .creator-plan-wall-element.is-placement-disabled { pointer-events: none; }
 .creator-plan-entity:active { cursor: grabbing; }
-.creator-plan-entity rect { fill: #cbd5e1; stroke: var(--footprint); stroke-width: 2; }
-.creator-plan-unavailable-zone rect { fill: #fef3c7; stroke: var(--caution); stroke-dasharray: 6 4; }
-.creator-plan-entity.creator-plan-unavailable-zone text { fill: #78350f; }
+.creator-plan-entity .creator-entity-shape { fill: #cbd5e1; stroke: var(--footprint); stroke-width: 2; }
+.creator-plan-unavailable-zone .creator-entity-shape { fill: #fef3c7; stroke: var(--caution); stroke-dasharray: 6 4; }
+.creator-plan-entity.creator-plan-unavailable-zone :where(text, .creator-entity-label) { color: #78350f; fill: #78350f; }
 .creator-plan-entity text { pointer-events: none; fill: var(--ink); font-size: 0.75rem; font-weight: 750; }
-.creator-plan-entity.is-selected rect { stroke: var(--select); stroke-width: 5; }
-.creator-plan-entity.is-invalid rect { stroke: #dc2626; stroke-dasharray: 7 4; }
+.creator-entity-label-container { pointer-events: none; overflow: hidden; }
+.creator-entity-label { overflow: hidden; color: var(--ink); font-size: 0.75rem; font-weight: 750; line-height: 1.625rem; text-overflow: ellipsis; white-space: nowrap; }
+.creator-plan-entity.is-selected .creator-entity-shape { stroke: var(--select); stroke-width: 5; }
+.creator-plan-entity.is-invalid .creator-entity-shape { stroke: #dc2626; stroke-dasharray: 7 4; }
 .creator-plan-entity.is-locked { cursor: not-allowed; }
+.creator-plan-entity .creator-entity-lock { pointer-events: none; color: #475569; stroke-width: 2.5; }
 .creator-plan-entity .creator-entity-mark { fill: #b91c1c; font-size: 0.85rem; font-weight: 900; }
 .creator-plan-wall-element { cursor: pointer; }
 .creator-plan-wall-hit { stroke: transparent; stroke-width: 22; }

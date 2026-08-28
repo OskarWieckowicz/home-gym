@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import {
+  ANCHORING_FILTER_VALUES,
   PRODUCT_CATEGORIES,
   PRODUCT_ID_PATTERN,
   TRAINING_GOALS,
@@ -27,9 +28,29 @@ export const searchProductsInputSchema = z
       .nonnegative()
       .describe("Maximum product price in PLN, as a non-negative integer.")
       .optional(),
+    maxWidthCm: z.number().int().nonnegative().describe("Maximum stored product width in centimetres.").optional(),
+    maxDepthCm: z.number().int().nonnegative().describe("Maximum stored product depth in centimetres.").optional(),
+    maxHeightCm: z.number().int().nonnegative().describe("Maximum physical product height in centimetres.").optional(),
     trainingGoal: z
       .enum(TRAINING_GOALS)
       .describe("Training goal the equipment must support.")
+      .optional(),
+    exercise: z
+      .string()
+      .trim()
+      .min(1)
+      .max(QUERY_MAX_LENGTH)
+      .describe("Exact exercise name, matched after whitespace and case normalization.")
+      .optional(),
+    availableCeilingHeightCm: z
+      .number()
+      .int()
+      .nonnegative()
+      .describe("Available ceiling height in centimetres.")
+      .optional(),
+    anchoring: z
+      .enum(ANCHORING_FILTER_VALUES)
+      .describe("Exact effective anchoring requirement.")
       .optional(),
   })
   .strict();
@@ -58,7 +79,14 @@ const ISSUE_MESSAGES: Readonly<Record<string, string>> = {
   query: "Query must be non-empty text up to 120 characters.",
   category: "Category must be one of the catalog categories.",
   maxPrice: "Maximum price must be a non-negative integer in PLN.",
+  maxWidthCm: "Maximum width must be a non-negative integer in centimetres.",
+  maxDepthCm: "Maximum depth must be a non-negative integer in centimetres.",
+  maxHeightCm: "Maximum height must be a non-negative integer in centimetres.",
   trainingGoal: "Training goal must be one of the catalog training goals.",
+  exercise: "Exercise must be non-empty text up to 120 characters.",
+  availableCeilingHeightCm:
+    "Available ceiling height must be a non-negative integer in centimetres.",
+  anchoring: "Anchoring must be none, recommended, or required.",
   productId: "Product ID must use the canonical product ID format.",
 };
 

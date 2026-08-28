@@ -121,11 +121,14 @@ src/
 │   └── ui/
 ├── data/
 │   └── products/
-│       ├── racks.json
-│       ├── benches.json
-│       ├── cardio.json
-│       ├── weights.json
-│       └── accessories.json
+│       ├── products.ts
+│       ├── racks.ts
+│       ├── benches.ts
+│       ├── barbells.ts
+│       ├── plates.ts
+│       ├── dumbbells.ts
+│       ├── cardio.ts
+│       └── accessories.ts
 ├── features/
 │   ├── catalog/
 │   │   ├── components/
@@ -235,7 +238,7 @@ type Product = {
   trainingGoals: string[];
   requirements: {
     minimumCeilingHeightCm?: number;
-    anchoring?: boolean;
+    anchoring?: "recommended" | "required";
   };
 };
 
@@ -421,9 +424,9 @@ Realistic GLTF models are an optional enhancement. Validation always uses the si
 
 ## 11. Product catalog
 
-The MVP catalog will be static and will contain about 30–50 fictional products.
+The MVP catalog is static and contains 32 fictional products.
 
-Initial categories:
+Active MVP categories:
 
 - racks,
 - benches,
@@ -431,8 +434,10 @@ Initial categories:
 - plates,
 - dumbbells,
 - cardio,
-- accessories,
-- flooring.
+- accessories.
+
+Flooring is deferred. Treating floor products as placeable would require layered surfaces and
+overlap exceptions that are outside the current deterministic placement model.
 
 Each record will be validated by Zod during development or build.
 
@@ -444,7 +449,8 @@ The catalog must support filtering by:
 - training goal,
 - exercises,
 - required height,
-- mounting requirements.
+- anchoring requirements (`none`, `recommended`, or `required`, where an omitted product value
+  means `none`).
 
 We will not implement real stock, external prices, checkout, or an admin panel in the MVP.
 

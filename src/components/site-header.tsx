@@ -1,25 +1,24 @@
+import { Suspense } from "react";
+
 import { BrandMark } from "@/components/brand-mark";
+import { SiteHeaderNav } from "@/components/site-header-nav";
 import { LinkButton } from "@/components/ui/link-button";
-import { headerLinks, siteLinks } from "@/lib/navigation";
+import { siteLinks } from "@/lib/navigation";
 
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-20 border-b border-line bg-surface">
       <nav
         aria-label="Main"
-        className="mx-auto flex w-full max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:gap-6 sm:px-6"
+        className="mx-auto grid w-full max-w-[96rem] grid-cols-[auto_1fr_auto] items-center gap-3 px-4 py-3 sm:px-6 lg:px-8"
       >
         <BrandMark />
-        <div className="flex items-center gap-2">
-          {headerLinks.map((link) => (
-            <LinkButton key={link.href} href={link.href} variant="quiet">
-              {link.label}
-            </LinkButton>
-          ))}
-          <LinkButton href={siteLinks.openCreator.href}>
-            {siteLinks.openCreator.label}
-          </LinkButton>
-        </div>
+        <Suspense fallback={null}>
+          <SiteHeaderNav />
+        </Suspense>
+        <LinkButton href={siteLinks.openCreator.href}>
+          {siteLinks.openCreator.label}
+        </LinkButton>
       </nav>
     </header>
   );

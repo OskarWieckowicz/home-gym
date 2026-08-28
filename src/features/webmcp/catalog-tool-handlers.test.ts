@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { catalogProducts } from "@/data/products";
+import { searchProducts } from "@/features/catalog/queries";
 
 import {
   createGetProductDetailsHandler,
@@ -38,6 +39,10 @@ describe("search_products handler", () => {
       category: catalogProducts[0].category,
       price: catalogProducts[0].price,
       dimensions: catalogProducts[0].dimensions,
+      requiredHeightCm:
+        catalogProducts[0].requirements.minimumCeilingHeightCm ??
+        catalogProducts[0].dimensions.heightCm,
+      anchoring: catalogProducts[0].requirements.anchoring ?? "none",
       trainingGoals: catalogProducts[0].trainingGoals,
       exercises: catalogProducts[0].exercises,
     });
@@ -46,27 +51,36 @@ describe("search_products handler", () => {
   });
 
   it("uses manual catalog semantics for combined filters and preserves order", () => {
+    const product = catalogProducts.find(
+      ({ category, requirements }) =>
+        category === "dumbbells" && requirements.anchoring === undefined,
+    );
+    expect(product).toBeDefined();
+    if (!product) return;
+    const input = {
+      query: product.brand,
+      category: product.category,
+      maxPrice: product.price,
+      maxWidthCm: product.dimensions.widthCm,
+      maxDepthCm: product.dimensions.depthCm,
+      maxHeightCm: product.dimensions.heightCm,
+      trainingGoal: product.trainingGoals[0],
+      exercise: product.exercises[0],
+      availableCeilingHeightCm:
+        product.requirements.minimumCeilingHeightCm ?? product.dimensions.heightCm,
+      anchoring: "none" as const,
+    };
     const result = createSearchProductsHandler()(
-      {
-        query: "press",
-        category: "weights",
-        maxPrice: 2200,
-        trainingGoal: "strength",
-      },
+      input,
       options(),
     );
 
     if (!result.ok) throw new Error("Expected a successful result.");
-    expect(result.filters).toEqual({
-      query: "press",
-      category: "weights",
-      maxPrice: 2200,
-      trainingGoal: "strength",
-    });
-    expect(result.products.map(({ slug }) => slug)).toEqual([
-      "ironvale-barbell-set",
-      "range-adjustable-dumbbells",
-    ]);
+    expect(result.filters).toEqual({ ...input, query: input.query.toLowerCase() });
+    expect(result.products.map(({ productId }) => productId)).toEqual(
+      searchProducts(input).map(({ id }) => id),
+    );
+    expect(result.products.map(({ productId }) => productId)).toContain(product.id);
   });
 
   it("returns a successful explicit empty product list", () => {

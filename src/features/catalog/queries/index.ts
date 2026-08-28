@@ -1,5 +1,8 @@
 export {
   findProductBySlug,
+  getCatalogExerciseOptions,
+  getEffectiveAnchoring,
+  getEffectiveRequiredHeightCm,
   findProductById,
   normalizeCatalogFilters,
   searchProducts,

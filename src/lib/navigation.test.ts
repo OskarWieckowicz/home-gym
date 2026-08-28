@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { creatorRoute, productRoute, routes, siteLinks } from "./navigation";
+import { creatorRoute, headerLinks, productRoute, routes, siteLinks } from "./navigation";
 
 describe("navigation", () => {
   it("keeps the destinations defined by the landing page specification", () => {
@@ -32,5 +32,13 @@ describe("navigation", () => {
     expect(productRoute("forge-fold-rack")).toBe(
       "/catalog/forge-fold-rack",
     );
+  });
+
+  it("provides the mockup navigation destinations", () => {
+    expect(headerLinks).toEqual([
+      { label: "How it works", href: "/" },
+      { label: "Creator", href: "/creator?start=new" },
+      { label: "Catalog", href: "/catalog" },
+    ]);
   });
 });

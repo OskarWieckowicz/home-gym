@@ -20,5 +20,11 @@ export function parseCatalogSearchParams(
     category: firstValue(params.category),
     trainingGoal: firstValue(params.trainingGoal),
     maxPrice: firstValue(params.maxPrice),
+    maxWidthCm: firstValue(params.maxWidthCm),
+    maxDepthCm: firstValue(params.maxDepthCm),
+    maxHeightCm: firstValue(params.maxHeightCm),
+    exercise: firstValue(params.exercise),
+    availableCeilingHeightCm: firstValue(params.availableCeilingHeightCm),
+    anchoring: firstValue(params.anchoring),
   });
 }

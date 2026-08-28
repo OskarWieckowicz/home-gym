@@ -1,5 +1,9 @@
+import {
+  getEffectiveAnchoring,
+  getEffectiveRequiredHeightCm,
+  type NormalizedCatalogFilters,
+} from "@/features/catalog/queries";
 import type { Product } from "@/features/catalog/schemas";
-import type { NormalizedCatalogFilters } from "@/features/catalog/queries";
 
 import type { InputIssue } from "./catalog-tool-schemas";
 
@@ -41,6 +45,8 @@ export function createProductSummary(product: Product) {
     category: product.category,
     price: product.price,
     dimensions: { ...product.dimensions },
+    requiredHeightCm: getEffectiveRequiredHeightCm(product),
+    anchoring: getEffectiveAnchoring(product),
     trainingGoals: [...product.trainingGoals],
     exercises: [...product.exercises],
   };

@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
+import { Lock } from "lucide-react";
 
 import type { ProjectCommand } from "@/features/project/schemas/project-command";
 import type { GymProject, Obstacle, WallElement } from "@/features/project/schemas/project";
@@ -28,6 +29,10 @@ import {
 import { useProjectStore } from "../store/project-store-context";
 
 const VIEWPORT = { width: 760, height: 560 } as const;
+const ENTITY_LABEL_INSET = 8;
+const ENTITY_LABEL_HEIGHT = 26;
+const ENTITY_LOCK_SIZE = 14;
+const ENTITY_LOCK_GAP = 8;
 const FLOOR_DEFAULTS = {
   obstacle: { name: "Physical obstacle", dimensions: { widthCm: 100, depthCm: 50, heightCm: 200 } },
   "unavailable-zone": { name: "Unavailable zone", dimensions: { widthCm: 100, depthCm: 100 } },
@@ -166,6 +171,8 @@ function ObstacleEntity({
   const rectangle = obstacleToPlanRectangle({ ...obstacle, position }, transform);
   const selected = selectedId === obstacle.id;
   const invalid = hasIssue(obstacle.id, issues);
+  const lockSpace = obstacle.locked ? ENTITY_LOCK_SIZE + ENTITY_LOCK_GAP : 0;
+  const labelWidth = Math.max(0, rectangle.width - ENTITY_LABEL_INSET * 2 - lockSpace);
   return (
     <g
       aria-label={`${obstacle.name}, ${obstacle.kind === "obstacle" ? "physical obstacle" : "unavailable zone"}${obstacle.locked ? ", locked" : ""}${invalid ? ", has layout issue" : ""}`}
@@ -180,9 +187,27 @@ function ObstacleEntity({
       role="button"
       tabIndex={interactive ? 0 : -1}
     >
-      <rect height={rectangle.height} width={rectangle.width} x={rectangle.x} y={rectangle.y} />
-      <text x={rectangle.x + 8} y={rectangle.y + 18}>{obstacle.name}</text>
-      {obstacle.locked ? <text aria-hidden="true" className="creator-entity-mark" x={rectangle.x + rectangle.width - 18} y={rectangle.y + 18}>L</text> : null}
+      <rect className="creator-entity-shape" height={rectangle.height} width={rectangle.width} x={rectangle.x} y={rectangle.y} />
+      <foreignObject
+        className="creator-entity-label-container"
+        height={Math.min(ENTITY_LABEL_HEIGHT, rectangle.height)}
+        width={labelWidth}
+        x={rectangle.x + ENTITY_LABEL_INSET}
+        y={rectangle.y}
+      >
+        <div className="creator-entity-label" title={obstacle.name}>{obstacle.name}</div>
+      </foreignObject>
+      {obstacle.locked ? (
+        <Lock
+          aria-hidden="true"
+          className="creator-entity-lock"
+          focusable="false"
+          height={ENTITY_LOCK_SIZE}
+          width={ENTITY_LOCK_SIZE}
+          x={rectangle.x + rectangle.width - ENTITY_LABEL_INSET - ENTITY_LOCK_SIZE}
+          y={rectangle.y + 6}
+        />
+      ) : null}
       {invalid ? <text aria-hidden="true" className="creator-entity-mark" x={rectangle.x + rectangle.width - 18} y={rectangle.y + rectangle.height - 8}>!</text> : null}
     </g>
   );

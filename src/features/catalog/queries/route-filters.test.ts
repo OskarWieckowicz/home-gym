@@ -10,12 +10,24 @@ describe("parseCatalogSearchParams", () => {
         category: [" RACKS ", "weights"],
         trainingGoal: " STRENGTH ",
         maxPrice: ["4000", "100"],
+        maxWidthCm: ["120", "1"],
+        maxDepthCm: "180",
+        maxHeightCm: "210",
+        exercise: "  BENCH   PRESS ",
+        availableCeilingHeightCm: "230",
+        anchoring: " REQUIRED ",
       }),
     ).toEqual({
       query: "bench press",
       category: "racks",
       trainingGoal: "strength",
       maxPrice: 4000,
+      maxWidthCm: 120,
+      maxDepthCm: 180,
+      maxHeightCm: 210,
+      exercise: "bench press",
+      availableCeilingHeightCm: 230,
+      anchoring: "required",
     });
   });
 
@@ -26,6 +38,12 @@ describe("parseCatalogSearchParams", () => {
         category: "unknown",
         trainingGoal: "nope",
         maxPrice: "not-a-number",
+        maxWidthCm: "-1",
+        maxDepthCm: "1.5",
+        maxHeightCm: "Infinity",
+        exercise: "  ",
+        availableCeilingHeightCm: "unknown",
+        anchoring: "sometimes",
       }),
     ).toEqual({});
   });

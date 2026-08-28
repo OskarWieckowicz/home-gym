@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
-import { productSchema } from "./product";
+import {
+  ANCHORING_FILTER_VALUES,
+  ANCHORING_REQUIREMENTS,
+  PRODUCT_CATEGORIES,
+  productSchema,
+} from "./product";
 
 const validProduct = {
   id: "product_test_rack",
@@ -30,6 +35,32 @@ const validProduct = {
 describe("productSchema", () => {
   it("parses a complete canonical product", () => {
     expect(productSchema.parse(validProduct)).toEqual(validProduct);
+  });
+
+  it("publishes the seven-category MVP vocabulary without the retired weights category", () => {
+    expect(PRODUCT_CATEGORIES).toEqual([
+      "racks",
+      "benches",
+      "barbells",
+      "plates",
+      "dumbbells",
+      "cardio",
+      "accessories",
+    ]);
+    expect(PRODUCT_CATEGORIES).not.toContain("weights");
+  });
+
+  it("keeps none as a filter value rather than a stored anchoring requirement", () => {
+    expect(ANCHORING_REQUIREMENTS).toEqual(["recommended", "required"]);
+    expect(ANCHORING_FILTER_VALUES).toEqual(["none", "recommended", "required"]);
+    expect(productSchema.parse({
+      ...validProduct,
+      requirements: { ...validProduct.requirements, anchoring: undefined },
+    }).requirements.anchoring).toBeUndefined();
+    expect(() => productSchema.parse({
+      ...validProduct,
+      requirements: { ...validProduct.requirements, anchoring: "none" },
+    })).toThrow();
   });
 
   it.each([
@@ -87,7 +118,14 @@ describe("productSchema", () => {
   });
 
   it("has an unambiguous Zod JSON Schema representation", () => {
-    expect(() => z.toJSONSchema(productSchema)).not.toThrow();
-    expect(z.toJSONSchema(productSchema)).toMatchObject({ type: "object", additionalProperties: false });
+    const jsonSchema = z.toJSONSchema(productSchema);
+
+    expect(jsonSchema).toMatchObject({ type: "object", additionalProperties: false });
+    expect(jsonSchema.properties?.category).toMatchObject({ enum: PRODUCT_CATEGORIES });
+    expect(jsonSchema.properties?.requirements).toMatchObject({
+      properties: {
+        anchoring: { enum: ANCHORING_REQUIREMENTS },
+      },
+    });
   });
 });

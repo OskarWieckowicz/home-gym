@@ -9,12 +9,18 @@ import {
 export const PRODUCT_CATEGORIES = [
   "racks",
   "benches",
+  "barbells",
+  "plates",
+  "dumbbells",
   "cardio",
-  "weights",
   "accessories",
 ] as const;
 
 export const ANCHORING_REQUIREMENTS = ["recommended", "required"] as const;
+export const ANCHORING_FILTER_VALUES = [
+  "none",
+  ...ANCHORING_REQUIREMENTS,
+] as const;
 export const FLOORING_REQUIREMENTS = [
   "protective-mat",
   "level-hard-surface",
@@ -88,5 +94,6 @@ export const productSchema = z
   );
 
 export type ProductCategory = (typeof PRODUCT_CATEGORIES)[number];
+export type AnchoringFilter = (typeof ANCHORING_FILTER_VALUES)[number];
 export { TRAINING_GOALS, type TrainingGoal };
 export type Product = z.infer<typeof productSchema>;

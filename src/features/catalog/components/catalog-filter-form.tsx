@@ -1,7 +1,9 @@
 import Link from "next/link";
 
 import { buttonClassName } from "@/components/ui/button-styles";
+import type { NormalizedCatalogFilters } from "@/features/catalog/queries";
 import {
+  ANCHORING_FILTER_VALUES,
   PRODUCT_CATEGORIES,
   TRAINING_GOALS,
 } from "@/features/catalog/schemas";
@@ -9,104 +11,214 @@ import { routes } from "@/lib/navigation";
 
 import { formatCatalogLabel } from "./catalog-formatters";
 
+export const CATALOG_FILTER_FORM_ID = "catalog-filters";
+
 type CatalogFilterFormProps = {
-  readonly values: {
-    readonly query?: string;
-    readonly category?: string;
-    readonly maxPrice?: number;
-    readonly trainingGoal?: string;
-  };
+  readonly values: NormalizedCatalogFilters;
+  readonly exerciseOptions: readonly string[];
   readonly hasActiveFilters: boolean;
 };
 
 const FIELD_CLASSES =
-  "mt-1.5 w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm text-ink outline-none transition focus:border-brand focus:ring-2 focus:ring-brand-muted";
+  "mt-2 min-h-11 w-full rounded-md border border-line bg-surface px-3 py-2.5 text-sm text-ink outline-none transition focus:border-brand focus:ring-2 focus:ring-brand-muted";
+
+const SECTION_CLASSES = "border-b border-line pb-5";
+
+type NumberFieldProps = {
+  readonly defaultValue?: number;
+  readonly id: string;
+  readonly label: string;
+  readonly name: string;
+  readonly placeholder: string;
+};
+
+function NumberField({ defaultValue, id, label, name, placeholder }: NumberFieldProps) {
+  return (
+    <div>
+      <label className="text-xs font-medium text-ink-muted" htmlFor={id}>
+        {label}
+      </label>
+      <input
+        className={FIELD_CLASSES}
+        defaultValue={defaultValue}
+        id={id}
+        inputMode="numeric"
+        min="0"
+        name={name}
+        placeholder={placeholder}
+        step="1"
+        type="number"
+      />
+    </div>
+  );
+}
+
+type RadioFilterProps = {
+  readonly checked: boolean;
+  readonly label: string;
+  readonly name: string;
+  readonly value: string;
+};
+
+function RadioFilter({ checked, label, name, value }: RadioFilterProps) {
+  return (
+    <label className="flex min-h-8 cursor-pointer items-center gap-2.5 text-sm text-ink-muted">
+      <input
+        className="size-4 accent-brand"
+        defaultChecked={checked}
+        name={name}
+        type="radio"
+        value={value}
+      />
+      <span>{label}</span>
+    </label>
+  );
+}
+
+function FilterHeading({ children }: { readonly children: string }) {
+  return <legend className="text-sm font-bold text-ink">{children}</legend>;
+}
 
 export function CatalogFilterForm({
   values,
+  exerciseOptions,
   hasActiveFilters,
 }: CatalogFilterFormProps) {
   return (
-    <form action={routes.catalog} className="space-y-5" method="get">
-      <div>
-        <label className="text-sm font-semibold text-ink" htmlFor="query">
-          Search
-        </label>
-        <input
-          className={FIELD_CLASSES}
-          defaultValue={values.query}
-          id="query"
-          name="query"
-          placeholder="Name, brand, exercise…"
-          type="search"
-        />
-      </div>
-
-      <div>
-        <label className="text-sm font-semibold text-ink" htmlFor="category">
-          Category
-        </label>
-        <select
-          className={FIELD_CLASSES}
-          defaultValue={values.category ?? ""}
-          id="category"
-          name="category"
-        >
-          <option value="">All categories</option>
+    <form action={routes.catalog} className="space-y-5" id={CATALOG_FILTER_FORM_ID} method="get">
+      <fieldset className={SECTION_CLASSES}>
+        <FilterHeading>Category</FilterHeading>
+        <div className="mt-3 grid gap-1">
+          <RadioFilter checked={!values.category} label="All categories" name="category" value="" />
           {PRODUCT_CATEGORIES.map((category) => (
-            <option key={category} value={category}>
-              {formatCatalogLabel(category)}
-            </option>
+            <RadioFilter
+              checked={values.category === category}
+              key={category}
+              label={formatCatalogLabel(category)}
+              name="category"
+              value={category}
+            />
           ))}
-        </select>
-      </div>
+        </div>
+      </fieldset>
 
-      <div>
-        <label className="text-sm font-semibold text-ink" htmlFor="trainingGoal">
-          Training goal
-        </label>
-        <select
-          className={FIELD_CLASSES}
-          defaultValue={values.trainingGoal ?? ""}
-          id="trainingGoal"
-          name="trainingGoal"
-        >
-          <option value="">All goals</option>
+      <fieldset className={SECTION_CLASSES}>
+        <FilterHeading>Training goal</FilterHeading>
+        <div className="mt-3 grid gap-1">
+          <RadioFilter
+            checked={!values.trainingGoal}
+            label="All goals"
+            name="trainingGoal"
+            value=""
+          />
           {TRAINING_GOALS.map((goal) => (
-            <option key={goal} value={goal}>
-              {formatCatalogLabel(goal)}
-            </option>
+            <RadioFilter
+              checked={values.trainingGoal === goal}
+              key={goal}
+              label={formatCatalogLabel(goal)}
+              name="trainingGoal"
+              value={goal}
+            />
           ))}
-        </select>
-      </div>
+        </div>
+      </fieldset>
 
-      <div>
-        <label className="text-sm font-semibold text-ink" htmlFor="maxPrice">
-          Maximum price (PLN)
-        </label>
-        <input
-          className={FIELD_CLASSES}
-          defaultValue={values.maxPrice}
-          id="maxPrice"
-          inputMode="numeric"
-          min="0"
-          name="maxPrice"
-          placeholder="e.g. 2500"
-          step="1"
-          type="number"
-        />
-      </div>
+      <fieldset className={SECTION_CLASSES}>
+        <FilterHeading>Price and exercise</FilterHeading>
+        <div className="mt-3 grid gap-4">
+          <NumberField
+            defaultValue={values.maxPrice}
+            id="maxPrice"
+            label="Maximum price (PLN)"
+            name="maxPrice"
+            placeholder="No limit"
+          />
+          <div>
+            <label className="text-xs font-medium text-ink-muted" htmlFor="exercise">
+              Exercise
+            </label>
+            <select
+              className={FIELD_CLASSES}
+              defaultValue={values.exercise ?? ""}
+              id="exercise"
+              name="exercise"
+            >
+              <option value="">All exercises</option>
+              {exerciseOptions.map((exercise) => (
+                <option key={exercise} value={exercise}>
+                  {formatCatalogLabel(exercise)}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </fieldset>
 
-      <div className="flex flex-wrap gap-2">
-        <button className={buttonClassName("primary")} type="submit">
+      <fieldset className={SECTION_CLASSES}>
+        <FilterHeading>Maximum dimensions</FilterHeading>
+        <div className="mt-3 grid gap-3">
+          <NumberField
+            defaultValue={values.maxWidthCm}
+            id="maxWidthCm"
+            label="Width (cm)"
+            name="maxWidthCm"
+            placeholder="Width up to"
+          />
+          <NumberField
+            defaultValue={values.maxDepthCm}
+            id="maxDepthCm"
+            label="Depth (cm)"
+            name="maxDepthCm"
+            placeholder="Depth up to"
+          />
+          <NumberField
+            defaultValue={values.maxHeightCm}
+            id="maxHeightCm"
+            label="Product height (cm)"
+            name="maxHeightCm"
+            placeholder="Height up to"
+          />
+        </div>
+      </fieldset>
+
+      <fieldset className={SECTION_CLASSES}>
+        <FilterHeading>Requirements</FilterHeading>
+        <div className="mt-3 grid gap-4">
+          <NumberField
+            defaultValue={values.availableCeilingHeightCm}
+            id="availableCeilingHeightCm"
+            label="Available ceiling height (cm)"
+            name="availableCeilingHeightCm"
+            placeholder="Ceiling height"
+          />
+          <div>
+            <label className="text-xs font-medium text-ink-muted" htmlFor="anchoring">
+              Anchoring
+            </label>
+            <select
+              className={FIELD_CLASSES}
+              defaultValue={values.anchoring ?? ""}
+              id="anchoring"
+              name="anchoring"
+            >
+              <option value="">Any requirement</option>
+              {ANCHORING_FILTER_VALUES.map((anchoring) => (
+                <option key={anchoring} value={anchoring}>
+                  {anchoring === "none" ? "No anchoring" : formatCatalogLabel(anchoring)}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <div className="grid gap-2">
+        <button className={buttonClassName("primary", "w-full")} type="submit">
           Apply filters
         </button>
         {hasActiveFilters ? (
-          <Link
-            className={buttonClassName("secondary")}
-            href={routes.catalog}
-          >
-            Clear
+          <Link className={buttonClassName("secondary", "w-full")} href={routes.catalog}>
+            Clear filters
           </Link>
         ) : null}
       </div>

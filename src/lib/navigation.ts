@@ -28,7 +28,7 @@ export function productRoute(slug: string) {
 
 export const siteLinks = {
   logo: { label: "Home Gym Creator", href: routes.home },
-  catalog: { label: "Equipment", href: routes.catalog },
+  catalog: { label: "Catalog", href: routes.catalog },
   openCreator: { label: "Open creator", href: creatorRoute("new") },
   runDemo: { label: "Run the sample project", href: creatorRoute("demo") },
   startEmpty: { label: "Start from an empty room", href: creatorRoute("new") },
@@ -39,7 +39,11 @@ export const siteLinks = {
   designMyGym: { label: "Design my gym", href: creatorRoute("new") },
 } as const satisfies Record<string, SiteLink>;
 
-export const headerLinks = [siteLinks.catalog] as const;
+export const headerLinks = [
+  { label: "How it works", href: routes.home },
+  { label: "Creator", href: creatorRoute("new") },
+  siteLinks.catalog,
+] as const satisfies readonly SiteLink[];
 
 export const footerLinks = [
   siteLinks.catalog,

@@ -14,15 +14,27 @@ describe("catalog tool input schemas", () => {
     expect(
       searchProductsInputSchema.parse({
         query: "  adjustable dumbbells  ",
-        category: "weights",
+        category: "dumbbells",
         maxPrice: 1800,
+        maxWidthCm: 80,
+        maxDepthCm: 60,
+        maxHeightCm: 50,
         trainingGoal: "strength",
+        exercise: "  dumbbell   press ",
+        availableCeilingHeightCm: 220,
+        anchoring: "none",
       }),
     ).toEqual({
       query: "adjustable dumbbells",
-      category: "weights",
+      category: "dumbbells",
       maxPrice: 1800,
+      maxWidthCm: 80,
+      maxDepthCm: 60,
+      maxHeightCm: 50,
       trainingGoal: "strength",
+      exercise: "dumbbell   press",
+      availableCeilingHeightCm: 220,
+      anchoring: "none",
     });
   });
 
@@ -33,7 +45,13 @@ describe("catalog tool input schemas", () => {
     { maxPrice: -1 },
     { maxPrice: 1.5 },
     { maxPrice: "1000" },
+    { maxWidthCm: -1 },
+    { maxDepthCm: 1.5 },
+    { maxHeightCm: "200" },
     { trainingGoal: "speed" },
+    { exercise: "   " },
+    { availableCeilingHeightCm: -1 },
+    { anchoring: "optional" },
     { unexpected: true },
   ])("rejects invalid search input: %j", (input) => {
     expect(searchProductsInputSchema.safeParse(input).success).toBe(false);
@@ -61,7 +79,13 @@ describe("catalog tool input schemas", () => {
         query: { type: "string", maxLength: 120 },
         category: { type: "string" },
         maxPrice: { type: "integer", minimum: 0 },
+        maxWidthCm: { type: "integer", minimum: 0 },
+        maxDepthCm: { type: "integer", minimum: 0 },
+        maxHeightCm: { type: "integer", minimum: 0 },
         trainingGoal: { type: "string" },
+        exercise: { type: "string", maxLength: 120 },
+        availableCeilingHeightCm: { type: "integer", minimum: 0 },
+        anchoring: { type: "string" },
       },
     });
     expect(searchProductsJsonSchema).not.toHaveProperty("required");

@@ -14,7 +14,7 @@ export const catalogWebMcpTools: readonly WebMcpTool[] = [
     name: "search_products",
     title: "Search home gym equipment",
     description:
-      "Search the Home Gym Creator catalog by text, category, maximum PLN price, and training goal.",
+      "Search home gym equipment by text, category, price, stored dimensions, training goal, exact exercise, available ceiling height, and effective anchoring requirement. All supplied filters are combined.",
     inputSchema: searchProductsJsonSchema,
     annotations: { readOnlyHint: true },
     execute: createSearchProductsHandler(),

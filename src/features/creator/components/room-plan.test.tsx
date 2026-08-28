@@ -20,10 +20,10 @@ const obstacle = {
   locked: false,
 } as const;
 
-function projectWithObstacle(locked = false): GymProject {
+function projectWithObstacle(locked = false, name: string = obstacle.name): GymProject {
   return {
     ...createDefaultProject(),
-    obstacles: [{ ...obstacle, locked }],
+    obstacles: [{ ...obstacle, locked, name }],
   };
 }
 
@@ -37,9 +37,9 @@ function StoreProbe() {
   );
 }
 
-function renderPlan(locked = false) {
+function renderPlan(locked = false, name: string = obstacle.name) {
   render(
-    <ProjectStoreProvider initialProject={projectWithObstacle(locked)}>
+    <ProjectStoreProvider initialProject={projectWithObstacle(locked, name)}>
       <StoreProbe />
       <RoomPlan
         activeTool={null}
@@ -64,7 +64,7 @@ function renderPlan(locked = false) {
     y: 0,
     toJSON: () => undefined,
   });
-  return screen.getByRole("button", { name: /Wardrobe, physical obstacle/ });
+  return screen.getByRole("button", { name: `${name}, physical obstacle${locked ? ", locked" : ""}` });
 }
 
 function PlacementProbe() {
@@ -123,6 +123,19 @@ afterEach(() => {
 });
 
 describe("RoomPlan dragging", () => {
+  it("keeps long labels inside the footprint and uses a lock icon", () => {
+    const longName = "Wardrobe with a name too long for its footprint";
+    const entity = renderPlan(true, longName);
+    const label = entity.querySelector(".creator-entity-label");
+    const labelContainer = entity.querySelector(".creator-entity-label-container");
+
+    expect(label?.textContent).toBe(longName);
+    expect(label?.getAttribute("title")).toBe(longName);
+    expect(Number(labelContainer?.getAttribute("width"))).toBeLessThan(120);
+    expect(entity.querySelector(".creator-entity-lock")).toBeTruthy();
+    expect(entity.querySelector(".creator-entity-mark")?.textContent).not.toBe("L");
+  });
+
   it("commits many pointer moves as one store revision", () => {
     const entity = renderPlan();
     fireEvent.pointerDown(entity, { button: 0, clientX: 100, clientY: 100, pointerId: 7 });

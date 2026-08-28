@@ -1,17 +1,23 @@
+import { Search } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { Card } from "@/components/ui/card";
-import { LinkButton } from "@/components/ui/link-button";
-import { CatalogFilterForm } from "@/features/catalog/components/catalog-filter-form";
-import { formatCatalogLabel } from "@/features/catalog/components/catalog-formatters";
+import {
+  CATALOG_FILTER_FORM_ID,
+  CatalogFilterForm,
+} from "@/features/catalog/components/catalog-filter-form";
+import { formatCatalogLabel, formatPricePln } from "@/features/catalog/components/catalog-formatters";
+import { CatalogProjectSummary } from "@/features/catalog/components/catalog-project-summary";
 import { ProductCard } from "@/features/catalog/components/product-card";
 import {
+  getCatalogExerciseOptions,
   normalizeCatalogFilters,
   parseCatalogSearchParams,
   searchProducts,
   type CatalogSearchParams,
 } from "@/features/catalog/queries";
-import { siteLinks } from "@/lib/navigation";
+import { routes } from "@/lib/navigation";
 
 export const metadata: Metadata = {
   title: "Equipment — Home Gym Creator",
@@ -22,14 +28,18 @@ export const metadata: Metadata = {
 function activeFilterLabels(filters: ReturnType<typeof normalizeCatalogFilters>) {
   return [
     filters.query ? `Search: “${filters.query}”` : undefined,
-    filters.category
-      ? `Category: ${formatCatalogLabel(filters.category)}`
+    filters.category ? `Category: ${formatCatalogLabel(filters.category)}` : undefined,
+    filters.trainingGoal ? `Goal: ${formatCatalogLabel(filters.trainingGoal)}` : undefined,
+    filters.maxPrice !== undefined ? `Up to ${formatPricePln(filters.maxPrice)}` : undefined,
+    filters.maxWidthCm !== undefined ? `Width ≤ ${filters.maxWidthCm} cm` : undefined,
+    filters.maxDepthCm !== undefined ? `Depth ≤ ${filters.maxDepthCm} cm` : undefined,
+    filters.maxHeightCm !== undefined ? `Height ≤ ${filters.maxHeightCm} cm` : undefined,
+    filters.exercise ? `Exercise: ${formatCatalogLabel(filters.exercise)}` : undefined,
+    filters.availableCeilingHeightCm !== undefined
+      ? `Ceiling: ${filters.availableCeilingHeightCm} cm`
       : undefined,
-    filters.trainingGoal
-      ? `Goal: ${formatCatalogLabel(filters.trainingGoal)}`
-      : undefined,
-    filters.maxPrice !== undefined
-      ? `Up to PLN ${filters.maxPrice.toLocaleString("en-GB")}`
+    filters.anchoring
+      ? `Anchoring: ${filters.anchoring === "none" ? "None" : formatCatalogLabel(filters.anchoring)}`
       : undefined,
   ].filter((label): label is string => Boolean(label));
 }
@@ -39,94 +49,122 @@ export default async function CatalogPage({
 }: {
   readonly searchParams: Promise<CatalogSearchParams>;
 }) {
-  const params = await searchParams;
-  const filters = parseCatalogSearchParams(params);
+  const filters = parseCatalogSearchParams(await searchParams);
   const products = searchProducts(filters);
   const filterLabels = activeFilterLabels(filters);
 
   return (
-    <main className="flex-1">
-      <section className="mx-auto w-full max-w-6xl px-6 py-12 sm:py-16">
-        <div className="max-w-3xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
-            Equipment catalog
-          </p>
-          <h1 className="mt-3 text-4xl font-bold tracking-tight text-ink sm:text-5xl">
-            Equipment measured for real rooms.
+    <main className="flex-1 bg-surface">
+      <section className="mx-auto w-full max-w-[96rem] px-4 py-8 sm:px-6 lg:px-8">
+        <nav aria-label="Breadcrumb" className="text-sm text-ink-muted">
+          <Link className="font-medium text-brand hover:underline" href={routes.home}>
+            Home
+          </Link>
+          <span aria-hidden="true" className="mx-2 text-ink-subtle">
+            /
+          </span>
+          <span aria-current="page">Catalog</span>
+        </nav>
+
+        <div className="mt-6">
+          <h1 className="text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+            Equipment for your home gym
           </h1>
-          <p className="mt-4 text-lg leading-8 text-ink-muted">
-            Browse fictional products with their physical footprint and the
-            extra space needed to train safely. The creator and its agent use
-            these same records.
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-ink-muted sm:text-base">
+            Compare price, dimensions, and required training space. Choose equipment that matches
+            your room, budget, and goals.
           </p>
         </div>
 
-        <div className="mt-10 grid items-start gap-8 lg:grid-cols-[17rem_minmax(0,1fr)]">
-          <Card className="p-5 lg:sticky lg:top-24">
-            <h2 className="text-lg font-bold text-ink">Filter equipment</h2>
-            <p className="mt-1 text-sm leading-6 text-ink-muted">
-              Filters stay in the URL, so this view is easy to save or share.
-            </p>
-            <div className="mt-5">
+        <div className="mt-7 grid items-start gap-7 lg:grid-cols-[15rem_minmax(0,1fr)] xl:grid-cols-[15rem_minmax(0,1fr)_18rem]">
+          <aside aria-labelledby="filters-heading">
+            <Card className="rounded-lg p-4">
+              <h2 className="mb-5 text-lg font-bold text-ink" id="filters-heading">
+                Filters
+              </h2>
               <CatalogFilterForm
+                exerciseOptions={getCatalogExerciseOptions()}
                 hasActiveFilters={filterLabels.length > 0}
                 values={filters}
               />
-            </div>
-          </Card>
+            </Card>
+          </aside>
 
-          <div>
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <div aria-live="polite">
-                <p className="text-sm font-semibold text-ink">
+          <section aria-labelledby="results-heading" className="min-w-0">
+            <h2 className="sr-only" id="results-heading">
+              Catalog results
+            </h2>
+
+            <div className="flex flex-col gap-3 md:flex-row md:items-center">
+              <div className="relative min-w-0 flex-1">
+                <Search
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-3.5 top-1/2 size-5 -translate-y-1/2 text-ink-subtle"
+                />
+                <label className="sr-only" htmlFor="catalog-query">
+                  Search equipment
+                </label>
+                <input
+                  className="min-h-11 w-full rounded-md border border-line bg-surface py-2.5 pl-11 pr-4 text-base text-ink outline-none transition placeholder:text-ink-subtle focus:border-brand focus:ring-2 focus:ring-brand-muted"
+                  defaultValue={filters.query}
+                  form={CATALOG_FILTER_FORM_ID}
+                  id="catalog-query"
+                  name="query"
+                  placeholder="Search equipment, exercises, or categories"
+                  type="search"
+                />
+              </div>
+              <div className="flex min-h-11 items-center justify-between gap-4 md:justify-end">
+                <span className="rounded-md border border-line bg-surface px-4 py-2.5 text-sm font-semibold text-ink">
+                  Best match
+                </span>
+                <p aria-atomic="true" aria-live="polite" className="whitespace-nowrap text-sm text-ink-muted">
                   {products.length} {products.length === 1 ? "product" : "products"}
                 </p>
-                {filterLabels.length > 0 ? (
-                  <ul
-                    aria-label="Active filters"
-                    className="mt-2 flex flex-wrap gap-2"
-                  >
-                    {filterLabels.map((label) => (
-                      <li
-                        className="rounded-full bg-brand-soft px-3 py-1 text-xs font-medium text-brand-strong"
-                        key={label}
-                      >
-                        {label}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="mt-1 text-sm text-ink-muted">
-                    Showing the complete starter catalog.
-                  </p>
-                )}
               </div>
-              <LinkButton href={siteLinks.openCreator.href} variant="secondary">
-                {siteLinks.openCreator.label}
-              </LinkButton>
             </div>
 
+            {filterLabels.length > 0 ? (
+              <ul aria-label="Active filters" className="mt-3 flex flex-wrap gap-2">
+                {filterLabels.map((label) => (
+                  <li
+                    className="rounded-full bg-brand-soft px-3 py-1 text-xs font-medium text-brand-strong"
+                    key={label}
+                  >
+                    {label}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+
             {products.length > 0 ? (
-              <div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                {products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+              <div className="mt-5 grid gap-5 md:grid-cols-2 2xl:grid-cols-3">
+                {products.map((product, index) => (
+                  <ProductCard key={product.id} position={index + 1} product={product} />
                 ))}
               </div>
             ) : (
-              <Card className="mt-6 px-6 py-12 text-center">
+              <Card className="mt-5 rounded-lg px-6 py-14 text-center">
                 <h2 className="text-2xl font-bold tracking-tight text-ink">
-                  No equipment matches these filters.
+                  No equipment matches these filters
                 </h2>
                 <p className="mx-auto mt-3 max-w-lg text-ink-muted">
-                  Try a broader search, increase the maximum price, or clear
-                  the filters to return to the full starter catalog.
+                  Try a broader search, increase a limit, or clear the filters to see the complete
+                  catalog.
                 </p>
-                <LinkButton className="mt-6" href="/catalog" variant="secondary">
+                <Link
+                  className="mt-6 inline-flex font-semibold text-brand hover:underline"
+                  href={routes.catalog}
+                >
                   Clear all filters
-                </LinkButton>
+                </Link>
               </Card>
             )}
-          </div>
+          </section>
+
+          <aside className="lg:col-span-2 xl:col-span-1" aria-label="Project summary">
+            <CatalogProjectSummary />
+          </aside>
         </div>
       </section>
     </main>
