@@ -1,302 +1,302 @@
-# WebMCP Challenge — źródła i wymagania
+# WebMCP Challenge — sources and requirements
 
-> Stan informacji: 27 sierpnia 2026. Ten dokument jest roboczym podsumowaniem. W przypadku rozbieżności źródłem rozstrzygającym są aktualne oficjalne zasady opublikowane przez Devpost.
+> Information status: 27 August 2026. This document is a working summary. If there is a discrepancy, the current official rules published by Devpost are the deciding source.
 
-## Najważniejsze linki
+## Key links
 
-### Strony challenge'u
+### Challenge pages
 
-- [WebMCP Challenge na Devpost](https://webmcp.devpost.com/) — rejestracja, terminy, wymagania i formularz zgłoszeniowy.
-- [Oficjalny regulamin](https://webmcp.devpost.com/rules) — pełne, prawnie wiążące zasady.
-- [Materiały i zasoby Devpost](https://webmcp.devpost.com/resources) — dokumentacja, przykłady i materiały partnerów.
-- [Strona challenge'u na OpenAI](https://openai.com/webmcp-challenge/) — opis idei, daty, nagrody i inspiracje.
-- [WebMCP Showcase](https://developers.openai.com/showcase?view=webmcp-apps) — przykładowe aplikacje agent-native.
+- [WebMCP Challenge on Devpost](https://webmcp.devpost.com/) — registration, deadlines, requirements, and the submission form.
+- [Official rules](https://webmcp.devpost.com/rules) — the full, legally binding rules.
+- [Devpost materials and resources](https://webmcp.devpost.com/resources) — documentation, examples, and partner materials.
+- [Challenge page on OpenAI](https://openai.com/webmcp-challenge/) — idea, dates, prizes, and inspiration.
+- [WebMCP Showcase](https://developers.openai.com/showcase?view=webmcp-apps) — example agent-native applications.
 
-### Dokumentacja WebMCP
+### WebMCP documentation
 
-- [OpenAI Docs — Site tools / WebMCP](https://learn.chatgpt.com/docs/webmcp) — sposób działania WebMCP w ChatGPT i Codex.
-- [Specyfikacja WebMCP](https://webmachinelearning.github.io/webmcp/) — proponowany standard i API.
-- [Repozytorium WebMCP](https://github.com/webmachinelearning/webmcp) — źródła specyfikacji, explainery i otwarte problemy.
-- [Dokumentacja WebMCP dla Chrome](https://developer.chrome.com/docs/ai/webmcp) — API, uruchamianie i testowanie.
-- [WebMCP best practices](https://developer.chrome.com/docs/ai/webmcp/best-practices) — projektowanie nazw, schematów i zestawu narzędzi.
-- [WebMCP tool security](https://developer.chrome.com/docs/ai/webmcp/secure-tools) — bezpieczeństwo, zaufanie i prompt injection.
+- [OpenAI Docs — Site tools / WebMCP](https://learn.chatgpt.com/docs/webmcp) — how WebMCP works in ChatGPT and Codex.
+- [WebMCP specification](https://webmachinelearning.github.io/webmcp/) — the proposed standard and API.
+- [WebMCP repository](https://github.com/webmachinelearning/webmcp) — specification sources, explainers, and open issues.
+- [Chrome WebMCP documentation](https://developer.chrome.com/docs/ai/webmcp) — API, setup, and testing.
+- [WebMCP best practices](https://developer.chrome.com/docs/ai/webmcp/best-practices) — designing names, schemas, and the tool set.
+- [WebMCP tool security](https://developer.chrome.com/docs/ai/webmcp/secure-tools) — security, trust, and prompt injection.
 
-## Cel challenge'u
+## Challenge goal
 
-Należy zbudować działającą aplikację webową wykorzystującą WebMCP, która pokazuje przyszłość otwartego internetu, w którym ludzie i agenci mogą wspólnie wykonywać zadania, współpracować i tworzyć.
+Build a working web application that uses WebMCP and shows the future of an open internet where people and agents can perform tasks, collaborate, and create together.
 
-Projekt powinien być **znacząco lepszy dzięki wspólnej pracy człowieka i agenta**. Samo dodanie pojedynczego narzędzia WebMCP do zwykłej strony może nie wystarczyć do uzyskania wysokiej oceny za wykorzystanie technologii.
+The project should be **meaningfully better because of human–agent collaboration**. Adding a single WebMCP tool to an ordinary page may not be enough to score highly on technology use.
 
-WebMCP umożliwia stronie udostępnienie agentowi uporządkowanych narzędzi działających na otwartej stronie i jej aktualnym stanie. Agent nie musi zgadywać kolejnych kliknięć w interfejsie — może wywoływać zdefiniowane operacje z wejściami opisanymi przez JSON Schema.
+WebMCP lets a page expose structured tools that operate on the open page and its current state. The agent does not have to guess the next clicks in the UI — it can call defined operations with inputs described by JSON Schema.
 
-## Najważniejsze terminy
+## Key dates
 
-- **Otwarcie rejestracji i zgłoszeń:** 25 sierpnia 2026.
-- **Deadline zgłoszenia:** 3 września 2026, godz. 13:00 PDT.
-- **Deadline w Polsce:** 3 września 2026, godz. 22:00 CEST.
-- **Okres oceniania:** 4–21 września 2026.
-- **Planowane ogłoszenie wyników:** około 23 września 2026; termin może ulec zmianie.
+- **Registration and submissions open:** 25 August 2026.
+- **Submission deadline:** 3 September 2026, 1:00 PM PDT.
+- **Deadline in Poland:** 3 September 2026, 10:00 PM CEST.
+- **Judging period:** 4–21 September 2026.
+- **Planned results announcement:** around 23 September 2026; the date may change.
 
-Po zakończeniu okresu zgłoszeń nie można swobodnie zmieniać wysłanego submission. Devpost może zezwolić jedynie na ograniczone korekty, między innymi w przypadku naruszeń praw, ujawnienia danych osobowych lub nieodpowiednich materiałów.
+After the submission period ends, the sent submission cannot be freely changed. Devpost may allow only limited corrections, including for rights violations, personal-data disclosure, or inappropriate materials.
 
-## Kto może uczestniczyć
+## Who can participate
 
-Challenge jest przeznaczony dla:
+The challenge is intended for:
 
-- pełnoletnich uczestników spełniających wymagania kraju zamieszkania,
-- zespołów złożonych z uprawnionych uczestników,
-- uprawnionych organizacji.
+- adult participants who meet the requirements of their country of residence,
+- teams composed of eligible participants,
+- eligible organizations.
 
-Uczestnik lub organizacja musi pochodzić z kraju albo terytorium obsługiwanego przez OpenAI API i nie może podlegać wyłączeniom opisanym w regulaminie. Zespół lub organizacja musi wyznaczyć jednego reprezentanta upoważnionego do dokonania zgłoszenia.
+A participant or organization must come from a country or territory served by the OpenAI API and must not be subject to exclusions described in the rules. A team or organization must designate one representative authorized to make the submission.
 
-Przed wysłaniem projektu należy ponownie sprawdzić sekcję Eligibility w [oficjalnym regulaminie](https://webmcp.devpost.com/rules).
+Before sending the project, re-check the Eligibility section in the [official rules](https://webmcp.devpost.com/rules).
 
-## Wymagania dotyczące projektu
+## Project requirements
 
-Projekt musi:
+The project must:
 
-- być aplikacją webową wykorzystującą WebMCP,
-- działać stabilnie i zgodnie z zachowaniem przedstawionym w opisie oraz filmie,
-- być dostępny na platformie wskazanej w zgłoszeniu,
-- posiadać nietrywialną, działającą implementację WebMCP,
-- umożliwiać jurorom dostęp i testowanie bez opłat oraz ograniczeń w okresie oceniania,
-- być oryginalną pracą uczestnika lub zespołu,
-- nie naruszać praw autorskich, znaków towarowych, prywatności ani innych praw osób trzecich.
+- be a web application that uses WebMCP,
+- run stably and match the behavior shown in the description and video,
+- be available on the platform named in the submission,
+- have a non-trivial, working WebMCP implementation,
+- allow judges to access and test it without fees or restrictions during the judging period,
+- be original work of the participant or team,
+- not infringe copyrights, trademarks, privacy, or other third-party rights.
 
-Aplikacja może być hostowana między innymi na ChatGPT Sites, Cloudflare, Vercel, Render, Netlify, Shopify lub dowolnej innej platformie.
+The application may be hosted on ChatGPT Sites, Cloudflare, Vercel, Render, Netlify, Shopify, or any other platform.
 
-Autoryzacja jest dozwolona. Jeżeli aplikacja wymaga logowania, w zgłoszeniu trzeba podać działające dane testowe i jasne instrukcje dostępu.
+Authorization is allowed. If the application requires login, the submission must include working test credentials and clear access instructions.
 
-## Nowy lub istniejący projekt
+## New or existing project
 
-Dozwolone są dwa przypadki:
+Two cases are allowed:
 
-1. nowy projekt utworzony w okresie challenge'u,
-2. istniejący projekt znacząco rozszerzony o WebMCP po rozpoczęciu okresu zgłoszeń.
+1. a new project created during the challenge period,
+2. an existing project substantially extended with WebMCP after the submission period began.
 
-W przypadku wcześniejszego projektu oceniana jest wyłącznie praca dodana podczas challenge'u. Trzeba jasno odróżnić wcześniejszy zakres od nowych zmian i posiadać dowody, na przykład datowaną historię commitów.
+For a prior project, only work added during the challenge is judged. Clearly distinguish the earlier scope from the new changes and keep evidence, for example a dated commit history.
 
-Dla Home Gym Creatora oznacza to, że warto:
+For Home Gym Creator, that means it is worth:
 
-- utrzymywać czytelną historię Git od początku pracy,
-- wykonywać regularne, opisowe commity,
-- zaznaczyć w README, że projekt został utworzony na WebMCP Challenge,
-- opisać, które elementy realizują WebMCP.
+- keeping a readable Git history from the start of the work,
+- making regular, descriptive commits,
+- noting in the README that the project was created for the WebMCP Challenge,
+- describing which parts implement WebMCP.
 
-## Integracje i materiały zewnętrzne
+## Integrations and external materials
 
-Jeżeli projekt wykorzystuje zewnętrzne API, SDK, dane, modele 3D, zdjęcia, fonty, muzykę lub inne materiały, uczestnik musi posiadać prawo do ich wykorzystania i przestrzegać odpowiednich licencji.
+If the project uses external APIs, SDKs, data, 3D models, photos, fonts, music, or other materials, the participant must have the right to use them and must follow the relevant licenses.
 
-Dla Home Gym Creatora najbezpieczniejszy wariant na hackathon to:
+For Home Gym Creator, the safest hackathon variant is:
 
-- fikcyjne marki i produkty,
-- własne dane katalogowe,
-- własne lub prawidłowo licencjonowane modele i grafiki,
-- brak cudzej muzyki w filmie,
-- zapisanie licencji użytych zależności i assetów.
+- fictional brands and products,
+- own catalog data,
+- own or properly licensed models and graphics,
+- no third-party music in the video,
+- recording the licenses of used dependencies and assets.
 
-## Elementy wymagane w submission
+## Required submission elements
 
-### 1. Działający publiczny adres aplikacji
+### 1. Working public application URL
 
-Trzeba przekazać działający live URL dostępny dla jurorów w:
+Provide a working live URL available to judges in:
 
-- przeglądarce wbudowanej w ChatGPT, albo
-- Google Chrome z włączoną obsługą WebMCP.
+- the in-app browser in ChatGPT, or
+- Google Chrome with WebMCP enabled.
 
-Adres musi pozostać bezpłatnie dostępny do zakończenia okresu oceniania. Nie należy zakładać, że jurorzy samodzielnie naprawią konfigurację, utworzą konto albo domyślą się sposobu uruchomienia projektu.
+The address must remain freely available until the judging period ends. Do not assume that judges will fix configuration themselves, create an account, or guess how to run the project.
 
-### 2. Opis tekstowy projektu
+### 2. Project text description
 
-Opis musi wyjaśniać:
+The description must explain:
 
-- dlaczego przypadek użycia dobrze pasuje do WebMCP,
-- w jaki sposób WebMCP poprawia doświadczenie użytkownika,
-- co człowiek i agent mogą zrobić razem, co wcześniej było trudne lub niemożliwe,
-- w jaki sposób WebMCP zostało zaimplementowane.
+- why the use case fits WebMCP well,
+- how WebMCP improves the user experience,
+- what a human and an agent can do together that was previously hard or impossible,
+- how WebMCP was implemented.
 
-Opis powinien również jasno przedstawić:
+The description should also clearly present:
 
-- realny problem i docelowego użytkownika,
-- główny scenariusz demonstracyjny,
-- najważniejsze funkcje aplikacji,
-- zakres działania agenta,
-- rolę deterministycznej logiki aplikacji,
-- ograniczenia prototypu.
+- the real problem and target user,
+- the main demo scenario,
+- the application's most important features,
+- the agent's scope of action,
+- the role of the application's deterministic logic,
+- prototype limitations.
 
-### 3. Publiczne repozytorium
+### 3. Public repository
 
-Trzeba podać publiczny adres repozytorium w GitHub, GitLab albo Bitbucket. Repozytorium musi zawierać:
+Provide a public repository URL on GitHub, GitLab, or Bitbucket. The repository must contain:
 
-- cały wymagany kod źródłowy,
-- wymagane assety,
-- instrukcje instalacji i uruchomienia,
-- instrukcje testowania WebMCP,
-- plik licencji open source,
-- faktyczną implementację narzędzi WebMCP, np. przez `document.modelContext.registerTool(...)`.
+- all required source code,
+- required assets,
+- install and run instructions,
+- WebMCP testing instructions,
+- an open-source license file,
+- an actual WebMCP tool implementation, for example via `document.modelContext.registerTool(...)`.
 
-Licencja powinna być wykrywana i widoczna u góry strony repozytorium, w sekcji About. Przed wysłaniem trzeba sprawdzić widok repozytorium jako niezalogowany użytkownik.
+The license should be detected and visible at the top of the repository page, in the About section. Before sending, check the repository view as a logged-out user.
 
-Zalecana zawartość README:
+Recommended README contents:
 
-- krótki opis produktu,
+- a short product description,
 - live demo URL,
-- zrzuty ekranu lub GIF,
-- wymagania środowiskowe,
-- instalacja i uruchomienie,
-- uruchomienie testów,
-- instrukcja włączenia WebMCP,
-- lista udostępnianych narzędzi,
-- przykładowe prompty demonstracyjne,
-- architektura aplikacji,
-- informacja o licencji i assetach.
+- screenshots or a GIF,
+- environment requirements,
+- installation and run steps,
+- how to run tests,
+- how to enable WebMCP,
+- a list of exposed tools,
+- sample demo prompts,
+- application architecture,
+- license and asset information.
 
-### 4. Film demonstracyjny
+### 4. Demo video
 
-Film musi:
+The video must:
 
-- trwać **krócej niż 3 minuty**,
-- pokazywać działający projekt,
-- zawierać dźwięk lub narrację wyjaśniającą produkt i wykorzystanie WebMCP,
-- być publicznie dostępny w YouTube,
-- zostać podlinkowany w formularzu zgłoszeniowym,
-- nie zawierać cudzych znaków towarowych, muzyki lub materiałów chronionych bez odpowiedniego pozwolenia.
+- last **less than 3 minutes**,
+- show the working project,
+- include audio or narration explaining the product and WebMCP use,
+- be publicly available on YouTube,
+- be linked in the submission form,
+- not contain third-party trademarks, music, or protected materials without appropriate permission.
 
-Jurorzy nie muszą oglądać materiału po przekroczeniu trzech minut. Mogą też ocenić zgłoszenie bez samodzielnego testowania aplikacji, wyłącznie na podstawie filmu, tekstu i grafik. Dlatego film powinien pokazywać cały najważniejszy przepływ, a nie tylko zapowiadać dostępne funkcje.
+Judges do not have to watch material beyond three minutes. They may also score the submission without testing the application themselves, based only on the video, text, and graphics. The video should therefore show the entire most important flow, not only announce available features.
 
-### 5. Język zgłoszenia
+### 5. Submission language
 
-Wszystkie materiały zgłoszeniowe muszą być w języku angielskim. Jeżeli któryś materiał jest w innym języku, trzeba dostarczyć angielskie tłumaczenie, w tym dla:
+All submission materials must be in English. If any material is in another language, an English translation must be provided, including for:
 
-- filmu,
-- opisu,
-- instrukcji testowania,
-- pozostałych materiałów submission.
+- the video,
+- the description,
+- testing instructions,
+- remaining submission materials.
 
-Najprościej przygotować od początku angielski interfejs aplikacji, README, narrację filmu i opis na Devpost.
+The simplest approach is to prepare an English application UI, README, video narration, and Devpost description from the start.
 
-## Testowanie WebMCP
+## Testing WebMCP
 
-Według aktualnej dokumentacji challenge'u projekt można testować na dwa sposoby:
+According to the current challenge documentation, the project can be tested in two ways:
 
 ### ChatGPT / Codex
 
-- użyć aktualnej aplikacji desktopowej ChatGPT,
-- otworzyć stronę we wbudowanej przeglądarce,
-- pozwolić agentowi odkryć narzędzia strony,
-- testować wywołania na tej samej otwartej stronie i sesji.
+- use the current ChatGPT desktop application,
+- open the page in the in-app browser,
+- let the agent discover the page's tools,
+- test calls on that same open page and session.
 
-Według aktualnych OpenAI Docs site tools działają z GPT-5.6 Sol i GPT-5.6 Terra; GPT-5.6 Luna ma obecnie WebMCP wyłączone. Stan dostępności może się zmienić, dlatego należy go ponownie sprawdzić przed nagrywaniem filmu i submission.
+According to current OpenAI Docs, site tools work with GPT-5.6 Sol and GPT-5.6 Terra; GPT-5.6 Luna currently has WebMCP disabled. Availability may change, so re-check it before recording the video and submitting.
 
 ### Google Chrome
 
-- użyć Chrome 149 lub nowszego,
-- wejść na `chrome://flags/#enable-webmcp-testing`,
-- ustawić flagę jako włączoną,
-- ponownie uruchomić przeglądarkę,
-- zweryfikować rejestrację, schematy wejściowe, odpowiedzi i błędy narzędzi.
+- use Chrome 149 or newer,
+- go to `chrome://flags/#enable-webmcp-testing`,
+- set the flag to enabled,
+- restart the browser,
+- verify registration, input schemas, responses, and tool errors.
 
-Projekt powinien zostać przetestowany w świeżej sesji, ponieważ środowisko jurora nie będzie posiadać stanu lokalnego autora.
+The project should be tested in a fresh session, because a judge's environment will not have the author's local state.
 
-## Kryteria oceny
+## Judging criteria
 
-Najpierw zgłoszenie przechodzi etap pass/fail sprawdzający podstawową zgodność z tematem i wymaganym wykorzystaniem technologii.
+First, the submission goes through a pass/fail stage checking basic fit with the theme and required technology use.
 
-Projekty, które przejdą dalej, są oceniane w czterech równoważnych kategoriach:
+Projects that continue are scored in four equal categories:
 
 ### 1. WebMCP Leverage
 
-- Jak dokładnie i umiejętnie projekt wykorzystuje WebMCP?
-- Czy implementacja jest działająca i nietrywialna?
-- Czy agent rzeczywiście korzysta ze stanu oraz funkcji aplikacji?
+- How accurately and skillfully does the project use WebMCP?
+- Is the implementation working and non-trivial?
+- Does the agent actually use the application's state and functions?
 
 ### 2. Execution
 
-- Czy projekt działa lub można go uruchomić?
-- Czy tworzy spójne, kompletne doświadczenie produktowe?
-- Czy jest czymś więcej niż technicznym proof of concept?
+- Does the project work or can it be run?
+- Does it create a coherent, complete product experience?
+- Is it more than a technical proof of concept?
 
 ### 3. Potential Impact
 
-- Czy projekt rozwiązuje konkretny problem konkretnej grupy użytkowników?
-- Czy demonstracja pokazuje, że rozwiązanie faktycznie odpowiada na ten problem?
+- Does the project solve a concrete problem for a concrete user group?
+- Does the demonstration show that the solution actually addresses that problem?
 
 ### 4. Creativity & Ambition
 
-- Czy koncepcja jest kreatywna i ambitna?
-- Czy różni się od istniejących rozwiązań i pozostałych projektów?
+- Is the concept creative and ambitious?
+- Does it differ from existing solutions and other projects?
 
-W przypadku remisu pierwszeństwo ma wynik w pierwszym kryterium, czyli **WebMCP Leverage**, następnie kolejne kryteria w podanej kolejności.
+In a tie, the first criterion, **WebMCP Leverage**, takes precedence, then the remaining criteria in the given order.
 
-## Jak wymagania przekładają się na Home Gym Creator
+## How the requirements map onto Home Gym Creator
 
-Projekt powinien szczególnie pokazać:
+The project should especially show:
 
-- odczyt aktualnego modelu pokoju przez agenta,
-- tworzenie i edycję przeszkód przez WebMCP,
-- wyszukiwanie produktów według budżetu, rozmiaru i celów,
-- widoczne rozmieszczanie sprzętu przez agenta,
-- deterministyczną walidację kolizji i stref roboczych,
-- iteracyjne poprawianie projektu po wynikach walidacji,
-- ręczną zmianę dokonaną przez użytkownika,
-- reakcję agenta na nowy stan tej samej sceny,
-- końcową listę zakupową i podsumowanie kosztów.
+- the agent reading the current room model,
+- creating and editing obstacles through WebMCP,
+- searching products by budget, size, and goals,
+- visible equipment placement by the agent,
+- deterministic collision and clearance-zone validation,
+- iterative design improvement after validation results,
+- a manual change made by the user,
+- the agent reacting to the new state of the same scene,
+- a final shopping list and cost summary.
 
-Najważniejsza scena dla oceny WebMCP powinna wyglądać tak:
+The most important scene for WebMCP scoring should look like this:
 
-1. użytkownik ręcznie zmienia projekt,
-2. agent odczytuje zaktualizowany stan,
-3. agent wykonuje kilka powiązanych operacji przez WebMCP,
-4. aplikacja waliduje rezultat,
-5. użytkownik widzi i ocenia zmiany w tym samym interfejsie.
+1. the user manually changes the design,
+2. the agent reads the updated state,
+3. the agent performs several related operations through WebMCP,
+4. the application validates the result,
+5. the user sees and judges the changes in the same interface.
 
-## Checklista przed submission
+## Pre-submission checklist
 
-### Organizacja
+### Organization
 
-- [ ] Rejestracja na Devpost została ukończona.
-- [ ] Uczestnik lub wszyscy członkowie zespołu spełniają wymagania Eligibility.
-- [ ] W przypadku zespołu wyznaczono reprezentanta.
-- [ ] Submission jest zapisane jako draft odpowiednio wcześnie.
+- [ ] Devpost registration is complete.
+- [ ] The participant or all team members meet Eligibility requirements.
+- [ ] For a team, a representative has been designated.
+- [ ] The submission is saved as a draft early enough.
 
-### Aplikacja
+### Application
 
-- [ ] Live URL działa bez środowiska deweloperskiego autora.
-- [ ] Aplikacja uruchamia się w przeglądarce ChatGPT.
-- [ ] Aplikacja działa w Chrome z WebMCP.
-- [ ] Narzędzia są wykrywane po świeżym przeładowaniu strony.
-- [ ] Schematy wejściowe są prawidłowe.
-- [ ] Narzędzia read-only i modyfikujące stan zachowują się zgodnie z opisem.
-- [ ] Wyniki narzędzi zawierają dane pozwalające agentowi zweryfikować operację.
-- [ ] Błędy są czytelne dla użytkownika i agenta.
-- [ ] Główny scenariusz demo działa powtarzalnie.
-- [ ] Nie są potrzebne prywatne dane ani lokalny stan autora.
+- [ ] The live URL works without the author's development environment.
+- [ ] The application starts in the ChatGPT browser.
+- [ ] The application works in Chrome with WebMCP.
+- [ ] Tools are discovered after a fresh page reload.
+- [ ] Input schemas are valid.
+- [ ] Read-only and state-modifying tools behave as described.
+- [ ] Tool results include data that lets the agent verify the operation.
+- [ ] Errors are readable for the user and the agent.
+- [ ] The main demo scenario works repeatably.
+- [ ] No private data or author local state is required.
 
-### Repozytorium
+### Repository
 
-- [ ] Repozytorium jest publiczne.
-- [ ] Kod i wszystkie wymagane assety są obecne.
-- [ ] README zawiera kompletne instrukcje.
-- [ ] Dodano plik licencji open source.
-- [ ] Licencja jest wykryta i widoczna w About.
-- [ ] Historia commitów dokumentuje pracę wykonaną podczas challenge'u.
-- [ ] W repozytorium nie ma sekretów, kluczy API ani prywatnych danych.
-- [ ] Licencje zależności, modeli i grafik są zgodne z użyciem.
+- [ ] The repository is public.
+- [ ] Code and all required assets are present.
+- [ ] The README contains complete instructions.
+- [ ] An open-source license file has been added.
+- [ ] The license is detected and visible in About.
+- [ ] Commit history documents work done during the challenge.
+- [ ] The repository contains no secrets, API keys, or private data.
+- [ ] Licenses of dependencies, models, and graphics match the use.
 
-### Film i opis
+### Video and description
 
-- [ ] Film trwa krócej niż 3 minuty.
-- [ ] Film pokazuje działającą aplikację, a nie wyłącznie slajdy.
-- [ ] Film pokazuje rzeczywiste wywołania WebMCP i widoczne rezultaty.
-- [ ] Film ma angielską narrację lub pełne angielskie tłumaczenie.
-- [ ] Film jest publiczny w YouTube.
-- [ ] Nie zawiera nieautoryzowanych znaków, muzyki ani materiałów.
-- [ ] Opis odpowiada na wszystkie cztery wymagane pytania dotyczące WebMCP.
-- [ ] Opis, instrukcje testowania i pozostałe materiały są po angielsku.
+- [ ] The video lasts less than 3 minutes.
+- [ ] The video shows the working application, not only slides.
+- [ ] The video shows real WebMCP calls and visible results.
+- [ ] The video has English narration or a full English translation.
+- [ ] The video is public on YouTube.
+- [ ] It contains no unauthorized marks, music, or materials.
+- [ ] The description answers all four required questions about WebMCP.
+- [ ] The description, testing instructions, and remaining materials are in English.
 
-### Finalizacja
+### Finalization
 
-- [ ] Wszystkie linki sprawdzono w trybie prywatnym lub po wylogowaniu.
-- [ ] Jeśli wymagane jest logowanie, podano działające konto testowe.
-- [ ] Submission wysłano przed 3 września 2026, godz. 22:00 CEST.
-- [ ] Po wysłaniu zapisano kopię tekstu, linków i wersji filmu.
+- [ ] All links were checked in private mode or after logging out.
+- [ ] If login is required, a working test account was provided.
+- [ ] The submission was sent before 3 September 2026, 10:00 PM CEST.
+- [ ] After sending, a copy of the text, links, and video version was saved.

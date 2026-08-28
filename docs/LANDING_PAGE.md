@@ -1,113 +1,113 @@
 # Home Gym Creator — landing page
 
-## Makieta
+## Mockup
 
-![Makieta landing page Home Gym Creator](./mockups/home-gym-landing-page-v1.png)
+![Home Gym Creator landing page mockup](./mockups/home-gym-landing-page-v1.png)
 
-## Cel strony
+## Page goal
 
-Landing page powinien przede wszystkim prowadzić użytkownika do kreatora, a nie do katalogu produktów.
+The landing page should primarily lead the user into the creator, not the product catalog.
 
-Główna obietnica produktu:
+Main product promise:
 
-> Zaprojektuj domową siłownię, która naprawdę zmieści się w Twoim pokoju.
+> Design a home gym that will actually fit in your room.
 
-Strona powinna możliwie szybko pokazać wyróżnik projektu: wspólną pracę użytkownika i agenta nad układem, który uwzględnia wymiary pomieszczenia, przeszkody, strefy bezpieczeństwa, cele treningowe i budżet.
+The page should quickly show the project's differentiator: a user and an agent working together on a layout that accounts for room dimensions, obstacles, clearance zones, training goals, and budget.
 
-## Struktura strony
+## Page structure
 
 ### 1. Hero
 
-Nagłówek:
+Headline:
 
-> Zaprojektuj domową siłownię, która naprawdę zmieści się w Twoim pokoju.
+> Design a home gym that will actually fit in your room.
 
-Opis:
+Description:
 
-> Podaj wymiary, budżet i cele treningowe. Wspólnie z agentem dobierz sprzęt, rozmieść go i sprawdź kolizje oraz strefy bezpieczeństwa.
+> Enter dimensions, budget, and training goals. Together with an agent, choose equipment, place it, and check collisions and clearance zones.
 
-Główne działania:
+Primary actions:
 
-- **Uruchom przykładowy projekt** — podstawowe CTA kierujące do gotowego scenariusza demonstracyjnego.
-- **Zacznij od pustego pokoju** — drugorzędne CTA dla użytkownika, który chce utworzyć własny projekt.
+- **Launch sample project** — the main CTA, sending the user into a ready-made demo scenario.
+- **Start from an empty room** — a secondary CTA for a user who wants to create their own project.
 
-Obok treści należy pokazać makietę kreatora, najlepiej plan 2D z widocznymi strefami bezpieczeństwa i ostrzeżeniem o ograniczeniu przestrzennym.
+Beside the copy, show a creator mockup, ideally a 2D plan with visible clearance zones and a spatial-constraint warning.
 
-### 2. Jak to działa
+### 2. How it works
 
-Proces należy przedstawić w trzech krokach:
+Present the process in three steps:
 
-1. **Opisz przestrzeń** — podaj wymiary, przeszkody, drzwi i wysokość pomieszczenia.
-2. **Podaj cele i budżet** — określ planowane ćwiczenia, preferencje i maksymalny koszt.
-3. **Projektuj razem z agentem** — agent dobiera i rozmieszcza sprzęt, a użytkownik może ręcznie poprawiać projekt.
+1. **Describe the space** — enter dimensions, obstacles, doors, and ceiling height.
+2. **Set goals and budget** — specify planned exercises, preferences, and a maximum cost.
+3. **Design together with an agent** — the agent selects and places equipment, and the user can correct the design by hand.
 
-### 3. Najważniejszy wyróżnik
+### 3. Key differentiator
 
-Landing powinien wyjaśniać, że projekt analizuje równocześnie:
+The landing page should explain that the project analyzes all of the following at once:
 
-- czy sprzęt fizycznie mieści się w pomieszczeniu,
-- czy pozostaje przestrzeń potrzebna do bezpiecznego wykonywania ćwiczeń,
-- czy wybrany zestaw mieści się w budżecie.
+- whether the equipment physically fits in the room,
+- whether enough space remains for safe exercise,
+- whether the selected set stays within budget.
 
-Ta sekcja jest ważniejsza niż rozbudowana prezentacja katalogu.
+This section matters more than an expanded catalog presentation.
 
-### 4. Przykładowy scenariusz
+### 4. Sample scenario
 
-Na stronie należy pokazać konkretny przypadek:
+Show a concrete case on the page:
 
-> Pokój 4 × 3,2 m, nieruchoma szafa, budżet 10 000 zł. Cele: przysiady, wyciskanie i podciąganie.
+> A 4 × 3.2 m room, a fixed wardrobe, and a PLN 10,000 budget. Goals: squats, bench press, and pull-ups.
 
-Przykładowe podsumowanie rezultatu:
+Example result summary:
 
-- 4 dobrane produkty,
-- koszt 9 640 zł,
-- wszystkie cele treningowe pokryte,
-- brak kolizji,
-- zachowana strefa do martwego ciągu.
+- 4 selected products,
+- cost PLN 9,640,
+- all training goals covered,
+- no collisions,
+- deadlift zone preserved.
 
-CTA tej sekcji: **Otwórz ten projekt**.
+Section CTA: **Open this project**.
 
-### 5. Możliwości kreatora
+### 5. Creator capabilities
 
-Krótka prezentacja najważniejszych funkcji:
+A short presentation of the most important features:
 
-- edycja pokoju i przeszkód,
-- przeciąganie i obracanie sprzętu,
-- automatyczna walidacja układu,
-- wizualizacja stref bezpieczeństwa,
-- widoki 2D i 3D,
-- współpraca użytkownika i agenta na tym samym projekcie.
+- room and obstacle editing,
+- dragging and rotating equipment,
+- automatic layout validation,
+- clearance-zone visualization,
+- 2D and 3D views,
+- user and agent collaborating on the same project.
 
-### 6. Końcowe CTA
+### 6. Closing CTA
 
-Komunikat:
+Message:
 
-> Masz już pomieszczenie. Teraz sprawdź, jaka siłownia naprawdę się w nim zmieści.
+> You already have a room. Now see what gym will actually fit in it.
 
-Przycisk: **Zaprojektuj moją siłownię**.
+Button: **Design my gym**.
 
-## Nawigacja i miejsca docelowe
+## Navigation and destinations
 
-| Element | Miejsce docelowe |
+| Element | Destination |
 | --- | --- |
-| Uruchom przykładowy projekt | `/creator?start=demo` |
-| Zacznij od pustego pokoju | `/creator?start=new` |
-| Otwórz ten projekt | `/creator?start=demo` |
-| Zaprojektuj moją siłownię | `/creator?start=new` |
-| Otwórz kreator | `/creator?start=new` |
-| Zobacz sprzęt | `/catalog` |
-| Karta konkretnego produktu | `/catalog/[slug]` |
+| Launch sample project | `/creator?start=demo` |
+| Start from an empty room | `/creator?start=new` |
+| Open this project | `/creator?start=demo` |
+| Design my gym | `/creator?start=new` |
+| Open creator | `/creator?start=new` |
+| Browse equipment | `/catalog` |
+| Specific product card | `/catalog/[slug]` |
 | Logo | `/` |
 
-Dokładny sposób przekazania trybu startowego może zostać zmieniony podczas implementacji. Ważne jest zachowanie dwóch intencji:
+The exact way of passing the start mode may change during implementation. What matters is preserving two intents:
 
-- `demo` ładuje gotowy pokój i przykładowy układ, aby natychmiast pokazać możliwości aplikacji,
-- `new` otwiera pusty projekt z krótkim panelem konfiguracji: wymiary, cele i budżet.
+- `demo` loads a ready-made room and sample layout so the app's capabilities are visible immediately,
+- `new` opens an empty project with a short configuration panel: dimensions, goals, and budget.
 
-## Zasady flow
+## Flow rules
 
-- Główne CTA w nawigacji powinno brzmieć **Otwórz kreator**.
-- Katalog jest ścieżką drugorzędną i nie powinien dominować głównego scenariusza.
-- Konfiguracja nowego projektu odbywa się w panelu wewnątrz `/creator`, a nie na osobnych stronach onboardingu.
-- Użytkownik powinien dotrzeć do wspólnej pracy z agentem jednym kliknięciem z hero.
-- Landing sprzedaje efekt końcowy i współpracę z agentem; katalog jedynie dostarcza elementów do projektu.
+- The primary navigation CTA should read **Open creator**.
+- The catalog is a secondary path and should not dominate the main scenario.
+- New-project configuration happens in a panel inside `/creator`, not on separate onboarding pages.
+- The user should reach shared work with the agent in one click from the hero.
+- The landing page sells the end result and collaboration with an agent; the catalog only supplies elements for the design.

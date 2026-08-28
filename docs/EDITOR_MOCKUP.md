@@ -1,82 +1,81 @@
-# Home Gym Creator — makieta edytora
+# Home Gym Creator — editor mockup
 
-## Makieta
+## Mockup
 
-![Makieta edytora Home Gym Creator](./mockups/home-gym-planner-editor.png)
+![Home Gym Creator editor mockup](./mockups/home-gym-planner-editor.png)
 
-Makieta przedstawia prosty edytor 2.5D przeznaczony do planowania domowej siłowni. Nie jest to profesjonalny program CAD ani realistyczny symulator wnętrz. Interfejs służy do wygodnego ustawiania prostych obiektów geometrycznych oraz sprawdzania, czy sprzęt i wymagane strefy użytkowe mieszczą się w pomieszczeniu.
+The mockup shows a simple 2.5D editor for planning a home gym. It is not a professional CAD program or a realistic interior simulator. The interface is for conveniently placing simple geometric objects and checking whether equipment and required use zones fit in the room.
 
-## Układ interfejsu
+## Interface layout
 
-### Pasek górny
+### Top bar
 
-Pasek zawiera nazwę projektu, przełącznik widoku **2D / 3D**, cofanie i ponawianie zmian oraz zapis projektu.
+The bar contains the project name, a **2D / 3D** view switch, undo and redo, and project save.
 
-### Panel elementów
+### Element panel
 
-Lewy panel udostępnia elementy, które można dodać do projektu:
+The left panel provides elements that can be added to the project:
 
-- pomieszczenie i jego ściany,
-- drzwi wraz ze strefą otwierania,
-- okna,
-- przeszkody, takie jak szafa, kaloryfer lub niedostępny obszar,
-- sprzęt treningowy z katalogu.
+- the room and its walls,
+- doors and their swing zones,
+- windows,
+- obstacles such as a wardrobe, radiator, or unavailable area,
+- training equipment from the catalog.
 
-Elementy mogą być przeciągane na plan, a następnie przesuwane, obracane i usuwane.
+Elements can be dragged onto the plan, then moved, rotated, and removed.
 
-### Obszar roboczy
+### Workspace
 
-Centralną część interfejsu zajmuje plan pomieszczenia. Widoczne są na nim wymiary, ściany, drzwi, okna, przeszkody i sprzęt.
+The center of the interface is occupied by the room plan. Dimensions, walls, doors, windows, obstacles, and equipment are visible on it.
 
-Każdy sprzęt może prezentować dwie powierzchnie:
+Each piece of equipment can present two areas:
 
-- **obrys fizyczny** — miejsce rzeczywiście zajmowane przez urządzenie,
-- **strefę bezpieczeństwa** — dodatkową przestrzeń potrzebną do ćwiczeń, dostępu albo bezpiecznej obsługi.
+- **physical footprint** — the space actually occupied by the device,
+- **clearance zone** — the extra space needed for exercise, access, or safe operation.
 
-Zaznaczony element otrzymuje uchwyty edycji oraz wymiary. Kolizje i zbyt małe odstępy są sygnalizowane ostrzeżeniami.
+A selected element receives edit handles and dimensions. Collisions and insufficient spacing are signaled with warnings.
 
-### Panel właściwości
+### Properties panel
 
-Prawy panel pokazuje parametry zaznaczonego elementu:
+The right panel shows parameters of the selected element:
 
-- pozycję,
-- szerokość,
-- głębokość,
-- wysokość,
-- wymiary strefy użytkowej,
-- komunikaty o kolizjach i ograniczeniach.
+- position,
+- width,
+- depth,
+- height,
+- use-zone dimensions,
+- collision and constraint messages.
 
-Zmiany wykonane w formularzu od razu aktualizują oba widoki.
+Changes made in the form immediately update both views.
 
-## Przełącznik 2D / 3D
+## 2D / 3D switch
 
-Przełącznik zmienia sposób prezentowania tego samego projektu. Widoki nie mają osobnych danych — korzystają ze wspólnego modelu geometrycznego.
+The switch changes how the same project is presented. The views do not have separate data — they use a shared geometric model.
 
-### Widok 2D
+### 2D view
 
-Widok 2D jest podstawowym trybem edycji. Pokazuje pomieszczenie z góry i pozwala dokładnie:
+The 2D view is the primary editing mode. It shows the room from above and allows precise:
 
-- ustawiać oraz obracać wyposażenie,
-- zmieniać wymiary i pozycje elementów,
-- kontrolować odległości,
-- porównywać obrys fizyczny ze strefą bezpieczeństwa,
-- sprawdzać kolizje z przeszkodami i strefami otwierania drzwi.
+- placement and rotation of equipment,
+- changing element dimensions and positions,
+- controlling distances,
+- comparing the physical footprint with the clearance zone,
+- checking collisions with obstacles and door-swing zones.
 
-### Widok 3D
+### 3D view
 
-Widok 3D jest pomocniczym podglądem przestrzennym. Pomieszczenie, przeszkody i sprzęt są przedstawiane jako proste bryły, bez realistycznych modeli i materiałów.
+The 3D view is a supporting spatial preview. The room, obstacles, and equipment are shown as simple solids, without realistic models and materials.
 
-Użytkownik może obracać kamerę, przybliżać projekt oraz oglądać go z różnych stron. Widok pomaga sprawdzić:
+The user can orbit the camera, zoom, and inspect the project from different sides. The view helps check:
 
-- wysokość sprzętu względem sufitu,
-- relację sprzętu do okien i elementów ściennych,
-- wizualne zagęszczenie pomieszczenia,
-- dostępność przejść,
-- ogólną czytelność i funkcjonalność układu.
+- equipment height relative to the ceiling,
+- the relationship of equipment to windows and wall elements,
+- visual crowding of the room,
+- passageway availability,
+- overall readability and functionality of the layout.
 
-Główna zasada interakcji brzmi: **2D służy do precyzyjnego projektowania, a 3D do przestrzennej kontroli rezultatu**.
+The main interaction rule: **2D is for precise design, and 3D is for spatial review of the result**.
 
-## Źródło prawdy
+## Source of truth
 
-Oba widoki są jedynie różnymi reprezentacjami tego samego modelu 2.5D. Pozycje, rozmiary, wysokości i strefy użytkowe są przechowywane jako proste dane geometryczne. Walidacja układu nie zależy od grafiki 3D i pozostaje deterministyczna.
-
+Both views are only different representations of the same 2.5D model. Positions, sizes, heights, and use zones are stored as simple geometric data. Layout validation does not depend on 3D graphics and remains deterministic.

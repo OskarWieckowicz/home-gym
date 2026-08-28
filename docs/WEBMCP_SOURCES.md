@@ -1,143 +1,143 @@
-# WebMCP — źródła i dokumentacja techniczna
+# WebMCP — sources and technical documentation
 
-> Stan informacji: 28 sierpnia 2026. WebMCP jest eksperymentalnym i rozwijającym się standardem. Przed wdrożeniem oraz nagraniem filmu należy ponownie sprawdzić specyfikację, status implementacji i zachowanie obsługiwanych przeglądarek.
+> Information status: 28 August 2026. WebMCP is an experimental and evolving standard. Before deployment and recording the video, re-check the specification, implementation status, and behavior of supported browsers.
 
-## Pięć głównych źródeł
+## Five main sources
 
 ### 1. OpenAI WebMCP Showcase
 
 **Link:** [developers.openai.com/showcase?view=webmcp-apps](https://developers.openai.com/showcase?view=webmcp-apps)
 
-Showcase zawiera przykładowe aplikacje zaprojektowane do współpracy człowieka z agentem. Jest źródłem inspiracji produktowej i UX, a nie formalną specyfikacją API.
+The showcase contains sample applications designed for human–agent collaboration. It is a source of product and UX inspiration, not a formal API specification.
 
-Warto analizować w przykładach:
+It is worth analyzing in the examples:
 
-- jak rozdzielono operacje ręczne od wykonywanych przez agenta,
-- czy człowiek i agent pracują na tym samym stanie,
-- jakie operacje odczytują stan, a jakie go zmieniają,
-- jak aplikacja wizualizuje działanie narzędzia,
-- jak agent otrzymuje wystarczająco dużo danych, aby zweryfikować rezultat,
-- jak wąski jest główny scenariusz demonstracyjny.
+- how manual operations are separated from those performed by the agent,
+- whether the human and the agent work on the same state,
+- which operations read state and which change it,
+- how the application visualizes a tool's action,
+- how the agent receives enough data to verify the result,
+- how narrow the main demo scenario is.
 
-Najbardziej przydatne przykłady dla Home Gym Creatora:
+The most useful examples for Home Gym Creator:
 
 #### Codex Modeling Studio
 
 **Link:** [Codex Modeling Studio](https://developers.openai.com/showcase/codex-modeling-studio)
 
-Przeglądarkowe studio 3D, w którym agent może odczytywać scenę oraz modyfikować geometrię i materiały. To najbliższy przykład współpracy na przestrzennym canvasie.
+A browser-based 3D studio where the agent can read the scene and modify geometry and materials. This is the closest example of collaboration on a spatial canvas.
 
-Do sprawdzenia:
+Things to check:
 
-- sposób reprezentowania sceny jako stanu zrozumiałego dla agenta,
-- narzędzia tworzące i edytujące obiekty,
-- widoczne aktualizowanie viewportu,
-- iteracyjna praca agent–walidacja–poprawka.
+- how the scene is represented as agent-understandable state,
+- tools that create and edit objects,
+- visible viewport updates,
+- iterative agent–validation–fix work.
 
 #### Verdant Market
 
 **Link:** [Verdant Market](https://developers.openai.com/showcase/verdant-market)
 
-Fikcyjny sklep spożywczy, w którym agent może przeszukiwać katalog, odczytywać produkty i zarządzać wspólnym koszykiem.
+A fictional grocery store where the agent can search the catalog, read products, and manage a shared cart.
 
-Do sprawdzenia:
+Things to check:
 
-- struktura narzędzi katalogowych,
-- wyszukiwanie i filtrowanie produktów,
-- odczyt szczegółów produktu,
-- wspólny stan katalogu i koszyka,
-- widoczne potwierdzanie zmian dokonanych przez agenta.
+- catalog tool structure,
+- product search and filtering,
+- reading product details,
+- shared catalog and cart state,
+- visible confirmation of changes made by the agent.
 
 #### Webroom
 
 **Link:** [Webroom](https://developers.openai.com/showcase/webroom)
 
-Edytor zdjęć, w którym użytkownik i agent pracują na tym samym obrazie. Pokazuje wzorzec współdzielonego edytora z licznymi operacjami read/write.
+A photo editor where the user and the agent work on the same image. It shows a shared-editor pattern with many read/write operations.
 
-Do sprawdzenia:
+Things to check:
 
-- granularność narzędzi edytora,
-- podział na narzędzia odczytujące i modyfikujące,
-- kontynuowanie pracy przez agenta po ręcznej zmianie użytkownika.
+- editor tool granularity,
+- the split between reading and mutating tools,
+- the agent continuing work after a manual user change.
 
 #### Sunday Table
 
 **Link:** [Sunday Table](https://developers.openai.com/showcase/sunday-table)
 
-Planer posiłków, przepisów i zakupów. Może być przydatny jako wzorzec łączenia preferencji użytkownika, ograniczeń, wyboru elementów i końcowej listy zakupowej.
+A meal, recipe, and shopping planner. It may be useful as a pattern for combining user preferences, constraints, item selection, and a final shopping list.
 
-### 2. Oficjalna specyfikacja WebMCP
+### 2. Official WebMCP specification
 
 **Link:** [webmachinelearning.github.io/webmcp](https://webmachinelearning.github.io/webmcp/)
 
 **Test suite:** [wpt.fyi/results/webmcp](https://wpt.fyi/results/webmcp)
 
-To kanoniczny kontrakt API: Draft Community Group Report z 26 sierpnia 2026, publikowany przez Web Machine Learning Community Group. Nie jest to standard W3C ani dokument na ścieżce standaryzacji W3C.
+This is the canonical API contract: a Draft Community Group Report dated 26 August 2026, published by the Web Machine Learning Community Group. It is not a W3C standard and is not on the W3C standardization track.
 
-Redaktorzy: Brandon Walderman (Microsoft), Khushal Sagar (Google), Dominic Farolino (Google).
+Editors: Brandon Walderman (Microsoft), Khushal Sagar (Google), Dominic Farolino (Google).
 
-Specyfikacja definiuje, że strona z WebMCP działa jak serwer MCP, którego narzędzia wykonują się w skrypcie klienckim, a nie na backendzie. Umożliwia to wspólną pracę użytkownika i agenta w tym samym interfejsie.
+The specification defines that a WebMCP page acts like an MCP server whose tools execute in client-side script, not on a backend. This enables the user and the agent to work together in the same interface.
 
-Powierzchnia API (`document.modelContext`):
+API surface (`document.modelContext`):
 
-- `registerTool(tool, options?)` — rejestracja narzędzia,
-- `getTools(options?)` — odczyt narzędzi z dokumentu i jego potomków (dla agentów in-page w JavaScript),
-- `executeTool(tool, inputObject?, options?)` — wywołanie narzędzia; wynik jest serializowany do JSON string,
-- `ontoolchange` — zdarzenie przy zmianie zestawu narzędzi.
+- `registerTool(tool, options?)` — register a tool,
+- `getTools(options?)` — read tools from the document and its descendants (for in-page JavaScript agents),
+- `executeTool(tool, inputObject?, options?)` — call a tool; the result is serialized to a JSON string,
+- `ontoolchange` — event when the tool set changes.
 
-Definicja narzędzia (`ModelContextTool`):
+Tool definition (`ModelContextTool`):
 
-- `name` — 1–128 znaków; tylko ASCII alfanumeryczne oraz `_`, `-`, `.`,
-- `title` — etykieta UI (lokalizowana),
-- `description` — opis naturalny dla agenta,
-- `inputSchema` — obiekt JSON Schema,
-- `execute(inputObject, { signal })` — callback; `signal` to `AbortSignal` anulowania wykonania,
-- `annotations.readOnlyHint` — narzędzie tylko czyta stan,
-- `annotations.untrustedContentHint` — wynik zawiera treść niezaufaną.
+- `name` — 1–128 characters; ASCII alphanumeric plus `_`, `-`, `.` only,
+- `title` — UI label (localizable),
+- `description` — natural-language description for the agent,
+- `inputSchema` — a JSON Schema object,
+- `execute(inputObject, { signal })` — callback; `signal` is an `AbortSignal` for cancelling execution,
+- `annotations.readOnlyHint` — the tool only reads state,
+- `annotations.untrustedContentHint` — the result contains untrusted content.
 
-Opcje rejestracji: `exposedTo` (originy, którym narzędzie jest widoczne) oraz `signal` (`AbortSignal` wyrejestrowuje narzędzie po abort).
+Registration options: `exposedTo` (origins to which the tool is visible) and `signal` (`AbortSignal` unregisters the tool after abort).
 
-Istotne ograniczenia ze specyfikacji:
+Important specification constraints:
 
-- API wymaga secure context oraz origin-keyed agent cluster (poza `file:`); w przeciwnym razie `SecurityError`.
-- Dostęp jest za Permissions Policy `"tools"` z domyślnym allowlist `'self'`.
-- Nazwa narzędzia musi być unikalna w danym `ModelContext`; ponowna rejestracja tej samej nazwy odrzuca promise (`InvalidStateError`).
-- Declarative API w specyfikacji jest nadal TODO — na razie obowiązuje [Declarative API explainer](https://github.com/webmachinelearning/webmcp/blob/main/declarative-api-explainer.md).
-- Agent przeglądarki nie korzysta z `getTools()`; odkrywa narzędzia własnym mechanizmem obserwacji strony.
+- The API requires a secure context and an origin-keyed agent cluster (except `file:`); otherwise `SecurityError`.
+- Access is gated by Permissions Policy `"tools"` with a default allowlist of `'self'`.
+- The tool name must be unique in a given `ModelContext`; re-registering the same name rejects the promise (`InvalidStateError`).
+- The Declarative API in the specification is still TODO — for now the [Declarative API explainer](https://github.com/webmachinelearning/webmcp/blob/main/declarative-api-explainer.md) applies.
+- The browser agent does not use `getTools()`; it discovers tools through its own page-observation mechanism.
 
-Specyfikację należy sprawdzać, gdy potrzebujemy odpowiedzi na pytania dotyczące dokładnego kontraktu API, błędów, anulowania, origin isolation, iframe'ów i zdarzeń.
+Check the specification when answers are needed about the exact API contract, errors, cancellation, origin isolation, iframes, and events.
 
-### 3. Repozytorium WebMCP
+### 3. WebMCP repository
 
-**Repozytorium:** [github.com/webmachinelearning/webmcp](https://github.com/webmachinelearning/webmcp)
+**Repository:** [github.com/webmachinelearning/webmcp](https://github.com/webmachinelearning/webmcp)
 
-Repozytorium uzupełnia renderowaną specyfikację o explainery, status implementacji, kwestie bezpieczeństwa i aktywne dyskusje.
+The repository complements the rendered specification with explainers, implementation status, security issues, and active discussions.
 
-Najważniejsze dokumenty:
+The most important documents:
 
-- [README / główny explainer](https://github.com/webmachinelearning/webmcp/blob/main/README.md)
+- [README / main explainer](https://github.com/webmachinelearning/webmcp/blob/main/README.md)
 - [Implementation status](https://github.com/webmachinelearning/webmcp/blob/main/implementation-status.md)
 - [Declarative API explainer](https://github.com/webmachinelearning/webmcp/blob/main/declarative-api-explainer.md)
 - [Security and privacy questionnaire](https://github.com/webmachinelearning/webmcp/blob/main/security-privacy-questionnaire.md)
-- [Otwarte issues](https://github.com/webmachinelearning/webmcp/issues)
+- [Open issues](https://github.com/webmachinelearning/webmcp/issues)
 - [TypeScript types — `webmcp-types`](https://www.npmjs.com/package/webmcp-types)
 
-Repozytorium należy sprawdzać, gdy potrzebujemy odpowiedzi na pytania dotyczące:
+Check the repository when answers are needed about:
 
-- statusu implementacji w przeglądarkach,
-- planowanych, ale jeszcze niedostępnych możliwości,
-- dyskusji nad multimodalnymi argumentami i bezpieczeństwem,
-- praktycznych przykładów i typów TypeScript.
+- browser implementation status,
+- planned but not-yet-available capabilities,
+- discussion of multimodal arguments and security,
+- practical examples and TypeScript types.
 
-### 4. Dokumentacja WebMCP dla Chrome
+### 4. Chrome WebMCP documentation
 
-**Polska wersja:** [developer.chrome.com/docs/ai/webmcp?hl=pl](https://developer.chrome.com/docs/ai/webmcp?hl=pl)
+**Polish version:** [developer.chrome.com/docs/ai/webmcp?hl=pl](https://developer.chrome.com/docs/ai/webmcp?hl=pl)
 
-**Angielska wersja:** [developer.chrome.com/docs/ai/webmcp](https://developer.chrome.com/docs/ai/webmcp)
+**English version:** [developer.chrome.com/docs/ai/webmcp](https://developer.chrome.com/docs/ai/webmcp)
 
-Dokumentacja Chrome opisuje praktyczną implementację WebMCP w przeglądarce, lokalne uruchamianie, dostępne API, ograniczenia oraz wymagania dotyczące bezpieczeństwa.
+Chrome's documentation describes the practical WebMCP implementation in the browser, local setup, available APIs, limitations, and security requirements.
 
-Powiązane dokumenty:
+Related documents:
 
 - [Imperative API](https://developer.chrome.com/docs/ai/webmcp/imperative-api)
 - [Declarative API](https://developer.chrome.com/docs/ai/webmcp/declarative-api)
@@ -146,78 +146,78 @@ Powiązane dokumenty:
 - [Evals](https://developer.chrome.com/docs/ai/webmcp/evals)
 - [Origin trial](https://developer.chrome.com/origintrials/#/view_trial/4365061253447380993)
 
-Dokumentację Chrome należy sprawdzać podczas:
+Check the Chrome documentation during:
 
-- lokalnej konfiguracji przeglądarki,
-- implementowania narzędzi,
-- debugowania rejestracji,
-- testowania schematów wejściowych,
-- weryfikowania ograniczeń aktualnej wersji Chrome,
-- przygotowania aplikacji do origin trial lub publicznego hostingu.
+- local browser setup,
+- implementing tools,
+- debugging registration,
+- testing input schemas,
+- verifying limitations of the current Chrome version,
+- preparing the application for an origin trial or public hosting.
 
-[Evals for WebMCP](https://developer.chrome.com/docs/ai/webmcp/evals) opisuje, jak testować narzędzia wobec modelu generatywnego. Testy deterministyczne sprawdzają logikę narzędzia; evals sprawdzają, czy agent wybiera właściwe narzędzie, argumenty i kolejność wywołań.
+[Evals for WebMCP](https://developer.chrome.com/docs/ai/webmcp/evals) describes how to test tools against a generative model. Deterministic tests check tool logic; evals check whether the agent chooses the right tool, arguments, and call order.
 
-Przed udostępnieniem narzędzi trzeba potwierdzić, że agent:
+Before exposing tools, confirm that the agent:
 
-- rozumie cel narzędzia z opisu i schematu,
-- wybiera właściwe narzędzie z poprawnymi parametrami,
-- używa wyniku jednego narzędzia do kolejnego wywołania,
-- potrafi dokończyć scenariusz użytkownika dostępnym zestawem narzędzi.
+- understands the tool's purpose from the description and schema,
+- selects the right tool with correct parameters,
+- uses one tool's result for the next call,
+- can complete the user's scenario with the available tool set.
 
-Typowe tryby awarii:
+Typical failure modes:
 
-- agent pomija narzędzie lub woła złe,
-- agent woła narzędzia w złej kolejności,
-- argumenty nie mapują intencji użytkownika na `inputSchema`,
-- wynik narzędzia jest zbyt skąpy, zbyt gadatliwy albo nie nadaje się do kolejnego kroku,
-- błąd JavaScript nie wraca do agenta w czytelnej formie.
+- the agent skips a tool or calls the wrong one,
+- the agent calls tools in the wrong order,
+- arguments do not map the user's intent onto `inputSchema`,
+- the tool result is too sparse, too verbose, or unusable for the next step,
+- a JavaScript error does not return to the agent in a readable form.
 
-Dokumentacja zaleca najpierw testować narzędzia w izolacji (`expectedCall` względem pełnego zestawu narzędzi w danym stanie), potem scenariusze end-to-end z łańcuchami `ordered` / `unordered`, oraz awarie w środku łańcucha. Narzędzie CLI jest w [webmcp-evals](https://github.com/GoogleChromeLabs/webmcp-tools/tree/main/webmcp-evals).
+The documentation recommends first testing tools in isolation (`expectedCall` against the full tool set in a given state), then end-to-end scenarios with `ordered` / `unordered` chains, and failures in the middle of a chain. The CLI tool is in [webmcp-evals](https://github.com/GoogleChromeLabs/webmcp-tools/tree/main/webmcp-evals).
 
-### 5. Narzędzia i dema Google Chrome Labs
+### 5. Google Chrome Labs tools and demos
 
-**Repozytorium:** [github.com/GoogleChromeLabs/webmcp-tools](https://github.com/GoogleChromeLabs/webmcp-tools/tree/main)
+**Repository:** [github.com/GoogleChromeLabs/webmcp-tools](https://github.com/GoogleChromeLabs/webmcp-tools/tree/main)
 
 **Awesome list:** [AWESOME_WEBMCP.md](https://github.com/GoogleChromeLabs/webmcp-tools/blob/main/AWESOME_WEBMCP.md)
 
-Zestaw narzędzi deweloperskich i oficjalnych dem Google Chrome Labs do wdrażania WebMCP. To źródło praktycznych wzorców implementacji i debugowania, a nie specyfikacja API.
+A set of developer tools and official Google Chrome Labs demos for adopting WebMCP. This is a source of practical implementation and debugging patterns, not an API specification.
 
-Narzędzia deweloperskie:
+Developer tools:
 
-- [Model Context Tool Inspector](https://github.com/beaufortfrancois/model-context-tool-inspector) — rozszerzenie Chrome do inspekcji zarejestrowanych narzędzi, schematów wejścia i problemów z połączeniem,
-- [WebMCP Evals](https://developer.chrome.com/docs/ai/webmcp/evals) — dokumentacja Chrome i [CLI](https://github.com/GoogleChromeLabs/webmcp-tools/tree/main/webmcp-evals) do sprawdzania, czy agent wywołuje narzędzia zgodnie z przypadkami testowymi,
-- [WebMCP Studio](https://github.com/GoogleChromeLabs/webmcp-tools/tree/main/webmcp-studio) — środowisko do pracy z narzędziami WebMCP,
-- polyfill — pozwala uruchamiać narzędzia i związane z nimi pseudo-klasy CSS w przeglądarkach bez natywnego API.
+- [Model Context Tool Inspector](https://github.com/beaufortfrancois/model-context-tool-inspector) — a Chrome extension for inspecting registered tools, input schemas, and connection issues,
+- [WebMCP Evals](https://developer.chrome.com/docs/ai/webmcp/evals) — Chrome documentation and a [CLI](https://github.com/GoogleChromeLabs/webmcp-tools/tree/main/webmcp-evals) for checking whether the agent calls tools according to test cases,
+- [WebMCP Studio](https://github.com/GoogleChromeLabs/webmcp-tools/tree/main/webmcp-studio) — an environment for working with WebMCP tools,
+- polyfill — lets tools and related CSS pseudo-classes run in browsers without the native API.
 
-Najbardziej przydatne dema dla Home Gym Creatora:
+The most useful demos for Home Gym Creator:
 
-- [The Morning Ritual](https://googlechromelabs.github.io/webmcp-tools/demos/coffee-shop/) — katalog, specyfikacje produktu i nawigacja (imperative),
-- [Luxe Leather](https://googlechromelabs.github.io/webmcp-tools/demos/leather-bag/) oraz [WebMCP Sports](https://googlechromelabs.github.io/webmcp-tools/demos/sport-shop-angular/) — sklep: wyszukiwanie, polityki, koszyk,
-- [UrbanEstates](https://googlechromelabs.github.io/webmcp-tools/demos/real-estate-map/) — filtry i widok mapy (imperative),
-- [WebMCP Smart Home](https://googlechromelabs.github.io/webmcp-tools/demos/smart-home/) — dashboard, w którym agent rekonfiguruje elementy przestrzenne,
-- [Explainer mini-site](https://googlechromelabs.github.io/webmcp-tools/demos/explainer/) — porównanie scrapingu strony z narzędziami WebMCP.
+- [The Morning Ritual](https://googlechromelabs.github.io/webmcp-tools/demos/coffee-shop/) — catalog, product specifications, and navigation (imperative),
+- [Luxe Leather](https://googlechromelabs.github.io/webmcp-tools/demos/leather-bag/) and [WebMCP Sports](https://googlechromelabs.github.io/webmcp-tools/demos/sport-shop-angular/) — store: search, policies, cart,
+- [UrbanEstates](https://googlechromelabs.github.io/webmcp-tools/demos/real-estate-map/) — filters and a map view (imperative),
+- [WebMCP Smart Home](https://googlechromelabs.github.io/webmcp-tools/demos/smart-home/) — a dashboard where the agent reconfigures spatial elements,
+- [Explainer mini-site](https://googlechromelabs.github.io/webmcp-tools/demos/explainer/) — a comparison of page scraping with WebMCP tools.
 
-Repozytorium należy sprawdzać podczas:
+Check the repository during:
 
-- podglądu, jak inne aplikacje rejestrują narzędzia imperative i declarative,
-- debugowania ekspozycji narzędzi w Chrome,
-- oceny polyfilla, jeśli natywne API nie jest dostępne,
-- szukania gotowych wzorców katalogu, koszyka i filtrów.
+- reviewing how other applications register imperative and declarative tools,
+- debugging tool exposure in Chrome,
+- evaluating the polyfill if the native API is unavailable,
+- looking for ready-made catalog, cart, and filter patterns.
 
-## Czym jest WebMCP
+## What WebMCP is
 
-WebMCP pozwala aplikacji webowej udostępnić jej funkcjonalność jako narzędzia opisane nazwą, naturalnym opisem i ustrukturyzowanym schematem wejścia. Narzędziem może być:
+WebMCP lets a web application expose its functionality as tools described by a name, a natural-language description, and a structured input schema. A tool can be:
 
-- funkcja JavaScript zarejestrowana przez Imperative API,
-- formularz HTML udostępniony przez Declarative API.
+- a JavaScript function registered through the Imperative API,
+- an HTML form exposed through the Declarative API.
 
-Agent może odkryć narzędzia otwartej strony, wywołać je i otrzymać ustrukturyzowany wynik. Kod narzędzia działa w kontekście strony i może ponownie wykorzystywać istniejącą logikę aplikacji oraz aktualizować ten sam interfejs, który widzi użytkownik.
+An agent can discover the open page's tools, call them, and receive a structured result. Tool code runs in the page context and can reuse existing application logic and update the same interface the user sees.
 
-WebMCP jest projektowane do pracy lokalnej w przeglądarce z człowiekiem w pętli. Nie jest zamiennikiem backendowego MCP ani zwykłego API serwerowego.
+WebMCP is designed for local in-browser work with a human in the loop. It is not a replacement for backend MCP or an ordinary server API.
 
 ## Imperative API
 
-Imperative API pozwala rejestrować narzędzia w JavaScript, w przybliżeniu w następującej postaci:
+The Imperative API lets tools be registered in JavaScript, roughly in the following form:
 
 ```ts
 await document.modelContext.registerTool({
@@ -237,160 +237,160 @@ await document.modelContext.registerTool({
 });
 ```
 
-To prawdopodobnie będzie główne API dla Home Gym Creatora, ponieważ aplikacja udostępnia niestandardowe operacje na stanie, katalogu i scenie geometrycznej.
+This will likely be the main API for Home Gym Creator, because the application exposes custom operations on state, the catalog, and a geometric scene.
 
-Przykładowe zastosowania:
+Example uses:
 
-- odczyt całego projektu,
-- wyszukiwanie produktów,
-- dodawanie przeszkód,
-- umieszczanie i przesuwanie sprzętu,
-- uruchamianie walidacji układu,
-- pobieranie listy zakupowej.
+- reading the entire project,
+- searching products,
+- adding obstacles,
+- placing and moving equipment,
+- running layout validation,
+- fetching the shopping list.
 
 ## Declarative API
 
-Declarative API pozwala oznaczyć standardowy formularz HTML jako narzędzie. Przeglądarka może na tej podstawie utworzyć definicję narzędzia bez osobnego rejestrowania pełnej funkcji JavaScript.
+The Declarative API lets a standard HTML form be marked as a tool. The browser can then create a tool definition without separately registering a full JavaScript function.
 
-Może być przydatne dla prostych formularzy, na przykład:
+It may be useful for simple forms, for example:
 
-- ustawienie budżetu,
-- podanie podstawowych preferencji,
-- formularz kontaktowy,
-- proste filtrowanie katalogu.
+- setting a budget,
+- providing basic preferences,
+- a contact form,
+- simple catalog filtering.
 
-Dla operacji na canvasie i geometrii prawdopodobnie nie będzie wystarczające. W tych obszarach należy użyć Imperative API.
+It will likely not be sufficient for canvas and geometry operations. Use the Imperative API in those areas.
 
-## Istotne ograniczenia
+## Important limitations
 
-### Strona musi być otwarta
+### The page must be open
 
-Narzędzia wykonują kod JavaScript w kontekście strony, dlatego wymagana jest otwarta karta lub webview. Agent nie odkryje narzędzi strony, której nie odwiedził.
+Tools execute JavaScript in the page context, so an open tab or webview is required. The agent will not discover tools of a page it has not visited.
 
-### WebMCP nie zastępuje backendu
+### WebMCP does not replace a backend
 
-WebMCP udostępnia agentowi możliwości interfejsu i logiki klienckiej. Nie zastępuje bazy danych, API katalogowego, uwierzytelnienia ani backendowego MCP działającego niezależnie od otwartej strony.
+WebMCP exposes UI capabilities and client-side logic to the agent. It does not replace a database, catalog API, authentication, or backend MCP that runs independently of the open page.
 
-### Złożony interfejs wymaga wspólnego modelu stanu
+### A complex interface needs a shared state model
 
-W aplikacji z canvasem nie należy implementować osobnej logiki dla kliknięć użytkownika i osobnej dla WebMCP. Obie ścieżki powinny wywoływać te same komendy domenowe i aktualizować ten sam store.
+In a canvas application, do not implement separate logic for user clicks and for WebMCP. Both paths should call the same domain commands and update the same store.
 
-### Standard nadal się zmienia
+### The standard is still changing
 
-Nie wszystkie omawiane możliwości są stabilne lub zaimplementowane. Należy regularnie sprawdzać `implementation-status.md`, issues i dokumentację konkretnej wersji przeglądarki.
+Not all discussed capabilities are stable or implemented. Regularly check `implementation-status.md`, issues, and the documentation for the specific browser version.
 
-### Multimodalne argumenty są otwartym tematem
+### Multimodal arguments are an open topic
 
-Obsługa binarnych i multimodalnych wejść oraz wyjść narzędzi nadal jest przedmiotem dyskusji w specyfikacji.
+Support for binary and multimodal tool inputs and outputs is still under discussion in the specification.
 
-Dla Home Gym Creatora bezpieczny przepływ wygląda następująco:
+For Home Gym Creator, a safe flow looks like this:
 
-1. użytkownik przesyła zdjęcie pokoju agentowi,
-2. agent analizuje zdjęcie i zbiera wymiary referencyjne,
-3. agent wywołuje zwykłe narzędzia WebMCP z ustrukturyzowaną geometrią,
-4. aplikacja tworzy pokój i przeszkody,
-5. użytkownik ręcznie zatwierdza lub poprawia rezultat.
+1. the user sends a room photo to the agent,
+2. the agent analyzes the photo and collects reference measurements,
+3. the agent calls ordinary WebMCP tools with structured geometry,
+4. the application creates the room and obstacles,
+5. the user manually approves or corrects the result.
 
-Nie należy uzależniać MVP od bezpośredniego przekazywania obrazu jako argumentu WebMCP.
+Do not make the MVP depend on passing an image directly as a WebMCP argument.
 
-## Bezpieczeństwo i uprawnienia
+## Security and permissions
 
-WebMCP przekracza tradycyjną granicę zaufania pomiędzy stroną a agentem. Projekt powinien:
+WebMCP crosses the traditional trust boundary between the page and the agent. The project should:
 
-- używać `readOnlyHint` dla operacji, które nie zmieniają stanu,
-- oznaczać dane zewnętrzne jako niezaufane, jeśli API na to pozwala,
-- stosować istniejące uwierzytelnienie i autoryzację aplikacji,
-- walidować wszystkie argumenty narzędzi po stronie aplikacji,
-- nie ufać temu, że sam JSON Schema zastępuje walidację wykonania,
-- zwracać wystarczająco dużo danych, aby agent i użytkownik mogli sprawdzić rezultat,
-- ograniczać narzędzia do najmniejszego wymaganego zakresu,
-- wyraźnie rozdzielać odczyt od mutacji,
-- unikać wykonywania nieodwracalnych operacji bez potwierdzenia.
+- use `readOnlyHint` for operations that do not change state,
+- mark external data as untrusted if the API allows it,
+- apply the application's existing authentication and authorization,
+- validate all tool arguments on the application side,
+- not trust JSON Schema alone to replace execution validation,
+- return enough data for the agent and the user to inspect the result,
+- limit tools to the smallest required scope,
+- clearly separate reads from mutations,
+- avoid performing irreversible operations without confirmation.
 
-WebMCP jest ograniczone przez origin isolation oraz Permissions Policy. W szczególności konfiguracja `document.domain` może wyłączyć API, a cross-origin iframe wymaga odpowiedniej polityki `tools`.
+WebMCP is constrained by origin isolation and Permissions Policy. In particular, a `document.domain` configuration may disable the API, and a cross-origin iframe requires an appropriate `tools` policy.
 
-## Lokalna konfiguracja Chrome
+## Local Chrome setup
 
-Według aktualnej dokumentacji lokalne testowanie wygląda następująco:
+According to current documentation, local testing looks like this:
 
-1. zainstaluj odpowiednią wersję Chrome wspierającą WebMCP,
-2. otwórz `chrome://flags/#enable-webmcp-testing`,
-3. ustaw flagę na `Enabled`,
-4. ponownie uruchom Chrome,
-5. otwórz aplikację bezpośrednio,
-6. sprawdź zarejestrowane narzędzia, ich schematy, odpowiedzi i błędy.
+1. install a Chrome version that supports WebMCP,
+2. open `chrome://flags/#enable-webmcp-testing`,
+3. set the flag to `Enabled`,
+4. restart Chrome,
+5. open the application directly,
+6. check registered tools, their schemas, responses, and errors.
 
-Przed publicznym wdrożeniem należy sprawdzić aktualne wymagania origin trial i nagłówków HTTP.
+Before public deployment, check the current origin-trial and HTTP-header requirements.
 
-## Kolejność korzystania ze źródeł
+## Source usage order
 
-### Podczas projektowania produktu
+### When designing the product
 
-1. OpenAI WebMCP Showcase — wzorce UX i scenariusze człowiek–agent.
-2. Home Gym Creator product concept — własny problem i zakres projektu.
-3. Best practices Chrome — strategia oraz granularność narzędzi.
+1. OpenAI WebMCP Showcase — UX patterns and human–agent scenarios.
+2. Home Gym Creator product concept — the project's own problem and scope.
+3. Chrome best practices — tool strategy and granularity.
 
-### Podczas projektowania kontraktów narzędzi
+### When designing tool contracts
 
-1. oficjalna specyfikacja WebMCP,
-2. dokumentacja Imperative API Chrome,
-3. dokumentacja bezpieczeństwa,
-4. status implementacji i issues w repozytorium.
+1. the official WebMCP specification,
+2. Chrome Imperative API documentation,
+3. security documentation,
+4. implementation status and issues in the repository.
 
-### Podczas developmentu i debugowania
+### During development and debugging
 
-1. dokumentacja Chrome dla aktualnie używanej wersji,
-2. Tool Inspector i dema z `webmcp-tools`,
+1. Chrome documentation for the currently used version,
+2. Tool Inspector and demos from `webmcp-tools`,
 3. `implementation-status.md`,
-4. otwarte issues WebMCP,
-5. przykładowe aplikacje i ich publiczne implementacje, jeśli są dostępne.
+4. open WebMCP issues,
+5. sample applications and their public implementations, if available.
 
-### Przed submission
+### Before submission
 
-1. oficjalny regulamin challenge'u,
-2. aktualna dokumentacja OpenAI Docs dotycząca site tools,
-3. dokumentacja Chrome i wymagania origin trial,
-4. evals narzędzi w izolacji i scenariusza end-to-end,
-5. test w świeżej sesji ChatGPT/Codex,
-6. test w świeżej sesji Chrome.
+1. the official challenge rules,
+2. current OpenAI Docs on site tools,
+3. Chrome documentation and origin-trial requirements,
+4. isolated tool evals and an end-to-end scenario,
+5. a test in a fresh ChatGPT/Codex session,
+6. a test in a fresh Chrome session.
 
-## Powiązane dokumenty projektu
+## Related project documents
 
-- [Koncepcja produktu](./PRODUCT_CONCEPT.md)
-- [Wymagania hackathonu](./HACKATHON_REQUIREMENTS.md)
+- [Product concept](./PRODUCT_CONCEPT.md)
+- [Hackathon requirements](./HACKATHON_REQUIREMENTS.md)
 
-## Kontrakt implementacyjny dla fazy 4
+## Phase 4 implementation contract
 
-Poniższe decyzje zostały sprawdzone 28 sierpnia 2026 na podstawie aktualnej
-[specyfikacji WebMCP](https://webmachinelearning.github.io/webmcp/),
-[Imperative API w Chrome](https://developer.chrome.com/docs/ai/webmcp/imperative-api) oraz
-[zaleceń bezpieczeństwa Chrome](https://developer.chrome.com/docs/ai/webmcp/secure-tools).
-Tabela rozdziela fakty z aktualnych źródeł od lokalnych decyzji Home Gym Creatora.
+The following decisions were checked on 28 August 2026 against the current
+[WebMCP specification](https://webmachinelearning.github.io/webmcp/),
+[Chrome Imperative API](https://developer.chrome.com/docs/ai/webmcp/imperative-api), and
+[Chrome tool-security guidance](https://developer.chrome.com/docs/ai/webmcp/secure-tools).
+The table separates facts from current sources from local Home Gym Creator decisions.
 
-| Obszar | Fakt zweryfikowany w źródle pierwotnym | Decyzja projektu |
+| Area | Fact verified in a primary source | Project decision |
 |---|---|---|
-| Punkt wejścia | Imperative API jest dostępne jako `document.modelContext`; `navigator.modelContext` nie jest aktualnym kontraktem. | Wykrywać `document.modelContext?.registerTool` dopiero po hydratacji. |
-| Rejestracja | `registerTool(tool, options)` zwraca `Promise` i może odrzucić rejestrację m.in. dla duplikatu nazwy, braku uprawnień lub niespełnionych wymagań bezpieczeństwa. | Rejestrować i oczekiwać oba narzędzia; każde odrzucenie oznacza niedostępny cały kontrakt katalogu. |
-| Cleanup | `options.signal` wyrejestrowuje narzędzie po przerwaniu sygnału. | Jeden `AbortController` na zamontowany mostek; ten sam sygnał dla obu narzędzi; `abort()` przy wyjściu z route segmentu, remoncie Strict Mode i częściowej porażce. |
-| Callback wykonania | Aktualny draft definiuje `execute(inputObject, { signal })`, ale lokalny runtime Codex In-app Browser sprawdzony 28 sierpnia 2026 nie przekazuje `signal` w opcjach callbacku. | Handler waliduje `unknown` przez Zod i obsługuje opcjonalny sygnał wykonania, gdy runtime go dostarcza; nie myli go z sygnałem lifecycle rejestracji. |
-| Schemat wejścia | `inputSchema` jest obiektem JSON Schema; sam schemat reklamowany agentowi nie zastępuje walidacji aplikacyjnej. | Generować proste, ścisłe schematy obiektowe przez `z.toJSONSchema()`, z `additionalProperties: false`, bez konstrukcji niewspieranych przez JSON Schema. |
-| Wynik | Wartość spełnionego callbacku jest serializowana do JSON; błąd callbacku lub wartość nieserializowalna powoduje błąd wykonania. | Zwracać wyłącznie zwykłe, stabilne koperty danych aplikacji; nie używać backendowego MCP `{ content: ... }`. |
-| Adnotacje | Aktualny kontrakt udostępnia m.in. boolean `readOnlyHint`; oznacza on brak modyfikacji stanu. | Oba narzędzia katalogowe mają `annotations: { readOnlyHint: true }`. Lokalny, walidowany katalog nie wymaga `untrustedContentHint`. |
-| Typowanie | Normatywny kontrakt jest opisany przez Web IDL; znalezione zewnętrzne paczki TypeScript nie są oficjalnym źródłem i mogą pozostawać za draftem. | Utrzymywać wąskie typy tylko przy adapterze WebMCP, bez globalnego rozszerzania `Document`. |
-| Bezpieczeństwo | API wymaga secure context, origin-keyed agent cluster i polityki uprawnień `tools`; domyślny allowlist to `'self'`. | Faza 4 nie dodaje ekspozycji cross-origin ani specjalnych nagłówków. Odrzucona rejestracja daje nieblokujący fallback UI. |
-| Zakres faz | Kontrakt standardu nie dowodzi dostępności w konkretnym środowisku jurora ani poprawnej konfiguracji publicznego originu. | Faza 4 testuje logikę lokalnie; faza 5 jest twardą bramą dla publicznego hostingu, discovery i realnego wywołania przez agenta. |
+| Entry point | The Imperative API is available as `document.modelContext`; `navigator.modelContext` is not the current contract. | Detect `document.modelContext?.registerTool` only after hydration. |
+| Registration | `registerTool(tool, options)` returns a `Promise` and may reject registration, including for a duplicate name, missing permissions, or unmet security requirements. | Register and await both tools; any rejection means the entire catalog contract is unavailable. |
+| Cleanup | `options.signal` unregisters the tool after the signal is aborted. | One `AbortController` per mounted bridge; the same signal for both tools; `abort()` on leaving the route segment, Strict Mode remount, and partial failure. |
+| Execute callback | The current draft defines `execute(inputObject, { signal })`, but the local Codex In-app Browser runtime checked on 28 August 2026 does not pass `signal` in the callback options. | The handler validates `unknown` with Zod and handles an optional execution signal when the runtime provides it; do not confuse it with the registration lifecycle signal. |
+| Input schema | `inputSchema` is a JSON Schema object; the schema advertised to the agent does not replace application validation. | Generate simple, strict object schemas via `z.toJSONSchema()`, with `additionalProperties: false`, without constructs unsupported by JSON Schema. |
+| Result | A fulfilled callback value is serialized to JSON; a callback error or a non-serializable value causes an execution error. | Return only plain, stable application data envelopes; do not use backend MCP `{ content: ... }`. |
+| Annotations | The current contract exposes a boolean `readOnlyHint`, among others; it means no state modification. | Both catalog tools have `annotations: { readOnlyHint: true }`. The local, validated catalog does not require `untrustedContentHint`. |
+| Typing | The normative contract is described by Web IDL; found external TypeScript packages are not an official source and may lag the draft. | Keep narrow types only at the WebMCP adapter, without globally extending `Document`. |
+| Security | The API requires a secure context, an origin-keyed agent cluster, and the `tools` permission policy; the default allowlist is `'self'`. | Phase 4 does not add cross-origin exposure or special headers. Rejected registration yields a non-blocking UI fallback. |
+| Phase scope | The standard contract does not prove availability in a specific judge environment or a correctly configured public origin. | Phase 4 tests logic locally; phase 5 is a hard gate for public hosting, discovery, and a real agent call. |
 
-### Macierz weryfikacji i ograniczone niewiadome
+### Verification matrix and bounded unknowns
 
-| Właściciel | Eksperyment | Kryterium przejścia | Bezpieczny fallback |
+| Owner | Experiment | Pass criterion | Safe fallback |
 |---|---|---|---|
-| Faza 4 | Testy schematów, handlerów, serializacji, atomowej rejestracji, cleanupu i mostka React | Ścisłe wejścia oraz wszystkie planowane koperty są deterministyczne i serializowalne; niewspierana przeglądarka zachowuje ręczny katalog | Komunikat o niedostępności narzędzi bez wpływu na katalog |
-| Faza 4 | Lokalny Chrome z aktualną flagą WebMCP: świeży load, bezpośredni detail route, nawigacja, remount i wywołania | Dokładnie dwa narzędzia, brak duplikatów, cleanup po wyjściu i poprawne wyniki | Nie zamykać fazy bez odnotowania brakującej próby runtime |
-| Faza 5 | Publiczny secure origin i aktualne wymagania origin trial/nagłówków | Narzędzia rejestrują się bez `SecurityError`/`NotAllowedError` w środowisku docelowym | Skorygować konfigurację hostingu; nie tworzyć backendowego MCP jako obejścia |
-| Faza 5 | Świeża sesja wspieranego Codex/ChatGPT: discovery, wyszukiwanie i details | Agent odkrywa narzędzia i poprawnie łączy `productId` z wyniku wyszukiwania z details | Zatrzymać dalsze fazy WebMCP i dostosować kontrakt do zweryfikowanego runtime |
-| Faza 5 | Porównanie sygnatur callbacku `execute` i pomocniczego `executeTool()` w specyfikacji, Chrome oraz środowisku agenta | Wywołania działają zarówno w runtime przekazującym `{ signal }`, jak i w lokalnie zaobserwowanym runtime bez drugiego argumentu | Zachować opcjonalny adapter sygnału i nie używać `executeTool()` w kodzie produktu; helper służy wyłącznie do diagnostyki in-page |
-| Fazy 8–12 | Puste/błędne stany projektu, sekwencja odczyt → wyszukiwanie → mutacja → walidacja → poprawka oraz evals | Pełny współdzielony scenariusz przechodzi w środowisku agenta | Nie rozszerzać read-only narzędzi katalogowych o przedwczesne mutacje |
+| Phase 4 | Tests of schemas, handlers, serialization, atomic registration, cleanup, and the React bridge | Strict inputs and all planned envelopes are deterministic and serializable; an unsupported browser keeps the manual catalog | A tools-unavailable message with no effect on the catalog |
+| Phase 4 | Local Chrome with the current WebMCP flag: fresh load, direct detail route, navigation, remount, and calls | Exactly two tools, no duplicates, cleanup on exit, and correct results | Do not close the phase without recording a missing runtime attempt |
+| Phase 5 | Public secure origin and current origin-trial/header requirements | Tools register without `SecurityError`/`NotAllowedError` in the target environment | Correct hosting configuration; do not create backend MCP as a workaround |
+| Phase 5 | Fresh session of supported Codex/ChatGPT: discovery, search, and details | The agent discovers tools and correctly joins `productId` from a search result to details | Stop further WebMCP phases and adapt the contract to the verified runtime |
+| Phase 5 | Compare `execute` callback signatures and helper `executeTool()` in the specification, Chrome, and the agent environment | Calls work both in a runtime that passes `{ signal }` and in the locally observed runtime without a second argument | Keep an optional signal adapter and do not use `executeTool()` in product code; the helper is only for in-page diagnostics |
+| Phases 8–12 | Empty/invalid project states, the read → search → mutate → validate → fix sequence, and evals | The full shared scenario passes in the agent environment | Do not extend read-only catalog tools with premature mutations |
 
-Status implementacji, wersję Chrome, dostępne modele, origin trial i środowisko jurora trzeba
-odświeżyć ponownie bezpośrednio przed nagraniem filmu i submission. Są to twierdzenia czasowe, a
-nie trwałe założenia architektury.
+Implementation status, Chrome version, available models, origin trial, and the judge
+environment must be refreshed again immediately before recording the video and submitting.
+These are time-sensitive claims, not durable architecture assumptions.

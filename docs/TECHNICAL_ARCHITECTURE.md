@@ -1,111 +1,111 @@
-# Home Gym Creator — architektura techniczna
+# Home Gym Creator — technical architecture
 
-> Status: zaakceptowana architektura bazowa.  
-> Data decyzji: 27 sierpnia 2026.  
-> Dokument będzie aktualizowany w trakcie implementacji, jeżeli testy WebMCP lub ograniczenia czasowe wymuszą zmianę zakresu.
+> Status: accepted baseline architecture.  
+> Decision date: 27 August 2026.  
+> This document will be updated during implementation if WebMCP tests or time constraints force a scope change.
 
-## 1. Cele architektury
+## 1. Architecture goals
 
-Architektura powinna umożliwić zbudowanie kompletnego MVP w krótkim czasie i jednocześnie wyraźnie pokazać wartość WebMCP.
+The architecture should make it possible to build a complete MVP in a short time and clearly demonstrate the value of WebMCP.
 
-Najważniejsze cele:
+The most important goals:
 
-- jeden wspólny stan projektu dla użytkownika i agenta,
-- jedna logika domenowa obsługująca operacje UI oraz WebMCP,
-- deterministyczna geometria i walidacja,
-- prosty, responsywny edytor 2.5D/3D,
-- statyczny katalog fikcyjnych produktów,
-- działanie bez konta, bazy danych i własnego modelu AI,
-- łatwe wdrożenie i testowanie w ChatGPT/Codex oraz Chrome,
-- możliwość późniejszego dodania persystencji serwerowej bez przebudowy domeny.
+- one shared project state for the user and the agent,
+- one domain layer serving both UI and WebMCP operations,
+- deterministic geometry and validation,
+- a simple, responsive 2.5D/3D editor,
+- a static catalog of fictional products,
+- operation without accounts, a database, or a custom AI model,
+- easy deployment and testing in ChatGPT/Codex and Chrome,
+- the ability to add server-side persistence later without rebuilding the domain.
 
-## 2. Zaakceptowany stack
+## 2. Accepted stack
 
-| Obszar | Technologia | Rola |
+| Area | Technology | Role |
 |---|---|---|
-| Framework | Next.js App Router | Routing, strony, rendering i deployment |
-| Język | TypeScript | Typy domenowe, geometria, UI i WebMCP |
-| UI | React, Tailwind CSS, shadcn/ui | Interfejs sklepu i kreatora |
-| Renderowanie 3D | Three.js, React Three Fiber, Drei | Scena, kamery i interakcje przestrzenne |
-| Stan klienta | Zustand | Wspólny store projektu i edytora |
-| Schematy | Zod | Walidacja runtime, typy i JSON Schema |
-| Testy jednostkowe | Vitest | Geometria, komendy i walidacja |
-| Testy komponentów | React Testing Library | Formularze i panele UI |
-| Testy E2E | Playwright | Pełne przepływy użytkownika |
-| Dane produktów | Statyczne JSON/TypeScript | Fikcyjny katalog MVP |
-| Persystencja MVP | localStorage + import/export JSON | Zapisywanie bez backendu |
-| Hosting | Vercel | Publiczne środowisko demonstracyjne |
+| Framework | Next.js App Router | Routing, pages, rendering, and deployment |
+| Language | TypeScript | Domain types, geometry, UI, and WebMCP |
+| UI | React, Tailwind CSS, shadcn/ui | Store and creator interface |
+| 3D rendering | Three.js, React Three Fiber, Drei | Scene, cameras, and spatial interactions |
+| Client state | Zustand | Shared project and editor store |
+| Schemas | Zod | Runtime validation, types, and JSON Schema |
+| Unit tests | Vitest | Geometry, commands, and validation |
+| Component tests | React Testing Library | Forms and UI panels |
+| E2E tests | Playwright | Full user flows |
+| Product data | Static JSON/TypeScript | Fictional MVP catalog |
+| MVP persistence | localStorage + JSON import/export | Saving without a backend |
+| Hosting | Vercel | Public demo environment |
 
-Dokładne wersje zależności zostaną zablokowane podczas inicjalizacji projektu. W szczególności trzeba zachować zgodność głównej wersji React z React Three Fiber.
+Exact dependency versions will be locked during project initialization. In particular, the major React version must stay compatible with React Three Fiber.
 
-## 3. Ogólny model architektury
+## 3. Overall architecture model
 
 ```mermaid
 flowchart LR
-    Human[Użytkownik] --> UI[Interfejs React]
-    Agent[Codex / ChatGPT] --> MCP[Adapter WebMCP]
+    Human[User] --> UI[React interface]
+    Agent[Codex / ChatGPT] --> MCP[WebMCP adapter]
 
-    UI --> Commands[Komendy domenowe]
+    UI --> Commands[Domain commands]
     MCP --> Commands
 
     Commands --> Store[Zustand Project Store]
-    Commands --> Geometry[Silnik geometryczny]
-    Geometry --> Validation[Walidacja i sugestie pozycji]
+    Commands --> Geometry[Geometry engine]
+    Geometry --> Validation[Validation and placement suggestions]
     Validation --> Store
 
-    Store --> Scene[Scena React Three Fiber]
-    Store --> Panels[Panele, budżet i lista zakupowa]
+    Store --> Scene[React Three Fiber scene]
+    Store --> Panels[Panels, budget, and shopping list]
     Store --> Persistence[localStorage / JSON]
 
-    Catalog[Statyczny katalog produktów] --> UI
+    Catalog[Static product catalog] --> UI
     Catalog --> MCP
     Catalog --> Geometry
 ```
 
-Najważniejszą regułą jest brak osobnej logiki modyfikacji projektu dla agenta. UI i WebMCP wywołują te same komendy domenowe.
+The most important rule is that there is no separate project-mutation logic for the agent. The UI and WebMCP call the same domain commands.
 
-## 4. Next.js i granica server/client
+## 4. Next.js and the server/client boundary
 
-Next.js App Router będzie obsługiwać część sklepową oraz wejście do kreatora.
+The Next.js App Router will handle the store-like pages and the entry into the creator.
 
-Planowane ścieżki:
+Planned routes:
 
 ```text
 /                  landing page
-/catalog           katalog produktów
-/catalog/[slug]    szczegóły produktu
-/creator           kreator siłowni
+/catalog           product catalog
+/catalog/[slug]    product details
+/creator           gym creator
 ```
 
 ### Server Components
 
-Server Components będą używane dla:
+Server Components will be used for:
 
-- landing page,
-- pełnego katalogu,
-- stron produktów,
-- metadanych i SEO,
-- wczytania oraz walidacji statycznych danych produktowych,
-- przekazania serializowalnego katalogu do kreatora.
+- the landing page,
+- the full catalog,
+- product pages,
+- metadata and SEO,
+- loading and validating static product data,
+- passing a serializable catalog into the creator.
 
 ### Client Components
 
-Client Components będą używane dla:
+Client Components will be used for:
 
-- całego interaktywnego studia,
-- sceny WebGL,
-- stanu Zustand,
-- formularzy edycji projektu,
-- drag-and-drop i obsługi pointera,
+- the entire interactive studio,
+- the WebGL scene,
+- Zustand state,
+- project-editing forms,
+- drag-and-drop and pointer handling,
 - localStorage,
-- importu i eksportu JSON,
-- rejestracji `document.modelContext`.
+- JSON import and export,
+- `document.modelContext` registration.
 
-Scena React Three Fiber powinna być załadowana dynamicznie po stronie klienta, ponieważ używa WebGL i API przeglądarki.
+The React Three Fiber scene should be loaded dynamically on the client, because it uses WebGL and browser APIs.
 
-Katalog będzie miał osobne strony, ale w `/creator` znajdzie się również panel wyszukiwania produktów. Agent nie powinien opuszczać kreatora w trakcie głównego scenariusza, ponieważ narzędzia WebMCP są związane z aktualnie otwartą stroną.
+The catalog will have its own pages, but `/creator` will also include a product-search panel. The agent should not leave the creator during the main scenario, because WebMCP tools are bound to the currently open page.
 
-## 5. Struktura modułów
+## 5. Module structure
 
 ```text
 src/
@@ -154,11 +154,11 @@ src/
 └── lib/
 ```
 
-Warstwa `geometry` i większość `project` nie mogą importować Reacta, Zustand ani Three.js. Powinny pozostać czystym TypeScriptem możliwym do przetestowania bez DOM.
+The `geometry` layer and most of `project` must not import React, Zustand, or Three.js. They should remain pure TypeScript that can be tested without the DOM.
 
-## 6. Model domenowy
+## 6. Domain model
 
-Wszystkie wymiary w domenie będą przechowywane jako całkowite liczby centymetrów. Renderowanie może przeliczać je na jednostki sceny.
+All domain dimensions will be stored as integer centimeters. Rendering may convert them into scene units.
 
 ```ts
 type Dimensions3D = {
@@ -229,13 +229,13 @@ type GymProject = {
 };
 ```
 
-Współrzędne domenowe rozpoczynają się w jednym rogu pokoju. Renderer odpowiada za przeliczenie ich na układ sceny wycentrowany w Three.js.
+Domain coordinates start in one corner of the room. The renderer is responsible for converting them into the Three.js scene coordinate system, which is centered.
 
-Pole `version` umożliwi późniejszą migrację zapisanych projektów.
+The `version` field will allow later migration of saved projects.
 
-## 7. Store i komendy domenowe
+## 7. Store and domain commands
 
-Zustand przechowuje aktualny projekt, zaznaczenie, wynik walidacji i historię zmian.
+Zustand holds the current project, selection, validation result, and change history.
 
 ```ts
 type ProjectStore = {
@@ -251,7 +251,7 @@ type ProjectStore = {
 };
 ```
 
-Przykładowe komendy:
+Example commands:
 
 ```ts
 type ProjectCommand =
@@ -265,39 +265,39 @@ type ProjectCommand =
   | { type: "LAYOUT_CHANGES_APPLIED"; payload: LayoutChange[] };
 ```
 
-Przebieg komendy:
+Command flow:
 
-1. walidacja wejścia,
-2. sprawdzenie warunków wstępnych,
-3. wykonanie zmiany,
-4. ponowna walidacja układu,
-5. aktualizacja store,
-6. zapis w historii,
-7. zwrócenie ustrukturyzowanego rezultatu.
+1. validate input,
+2. check preconditions,
+3. apply the change,
+4. re-validate the layout,
+5. update the store,
+6. record history,
+7. return a structured result.
 
-UI oraz WebMCP mogą przygotowywać inne obiekty wejściowe, ale finalnie muszą używać tego samego `dispatch`.
+The UI and WebMCP may prepare different input objects, but they must ultimately use the same `dispatch`.
 
 ### Undo/redo
 
-Historia umożliwi cofnięcie zarówno ręcznych zmian, jak i operacji agenta. Dla MVP można przechowywać ograniczoną liczbę snapshotów projektu, na przykład 30–50 stanów.
+History will allow undoing both manual changes and agent operations. For the MVP, a limited number of project snapshots can be stored, for example 30–50 states.
 
-## 8. Silnik geometryczny
+## 8. Geometry engine
 
-Silnik geometryczny będzie czystym TypeScriptem.
+The geometry engine will be pure TypeScript.
 
-MVP obsługuje:
+The MVP supports:
 
-- prostokątny pokój,
-- prostokątne przeszkody,
-- prostokątne footprinty sprzętu,
-- obrót co 90 stopni,
-- oddzielne strefy fizyczne i robocze,
-- minimalną wysokość sufitu,
-- prostokątne strefy niedostępne, np. otwieranie drzwi.
+- a rectangular room,
+- rectangular obstacles,
+- rectangular equipment footprints,
+- rotation in 90-degree steps,
+- separate physical and working zones,
+- a minimum ceiling height,
+- rectangular unavailable zones, for example door swing.
 
-Przy takich ograniczeniach kolizje można sprawdzać jako przecięcia prostokątów AABB po uwzględnieniu rotacji.
+With these constraints, collisions can be checked as AABB rectangle intersections after rotation is applied.
 
-### Walidacja
+### Validation
 
 ```ts
 type ValidationIssueCode =
@@ -315,27 +315,27 @@ type ValidationIssue = {
 };
 ```
 
-Rozróżniamy:
+We distinguish:
 
-- fizyczną kolizję — dwa obiekty rzeczywiście się przecinają,
-- konflikt stref roboczych — obiekt mieści się, ale może być trudno go używać,
-- ostrzeżenie budżetowe lub wysokościowe.
+- a physical collision — two objects actually intersect,
+- a working-zone conflict — the object fits, but may be hard to use,
+- a budget or height warning.
 
-Silnik zwraca kody oraz dane, a warstwa prezentacji tworzy komunikaty dla użytkownika i agenta.
+The engine returns codes and data, and the presentation layer creates messages for the user and the agent.
 
-## 9. Sugestie rozmieszczenia
+## 9. Placement suggestions
 
-Agent nie powinien samodzielnie zgadywać wszystkich współrzędnych. Aplikacja udostępni deterministyczną funkcję `suggestPlacements`.
+The agent should not guess all coordinates on its own. The application will expose a deterministic `suggestPlacements` function.
 
-Proponowany algorytm MVP:
+Proposed MVP algorithm:
 
-1. wygenerowanie punktów na siatce, np. co 10 cm,
-2. sprawdzenie rotacji `0`, `90`, `180`, `270`,
-3. odrzucenie pozycji wychodzących poza pokój,
-4. odrzucenie fizycznych kolizji,
-5. ocena konfliktów stref roboczych,
-6. przyznanie punktów za ustawienie przy ścianie i zachowanie wolnego centrum,
-7. zwrócenie kilku najlepszych kandydatów.
+1. generate grid points, for example every 10 cm,
+2. check rotations `0`, `90`, `180`, `270`,
+3. reject positions that fall outside the room,
+4. reject physical collisions,
+5. score working-zone conflicts,
+6. award points for wall placement and keeping the center free,
+7. return several of the best candidates.
 
 ```ts
 type PlacementCandidate = {
@@ -347,45 +347,45 @@ type PlacementCandidate = {
 };
 ```
 
-Nie budujemy w MVP globalnego solvera optymalizującego wszystkie produkty jednocześnie. Agent będzie iteracyjnie wybierał produkty, pobierał kandydatów, umieszczał je i ponownie walidował projekt.
+We will not build a global solver that optimizes all products at once in the MVP. The agent will iteratively choose products, fetch candidates, place them, and re-validate the project.
 
-## 10. Scena React Three Fiber
+## 10. React Three Fiber scene
 
-Jedna scena będzie obsługiwać dwa widoki:
+One scene will support two views:
 
-- kamera ortograficzna — plan z góry,
-- kamera perspektywiczna — prosty podgląd 3D.
+- orthographic camera — top-down plan,
+- perspective camera — simple 3D preview.
 
-Nie tworzymy osobnego edytora 2D i osobnego renderera 3D. Oba tryby korzystają z tych samych obiektów sceny i tego samego store.
+We will not create a separate 2D editor and a separate 3D renderer. Both modes use the same scene objects and the same store.
 
-Podstawowe elementy sceny:
+Basic scene elements:
 
-- podłoga i ściany,
-- siatka co 10 cm,
-- przeszkody jako prostopadłościany,
-- sprzęt jako uproszczone bryły,
-- półprzezroczyste strefy robocze,
-- obrys zaznaczonego elementu,
-- czerwone oznaczenie kolizji,
-- etykiety i podstawowe wymiary.
+- floor and walls,
+- a 10 cm grid,
+- obstacles as cuboids,
+- equipment as simplified solids,
+- translucent working zones,
+- selected-element outline,
+- red collision marking,
+- labels and basic dimensions.
 
-Interakcje:
+Interactions:
 
-- wybór obiektu kliknięciem,
-- przeciąganie po płaszczyźnie podłogi,
-- snapowanie do siatki,
-- obrót co 90 stopni,
-- blokowanie przeszkód,
-- przełączanie trybu kamery,
-- pokazanie lub ukrycie stref roboczych.
+- select an object by clicking,
+- drag on the floor plane,
+- snap to the grid,
+- rotate in 90-degree steps,
+- lock obstacles,
+- switch camera mode,
+- show or hide working zones.
 
-Realistyczne modele GLTF są opcjonalnym ulepszeniem. Walidacja zawsze korzysta z uproszczonego footprintu, a nie z geometrii renderowanego modelu.
+Realistic GLTF models are an optional enhancement. Validation always uses the simplified footprint, not the geometry of the rendered model.
 
-## 11. Katalog produktów
+## 11. Product catalog
 
-Katalog MVP będzie statyczny i będzie zawierał około 30–50 fikcyjnych produktów.
+The MVP catalog will be static and will contain about 30–50 fictional products.
 
-Kategorie początkowe:
+Initial categories:
 
 - racks,
 - benches,
@@ -396,30 +396,30 @@ Kategorie początkowe:
 - accessories,
 - flooring.
 
-Każdy rekord zostanie zwalidowany przez Zod podczas developmentu lub builda.
+Each record will be validated by Zod during development or build.
 
-Katalog musi umożliwiać filtrowanie po:
+The catalog must support filtering by:
 
-- kategorii,
-- cenie,
-- wymiarach,
-- celu treningowym,
-- ćwiczeniach,
-- wymaganej wysokości,
-- wymaganiach montażowych.
+- category,
+- price,
+- dimensions,
+- training goal,
+- exercises,
+- required height,
+- mounting requirements.
 
-Nie implementujemy w MVP prawdziwych stanów magazynowych, zewnętrznych cen, checkoutu ani panelu administracyjnego.
+We will not implement real stock, external prices, checkout, or an admin panel in the MVP.
 
-## 12. Zod i JSON Schema
+## 12. Zod and JSON Schema
 
-Zod będzie pojedynczym źródłem prawdy dla:
+Zod will be the single source of truth for:
 
-- modeli wejściowych komend,
-- argumentów narzędzi WebMCP,
-- walidacji importowanych projektów,
-- walidacji katalogu,
-- inferencji typów TypeScript,
-- generowania JSON Schema przez `z.toJSONSchema()`.
+- command input models,
+- WebMCP tool arguments,
+- imported-project validation,
+- catalog validation,
+- TypeScript type inference,
+- JSON Schema generation via `z.toJSONSchema()`.
 
 ```ts
 const PlaceProductInputSchema = z.object({
@@ -435,11 +435,11 @@ const PlaceProductInputSchema = z.object({
 });
 ```
 
-Należy używać konstrukcji Zod, które mają jednoznaczny odpowiednik w JSON Schema. Argumenty narzędzia zawsze przechodzą również walidację runtime; samo przekazanie `inputSchema` agentowi nie zastępuje walidacji aplikacji.
+Use Zod constructs that have an unambiguous JSON Schema equivalent. Tool arguments always also go through runtime validation; handing `inputSchema` to the agent does not replace application validation.
 
-## 13. Integracja WebMCP
+## 13. WebMCP integration
 
-WebMCP jest rejestrowane wyłącznie po stronie klienta po uruchomieniu kreatora.
+WebMCP is registered only on the client after the creator is running.
 
 ```text
 src/features/webmcp/
@@ -449,7 +449,7 @@ src/features/webmcp/
 └── tool-results.ts
 ```
 
-Adapter sprawdza dostępność API i rejestruje narzędzia z obsługą cleanupu.
+The adapter checks API availability and registers tools with cleanup handling.
 
 ```ts
 useEffect(() => {
@@ -467,9 +467,9 @@ useEffect(() => {
 }, []);
 ```
 
-Handlery muszą pobierać aktualny stan w momencie wykonania. Nie mogą pracować na kopii projektu zamkniętej w nieaktualnym closure.
+Handlers must read the current state at execution time. They must not work on a project copy closed over in a stale closure.
 
-### Planowany zestaw narzędzi read-only
+### Planned read-only tool set
 
 - `get_project_state`
 - `search_products`
@@ -478,7 +478,7 @@ Handlery muszą pobierać aktualny stan w momencie wykonania. Nie mogą pracowa�
 - `suggest_placements`
 - `get_project_summary`
 
-### Planowany zestaw narzędzi modyfikujących
+### Planned mutating tool set
 
 - `configure_room`
 - `add_obstacle`
@@ -489,86 +489,86 @@ Handlery muszą pobierać aktualny stan w momencie wykonania. Nie mogą pracowa�
 - `remove_product`
 - `apply_layout_changes`
 
-Każdy handler:
+Each handler:
 
-1. waliduje argumenty przez Zod,
-2. wywołuje logikę katalogu lub komendę domenową,
-3. ponownie waliduje projekt,
-4. zwraca wynik operacji i najważniejszy fragment nowego stanu,
-5. informuje o ostrzeżeniach oraz możliwych następnych krokach.
+1. validates arguments with Zod,
+2. calls catalog logic or a domain command,
+3. re-validates the project,
+4. returns the operation result and the most important fragment of the new state,
+5. reports warnings and possible next steps.
 
-Narzędzia odczytujące otrzymują `readOnlyHint`. Opisy narzędzi muszą jasno rozróżniać odczyt, propozycję i wykonanie zmiany.
+Read tools receive `readOnlyHint`. Tool descriptions must clearly distinguish reading, proposing, and applying a change.
 
-## 14. Przepływ głównego scenariusza
+## 14. Main scenario flow
 
 ```mermaid
 sequenceDiagram
-    participant U as Użytkownik
+    participant U as User
     participant A as Codex / ChatGPT
     participant W as WebMCP
-    participant D as Domena i geometria
-    participant S as Store / scena
+    participant D as Domain and geometry
+    participant S as Store / scene
 
-    U->>A: Zdjęcie, wymiary, budżet i cele
+    U->>A: Photo, dimensions, budget, and goals
     A->>W: configure_room
     W->>D: ROOM_CONFIGURED
-    D->>S: aktualizacja projektu
+    D->>S: project update
     A->>W: add_obstacle
     W->>D: OBSTACLE_ADDED
-    D->>S: aktualizacja sceny
+    D->>S: scene update
     A->>W: search_products
-    W-->>A: pasujące produkty
+    W-->>A: matching products
     A->>W: suggest_placements
-    W->>D: obliczenie kandydatów
-    D-->>A: najlepsze pozycje
+    W->>D: candidate calculation
+    D-->>A: best positions
     A->>W: place_product / apply_layout_changes
-    W->>D: komendy rozmieszczenia
-    D->>S: scena, budżet i walidacja
-    U->>S: ręczne przesunięcie racka
-    U->>A: Zachowaj tę pozycję i popraw resztę
+    W->>D: placement commands
+    D->>S: scene, budget, and validation
+    U->>S: manual rack move
+    U->>A: Keep this position and fix the rest
     A->>W: get_project_state
-    W-->>A: aktualny stan po zmianie użytkownika
-    A->>W: kolejne zmiany i walidacja
+    W-->>A: current state after the user change
+    A->>W: further changes and validation
 ```
 
-## 15. Zdjęcie pokoju
+## 15. Room photo
 
-MVP nie będzie posiadać własnego uploadu analizowanego przez backend aplikacji.
+The MVP will not have its own upload analyzed by the application backend.
 
-Przepływ:
+Flow:
 
 ```text
-zdjęcie → Codex/ChatGPT → interpretacja → argumenty JSON → WebMCP → projekt
+photo → Codex/ChatGPT → interpretation → JSON arguments → WebMCP → project
 ```
 
-Agent analizuje zdjęcie i prosi użytkownika o wymiar referencyjny. Następnie wywołuje `configure_room` i operacje przeszkód.
+The agent analyzes the photo and asks the user for a reference measurement. It then calls `configure_room` and obstacle operations.
 
-Korzyści:
+Benefits:
 
-- brak własnego klucza OpenAI API,
-- brak przechowywania zdjęć,
-- brak kosztów inference w aplikacji,
-- mniejsza liczba elementów do wdrożenia,
-- silniejsze pokazanie roli WebMCP.
+- no custom OpenAI API key,
+- no photo storage,
+- no inference cost in the application,
+- fewer items to ship,
+- a stronger demonstration of WebMCP's role.
 
-Bezpośredni upload i analiza obrazu przez backend mogą zostać dodane po hackathonie.
+Direct upload and image analysis by a backend can be added after the hackathon.
 
-## 16. Persystencja MVP
+## 16. MVP persistence
 
-Projekt działa local-first.
+The project is local-first.
 
-Funkcje:
+Features:
 
-- automatyczny zapis do localStorage,
-- wersjonowany format projektu,
-- eksport do pliku JSON,
-- import z pliku JSON,
-- reset do projektu demonstracyjnego,
-- kilka gotowych presetów pomieszczeń.
+- automatic save to localStorage,
+- versioned project format,
+- export to a JSON file,
+- import from a JSON file,
+- reset to the demo project,
+- several ready-made room presets.
 
-Nie implementujemy kont użytkowników ani synchronizacji w chmurze.
+We will not implement user accounts or cloud sync.
 
-Potencjalne rozszerzenie po MVP:
+Potential post-MVP extension:
 
 ```text
 Client Component
@@ -580,133 +580,133 @@ Postgres / Neon
 /project/[shareId]
 ```
 
-Warstwa domenowa nie może zależeć od localStorage, aby późniejsze dodanie repozytorium serwerowego było proste.
+The domain layer must not depend on localStorage, so adding a server repository later stays simple.
 
-## 17. Bezpieczeństwo WebMCP
+## 17. WebMCP security
 
-Projekt powinien:
+The project should:
 
-- walidować wszystkie argumenty narzędzi,
-- używać `readOnlyHint` dla operacji bez efektów ubocznych,
-- nie wykonywać operacji spoza aktualnego projektu,
-- zwracać rezultat pozwalający zweryfikować zmianę,
-- nie ufać tekstowi pochodzącemu z danych zewnętrznych,
-- umożliwiać cofnięcie operacji agenta,
-- unikać nieodwracalnych zmian,
-- rejestrować tylko narzędzia potrzebne w bieżącym kontekście,
-- czyścić rejestrację podczas odmontowania kreatora.
+- validate all tool arguments,
+- use `readOnlyHint` for operations with no side effects,
+- not perform operations outside the current project,
+- return a result that makes the change verifiable,
+- not trust text originating from external data,
+- allow undoing agent operations,
+- avoid irreversible changes,
+- register only tools needed in the current context,
+- clean up registration when the creator unmounts.
 
-Publiczne wdrożenie musi zostać przetestowane pod kątem:
+Public deployment must be tested for:
 
 - origin isolation,
 - `document.domain`,
 - Permissions Policy `tools`,
-- origin trial Chrome,
-- zachowania w top-level document,
-- działania po odświeżeniu i bezpośrednim wejściu na `/creator`.
+- the Chrome origin trial,
+- behavior in a top-level document,
+- behavior after refresh and a direct visit to `/creator`.
 
-Nie należy dodawać nagłówków bezpieczeństwa na podstawie przypuszczeń. Konfigurację wdrożenia ustalamy po teście aktualnej wersji Chrome i hostingu.
+Do not add security headers based on guesses. Deployment configuration is decided after testing the current Chrome version and hosting.
 
-## 18. Testowanie
+## 18. Testing
 
 ### Vitest
 
-- obracanie footprintów,
-- granice pokoju,
-- fizyczne kolizje,
-- strefy robocze,
-- wysokość sufitu,
-- obliczanie budżetu,
-- scoring kandydatów,
-- komendy domenowe,
+- footprint rotation,
+- room bounds,
+- physical collisions,
+- working zones,
+- ceiling height,
+- budget calculation,
+- candidate scoring,
+- domain commands,
 - undo/redo,
-- import i migracja projektu.
+- project import and migration.
 
 ### React Testing Library
 
-- konfigurator pokoju,
-- formularz przeszkody,
-- filtry katalogu,
-- panel właściwości,
-- komunikaty walidacji,
-- podsumowanie budżetu.
+- room configurator,
+- obstacle form,
+- catalog filters,
+- properties panel,
+- validation messages,
+- budget summary.
 
 ### Playwright
 
-- wejście do kreatora,
-- zmiana wymiarów,
-- dodanie przeszkody,
-- umieszczenie produktu,
-- przeciągnięcie i obrót,
-- zapis oraz odtworzenie stanu,
-- przełączanie widoku,
-- reset scenariusza demo.
+- entering the creator,
+- changing dimensions,
+- adding an obstacle,
+- placing a product,
+- dragging and rotating,
+- saving and restoring state,
+- switching views,
+- resetting the demo scenario.
 
 ### WebMCP
 
-- jednostkowe testy każdego handlera,
-- ręczne wywołanie narzędzi w Chrome,
-- test nazw i opisów z agentem,
-- test poprawnych i błędnych argumentów,
-- test łańcucha odczyt → wyszukiwanie → mutacja → walidacja → poprawka,
-- test w świeżej sesji ChatGPT/Codex,
-- test w publicznym deploymentcie,
-- zapis zestawu przykładowych promptów i oczekiwanych wywołań.
+- unit tests for each handler,
+- manual tool calls in Chrome,
+- testing names and descriptions with an agent,
+- testing valid and invalid arguments,
+- testing the read → search → mutate → validate → fix chain,
+- testing in a fresh ChatGPT/Codex session,
+- testing in the public deployment,
+- recording a set of sample prompts and expected calls.
 
 ## 19. Deployment
 
-Docelowym hostingiem MVP jest Vercel.
+The target MVP host is Vercel.
 
-Deployment powinien posiadać:
+Deployment should have:
 
-- publiczny URL,
-- brak wymaganej autoryzacji,
-- gotowy projekt demonstracyjny,
-- statyczne dane produktowe,
-- poprawną obsługę bez localStorage,
-- czytelny fallback, gdy WebMCP nie jest dostępne,
-- brak sekretów i kluczy API.
+- a public URL,
+- no required authorization,
+- a ready-made demo project,
+- static product data,
+- correct handling without localStorage,
+- a readable fallback when WebMCP is unavailable,
+- no secrets or API keys.
 
-Publiczny deployment należy uruchomić wcześnie, aby przetestować WebMCP przed zakończeniem prac nad UI.
+Launch the public deployment early so WebMCP can be tested before UI work is finished.
 
-## 20. Zakres poza MVP
+## 20. Out of MVP scope
 
-Poza zaakceptowanym zakresem znajdują się:
+Outside the accepted scope:
 
-- konta użytkowników,
-- baza danych,
-- synchronizacja projektów,
-- prawdziwe sklepy i ceny,
+- user accounts,
+- a database,
+- project sync,
+- real stores and prices,
 - checkout,
-- własne wywołania modelu OpenAI,
-- upload i analiza zdjęcia przez aplikację,
-- nieregularne obrysy pokoi,
-- dowolne kąty obrotu,
-- realistyczna fizyka,
-- fotorealistyczne modele wszystkich produktów,
-- globalny solver optymalizujący cały układ,
-- AR, LiDAR i skanowanie pomieszczeń.
+- custom OpenAI model calls,
+- photo upload and analysis by the application,
+- irregular room outlines,
+- arbitrary rotation angles,
+- realistic physics,
+- photorealistic models of every product,
+- a global solver that optimizes the entire layout,
+- AR, LiDAR, and room scanning.
 
-## 21. Kolejność implementacji
+## 21. Implementation order
 
-1. inicjalizacja Next.js, TypeScript, Tailwind i testów,
-2. modele Zod oraz statyczny katalog,
-3. czysta domena projektu i komendy,
-4. podstawowa geometria i walidacja,
-5. Zustand store i undo/redo,
-6. minimalna scena React Three Fiber,
-7. ręczna edycja pokoju, przeszkód i rozmieszczeń,
-8. katalog w panelu kreatora,
-9. persystencja i reset demo,
-10. podstawowe narzędzia WebMCP read-only,
-11. narzędzia modyfikujące i batch changes,
-12. sugestie rozmieszczenia,
-13. pełny scenariusz agent–użytkownik,
-14. testy E2E i WebMCP,
-15. deployment oraz weryfikacja w ChatGPT i Chrome,
-16. dopracowanie UX, filmu i submission.
+1. initialize Next.js, TypeScript, Tailwind, and tests,
+2. Zod models and a static catalog,
+3. a pure project domain and commands,
+4. basic geometry and validation,
+5. Zustand store and undo/redo,
+6. a minimal React Three Fiber scene,
+7. manual editing of the room, obstacles, and placements,
+8. catalog in the creator panel,
+9. persistence and demo reset,
+10. basic read-only WebMCP tools,
+11. mutating tools and batch changes,
+12. placement suggestions,
+13. the full agent–user scenario,
+14. E2E and WebMCP tests,
+15. deployment and verification in ChatGPT and Chrome,
+16. polish UX, video, and submission.
 
-## 22. Źródła techniczne
+## 22. Technical sources
 
 - [Next.js App Router](https://nextjs.org/docs/app)
 - [Next.js Server and Client Components](https://nextjs.org/docs/app/getting-started/server-and-client-components)
@@ -719,8 +719,8 @@ Poza zaakceptowanym zakresem znajdują się:
 - [Chrome WebMCP evals](https://developer.chrome.com/docs/ai/webmcp/evals)
 - [WebMCP specification](https://webmachinelearning.github.io/webmcp/)
 
-## 23. Powiązane dokumenty
+## 23. Related documents
 
-- [Koncepcja produktu](./PRODUCT_CONCEPT.md)
-- [Wymagania hackathonu](./HACKATHON_REQUIREMENTS.md)
-- [Źródła WebMCP](./WEBMCP_SOURCES.md)
+- [Product concept](./PRODUCT_CONCEPT.md)
+- [Hackathon requirements](./HACKATHON_REQUIREMENTS.md)
+- [WebMCP sources](./WEBMCP_SOURCES.md)
