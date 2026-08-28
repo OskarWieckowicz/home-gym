@@ -7,6 +7,10 @@ import type { GymProject } from "@/features/project/schemas/project";
 import { CreatorWebMcpBridge } from "@/features/webmcp/components/creator-webmcp-bridge";
 
 import type { EditorPanel } from "../editor-types";
+import {
+  ProjectPersistenceBoundary,
+  type ProjectPersistenceBoundaryProps,
+} from "../persistence/project-persistence-boundary";
 import { ProjectStoreProvider, useProjectStore } from "../store/project-store-context";
 import { CreatorToolbar } from "./creator-toolbar";
 import { ElementPanel } from "./element-panel";
@@ -50,14 +54,38 @@ function EditorWorkspace() {
 export function CreatorEditor({
   initialProject,
   dependencies,
+  persistence,
+  storage,
 }: {
   readonly initialProject?: GymProject;
   readonly dependencies?: ProjectCommandDependencies;
+  readonly persistence?: boolean;
+  readonly storage?: ProjectPersistenceBoundaryProps["storage"];
 } = {}) {
-  return (
-    <ProjectStoreProvider dependencies={dependencies} initialProject={initialProject}>
+  const workspace = (
+    <>
       <CreatorWebMcpBridge />
       <EditorWorkspace />
+    </>
+  );
+  const persistenceEnabled =
+    persistence ?? (storage !== undefined || initialProject === undefined);
+
+  if (persistenceEnabled) {
+    return (
+      <ProjectPersistenceBoundary
+        dependencies={dependencies}
+        fallbackProject={initialProject}
+        storage={storage}
+      >
+        {workspace}
+      </ProjectPersistenceBoundary>
+    );
+  }
+
+  return (
+    <ProjectStoreProvider dependencies={dependencies} initialProject={initialProject}>
+      {workspace}
     </ProjectStoreProvider>
   );
 }

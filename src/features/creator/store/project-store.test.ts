@@ -193,3 +193,78 @@ describe("createProjectStore", () => {
     ]);
   });
 });
+
+describe("project replacement", () => {
+  it("replaces a project as one undoable revision and clears redo", () => {
+    const store = createProjectStore(createDefaultProject());
+    store.getState().dispatch({
+      type: "PROJECT_SETTINGS_UPDATED",
+      payload: { budget: 11_000 },
+    });
+    store.getState().undo();
+
+    const imported = { ...createDefaultProject(), budget: 15_000 };
+    expect(store.getState().replaceProject(imported)).toMatchObject({
+      ok: true,
+      changed: true,
+      revision: 3,
+    });
+    expect(store.getState()).toMatchObject({
+      project: { budget: 15_000 },
+      canUndo: true,
+      canRedo: false,
+    });
+
+    expect(store.getState().undo()).toBe(true);
+    expect(store.getState().project.budget).toBe(10_000);
+    expect(store.getState().redo()).toBe(true);
+    expect(store.getState().project.budget).toBe(15_000);
+  });
+
+  it("does not replace, revise or add history for equal and invalid projects", () => {
+    const store = createProjectStore(createDefaultProject());
+
+    expect(store.getState().replaceProject(createDefaultProject())).toMatchObject({
+      ok: true,
+      changed: false,
+      revision: 0,
+    });
+    expect(store.getState().replaceProject({ version: 1 })).toEqual({
+      ok: false,
+      changed: false,
+      revision: 0,
+      error: {
+        code: "INVALID_PROJECT",
+        message: "Project data is invalid.",
+      },
+    });
+    expect(store.getState()).toMatchObject({
+      revision: 0,
+      canUndo: false,
+      canRedo: false,
+    });
+  });
+
+  it("recomputes validation for project replacement", () => {
+    const store = createProjectStore(createDefaultProject());
+    const invalidLayout = {
+      ...createDefaultProject(),
+      obstacles: [
+        {
+          id: "obstacle_outside",
+          ...obstacleInput,
+          position: { xCm: 390, zCm: 0 },
+        },
+      ],
+    };
+
+    const result = store.getState().replaceProject(invalidLayout);
+    expect(result).toMatchObject({
+      ok: true,
+      issues: [{ code: "OUTSIDE_ROOM", entityIds: ["obstacle_outside"] }],
+    });
+    expect(store.getState().validation).toEqual(
+      expect.arrayContaining([expect.objectContaining({ code: "OUTSIDE_ROOM" })]),
+    );
+  });
+});

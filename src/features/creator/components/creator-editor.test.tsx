@@ -55,7 +55,7 @@ describe("CreatorEditor", () => {
   });
 
   it("rejects invalid form values without creating history", () => {
-    render(<CreatorEditor />);
+    render(<CreatorEditor initialProject={createDefaultProject()} />);
     change("Width (cm)", "0");
     fireEvent.click(screen.getByRole("button", { name: "Apply room" }));
     expect(screen.getByRole("alert").textContent).toContain("positive whole centimeters");

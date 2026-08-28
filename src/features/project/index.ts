@@ -38,6 +38,22 @@ export {
   type Room,
 } from "./schemas/project";
 export {
+  decodeProject,
+  decodeProjectJson,
+  serializeProject,
+  type ProjectCodecError,
+  type ProjectCodecErrorCode,
+  type ProjectCodecResult,
+  type ProjectSerializationResult,
+} from "./serialization/project-codec";
+export {
+  CURRENT_PROJECT_VERSION,
+  migrateProjectToCurrent,
+  SUPPORTED_PROJECT_VERSIONS,
+  type ProjectMigrationError,
+  type ProjectMigrationResult,
+} from "./serialization/project-migrations";
+export {
   obstacleInputSchema,
   obstaclePatchSchema,
   PROJECT_COMMAND_TYPES,

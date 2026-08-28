@@ -56,7 +56,7 @@ describe("CatalogWebMcpBridge", () => {
     expect(capturedController?.signal.aborted).toBe(true);
   });
 
-  it("owns separate controllers across a Strict Mode remount", async () => {
+  it("defers registration past the diagnostic Strict Mode remount", async () => {
     const controllers: AbortController[] = [];
     registerCatalogToolsMock.mockImplementation((_document, controller) => {
       controllers.push(controller);
@@ -68,8 +68,7 @@ describe("CatalogWebMcpBridge", () => {
         <CatalogWebMcpBridge />
       </StrictMode>,
     );
-    await waitFor(() => expect(controllers).toHaveLength(2));
-    expect(controllers[0].signal.aborted).toBe(true);
-    expect(controllers[1].signal.aborted).toBe(false);
+    await waitFor(() => expect(controllers).toHaveLength(1));
+    expect(controllers[0].signal.aborted).toBe(false);
   });
 });

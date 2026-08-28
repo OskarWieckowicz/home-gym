@@ -20,16 +20,19 @@ export function useWebMcpBridgeState(
     const controller = new AbortController();
     let mounted = true;
 
-    void register(document, controller).then(
-      (result) => {
-        if (!mounted || result.status === "aborted") return;
-        setState(result.status === "ready" ? "ready" : "unavailable");
-      },
-      () => {
-        if (!mounted || controller.signal.aborted) return;
-        setState("unavailable");
-      },
-    );
+    queueMicrotask(() => {
+      if (!mounted) return;
+      void register(document, controller).then(
+        (result) => {
+          if (!mounted || result.status === "aborted") return;
+          setState(result.status === "ready" ? "ready" : "unavailable");
+        },
+        () => {
+          if (!mounted || controller.signal.aborted) return;
+          setState("unavailable");
+        },
+      );
+    });
 
     return () => {
       mounted = false;

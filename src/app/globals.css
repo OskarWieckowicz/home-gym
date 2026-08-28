@@ -128,8 +128,17 @@ body {
 
 .creator-toolbar h1 { margin: 0; font-size: clamp(1.1rem, 1rem + 0.5vw, 1.45rem); line-height: 1.2; }
 .creator-eyebrow { margin: 0 0 0.2rem; color: var(--brand); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase; }
+.creator-persistence-status { margin: 0.25rem 0 0; color: var(--ink-muted); font-size: 0.75rem; }
+.creator-persistence-status:is(.is-storage-unavailable, .is-invalid-saved-project, .is-save-failed) { color: #92400e; }
 .creator-toolbar-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 0.5rem; }
 .creator-toolbar-actions > button { padding-inline: 0.8rem; }
+.creator-file-actions { display: grid; justify-items: end; gap: 0.2rem; }
+.creator-file-action-buttons { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.35rem; }
+.creator-file-action-buttons button { padding-inline: 0.7rem; }
+.creator-file-message,
+.creator-file-error { margin: 0; font-size: 0.72rem; }
+.creator-file-message { color: var(--ink-muted); }
+.creator-file-error { color: #b91c1c; }
 .creator-view-switch { display: flex; padding: 0.2rem; border: 1px solid var(--line); border-radius: 0.65rem; background: var(--surface-muted); }
 .creator-view-switch span,
 .creator-view-switch button { min-block-size: 2rem; min-inline-size: 2.5rem; padding: 0.35rem 0.65rem; border: 0; }
@@ -224,7 +233,7 @@ body {
 
 @media (max-width: 46rem) {
   .creator-toolbar { align-items: flex-start; }
-  .creator-toolbar-actions { max-width: 12rem; }
+  .creator-toolbar-actions { max-width: 19rem; }
   .creator-layout { display: flex; flex-direction: column; }
   .creator-elements { order: 1; border-inline-end: 0; border-block-end: 1px solid var(--line); }
   .creator-plan-shell { order: 2; }

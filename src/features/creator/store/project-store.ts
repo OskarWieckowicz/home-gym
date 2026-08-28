@@ -19,9 +19,27 @@ export type ProjectStoreState = {
   readonly canUndo: boolean;
   readonly canRedo: boolean;
   readonly dispatch: (command: unknown) => DispatchResult;
+  readonly replaceProject: (project: unknown) => ReplaceProjectResult;
   readonly undo: () => boolean;
   readonly redo: () => boolean;
 };
+
+export type ReplaceProjectResult =
+  | {
+      readonly ok: true;
+      readonly changed: boolean;
+      readonly revision: number;
+      readonly issues: readonly ValidationIssue[];
+    }
+  | {
+      readonly ok: false;
+      readonly changed: false;
+      readonly revision: number;
+      readonly error: {
+        readonly code: "INVALID_PROJECT";
+        readonly message: "Project data is invalid.";
+      };
+    };
 
 export type ProjectStore = Pick<
   StoreApi<ProjectStoreState>,
@@ -33,16 +51,11 @@ export type CreateProjectStoreOptions = {
 };
 
 function cloneProjectSnapshot(project: GymProject): GymProject {
-  return {
-    ...project,
-    room: { ...project.room },
-    obstacles: project.obstacles.map((obstacle) => ({
-      ...obstacle,
-      position: { ...obstacle.position },
-      dimensions: { ...obstacle.dimensions },
-    })),
-    trainingGoals: [...project.trainingGoals],
-  };
+  return gymProjectSchema.parse(project);
+}
+
+function projectsEqual(first: GymProject, second: GymProject): boolean {
+  return JSON.stringify(first) === JSON.stringify(second);
 }
 
 export function createProjectStore(
@@ -80,6 +93,43 @@ export function createProjectStore(
       });
 
       return { ...execution.result, revision };
+    },
+    replaceProject: (project) => {
+      const current = get();
+      const parsed = gymProjectSchema.safeParse(project);
+      if (!parsed.success) {
+        return {
+          ok: false,
+          changed: false,
+          revision: current.revision,
+          error: {
+            code: "INVALID_PROJECT",
+            message: "Project data is invalid.",
+          },
+        };
+      }
+
+      if (projectsEqual(current.project, parsed.data)) {
+        return {
+          ok: true,
+          changed: false,
+          revision: current.revision,
+          issues: current.validation,
+        };
+      }
+
+      past = [...past, cloneProjectSnapshot(current.project)].slice(-HISTORY_LIMIT);
+      future = [];
+      const revision = current.revision + 1;
+      const validation = validateProject(parsed.data);
+      set({
+        project: parsed.data,
+        validation,
+        revision,
+        canUndo: true,
+        canRedo: false,
+      });
+      return { ok: true, changed: true, revision, issues: validation };
     },
     undo: () => {
       const previous = past.at(-1);
