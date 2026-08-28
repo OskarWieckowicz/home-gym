@@ -6,7 +6,8 @@ import {
   getProductDetailsJsonSchema,
   searchProductsJsonSchema,
 } from "./catalog-tool-schemas";
-import type { WebMcpDocument, WebMcpModelContext, WebMcpTool } from "./types";
+import { registerToolSet, type ToolSetRegistrationResult } from "./register-tool-set";
+import type { WebMcpTool } from "./types";
 
 export const catalogWebMcpTools: readonly WebMcpTool[] = [
   {
@@ -29,34 +30,11 @@ export const catalogWebMcpTools: readonly WebMcpTool[] = [
   },
 ];
 
-export type CatalogRegistrationResult =
-  | { readonly status: "ready" }
-  | { readonly status: "unsupported" }
-  | { readonly status: "aborted" }
-  | { readonly status: "failed"; readonly reason: "registration-rejected" };
-
-function getModelContext(documentValue: Document): WebMcpModelContext | undefined {
-  const modelContext = (documentValue as WebMcpDocument).modelContext;
-  return typeof modelContext?.registerTool === "function" ? modelContext : undefined;
-}
+export type CatalogRegistrationResult = ToolSetRegistrationResult;
 
 export async function registerCatalogTools(
   documentValue: Document,
   controller: AbortController,
 ): Promise<CatalogRegistrationResult> {
-  const modelContext = getModelContext(documentValue);
-  if (!modelContext) return { status: "unsupported" };
-
-  try {
-    await Promise.all(
-      catalogWebMcpTools.map((tool) =>
-        modelContext.registerTool(tool, { signal: controller.signal }),
-      ),
-    );
-    return controller.signal.aborted ? { status: "aborted" } : { status: "ready" };
-  } catch {
-    if (controller.signal.aborted) return { status: "aborted" };
-    controller.abort();
-    return { status: "failed", reason: "registration-rejected" };
-  }
+  return registerToolSet(documentValue, controller, catalogWebMcpTools);
 }

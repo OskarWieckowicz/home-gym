@@ -481,6 +481,7 @@ Handlers must read the current state at execution time. They must not work on a 
 ### Planned mutating tool set
 
 - `configure_room`
+- `update_project_settings`
 - `add_obstacle`
 - `update_obstacle`
 - `remove_obstacle`
@@ -488,6 +489,13 @@ Handlers must read the current state at execution time. They must not work on a 
 - `update_placement`
 - `remove_product`
 - `apply_layout_changes`
+
+The tool set is delivered in route-scoped phases. Phase 8 registers only the room tools on
+`/creator`: `get_project_state`, `validate_layout`, `configure_room`,
+`update_project_settings`, `add_obstacle`, `update_obstacle`, and `remove_obstacle`.
+`configure_room` changes dimensions only; budget and training goals use the separate settings
+command so every successful tool mutation creates at most one shared undo step. Catalog tools
+remain scoped to `/catalog` until the complete creator tool set is composed in a later phase.
 
 Each handler:
 

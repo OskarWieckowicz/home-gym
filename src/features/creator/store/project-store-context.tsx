@@ -38,9 +38,14 @@ export function ProjectStoreProvider({
 }
 
 export function useProjectStore<T>(selector: (state: ProjectStoreState) => T): T {
+  const store = useProjectStoreApi();
+  return useStore(store, selector);
+}
+
+export function useProjectStoreApi(): ProjectStore {
   const store = useContext(ProjectStoreContext);
   if (!store) {
     throw new Error("useProjectStore must be used inside ProjectStoreProvider.");
   }
-  return useStore(store, selector);
+  return store;
 }

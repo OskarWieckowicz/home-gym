@@ -35,8 +35,9 @@ Product scope and architecture live in the [product concept](../docs/PRODUCT_CON
 
 ## Detailed plans ready to execute
 
-No detailed implementation plan is currently active. Phase 8 is next in the queue and should be
-expanded only after its WebMCP boundary is verified against the completed manual editor.
+| Order | Phase | Detailed plan | Exit gate |
+|---|---|---|---|
+| 1 | Phase 8 — WebMCP for the room | [Phase 8 plan](./phase-08-webmcp-room.md) | The agent can read, configure, mutate, and validate the same room state and history used by manual editing. |
 
 ## Later queue
 
@@ -45,7 +46,6 @@ plans should use the evidence and decisions produced by earlier work rather than
 
 | Order | Phase | Depends on | Exit gate |
 |---|---|---|---|
-| 1 | Phase 8 — WebMCP for the room | Phase 7 | The agent can read, configure, and validate the same room state and history used by manual editing. |
 | 2 | Phase 9 — Catalog depth | Phases 2 and 8 | The catalog covers the full planned product range and filtering fields with complete spatial and training data. |
 | 3 | Phase 10 — Equipment in the room | Phases 6, 7, and 9 | Catalog equipment can be placed and validated against collisions, clearance, height, and budget, with persistence and import/export. |
 | 4 | Phase 11 — WebMCP placements and suggestions | Phases 8 and 10 | The agent can place and revise equipment using deterministic candidate generation and structured validation results. |

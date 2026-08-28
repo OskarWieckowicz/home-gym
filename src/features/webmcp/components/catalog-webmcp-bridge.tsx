@@ -1,28 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
 import { registerCatalogTools } from "../register-catalog-tools";
-
-type BridgeState = "checking" | "ready" | "unavailable";
+import { useWebMcpBridgeState } from "./use-webmcp-bridge-state";
 
 export function CatalogWebMcpBridge() {
-  const [state, setState] = useState<BridgeState>("checking");
-
-  useEffect(() => {
-    const controller = new AbortController();
-    let mounted = true;
-
-    void registerCatalogTools(document, controller).then((result) => {
-      if (!mounted || result.status === "aborted") return;
-      setState(result.status === "ready" ? "ready" : "unavailable");
-    });
-
-    return () => {
-      mounted = false;
-      controller.abort();
-    };
-  }, []);
+  const state = useWebMcpBridgeState(registerCatalogTools);
 
   if (state !== "unavailable") return null;
 

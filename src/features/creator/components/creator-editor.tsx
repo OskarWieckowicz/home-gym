@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import type { ProjectCommandDependencies } from "@/features/project/commands/apply-project-command";
 import type { GymProject } from "@/features/project/schemas/project";
+import { CreatorWebMcpBridge } from "@/features/webmcp/components/creator-webmcp-bridge";
 
 import type { EditorPanel } from "../editor-types";
 import { ProjectStoreProvider, useProjectStore } from "../store/project-store-context";
@@ -53,5 +54,10 @@ export function CreatorEditor({
   readonly initialProject?: GymProject;
   readonly dependencies?: ProjectCommandDependencies;
 } = {}) {
-  return <ProjectStoreProvider dependencies={dependencies} initialProject={initialProject}><EditorWorkspace /></ProjectStoreProvider>;
+  return (
+    <ProjectStoreProvider dependencies={dependencies} initialProject={initialProject}>
+      <CreatorWebMcpBridge />
+      <EditorWorkspace />
+    </ProjectStoreProvider>
+  );
 }

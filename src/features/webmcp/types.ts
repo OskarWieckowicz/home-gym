@@ -9,7 +9,7 @@ export type WebMcpTool = {
   readonly title?: string;
   readonly description: string;
   readonly inputSchema: JsonSchema;
-  readonly annotations: {
+  readonly annotations?: {
     readonly readOnlyHint: boolean;
   };
   readonly execute: (
