@@ -67,7 +67,7 @@ owned by later phases.
 12. Tool results are stable JSON-serializable values, not backend MCP `{ content: ... }` results.
     Unexpected exceptions are converted to safe error codes and must not leak stack traces,
     component state, or implementation details.
-13. Keep room tools scoped to `/creator` and catalog tools scoped to `/catalog` for now. Phase 11
+13. Keep room tools scoped to `/creator` and catalog tools scoped to `/catalog` for now. Phase 12
     will compose the complete creator tool set after equipment exists; Phase 8 must not register
     premature product-placement or suggestion tools.
 14. No confirmation dialog is required for these reversible MVP mutations. The visible update and
@@ -288,7 +288,7 @@ Fresh supported Codex/ChatGPT session:
 6. Undo and redo the agent mutation manually, then have the agent confirm the final revision/state.
 
 Record the exact environment, prompts, discovered tool names, call order, salient results, and any
-runtime discrepancy in a short Phase 9 handoff note or the repository's durable WebMCP source map.
+runtime discrepancy in a short Phase 12 handoff note or the repository's durable WebMCP source map.
 Do not close Phase 8 on unit tests alone.
 
 ## Test inventory
@@ -362,7 +362,8 @@ Phase 8 is complete when:
    manual change, performs and corrects a real mutation, and observes the undo/redo result.
 
 After the gate passes, remove Phase 8 from the active implementation index, delete this file, and
-promote Phase 9 to a detailed plan. Git history remains the implementation record.
+move the ready Phase 9 plan to the front of the queue. Git history remains the implementation
+record.
 
 ## Risks and controls
 
@@ -376,5 +377,5 @@ promote Phase 9 to a detailed plan. Git history remains the implementation recor
 | Mutable result objects corrupt the store | Serialize cloned plain data and test mutation isolation plus `JSON.stringify`. |
 | Strict Mode or partial registration leaves duplicates | One controller per bridge, awaited registration, abort-all failure handling, and remount tests. |
 | Generic guidance reintroduces obsolete API paths | Follow the project's current primary-source `document.modelContext` contract only. |
-| Phase expands into equipment or activity UX | Hold the seven-tool boundary; Phase 11 and Phase 12 own those surfaces. |
+| Phase expands into equipment or activity UX | Hold the seven-tool boundary; Phases 11–13 own those surfaces. |
 | Unit mocks hide agent incompatibility | Make the fresh public agent scenario a hard exit gate and record exact evidence. |
