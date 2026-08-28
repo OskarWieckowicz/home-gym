@@ -28,6 +28,8 @@ export const ASSEMBLY_REQUIREMENTS = [
   "professional",
 ] as const;
 
+export const PRODUCT_ID_PATTERN = /^product_[a-z0-9]+(?:_[a-z0-9]+)*$/;
+
 const positiveInteger = z.number().int().positive();
 const nonNegativeInteger = z.number().int().nonnegative();
 
@@ -59,7 +61,7 @@ const requirementsSchema = z
 
 export const productSchema = z
   .object({
-    id: z.string().regex(/^product_[a-z0-9]+(?:_[a-z0-9]+)*$/),
+    id: z.string().regex(PRODUCT_ID_PATTERN),
     slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
     name: z.string().trim().min(1),
     brand: z.string().trim().min(1),

@@ -1,5 +1,6 @@
 export {
   findProductBySlug,
+  findProductById,
   normalizeCatalogFilters,
   searchProducts,
   type CatalogFilters,

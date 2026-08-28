@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import { catalogProducts } from "@/data/products";
 
-import { findProductBySlug, normalizeCatalogFilters, searchProducts } from "./catalog";
+import {
+  findProductById,
+  findProductBySlug,
+  normalizeCatalogFilters,
+  searchProducts,
+} from "./catalog";
 
 describe("normalizeCatalogFilters", () => {
   it("normalizes whitespace, casing, enum values, and URL-style prices", () => {
@@ -102,3 +107,14 @@ describe("findProductBySlug", () => {
   });
 });
 
+describe("findProductById", () => {
+  it("finds a product by its canonical ID", () => {
+    expect(findProductById("product_northstar_half_rack")?.slug).toBe(
+      "northstar-half-rack",
+    );
+  });
+
+  it("returns undefined for an unknown ID", () => {
+    expect(findProductById("product_not_in_catalog")).toBeUndefined();
+  });
+});

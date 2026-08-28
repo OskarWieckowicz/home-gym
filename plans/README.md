@@ -1,7 +1,7 @@
 # Home Gym Creator — implementation plan index
 
 > Status: active queue.
-> Updated: 27 August 2026.
+> Updated: 28 August 2026.
 > Submission deadline: 3 September 2026, 22:00 CEST.
 
 This document is the entry point for implementation work. It keeps the remaining phases in
@@ -37,7 +37,7 @@ Product scope and architecture live in the [product concept](../docs/PRODUCT_CON
 
 | Order | Phase | Detailed plan | Exit gate |
 |---|---|---|---|
-| 1 | Phase 3 — WebMCP theory | [Phase 3 plan](./phase-03-webmcp-theory.md) | `WEBMCP_SOURCES.md` contains a current, source-backed implementation contract and resolves or records every question that blocks Phase 4. |
+| 1 | Phase 4 — Read-only WebMCP over the catalog | [Phase 4 plan](./phase-04-read-only-webmcp-catalog.md) | `search_products` and `get_product_details` are route-scoped, runtime-validated, tested, and degrade through a clear manual fallback. |
 
 ## Later queue
 
@@ -46,17 +46,16 @@ plans should use the evidence and decisions produced by earlier work rather than
 
 | Order | Phase | Depends on | Exit gate |
 |---|---|---|---|
-| 2 | Phase 4 — Read-only WebMCP over the catalog | Phases 2 and 3 | `search_products` and `get_product_details` are registered per page, runtime-validated, tested, and visibly unavailable only through a clear fallback. |
-| 3 | Phase 5 — Agent verification and public deployment | Phase 4 | The deployed tools are discovered and successfully called from the supported judge environment after a fresh load. This is a hard gate. |
-| 4 | Phase 6 — Room domain core | Phase 5 | Schemas, deterministic geometry, commands, store, validation, and undo/redo pass focused tests without UI dependencies in the domain layers. |
-| 5 | Phase 7 — Manual room editor | Phase 6 | A person can configure and edit the room and obstacles on the 2D plan, with all mutations flowing through `dispatch(command)`. |
-| 6 | Phase 8 — WebMCP for the room | Phase 7 | The agent can read, configure, and validate the same room state and history used by manual editing. |
-| 7 | Phase 9 — Catalog depth | Phases 2 and 8 | The catalog covers the full planned product range and filtering fields with complete spatial and training data. |
-| 8 | Phase 10 — Equipment in the room | Phases 6, 7, and 9 | Catalog equipment can be placed and validated against collisions, clearance, height, and budget, with persistence and import/export. |
-| 9 | Phase 11 — WebMCP placements and suggestions | Phases 8 and 10 | The agent can place and revise equipment using deterministic candidate generation and structured validation results. |
-| 10 | Phase 12 — Shared-editing demo and activity feed | Phase 11 | The public demo proves the complete human-change → agent-read → agent-change → validation → correction loop and makes tool activity visible. |
-| 11 | Phase 13 — Landing page and catalog polish | Phase 12 | Both surfaces match their specifications and use real screenshots and figures from the finished demo project. |
-| 12 | Phase 14 — Submission | Phase 13 | The public URL, repository, English description, sub-three-minute video, and Devpost checklist are complete and verified while logged out. |
+| 2 | Phase 5 — Agent verification and public deployment | Phase 4 | The deployed tools are discovered and successfully called from the supported judge environment after a fresh load. This is a hard gate. |
+| 3 | Phase 6 — Room domain core | Phase 5 | Schemas, deterministic geometry, commands, store, validation, and undo/redo pass focused tests without UI dependencies in the domain layers. |
+| 4 | Phase 7 — Manual room editor | Phase 6 | A person can configure and edit the room and obstacles on the 2D plan, with all mutations flowing through `dispatch(command)`. |
+| 5 | Phase 8 — WebMCP for the room | Phase 7 | The agent can read, configure, and validate the same room state and history used by manual editing. |
+| 6 | Phase 9 — Catalog depth | Phases 2 and 8 | The catalog covers the full planned product range and filtering fields with complete spatial and training data. |
+| 7 | Phase 10 — Equipment in the room | Phases 6, 7, and 9 | Catalog equipment can be placed and validated against collisions, clearance, height, and budget, with persistence and import/export. |
+| 8 | Phase 11 — WebMCP placements and suggestions | Phases 8 and 10 | The agent can place and revise equipment using deterministic candidate generation and structured validation results. |
+| 9 | Phase 12 — Shared-editing demo and activity feed | Phase 11 | The public demo proves the complete human-change → agent-read → agent-change → validation → correction loop and makes tool activity visible. |
+| 10 | Phase 13 — Landing page and catalog polish | Phase 12 | Both surfaces match their specifications and use real screenshots and figures from the finished demo project. |
+| 11 | Phase 14 — Submission | Phase 13 | The public URL, repository, English description, sub-three-minute video, and Devpost checklist are complete and verified while logged out. |
 
 ## Global exit gate
 

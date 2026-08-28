@@ -71,6 +71,10 @@ export function findProductBySlug(slug: string): Product | undefined {
   return catalogProducts.find((product) => product.slug === normalizedSlug);
 }
 
+export function findProductById(productId: string): Product | undefined {
+  return catalogProducts.find((product) => product.id === productId);
+}
+
 /**
  * Invalid URL-style filters are ignored instead of throwing. Results preserve
  * the canonical dataset order and the source array is never mutated.

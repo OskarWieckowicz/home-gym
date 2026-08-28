@@ -1,6 +1,6 @@
 # WebMCP — źródła i dokumentacja techniczna
 
-> Stan informacji: 27 sierpnia 2026. WebMCP jest eksperymentalnym i rozwijającym się standardem. Przed wdrożeniem oraz nagraniem filmu należy ponownie sprawdzić specyfikację, status implementacji i zachowanie obsługiwanych przeglądarek.
+> Stan informacji: 28 sierpnia 2026. WebMCP jest eksperymentalnym i rozwijającym się standardem. Przed wdrożeniem oraz nagraniem filmu należy ponownie sprawdzić specyfikację, status implementacji i zachowanie obsługiwanych przeglądarek.
 
 ## Pięć głównych źródeł
 
@@ -359,17 +359,38 @@ Przed publicznym wdrożeniem należy sprawdzić aktualne wymagania origin trial 
 - [Koncepcja produktu](./PRODUCT_CONCEPT.md)
 - [Wymagania hackathonu](./HACKATHON_REQUIREMENTS.md)
 
-## Lista rzeczy do zbadania podczas implementacji
+## Kontrakt implementacyjny dla fazy 4
 
-- [ ] Sprawdzić aktualny status Imperative API w docelowym Chrome.
-- [ ] Zweryfikować dostępne pola `annotations`.
-- [ ] Ustalić dokładny format odpowiedzi narzędzi w ChatGPT i Chrome.
-- [ ] Sprawdzić obsługiwany zakres JSON Schema.
-- [ ] Zweryfikować sposób dynamicznego rejestrowania i wyrejestrowywania narzędzi.
-- [ ] Sprawdzić zachowanie narzędzi po nawigacji i przeładowaniu strony.
-- [ ] Ustalić wymagane nagłówki origin isolation dla hostingu.
-- [ ] Sprawdzić aktualne wymagania origin trial.
-- [ ] Przetestować zachowanie narzędzi w błędnym i pustym stanie projektu.
-- [ ] Przetestować długą sekwencję: odczyt → wyszukiwanie → mutacja → walidacja → poprawka.
-- [ ] Napisać evals izolowane i end-to-end dla głównego scenariusza agent–użytkownik.
-- [ ] Porównać zachowanie tej samej aplikacji w ChatGPT i Chrome.
+Poniższe decyzje zostały sprawdzone 28 sierpnia 2026 na podstawie aktualnej
+[specyfikacji WebMCP](https://webmachinelearning.github.io/webmcp/),
+[Imperative API w Chrome](https://developer.chrome.com/docs/ai/webmcp/imperative-api) oraz
+[zaleceń bezpieczeństwa Chrome](https://developer.chrome.com/docs/ai/webmcp/secure-tools).
+Tabela rozdziela fakty z aktualnych źródeł od lokalnych decyzji Home Gym Creatora.
+
+| Obszar | Fakt zweryfikowany w źródle pierwotnym | Decyzja projektu |
+|---|---|---|
+| Punkt wejścia | Imperative API jest dostępne jako `document.modelContext`; `navigator.modelContext` nie jest aktualnym kontraktem. | Wykrywać `document.modelContext?.registerTool` dopiero po hydratacji. |
+| Rejestracja | `registerTool(tool, options)` zwraca `Promise` i może odrzucić rejestrację m.in. dla duplikatu nazwy, braku uprawnień lub niespełnionych wymagań bezpieczeństwa. | Rejestrować i oczekiwać oba narzędzia; każde odrzucenie oznacza niedostępny cały kontrakt katalogu. |
+| Cleanup | `options.signal` wyrejestrowuje narzędzie po przerwaniu sygnału. | Jeden `AbortController` na zamontowany mostek; ten sam sygnał dla obu narzędzi; `abort()` przy wyjściu z route segmentu, remoncie Strict Mode i częściowej porażce. |
+| Callback wykonania | Aktualny draft definiuje `execute(inputObject, { signal })`, ale lokalny runtime Codex In-app Browser sprawdzony 28 sierpnia 2026 nie przekazuje `signal` w opcjach callbacku. | Handler waliduje `unknown` przez Zod i obsługuje opcjonalny sygnał wykonania, gdy runtime go dostarcza; nie myli go z sygnałem lifecycle rejestracji. |
+| Schemat wejścia | `inputSchema` jest obiektem JSON Schema; sam schemat reklamowany agentowi nie zastępuje walidacji aplikacyjnej. | Generować proste, ścisłe schematy obiektowe przez `z.toJSONSchema()`, z `additionalProperties: false`, bez konstrukcji niewspieranych przez JSON Schema. |
+| Wynik | Wartość spełnionego callbacku jest serializowana do JSON; błąd callbacku lub wartość nieserializowalna powoduje błąd wykonania. | Zwracać wyłącznie zwykłe, stabilne koperty danych aplikacji; nie używać backendowego MCP `{ content: ... }`. |
+| Adnotacje | Aktualny kontrakt udostępnia m.in. boolean `readOnlyHint`; oznacza on brak modyfikacji stanu. | Oba narzędzia katalogowe mają `annotations: { readOnlyHint: true }`. Lokalny, walidowany katalog nie wymaga `untrustedContentHint`. |
+| Typowanie | Normatywny kontrakt jest opisany przez Web IDL; znalezione zewnętrzne paczki TypeScript nie są oficjalnym źródłem i mogą pozostawać za draftem. | Utrzymywać wąskie typy tylko przy adapterze WebMCP, bez globalnego rozszerzania `Document`. |
+| Bezpieczeństwo | API wymaga secure context, origin-keyed agent cluster i polityki uprawnień `tools`; domyślny allowlist to `'self'`. | Faza 4 nie dodaje ekspozycji cross-origin ani specjalnych nagłówków. Odrzucona rejestracja daje nieblokujący fallback UI. |
+| Zakres faz | Kontrakt standardu nie dowodzi dostępności w konkretnym środowisku jurora ani poprawnej konfiguracji publicznego originu. | Faza 4 testuje logikę lokalnie; faza 5 jest twardą bramą dla publicznego hostingu, discovery i realnego wywołania przez agenta. |
+
+### Macierz weryfikacji i ograniczone niewiadome
+
+| Właściciel | Eksperyment | Kryterium przejścia | Bezpieczny fallback |
+|---|---|---|---|
+| Faza 4 | Testy schematów, handlerów, serializacji, atomowej rejestracji, cleanupu i mostka React | Ścisłe wejścia oraz wszystkie planowane koperty są deterministyczne i serializowalne; niewspierana przeglądarka zachowuje ręczny katalog | Komunikat o niedostępności narzędzi bez wpływu na katalog |
+| Faza 4 | Lokalny Chrome z aktualną flagą WebMCP: świeży load, bezpośredni detail route, nawigacja, remount i wywołania | Dokładnie dwa narzędzia, brak duplikatów, cleanup po wyjściu i poprawne wyniki | Nie zamykać fazy bez odnotowania brakującej próby runtime |
+| Faza 5 | Publiczny secure origin i aktualne wymagania origin trial/nagłówków | Narzędzia rejestrują się bez `SecurityError`/`NotAllowedError` w środowisku docelowym | Skorygować konfigurację hostingu; nie tworzyć backendowego MCP jako obejścia |
+| Faza 5 | Świeża sesja wspieranego Codex/ChatGPT: discovery, wyszukiwanie i details | Agent odkrywa narzędzia i poprawnie łączy `productId` z wyniku wyszukiwania z details | Zatrzymać dalsze fazy WebMCP i dostosować kontrakt do zweryfikowanego runtime |
+| Faza 5 | Porównanie sygnatur callbacku `execute` i pomocniczego `executeTool()` w specyfikacji, Chrome oraz środowisku agenta | Wywołania działają zarówno w runtime przekazującym `{ signal }`, jak i w lokalnie zaobserwowanym runtime bez drugiego argumentu | Zachować opcjonalny adapter sygnału i nie używać `executeTool()` w kodzie produktu; helper służy wyłącznie do diagnostyki in-page |
+| Fazy 8–12 | Puste/błędne stany projektu, sekwencja odczyt → wyszukiwanie → mutacja → walidacja → poprawka oraz evals | Pełny współdzielony scenariusz przechodzi w środowisku agenta | Nie rozszerzać read-only narzędzi katalogowych o przedwczesne mutacje |
+
+Status implementacji, wersję Chrome, dostępne modele, origin trial i środowisko jurora trzeba
+odświeżyć ponownie bezpośrednio przed nagraniem filmu i submission. Są to twierdzenia czasowe, a
+nie trwałe założenia architektury.
