@@ -231,14 +231,14 @@ must be checked again during Phase 16 before any paid generation or acquisition.
 - Use controlled AI editing of GLB-derived catalog renders for approved presentation polish.
 - Optimize files and verify explicit missing-asset fallbacks.
 
-### Phase 18 — 3D room preview completion
+### Phase 20 — 3D room preview completion
 
 - Integrate the completed Phase 16 equipment assets into the live room scene rather than
    starting a second model-production path.
 - Extend the Phase 15 shell with selection and validation presentation.
 - Verify representative complete-room performance and spatial readability.
 
-### Phase 21 — Landing page and catalog polish
+### Phase 23 — Landing page and catalog polish
 
 - Use accepted final assets and real screenshots from the completed shared-editing demo.
 - Do not reopen the model-production scope unless a visible presentation defect blocks the surface.
