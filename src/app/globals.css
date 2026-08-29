@@ -240,7 +240,12 @@ body {
 .creator-plan-window .creator-plan-wall-visible { stroke: #0ea5e9; }
 .creator-plan-wall-element.is-selected .creator-plan-wall-visible { stroke: var(--select); stroke-width: 10; }
 .creator-plan-wall-element.is-invalid .creator-plan-wall-visible { stroke: #dc2626; stroke-dasharray: 7 4; }
-.creator-plan-wall-element text { pointer-events: none; fill: var(--ink); font-size: 0.7rem; font-weight: 750; text-anchor: middle; }
+.creator-wall-element-label { pointer-events: none; opacity: 0; fill: var(--ink); font-size: 0.7rem; font-weight: 750; text-anchor: middle; dominant-baseline: middle; transition: opacity 120ms ease-out; }
+.creator-plan-wall-element:is(:hover, :focus-visible) .creator-wall-element-label { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .creator-wall-element-label { transition: none; }
+}
 
 .creator-form { display: grid; gap: 0.9rem; }
 .creator-form + .creator-validation { margin-block-start: 1.5rem; }

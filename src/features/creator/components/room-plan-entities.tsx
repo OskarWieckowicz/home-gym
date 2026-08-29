@@ -7,6 +7,7 @@ import type { Obstacle, WallElement } from "@/features/project/schemas/project";
 
 import {
   obstacleToPlanRectangle,
+  type PlanLine,
   type PlanTransform,
   wallElementToPlanLine,
 } from "../plan/plan-transform";
@@ -15,6 +16,31 @@ const LABEL_INSET = 8;
 const LABEL_HEIGHT = 26;
 const LOCK_SIZE = 14;
 const LOCK_GAP = 8;
+const WALL_LABEL_GAP = 14;
+
+type WallLabelLayout = {
+  readonly transform?: string;
+  readonly x: number;
+  readonly y: number;
+};
+
+function wallLabelLayout(element: WallElement, line: PlanLine): WallLabelLayout {
+  const wallCenterX = (line.x1 + line.x2) / 2;
+  const wallCenterY = (line.y1 + line.y2) / 2;
+  const centerX = wallCenterX + (element.wall === "right"
+    ? WALL_LABEL_GAP
+    : element.wall === "left" ? -WALL_LABEL_GAP : 0);
+  const centerY = wallCenterY + (element.wall === "bottom"
+    ? WALL_LABEL_GAP
+    : element.wall === "top" ? -WALL_LABEL_GAP : 0);
+  const rotation = element.wall === "right" ? 90 : element.wall === "left" ? -90 : 0;
+
+  return {
+    transform: rotation === 0 ? undefined : `rotate(${rotation} ${centerX} ${centerY})`,
+    x: centerX,
+    y: centerY,
+  };
+}
 
 type EntityLayerProps = {
   readonly interactive: boolean;
@@ -111,6 +137,7 @@ export function WallElementEntity({
   readonly onKeySelect: (event: KeyboardEvent<SVGGElement>, id: string) => void;
 }) {
   const line = wallElementToPlanLine(element, transform);
+  const label = wallLabelLayout(element, line);
   const selected = selectedId === element.id;
   const invalid = hasIssue(element.id, issues);
 
@@ -124,9 +151,18 @@ export function WallElementEntity({
       role="button"
       tabIndex={interactive ? 0 : -1}
     >
+      <title>{element.name}</title>
       <line className="creator-plan-wall-hit" x1={line.x1} x2={line.x2} y1={line.y1} y2={line.y2} />
       <line className="creator-plan-wall-visible" x1={line.x1} x2={line.x2} y1={line.y1} y2={line.y2} />
-      <text x={line.labelX} y={line.labelY}>{element.name}</text>
+      <text
+        aria-hidden="true"
+        className="creator-wall-element-label"
+        transform={label.transform}
+        x={label.x}
+        y={label.y}
+      >
+        {element.name}
+      </text>
     </g>
   );
 }

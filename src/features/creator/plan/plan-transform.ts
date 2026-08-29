@@ -28,8 +28,6 @@ export type PlanLine = {
   readonly y1: number;
   readonly x2: number;
   readonly y2: number;
-  readonly labelX: number;
-  readonly labelY: number;
 };
 
 export function clientPointToPlanPoint(
@@ -98,8 +96,6 @@ export function wallElementToPlanLine(
         y1: transform.offsetY,
         x2: transform.offsetX + end,
         y2: transform.offsetY,
-        labelX: transform.offsetX + (start + end) / 2,
-        labelY: transform.offsetY - 10,
       };
     case "right":
       return {
@@ -107,8 +103,6 @@ export function wallElementToPlanLine(
         y1: transform.offsetY + start,
         x2: right,
         y2: transform.offsetY + end,
-        labelX: right + 10,
-        labelY: transform.offsetY + (start + end) / 2,
       };
     case "bottom":
       return {
@@ -116,8 +110,6 @@ export function wallElementToPlanLine(
         y1: bottom,
         x2: transform.offsetX + end,
         y2: bottom,
-        labelX: transform.offsetX + (start + end) / 2,
-        labelY: bottom + 18,
       };
     case "left":
       return {
@@ -125,8 +117,6 @@ export function wallElementToPlanLine(
         y1: transform.offsetY + start,
         x2: transform.offsetX,
         y2: transform.offsetY + end,
-        labelX: transform.offsetX - 10,
-        labelY: transform.offsetY + (start + end) / 2,
       };
   }
 }

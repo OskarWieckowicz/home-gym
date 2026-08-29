@@ -149,6 +149,50 @@ describe("RoomPlan dragging", () => {
     expect(entity.querySelector(".creator-entity-mark")?.textContent).not.toBe("L");
   });
 
+  it("keeps adjacent wall-element labels available for hover and keyboard focus", () => {
+    const names = [
+      "Przeszklenie tarasowe — lewy segment (szac.)",
+      "Drzwi tarasowe — środkowy segment (szac.)",
+      "Przeszklenie tarasowe — prawy segment (szac.)",
+    ];
+    const project: GymProject = {
+      ...createDefaultProject(),
+      room: { widthCm: 600, depthCm: 700, heightCm: 250 },
+      wallElements: names.map((name, index) => ({
+        id: `wall-element_${index}`,
+        kind: index === 1 ? "door" : "window",
+        name,
+        wall: "top",
+        offsetCm: 135 + index * 110,
+        widthCm: 110,
+      })),
+    };
+    render(
+      <ProjectStoreProvider initialProject={project}>
+        <RoomPlan
+          activeProductId={null}
+          activeTool={null}
+          onCancelPlacement={vi.fn()}
+          onPlacementComplete={vi.fn()}
+          onPlacementError={vi.fn()}
+          onSelect={vi.fn()}
+          placementError=""
+          selectedId={null}
+        />
+      </ProjectStoreProvider>,
+    );
+    const labels = Array.from(document.querySelectorAll<SVGTextElement>(
+      ".creator-wall-element-label",
+    ));
+
+    expect(labels).toHaveLength(3);
+    expect(labels.map((label) => label.textContent)).toEqual(names);
+    expect(new Set(labels.map((label) => label.getAttribute("x"))).size).toBe(3);
+    expect(labels.every((label) => label.getAttribute("aria-hidden") === "true")).toBe(true);
+    expect(Array.from(document.querySelectorAll(".creator-plan-wall-element title"))
+      .map((title) => title.textContent)).toEqual(names);
+  });
+
   it("commits many pointer moves as one store revision", () => {
     const entity = renderPlan();
     fireEvent.pointerDown(entity, { button: 0, clientX: 100, clientY: 100, pointerId: 7 });
