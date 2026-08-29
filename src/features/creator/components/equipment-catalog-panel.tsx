@@ -1,34 +1,16 @@
 "use client";
 
 import { useMemo, useState, type DragEvent } from "react";
-import { Dumbbell, Search } from "lucide-react";
-import Image from "next/image";
+import { Search } from "lucide-react";
 
 import { catalogProducts } from "@/data/products";
 import { formatFootprint, formatPricePln } from "@/features/catalog/components/catalog-formatters";
-import { getProductImage } from "@/features/catalog/product-assets";
 import { searchProducts } from "@/features/catalog/queries/catalog";
+
+import { EquipmentCatalogThumb } from "./equipment-catalog-thumb";
 
 export const EQUIPMENT_DRAG_TYPE = "application/x-home-gym-product-id";
 const RESULT_LIMIT = 8;
-const THUMB_SIZE_PX = 44;
-
-function EquipmentCatalogThumb({ productId }: { readonly productId: string }) {
-  const src = getProductImage(productId);
-  if (!src) {
-    return (
-      <span className="creator-catalog-thumb creator-catalog-thumb-fallback">
-        <Dumbbell aria-hidden="true" size={17} />
-      </span>
-    );
-  }
-
-  return (
-    <span className="creator-catalog-thumb">
-      <Image alt="" height={THUMB_SIZE_PX} sizes={`${THUMB_SIZE_PX}px`} src={src} width={THUMB_SIZE_PX} />
-    </span>
-  );
-}
 
 export function EquipmentCatalogPanel({
   activeProductId,

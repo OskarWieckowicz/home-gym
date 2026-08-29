@@ -1,12 +1,13 @@
 "use client";
 
-import { Ban, Box, DoorOpen, Dumbbell, PanelTop, Ruler, Settings } from "lucide-react";
+import { Ban, Box, DoorOpen, PanelTop, Ruler, Settings } from "lucide-react";
 
 import { findProductById } from "@/features/catalog/queries/catalog";
 
 import type { EditorPanel, PlacementTool } from "../editor-types";
 import { useProjectStore } from "../store/project-store-context";
 import { EquipmentCatalogPanel } from "./equipment-catalog-panel";
+import { EquipmentCatalogThumb } from "./equipment-catalog-thumb";
 
 type ElementPanelProps = {
   readonly activePanel: EditorPanel;
@@ -88,7 +89,7 @@ export function ElementPanel({
                     onClick={() => onSelect(placement.id)}
                     type="button"
                   >
-                    <Dumbbell aria-hidden="true" size={17} />
+                    <EquipmentCatalogThumb productId={placement.productId} />
                     <span>
                       <strong>{product?.name ?? "Unavailable product"}</strong>
                       <small>Equipment · {placement.rotation}°</small>

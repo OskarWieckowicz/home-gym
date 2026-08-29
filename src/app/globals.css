@@ -201,7 +201,8 @@ body {
 .creator-element-list ul { display: grid; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
 .creator-element-list li button { width: 100%; justify-content: flex-start; padding: 0.55rem 0.65rem; text-align: start; }
 .creator-element-list li button[aria-current="true"] { border-color: var(--select); background: var(--select-soft); }
-.creator-element-list li span { display: grid; }
+.creator-element-list li span { display: grid; min-width: 0; }
+.creator-element-list li strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .creator-element-list small { color: var(--ink-muted); font-weight: 450; }
 
 .creator-plan-shell { display: grid; align-content: start; min-width: 0; padding: clamp(1rem, 2vw, 2rem); }
