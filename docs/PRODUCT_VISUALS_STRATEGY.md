@@ -1,7 +1,7 @@
 # Product visuals strategy
 
-> Status: accepted direction for Phases 12–14.  
-> Updated: 28 August 2026.
+> Status: AI-first production approach accepted; Phase 15 validates the rack in the application.
+> Updated: 29 August 2026.
 
 ## Purpose
 
@@ -16,21 +16,61 @@ source of truth for spatial calculations. Product dimensions, placement, clearan
 height checks, and budget validation continue to come from the deterministic catalog and project
 domain.
 
-## Core decision
+## Core production decision
 
-Use a small library of parameterized, procedural 3D equipment families as the primary visual
-source. Reuse each family across products by applying catalog dimensions, selected structural
-variants, and restrained material or color options.
+Use AI-generated procedural GLB as the primary source for a small library of coherent equipment
+families. Keep each accepted generator script with its output so the asset can be reproduced,
+reviewed, and revised without a manual Blender workflow. Generation is an offline production step,
+not a runtime application feature.
 
-From the same procedural representation, produce:
+From each accepted GLB produce:
 
 - the live equipment shown in the 3D room preview,
 - an orthographic top-down render for the 2D editor,
-- a consistent three-quarter render for the catalog when its quality is sufficient.
+- a deterministic three-quarter base render for the catalog.
 
-Use AI image generation selectively to enhance catalog presentation, not to generate every visual
-representation independently. This avoids paying for multiple unrelated generations per product
-and reduces visual drift between the catalog, 2D editor, and 3D room.
+Use AI image editing to polish the catalog render when it materially improves presentation. The
+edited result may add surface detail, lighting, and commercial finish, but must preserve the same
+recognizable product, orientation, silhouette, and structural parts. Do not generate catalog
+images independently from an unrelated text prompt.
+
+Sketchfab and other licensed libraries are fallback sources only when a difficult equipment family
+cannot meet the quality bar through the primary pipeline. A sourced model is accepted only when its
+license, attribution, public-repository rights, and cleanup cost are clear.
+
+## Decision evidence
+
+GPT-5.6 sol produced the first accepted real-asset benchmark:
+
+- `scripts/generate-squat-rack-glb.mjs` generates a real glTF 2.0 binary asset at real-world scale;
+- `public/assets/squat-rack.glb` is approximately 532 KB, 11,560 triangles, 251 mesh nodes, and five
+  materials;
+- `public/assets/squat-rack-catalog.png` demonstrates the accepted catalog art direction;
+- the result is recognizable and materially stronger than the discarded pseudo-isometric SVG.
+
+The benchmark proves that an LLM-authored procedural generator can produce a useful real mesh and
+a strong catalog presentation without Blender. It does not yet prove that the approach works for
+an adjustable bench or more organic cardio equipment. The rack also has too many separate mesh
+nodes for a production family, so automated geometry merging or instancing remains part of the
+pipeline.
+
+## Lesson from the discarded prototype
+
+The first attempted Phase 14 implementation generated normalized box and cylinder recipes in code
+and projected them directly into pseudo-isometric SVG catalog illustrations. It was discarded after
+visual review. The approach failed because:
+
+- it never produced or inspected a real mesh in a perspective-lit 3D environment;
+- family construction, art direction, camera, materials, catalog rendering, and 2D projection were
+  scaled together before one benchmark had been approved;
+- simple rails made racks barely readable, but benches and more organic equipment exposed the lack
+  of structural detail immediately;
+- deterministic bounds tests proved only that primitives fit an envelope, not that the object
+  resembled the intended product;
+- code and DOM tests could not substitute for visual acceptance at actual card and editor sizes.
+
+An isometric SVG or a collection of rectangles is no longer accepted as evidence that the 3D
+modeling pipeline works.
 
 ## Visual families
 
@@ -76,20 +116,21 @@ than inferred from image pixels or mesh bounds.
 
 ## Catalog images
 
-Prefer a deterministic three-quarter render from the procedural model for the complete catalog.
+Start with a deterministic three-quarter render from the procedural GLB for the complete catalog.
 Use a consistent camera, background, lighting rig, shadow treatment, crop, and product orientation.
 This gives every product a usable image without a per-image generation service.
 
-AI-generated or AI-edited images are reserved for cases where they materially improve the public
-presentation, such as:
+Use controlled AI image editing where it materially improves the public presentation, such as:
 
 - featured catalog products,
 - landing-page hero products,
 - a small number of visually weak procedural renders.
 
-Do not include real manufacturer logos, copied product designs, embedded text, room backgrounds, or
-visual dimensions that contradict the catalog record. Store the accepted prompt, reference assets,
-and revision notes so a product image can be recreated consistently.
+The GLB render must be the visual reference supplied to the edit. Reject an edit that changes the
+equipment family, removes required structure, invents incompatible attachments, or materially
+changes its proportions. Do not include real manufacturer logos, copied product designs, embedded
+text, room backgrounds, or visual dimensions that contradict the catalog record. Store the base
+render, accepted prompt, model name, and revision notes.
 
 ## Top-down 2D visuals
 
@@ -108,21 +149,23 @@ uses a deterministic geometric fallback so placement work is never blocked by as
 
 ## Simplified 3D equipment
 
-Build equipment from low-complexity primitives and reusable subassemblies in React Three Fiber and
-Three.js. Typical pieces include boxes, cylinders, rails, uprights, pads, plates, handles, and
-consoles. The goal is recognizable structure and useful spatial scale, not manufacturing detail.
+Generate each family through a reproducible script that writes an actual GLB. The script may use
+low-complexity primitives and reusable subassemblies, but its output must be reviewed with
+perspective, lighting, and multiple camera angles. React Three Fiber and Three.js remain runtime
+adapters rather than the source of domain geometry. The goal is recognizable structure and useful
+spatial scale, not manufacturing detail.
 
 The 3D representation must:
 
 - use the same project placement and rotation as the 2D plan,
 - remain within the canonical stored dimensions within a documented visual tolerance,
 - render efficiently when a complete demo room is visible,
+- avoid excessive draw calls by merging static geometry per material or instancing repeated parts,
 - support selection and validation highlighting,
 - avoid being used for collision or clearance calculations.
 
-Exported GLTF or GLB assets are optional. Prefer code-driven components while the number of visual
-families is small and dimensions must remain parameterized. Reconsider exported assets only when a
-specific model is too complex or slow to maintain procedurally.
+GLB is the required runtime artifact. Keep the generator script, prompt or task brief, measured
+dimensions, material definitions, optimization record, and accepted review renders with the asset.
 
 ## 3D room preview
 
@@ -139,20 +182,21 @@ legibility. Precise editing remains in 2D.
 1. Complete Phase 11 before producing the full asset set so stable product IDs and categories are
    known.
 2. Implement Phase 12 placement with replaceable geometric fallbacks.
-3. Prototype only three representative products: a rack, an adjustable bench, and a treadmill.
-4. Approve the modeling style, catalog camera, top-down camera, materials, and naming convention.
-5. Expand reusable visual families before creating product-specific exceptions.
-6. Render catalog and top-down outputs locally from the procedural models.
-7. Use AI generation only after reviewing the complete deterministic set and identifying specific
-   presentation gaps.
-8. Generate or edit AI images in a small review batch before authorizing the remaining products.
-9. Record the current service pricing or included-usage impact immediately before a large batch;
-   do not preserve a monetary estimate as a permanent architectural fact.
+3. Keep the accepted squat-rack generator and catalog image as the baseline evidence.
+4. Build the Phase 15 read-only 3D scene shell and load the rack from the existing project state.
+5. Verify scale, pivot, orientation, loading, fallback behavior, and runtime cost in a real room.
+6. Start Phase 16 with the harder Arc Adjustable Bench family and review it inside the scene shell.
+7. Generate the bench's top-down and catalog base renders plus one controlled AI-edited catalog
+   result, then measure visual quality, dimensions, mesh/draw-call cost, file size, and reproducibility.
+8. If the bench passes, expand in small reviewed batches to treadmill, weights, and the remaining
+   reusable families. If one family fails, use a licensed sourced model only for that exception.
+9. Record model/tool versions, prompts, inputs, output rights, and current cost immediately before
+   a larger batch. Do not preserve a monetary estimate as a permanent architectural fact.
 
 Codex and ChatGPT's built-in image generation currently use GPT Image and consume included Codex
 usage faster than comparable non-image turns. OpenAI recommends using the API for larger batches so
 API pricing applies. Availability, usage multipliers, models, and prices are time-sensitive and
-must be checked again when Phase 13 begins.
+must be checked again during Phase 16 before any paid generation or acquisition.
 
 ## Phase ownership
 
@@ -165,24 +209,36 @@ must be checked again when Phase 13 begins.
   from placement commands.
 - Do not produce final product imagery, top-down assets, or 3D equipment models in this phase.
 
-### Phase 13 — Product visual assets and models
+### Phase 14 — Product visual feasibility decision
+
+- Treat the accepted squat-rack artifacts as proof of the AI-generated procedural GLB direction.
+- Record the AI-first decision, discarded SVG lesson, and licensed-source fallback.
+
+### Phase 15 — 3D scene shell and squat-rack vertical slice
+
+- Add a read-only R3F room driven by the same project store as the SVG plan and WebMCP.
+- Load the real squat-rack GLB for the Summit Power Cage.
+- Render obstacles and unmodeled equipment with deterministic geometric fallbacks.
+- Verify coordinates, scale, pivot, orientation, loading, and runtime cost before producing more models.
+
+### Phase 16 — Product visual assets and models
 
 - Finalize the visual metadata contract and visual-family mapping.
-- Build and verify the reusable procedural 3D product families.
+- Start with the Arc Adjustable Bench as the difficult-family gate in the Phase 15 scene shell.
+- Produce and verify AI-generated procedural GLB families using the approved pipeline.
 - Produce and integrate the top-down editor assets.
 - Produce the deterministic catalog renders.
-- Use AI generation or editing only for approved presentation gaps.
+- Use controlled AI editing of GLB-derived catalog renders for approved presentation polish.
 - Optimize files and verify explicit missing-asset fallbacks.
 
-### Phase 14 — 3D room preview
+### Phase 17 — 3D room preview completion
 
-- Integrate the completed Phase 13 procedural families into the live room scene rather than
-  starting a second model-production path.
-- Build the shared-state 3D room preview and 2D/3D switch.
-- Add navigation, selection, and validation presentation.
+- Integrate the completed Phase 16 equipment assets into the live room scene rather than
+   starting a second model-production path.
+- Extend the Phase 15 shell with selection and validation presentation.
 - Verify representative complete-room performance and spatial readability.
 
-### Phase 17 — Landing page and catalog polish
+### Phase 20 — Landing page and catalog polish
 
 - Use accepted final assets and real screenshots from the completed shared-editing demo.
 - Do not reopen the model-production scope unless a visible presentation defect blocks the surface.

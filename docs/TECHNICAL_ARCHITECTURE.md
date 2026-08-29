@@ -388,14 +388,17 @@ type PlacementCandidate = {
 
 We will not build a global solver that optimizes all products at once in the MVP. The agent will iteratively choose products, fetch candidates, place them, and re-validate the project.
 
-## 10. React Three Fiber scene
+## 10. 2D plan and React Three Fiber scene
 
-One scene will support two views:
+The creator uses two presentation adapters:
 
-- orthographic camera — top-down plan,
-- perspective camera — simple 3D preview.
+- the existing SVG `RoomPlan` for precise top-down editing;
+- a React Three Fiber scene with a perspective camera for spatial review.
 
-We will not create a separate 2D editor and a separate 3D renderer. Both modes use the same scene objects and the same store.
+They do not share renderer objects. They share one `GymProject`, one Zustand store, the same catalog
+dimensions, and the same deterministic geometry and validation rules. The 3D adapter subscribes to
+the existing project state without copying it into a renderer-specific store. Switching view is
+transient UI state and does not affect project revision, history, persistence, or WebMCP.
 
 Basic scene elements:
 
@@ -404,23 +407,27 @@ Basic scene elements:
 - obstacles as cuboids,
 - unavailable zones as flat floor overlays,
 - minimal door and window marks on walls,
-- equipment as simplified solids,
+- equipment as AI-generated procedural GLB families with simplified-solid fallbacks,
 - translucent working zones,
 - selected-element outline,
 - red collision marking,
 - labels and basic dimensions.
 
-Interactions:
+The Phase 15 scene shell is read-only and supports:
 
-- select an object by clicking,
-- drag on the floor plane,
-- snap to the grid,
-- rotate in 90-degree steps,
-- lock obstacles,
-- switch camera mode,
-- show or hide working zones.
+- switching between the SVG plan and 3D preview,
+- orbiting the perspective camera,
+- zooming,
+- inspecting room scale, obstacle height, and equipment placement.
 
-Realistic GLTF models are an optional enhancement. Validation always uses the simplified footprint, not the geometry of the rendered model.
+Precise selection, placement, dragging, snapping, rotation, and locking remain in the 2D editor.
+Later 3D-preview work may add selection and validation presentation, but it must still dispatch the
+same domain commands and must never calculate layout validity from rendered meshes.
+
+The primary equipment visuals are reproducible, AI-generated procedural GLB assets produced
+offline and mapped by visual family. They remain simplified presentation assets rather than
+photorealistic product twins. Missing assets fall back to deterministic solids, and validation
+always uses the catalog footprint rather than rendered mesh geometry.
 
 ## 11. Product catalog
 

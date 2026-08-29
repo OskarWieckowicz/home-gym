@@ -69,7 +69,9 @@ The 2D view is the primary editing mode. It shows the room from above and allows
 
 ### 3D view
 
-The 3D view is a supporting spatial preview. The room, obstacles, and equipment are shown as simple solids, without realistic models and materials.
+The 3D view is a supporting spatial preview. The room and obstacles use simple solids; equipment
+uses simplified generated GLB families with geometric fallbacks. The preview is not a
+photorealistic interior or a source of placement geometry.
 
 The user can orbit the camera, zoom, and inspect the project from different sides. The view helps check:
 

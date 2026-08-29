@@ -66,4 +66,4 @@ is covered end to end; this runtime check remains the only open exit-gate item.
 The phase is complete only when all four tools are discoverable and callable in the creator, the
 shared store/history/persistence behavior is proven, the runtime scenario is checked, the canonical
 local gate passes, and no non-test source/configuration file exceeds 500 physical lines. Then remove
-this detailed plan and advance the queue to product visual assets.
+this detailed plan and advance the queue to the 3D scene shell and squat-rack vertical slice.
