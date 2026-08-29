@@ -4,10 +4,38 @@ import type {
   GymProject,
   Obstacle,
   PhysicalObstacle,
+  Placement,
   UnavailableZone,
   WallElement,
 } from "../schemas/project";
 import { validateProject } from "./validate-project";
+import type { ProductValidationDescriptor } from "./product-validation";
+
+const product: ProductValidationDescriptor = {
+  id: "product_test",
+  price: 6_000,
+  dimensions: { widthCm: 100, depthCm: 50, heightCm: 210 },
+  clearance: { frontCm: 30, backCm: 10, leftCm: 20, rightCm: 20 },
+  minimumCeilingHeightCm: 230,
+};
+
+const validationDependencies = {
+  resolveProduct: (productId: string) =>
+    productId === product.id ? product : undefined,
+};
+
+function placement(
+  id: string,
+  overrides: Partial<Placement> = {},
+): Placement {
+  return {
+    id,
+    productId: product.id,
+    position: { xCm: 0, zCm: 0 },
+    rotation: 0,
+    ...overrides,
+  };
+}
 
 function obstacle(
   id: string,
@@ -44,18 +72,128 @@ function zone(
 function project(
   obstacles: Obstacle[],
   wallElements: WallElement[] = [],
+  placements: Placement[] = [],
 ): GymProject {
   return {
-    version: 2,
+    version: 3,
     room: { widthCm: 300, depthCm: 250, heightCm: 220 },
     obstacles,
     wallElements,
+    placements,
     budget: 10_000,
     trainingGoals: [],
   };
 }
 
 describe("validateProject", () => {
+  it("validates placement bounds, physical obstacles, and unavailable zones", () => {
+    const issues = validateProject(
+      project(
+        [
+          obstacle("obstacle_physical", { position: { xCm: 20, zCm: 20 } }),
+          zone("obstacle_zone", { position: { xCm: 80, zCm: 10 } }),
+        ],
+        [],
+        [
+          placement("placement_inside"),
+          placement("placement_outside", { position: { xCm: 250, zCm: 220 } }),
+        ],
+      ),
+      validationDependencies,
+    );
+
+    expect(new Set(issues.map(({ code }) => code))).toEqual(new Set([
+      "PHYSICAL_COLLISION",
+      "CLEARANCE_OUTSIDE_ROOM",
+      "UNAVAILABLE_ZONE_CONFLICT",
+      "BUDGET_EXCEEDED",
+      "CEILING_TOO_LOW",
+      "OUTSIDE_ROOM",
+    ]));
+    expect(issues.some(({ code }) => code === "CLEARANCE_CONFLICT")).toBe(false);
+  });
+
+  it("detects placement physical and clearance conflicts but accepts touching edges", () => {
+    const physicalOverlap = validateProject(
+      project([], [], [placement("placement_a"), placement("placement_b", {
+        position: { xCm: 99, zCm: 0 },
+      })]),
+      validationDependencies,
+    );
+    expect(physicalOverlap).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        code: "PHYSICAL_COLLISION",
+        entityIds: ["placement_a", "placement_b"],
+      }),
+    ]));
+    expect(physicalOverlap.some(({ code }) => code === "CLEARANCE_CONFLICT")).toBe(
+      false,
+    );
+
+    const touching = validateProject(
+      project(
+        [obstacle("obstacle_touching", { position: { xCm: 120, zCm: 0 } })],
+        [],
+        [placement("placement_a")],
+      ),
+      validationDependencies,
+    );
+    expect(touching.some(({ code }) => code === "CLEARANCE_CONFLICT")).toBe(false);
+
+    const clearanceOverlap = validateProject(
+      project(
+        [obstacle("obstacle_overlap", { position: { xCm: 119, zCm: 0 } })],
+        [],
+        [placement("placement_a")],
+      ),
+      validationDependencies,
+    );
+    expect(clearanceOverlap).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: "CLEARANCE_CONFLICT" }),
+    ]));
+  });
+
+  it("reports rotated clearance outside the room independently of physical bounds", () => {
+    const issues = validateProject(
+      project([], [], [placement("placement_edge", {
+        position: { xCm: 0, zCm: 20 },
+        rotation: 90,
+      })]),
+      validationDependencies,
+    );
+
+    expect(issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        code: "CLEARANCE_OUTSIDE_ROOM",
+        entityIds: ["placement_edge"],
+        details: expect.objectContaining({ axes: ["x"] }),
+      }),
+    ]));
+    expect(issues.some(({ code }) => code === "OUTSIDE_ROOM")).toBe(false);
+  });
+
+  it("reports ceiling and aggregate budget errors with stable details", () => {
+    const input = project(
+      [],
+      [],
+      [placement("placement_b", { position: { xCm: 150, zCm: 100 } }), placement("placement_a")],
+    );
+    const issues = validateProject(input, validationDependencies);
+
+    expect(issues).toEqual(expect.arrayContaining([
+      {
+        code: "BUDGET_EXCEEDED",
+        severity: "error",
+        entityIds: ["placement_a", "placement_b"],
+        details: { budget: 10_000, totalPrice: 12_000, excess: 2_000 },
+      },
+      expect.objectContaining({
+        code: "CEILING_TOO_LOW",
+        details: { roomHeightCm: 220, productHeightCm: 210, requiredHeightCm: 230 },
+      }),
+    ]));
+  });
+
   it("returns no issues for an empty or valid non-overlapping room", () => {
     expect(validateProject(project([]))).toEqual([]);
     expect(
@@ -155,7 +293,7 @@ describe("validateProject", () => {
     expect(
       forward.every(
         (issue) =>
-          issue.entityIds.length === 1 || issue.entityIds[0] < issue.entityIds[1],
+          issue.entityIds.length < 2 || issue.entityIds[0]! < issue.entityIds[1]!,
       ),
     ).toBe(true);
     expect(new Set(forward.map((issue) => JSON.stringify(issue.entityIds))).size).toBe(

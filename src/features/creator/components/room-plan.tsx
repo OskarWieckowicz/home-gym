@@ -1,10 +1,10 @@
 "use client";
 
-import { useId, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
-import { Lock } from "lucide-react";
+import { useId, useMemo, useRef, useState, type DragEvent, type KeyboardEvent, type PointerEvent } from "react";
 
+import { findProductById } from "@/features/catalog/queries/catalog";
 import type { ProjectCommand } from "@/features/project/schemas/project-command";
-import type { GymProject, Obstacle, WallElement } from "@/features/project/schemas/project";
+import type { GymProject, Obstacle, Placement, WallElement } from "@/features/project/schemas/project";
 
 import type { DragDraft, PlacementTool } from "../editor-types";
 import {
@@ -22,17 +22,13 @@ import {
 import {
   clientPointToPlanPoint,
   createPlanTransform,
-  obstacleToPlanRectangle,
-  type PlanTransform,
-  wallElementToPlanLine,
 } from "../plan/plan-transform";
 import { useProjectStore } from "../store/project-store-context";
+import { EQUIPMENT_DRAG_TYPE } from "./equipment-catalog-panel";
+import { EquipmentEntity } from "./equipment-entity";
+import { ObstacleEntity, WallElementEntity } from "./room-plan-entities";
 
 const VIEWPORT = { width: 760, height: 560 } as const;
-const ENTITY_LABEL_INSET = 8;
-const ENTITY_LABEL_HEIGHT = 26;
-const ENTITY_LOCK_SIZE = 14;
-const ENTITY_LOCK_GAP = 8;
 const FLOOR_DEFAULTS = {
   obstacle: { name: "Physical obstacle", dimensions: { widthCm: 100, depthCm: 50, heightCm: 200 } },
   "unavailable-zone": { name: "Unavailable zone", dimensions: { widthCm: 100, depthCm: 100 } },
@@ -44,6 +40,7 @@ const WALL_DEFAULTS = {
 
 type RoomPlanProps = {
   readonly activeTool: PlacementTool | null;
+  readonly activeProductId: string | null;
   readonly selectedId: string | null;
   readonly placementError: string;
   readonly onSelect: (id: string | null) => void;
@@ -58,14 +55,11 @@ function svgPoint(event: PointerEvent<SVGElement>) {
   return clientPointToPlanPoint(event, VIEWPORT, bounds);
 }
 
-function hasIssue(id: string, issues: readonly { readonly entityIds: readonly string[] }[]) {
-  return issues.some((issue) => issue.entityIds.includes(id));
-}
-
-function placementInstruction(tool: PlacementTool | null): string {
+function placementInstruction(tool: PlacementTool | null, productId: string | null): string {
   if (tool === "door" || tool === "window") return "Click a room wall to place it. Press Escape to cancel.";
   if (tool) return "Click inside the room to place it. Press Escape to cancel.";
-  return "Drag unlocked areas. Positions snap to 10 cm.";
+  if (productId) return "Click inside the room to place the selected equipment. Press Escape to cancel.";
+  return "Drag areas and equipment. Positions snap to 10 cm.";
 }
 
 type PlacementCommandResult =
@@ -140,114 +134,9 @@ function createPlacementCommand(
   };
 }
 
-type EntityLayerProps = {
-  readonly interactive: boolean;
-  readonly selectedId: string | null;
-  readonly issues: readonly { readonly entityIds: readonly string[] }[];
-  readonly transform: PlanTransform;
-};
-
-function ObstacleEntity({
-  obstacle,
-  interactive,
-  position,
-  selectedId,
-  issues,
-  transform,
-  onBeginDrag,
-  onMoveDrag,
-  onFinishDrag,
-  onCancelDrag,
-  onKeySelect,
-}: EntityLayerProps & {
-  readonly obstacle: Obstacle;
-  readonly position: Obstacle["position"];
-  readonly onBeginDrag: (event: PointerEvent<SVGGElement>, obstacle: Obstacle) => void;
-  readonly onMoveDrag: (event: PointerEvent<SVGGElement>) => void;
-  readonly onFinishDrag: (event: PointerEvent<SVGGElement>) => void;
-  readonly onCancelDrag: () => void;
-  readonly onKeySelect: (event: KeyboardEvent<SVGGElement>, id: string) => void;
-}) {
-  const rectangle = obstacleToPlanRectangle({ ...obstacle, position }, transform);
-  const selected = selectedId === obstacle.id;
-  const invalid = hasIssue(obstacle.id, issues);
-  const lockSpace = obstacle.locked ? ENTITY_LOCK_SIZE + ENTITY_LOCK_GAP : 0;
-  const labelWidth = Math.max(0, rectangle.width - ENTITY_LABEL_INSET * 2 - lockSpace);
-  return (
-    <g
-      aria-label={`${obstacle.name}, ${obstacle.kind === "obstacle" ? "physical obstacle" : "unavailable zone"}${obstacle.locked ? ", locked" : ""}${invalid ? ", has layout issue" : ""}`}
-      aria-pressed={selected}
-      className={["creator-plan-entity", `creator-plan-${obstacle.kind}`, selected && "is-selected", invalid && "is-invalid", obstacle.locked && "is-locked", !interactive && "is-placement-disabled"].filter(Boolean).join(" ")}
-      onKeyDown={(event) => onKeySelect(event, obstacle.id)}
-      onLostPointerCapture={onCancelDrag}
-      onPointerCancel={onCancelDrag}
-      onPointerDown={(event) => onBeginDrag(event, obstacle)}
-      onPointerMove={onMoveDrag}
-      onPointerUp={onFinishDrag}
-      role="button"
-      tabIndex={interactive ? 0 : -1}
-    >
-      <rect className="creator-entity-shape" height={rectangle.height} width={rectangle.width} x={rectangle.x} y={rectangle.y} />
-      <foreignObject
-        className="creator-entity-label-container"
-        height={Math.min(ENTITY_LABEL_HEIGHT, rectangle.height)}
-        width={labelWidth}
-        x={rectangle.x + ENTITY_LABEL_INSET}
-        y={rectangle.y}
-      >
-        <div className="creator-entity-label" title={obstacle.name}>{obstacle.name}</div>
-      </foreignObject>
-      {obstacle.locked ? (
-        <Lock
-          aria-hidden="true"
-          className="creator-entity-lock"
-          focusable="false"
-          height={ENTITY_LOCK_SIZE}
-          width={ENTITY_LOCK_SIZE}
-          x={rectangle.x + rectangle.width - ENTITY_LABEL_INSET - ENTITY_LOCK_SIZE}
-          y={rectangle.y + 6}
-        />
-      ) : null}
-      {invalid ? <text aria-hidden="true" className="creator-entity-mark" x={rectangle.x + rectangle.width - 18} y={rectangle.y + rectangle.height - 8}>!</text> : null}
-    </g>
-  );
-}
-
-function WallElementEntity({
-  element,
-  interactive,
-  selectedId,
-  issues,
-  transform,
-  onSelect,
-  onKeySelect,
-}: EntityLayerProps & {
-  readonly element: WallElement;
-  readonly onSelect: (event: PointerEvent<SVGGElement>, element: WallElement) => void;
-  readonly onKeySelect: (event: KeyboardEvent<SVGGElement>, id: string) => void;
-}) {
-  const line = wallElementToPlanLine(element, transform);
-  const selected = selectedId === element.id;
-  const invalid = hasIssue(element.id, issues);
-  return (
-    <g
-      aria-label={`${element.name}, ${element.kind}, ${element.wall} wall${invalid ? ", has layout issue" : ""}`}
-      aria-pressed={selected}
-      className={["creator-plan-wall-element", `creator-plan-${element.kind}`, selected && "is-selected", invalid && "is-invalid", !interactive && "is-placement-disabled"].filter(Boolean).join(" ")}
-      onKeyDown={(event) => onKeySelect(event, element.id)}
-      onPointerDown={(event) => onSelect(event, element)}
-      role="button"
-      tabIndex={interactive ? 0 : -1}
-    >
-      <line className="creator-plan-wall-hit" x1={line.x1} x2={line.x2} y1={line.y1} y2={line.y2} />
-      <line className="creator-plan-wall-visible" x1={line.x1} x2={line.x2} y1={line.y1} y2={line.y2} />
-      <text x={line.labelX} y={line.labelY}>{element.name}</text>
-    </g>
-  );
-}
-
 export function RoomPlan({
   activeTool,
+  activeProductId,
   selectedId,
   placementError,
   onSelect,
@@ -261,6 +150,7 @@ export function RoomPlan({
   const transform = useMemo(() => createPlanTransform(project.room, VIEWPORT, 48), [project.room]);
   const gridId = useId();
   const [session, setSession] = useState<DragSession | null>(null);
+  const [dragEntityKind, setDragEntityKind] = useState<"obstacle" | "placement" | null>(null);
   const [draft, setDraft] = useState<DragDraft | null>(null);
   const draftRef = useRef<DragDraft | null>(null);
 
@@ -274,8 +164,27 @@ export function RoomPlan({
     onSelect(obstacle.id);
     if (obstacle.locked || event.button !== 0) return;
     event.currentTarget.setPointerCapture(event.pointerId);
+    setDragEntityKind("obstacle");
     setSession(createDragSession(obstacle.id, event.pointerId, svgPoint(event), obstacle.position));
     setDragDraft({ obstacleId: obstacle.id, position: obstacle.position });
+  }
+
+  function beginPlacementDrag(
+    event: PointerEvent<SVGGElement>,
+    placement: Placement,
+  ) {
+    event.stopPropagation();
+    onSelect(placement.id);
+    if (event.button !== 0) return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setDragEntityKind("placement");
+    setSession(createDragSession(
+      placement.id,
+      event.pointerId,
+      svgPoint(event),
+      placement.position,
+    ));
+    setDragDraft({ obstacleId: placement.id, position: placement.position });
   }
 
   function moveDrag(event: PointerEvent<SVGGElement>) {
@@ -287,17 +196,24 @@ export function RoomPlan({
     if (!session || session.pointerId !== event.pointerId) return;
     const finalDraft = draftRef.current;
     if (finalDraft && dragPositionChanged(session, finalDraft.position)) {
-      dispatch({
-        type: "OBSTACLE_UPDATED",
-        payload: { obstacleId: session.obstacleId, patch: { position: finalDraft.position } },
-      });
+      dispatch(dragEntityKind === "placement"
+        ? {
+            type: "PLACEMENT_UPDATED",
+            payload: { placementId: session.obstacleId, patch: { position: finalDraft.position } },
+          }
+        : {
+            type: "OBSTACLE_UPDATED",
+            payload: { obstacleId: session.obstacleId, patch: { position: finalDraft.position } },
+          });
     }
     setSession(null);
+    setDragEntityKind(null);
     setDragDraft(null);
   }
 
   function cancelDrag() {
     setSession(null);
+    setDragEntityKind(null);
     setDragDraft(null);
   }
 
@@ -327,8 +243,33 @@ export function RoomPlan({
     finishCommand(dispatch(result.command));
   }
 
+  function placeProduct(productId: string, target: PlacementTarget) {
+    if (target.kind !== "floor") {
+      onPlacementError("Place equipment inside the room.");
+      return;
+    }
+    const product = findProductById(productId);
+    if (!product) {
+      onPlacementError("This catalog product is unavailable.");
+      return;
+    }
+    const position = centerFloorRectangle(
+      target.position,
+      product.dimensions,
+      project.room,
+    );
+    if (!position) {
+      onPlacementError("This equipment footprint does not fit in the room.");
+      return;
+    }
+    finishCommand(dispatch({
+      type: "PRODUCT_PLACED",
+      payload: { productId, position, rotation: 0 },
+    }));
+  }
+
   function handlePlanPointerDown(event: PointerEvent<SVGSVGElement>) {
-    if (!activeTool) {
+    if (!activeTool && !activeProductId) {
       onSelect(null);
       return;
     }
@@ -341,11 +282,12 @@ export function RoomPlan({
         : "Click inside the room boundary.");
       return;
     }
-    place(target);
+    if (activeProductId) placeProduct(activeProductId, target);
+    else place(target);
   }
 
   function handlePlanKeyDown(event: KeyboardEvent<SVGSVGElement>) {
-    if (!activeTool) return;
+    if (!activeTool && !activeProductId) return;
     if (event.key === "Escape") {
       event.preventDefault();
       onCancelPlacement();
@@ -354,7 +296,12 @@ export function RoomPlan({
     }
     if (event.key !== "Enter") return;
     event.preventDefault();
-    if (activeTool === "door" || activeTool === "window") {
+    if (activeProductId) {
+      placeProduct(activeProductId, {
+        kind: "floor",
+        position: { xCm: project.room.widthCm / 2, zCm: project.room.depthCm / 2 },
+      });
+    } else if (activeTool === "door" || activeTool === "window") {
       place({ kind: "wall", wall: "top", offsetCm: project.room.widthCm / 2 });
     } else {
       place({
@@ -362,6 +309,32 @@ export function RoomPlan({
         position: { xCm: project.room.widthCm / 2, zCm: project.room.depthCm / 2 },
       });
     }
+  }
+
+  function handleDragOver(event: DragEvent<SVGSVGElement>) {
+    if (!event.dataTransfer.types.includes(EQUIPMENT_DRAG_TYPE)) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+  }
+
+  function handleDrop(event: DragEvent<SVGSVGElement>) {
+    const productId = event.dataTransfer.getData(EQUIPMENT_DRAG_TYPE);
+    if (!productId) return;
+    event.preventDefault();
+    const target = getPlacementTarget(
+      clientPointToPlanPoint(
+        event,
+        VIEWPORT,
+        event.currentTarget.getBoundingClientRect(),
+      ),
+      transform,
+      "floor",
+    );
+    if (!target) {
+      onPlacementError("Drop equipment inside the room boundary.");
+      return;
+    }
+    placeProduct(productId, target);
   }
 
   function selectWallElement(event: PointerEvent<SVGGElement>, element: WallElement) {
@@ -374,7 +347,9 @@ export function RoomPlan({
       <div className="creator-plan-heading">
         <div>
           <h2 id="plan-title">2D room plan</h2>
-          <p className={activeTool ? "creator-placement-help" : undefined}>{placementInstruction(activeTool)}</p>
+          <p className={activeTool || activeProductId ? "creator-placement-help" : undefined}>
+            {placementInstruction(activeTool, activeProductId)}
+          </p>
         </div>
         <span>{project.room.widthCm} × {project.room.depthCm} cm</span>
       </div>
@@ -382,7 +357,9 @@ export function RoomPlan({
       <svg
         aria-label="Top-down editable room plan"
         aria-describedby="plan-help"
-        className={`creator-plan${activeTool ? " is-placing" : ""}`}
+        className={`creator-plan${activeTool || activeProductId ? " is-placing" : ""}`}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
         onKeyDown={handlePlanKeyDown}
         onPointerDown={handlePlanPointerDown}
         preserveAspectRatio="xMidYMid meet"
@@ -398,9 +375,30 @@ export function RoomPlan({
         </defs>
         <rect className="creator-room-shadow" height={transform.roomHeight} width={transform.roomWidth} x={transform.offsetX} y={transform.offsetY} />
         <rect className="creator-room" fill={`url(#${gridId})`} height={transform.roomHeight} width={transform.roomWidth} x={transform.offsetX} y={transform.offsetY} />
+        {project.placements.map((placement) => {
+          const product = findProductById(placement.productId);
+          if (!product) return null;
+          return (
+            <EquipmentEntity
+              interactive={!activeTool && !activeProductId}
+              issues={issues}
+              key={placement.id}
+              onBeginDrag={beginPlacementDrag}
+              onCancelDrag={cancelDrag}
+              onFinishDrag={finishDrag}
+              onKeySelect={selectWithKeyboard}
+              onMoveDrag={moveDrag}
+              placement={placement}
+              position={draft?.obstacleId === placement.id ? draft.position : placement.position}
+              product={product}
+              selectedId={selectedId}
+              transform={transform}
+            />
+          );
+        })}
         {project.obstacles.map((obstacle) => (
           <ObstacleEntity
-            interactive={!activeTool}
+            interactive={!activeTool && !activeProductId}
             issues={issues}
             key={obstacle.id}
             obstacle={obstacle}
@@ -417,7 +415,7 @@ export function RoomPlan({
         {project.wallElements.map((element) => (
           <WallElementEntity
             element={element}
-            interactive={!activeTool}
+            interactive={!activeTool && !activeProductId}
             issues={issues}
             key={element.id}
             onKeySelect={selectWithKeyboard}
@@ -428,7 +426,7 @@ export function RoomPlan({
         ))}
       </svg>
       <p className="visually-hidden" id="plan-help">
-        Select an element with Tab and Enter. When a placement tool is active, press Enter on the plan to place a default element or Escape to cancel.
+        Select an element with Tab and Enter. When a placement tool or product is active, press Enter on the plan to place it or Escape to cancel. Equipment can also be dragged from the catalog onto the plan.
       </p>
     </section>
   );

@@ -36,7 +36,7 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "get_project_state",
       title: "Get current room project state",
       description:
-        "Read the live version-2 room project, settings, floor obstacles, wall elements, deterministic validation, revision, and manual undo/redo availability. Canonical IDs from this result can be used by update and remove tools.",
+        "Read the live version-3 room project, settings, floor obstacles, wall elements, catalog equipment placements, deterministic validation, revision, and manual undo/redo availability. Canonical room IDs from this result can be used by the currently registered update and remove tools.",
       inputSchema: getProjectStateJsonSchema,
       annotations: { readOnlyHint: true },
       execute: createGetProjectStateHandler(store),
@@ -106,7 +106,7 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "validate_layout",
       title: "Validate the current room layout",
       description:
-        "Read the live deterministic layout validation and its revision without changing state or history. Reports floor bounds, height, collision, unavailable-zone, wall bounds, and same-wall overlap issues for canonical entity IDs.",
+        "Read the live deterministic layout validation and its revision without changing state or history. Reports physical and clearance bounds, collisions, unavailable-zone conflicts, equipment ceiling and budget requirements, wall bounds, and same-wall overlap issues for canonical entity IDs.",
       inputSchema: validateLayoutJsonSchema,
       annotations: { readOnlyHint: true },
       execute: createValidateLayoutHandler(store),

@@ -8,6 +8,7 @@ import {
 } from "./geometry";
 import {
   physicalObstacleSchema,
+  placementSchema,
   projectSettingsSchema,
   roomSchema,
   unavailableZoneSchema,
@@ -24,6 +25,9 @@ export const PROJECT_COMMAND_TYPES = [
   "WALL_ELEMENT_ADDED",
   "WALL_ELEMENT_UPDATED",
   "WALL_ELEMENT_REMOVED",
+  "PRODUCT_PLACED",
+  "PLACEMENT_UPDATED",
+  "PLACEMENT_REMOVED",
 ] as const;
 
 const settingsFields = {
@@ -81,6 +85,16 @@ export const wallElementPatchSchema = z.union([
   z.object({ ...wallElementPatchFields, wall: wallSchema }).strict(),
   z.object({ ...wallElementPatchFields, offsetCm: wallElementSchema.shape.offsetCm }).strict(),
   z.object({ ...wallElementPatchFields, widthCm: wallElementSchema.shape.widthCm }).strict(),
+]);
+
+const placementPatchFields = {
+  position: positionSchema.optional(),
+  rotation: rotationSchema.optional(),
+};
+
+export const placementPatchSchema = z.union([
+  z.object({ ...placementPatchFields, position: positionSchema }).strict(),
+  z.object({ ...placementPatchFields, rotation: rotationSchema }).strict(),
 ]);
 
 const roomConfiguredCommandSchema = z
@@ -149,6 +163,32 @@ const wallElementRemovedCommandSchema = z
   })
   .strict();
 
+const productPlacedCommandSchema = z
+  .object({
+    type: z.literal("PRODUCT_PLACED"),
+    payload: placementSchema.omit({ id: true }),
+  })
+  .strict();
+
+const placementUpdatedCommandSchema = z
+  .object({
+    type: z.literal("PLACEMENT_UPDATED"),
+    payload: z
+      .object({
+        placementId: placementSchema.shape.id,
+        patch: placementPatchSchema,
+      })
+      .strict(),
+  })
+  .strict();
+
+const placementRemovedCommandSchema = z
+  .object({
+    type: z.literal("PLACEMENT_REMOVED"),
+    payload: z.object({ placementId: placementSchema.shape.id }).strict(),
+  })
+  .strict();
+
 export const projectCommandSchema = z.discriminatedUnion("type", [
   roomConfiguredCommandSchema,
   projectSettingsUpdatedCommandSchema,
@@ -158,6 +198,9 @@ export const projectCommandSchema = z.discriminatedUnion("type", [
   wallElementAddedCommandSchema,
   wallElementUpdatedCommandSchema,
   wallElementRemovedCommandSchema,
+  productPlacedCommandSchema,
+  placementUpdatedCommandSchema,
+  placementRemovedCommandSchema,
 ]);
 
 export type ProjectCommandType = (typeof PROJECT_COMMAND_TYPES)[number];

@@ -22,11 +22,19 @@ const obstacle = {
 const project: GymProject = {
   ...createDefaultProject(),
   obstacles: [obstacle],
+  placements: [
+    {
+      id: "placement_power-rack",
+      productId: "product_northstar_half_rack",
+      position: { xCm: 140, zCm: 80 },
+      rotation: 270,
+    },
+  ],
   trainingGoals: ["strength", "mobility"],
 };
 
 describe("project codec", () => {
-  it("round-trips a version-2 project through canonical pretty JSON", () => {
+  it("round-trips a version-3 project through canonical pretty JSON", () => {
     const serialized = serializeProject(project);
     const canonicalProject = gymProjectSchema.parse(project);
 
@@ -79,7 +87,7 @@ describe("project codec", () => {
     expect(decoded).toEqual({
       success: true,
       project: {
-        version: 2,
+        version: 3,
         room: { widthCm: 400, depthCm: 320, heightCm: 240 },
         obstacles: [
           {
@@ -93,6 +101,7 @@ describe("project codec", () => {
           },
         ],
         wallElements: [],
+        placements: [],
         budget: 10_000,
         trainingGoals: [],
       },
@@ -122,7 +131,7 @@ describe("project codec", () => {
 
   it("rejects future versions before schema parsing", () => {
     expectErrorCode(
-      decodeProject({ ...createDefaultProject(), version: 3 }),
+      decodeProject({ ...createDefaultProject(), version: 4 }),
       "unsupported-version",
     );
   });

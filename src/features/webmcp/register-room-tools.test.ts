@@ -61,6 +61,12 @@ describe("room WebMCP tool definitions", () => {
         "unavailable zone",
       );
     }
+    expect(tools.find(({ name }) => name === "get_project_state")?.description)
+      .toContain("version-3");
+    expect(tools.find(({ name }) => name === "get_project_state")?.description)
+      .toContain("equipment placements");
+    expect(tools.find(({ name }) => name === "validate_layout")?.description)
+      .toContain("ceiling and budget");
   });
 });
 

@@ -1,4 +1,3 @@
-import { validateProject } from "../validation/validate-project";
 import type { ValidationIssue } from "../validation/validation-issues";
 import {
   PROJECT_COMMAND_TYPES,
@@ -19,11 +18,17 @@ import type {
   CommandFailure,
   CommandSuccess,
 } from "./command-results";
+import { applyPlacementCommand } from "./placement-command-handlers";
+import {
+  resolveProjectCommandDependencies,
+  type ProjectCommandDependencies,
+  type ResolvedProjectCommandDependencies,
+} from "./project-command-dependencies";
 
-export type ProjectCommandDependencies = {
-  readonly generateObstacleId: () => string;
-  readonly generateWallElementId?: () => string;
-};
+export {
+  defaultProjectCommandDependencies,
+  type ProjectCommandDependencies,
+} from "./project-command-dependencies";
 
 export type ProjectCommandExecution =
   | { readonly result: CommandSuccess; readonly project: GymProject }
@@ -43,11 +48,6 @@ const ERROR_MESSAGES: Readonly<Record<CommandErrorCode, string>> = {
 };
 
 const COMMAND_TYPE_SET = new Set<string>(PROJECT_COMMAND_TYPES);
-
-export const defaultProjectCommandDependencies: ProjectCommandDependencies = {
-  generateObstacleId: () => `obstacle_${globalThis.crypto.randomUUID()}`,
-  generateWallElementId: () => `wall-element_${globalThis.crypto.randomUUID()}`,
-};
 
 function extractCommandType(command: unknown): ProjectCommandType | null {
   if (typeof command !== "object" || command === null || !("type" in command)) {
@@ -81,11 +81,12 @@ function success(
   project: GymProject,
   commandType: ProjectCommandType,
   affectedEntityIds: readonly string[],
+  dependencies: ResolvedProjectCommandDependencies,
 ): ProjectCommandExecution {
   const changed = project !== previousProject;
   const issues: ValidationIssue[] = changed
-    ? validateProject(project)
-    : validateProject(previousProject);
+    ? dependencies.validateProject(project)
+    : dependencies.validateProject(previousProject);
 
   return {
     project,
@@ -145,16 +146,18 @@ function wallElementsEqual(first: WallElement, second: WallElement): boolean {
 function applyRoomCommand(
   project: GymProject,
   command: Extract<ProjectCommand, { type: "ROOM_CONFIGURED" }>,
+  dependencies: ResolvedProjectCommandDependencies,
 ): ProjectCommandExecution {
   const nextProject = roomsEqual(project.room, command.payload)
     ? project
     : { ...project, room: command.payload };
-  return success(project, nextProject, command.type, []);
+  return success(project, nextProject, command.type, [], dependencies);
 }
 
 function applySettingsCommand(
   project: GymProject,
   command: Extract<ProjectCommand, { type: "PROJECT_SETTINGS_UPDATED" }>,
+  dependencies: ResolvedProjectCommandDependencies,
 ): ProjectCommandExecution {
   const nextBudget = command.payload.budget ?? project.budget;
   const nextGoals = command.payload.trainingGoals ?? project.trainingGoals;
@@ -164,13 +167,13 @@ function applySettingsCommand(
     ? project
     : { ...project, budget: nextBudget, trainingGoals: nextGoals };
 
-  return success(project, nextProject, command.type, []);
+  return success(project, nextProject, command.type, [], dependencies);
 }
 
 function applyAddCommand(
   project: GymProject,
   command: Extract<ProjectCommand, { type: "OBSTACLE_ADDED" }>,
-  dependencies: ProjectCommandDependencies,
+  dependencies: ResolvedProjectCommandDependencies,
 ): ProjectCommandExecution {
   const id = dependencies.generateObstacleId();
   if (project.obstacles.some((obstacle) => obstacle.id === id)) {
@@ -188,6 +191,7 @@ function applyAddCommand(
     { ...project, obstacles: [...project.obstacles, obstacle] },
     command.type,
     [id],
+    dependencies,
   );
 }
 
@@ -212,6 +216,7 @@ function dimensionsMatchObstacleKind(
 function applyUpdateCommand(
   project: GymProject,
   command: Extract<ProjectCommand, { type: "OBSTACLE_UPDATED" }>,
+  dependencies: ResolvedProjectCommandDependencies,
 ): ProjectCommandExecution {
   const current = findObstacle(project, command.payload.obstacleId);
   if (!current) {
@@ -238,27 +243,21 @@ function applyUpdateCommand(
   }
   const updated = parsedObstacle.data;
   if (obstaclesEqual(current, updated)) {
-    return success(project, project, command.type, [current.id]);
+    return success(project, project, command.type, [current.id], dependencies);
   }
 
   const obstacles = project.obstacles.map((obstacle) =>
     obstacle.id === current.id ? updated : obstacle,
   );
-  return success(project, { ...project, obstacles }, command.type, [current.id]);
+  return success(project, { ...project, obstacles }, command.type, [current.id], dependencies);
 }
 
 function applyAddWallElementCommand(
   project: GymProject,
   command: Extract<ProjectCommand, { type: "WALL_ELEMENT_ADDED" }>,
-  dependencies: ProjectCommandDependencies,
+  dependencies: ResolvedProjectCommandDependencies,
 ): ProjectCommandExecution {
-  const generateId =
-    dependencies.generateWallElementId ??
-    defaultProjectCommandDependencies.generateWallElementId;
-  const id = generateId?.();
-  if (!id) {
-    return failure(project, "EXECUTION_FAILED", command.type);
-  }
+  const id = dependencies.generateWallElementId();
   if (project.wallElements.some((wallElement) => wallElement.id === id)) {
     return failure(project, "ID_CONFLICT", command.type);
   }
@@ -276,6 +275,7 @@ function applyAddWallElementCommand(
     { ...project, wallElements: [...project.wallElements, parsedWallElement.data] },
     command.type,
     [id],
+    dependencies,
   );
 }
 
@@ -289,6 +289,7 @@ function findWallElement(
 function applyUpdateWallElementCommand(
   project: GymProject,
   command: Extract<ProjectCommand, { type: "WALL_ELEMENT_UPDATED" }>,
+  dependencies: ResolvedProjectCommandDependencies,
 ): ProjectCommandExecution {
   const current = findWallElement(project, command.payload.wallElementId);
   if (!current) {
@@ -304,18 +305,19 @@ function applyUpdateWallElementCommand(
   }
   const updated = parsedWallElement.data;
   if (wallElementsEqual(current, updated)) {
-    return success(project, project, command.type, [current.id]);
+    return success(project, project, command.type, [current.id], dependencies);
   }
 
   const wallElements = project.wallElements.map((wallElement) =>
     wallElement.id === current.id ? updated : wallElement,
   );
-  return success(project, { ...project, wallElements }, command.type, [current.id]);
+  return success(project, { ...project, wallElements }, command.type, [current.id], dependencies);
 }
 
 function applyRemoveWallElementCommand(
   project: GymProject,
   command: Extract<ProjectCommand, { type: "WALL_ELEMENT_REMOVED" }>,
+  dependencies: ResolvedProjectCommandDependencies,
 ): ProjectCommandExecution {
   const current = findWallElement(project, command.payload.wallElementId);
   if (!current) {
@@ -330,12 +332,14 @@ function applyRemoveWallElementCommand(
     },
     command.type,
     [current.id],
+    dependencies,
   );
 }
 
 function applyRemoveCommand(
   project: GymProject,
   command: Extract<ProjectCommand, { type: "OBSTACLE_REMOVED" }>,
+  dependencies: ResolvedProjectCommandDependencies,
 ): ProjectCommandExecution {
   const current = findObstacle(project, command.payload.obstacleId);
   if (!current) {
@@ -353,38 +357,53 @@ function applyRemoveCommand(
     },
     command.type,
     [current.id],
+    dependencies,
   );
 }
 
 function executeParsedCommand(
   project: GymProject,
   command: ProjectCommand,
-  dependencies: ProjectCommandDependencies,
+  dependencies: ResolvedProjectCommandDependencies,
 ): ProjectCommandExecution {
   switch (command.type) {
     case "ROOM_CONFIGURED":
-      return applyRoomCommand(project, command);
+      return applyRoomCommand(project, command, dependencies);
     case "PROJECT_SETTINGS_UPDATED":
-      return applySettingsCommand(project, command);
+      return applySettingsCommand(project, command, dependencies);
     case "OBSTACLE_ADDED":
       return applyAddCommand(project, command, dependencies);
     case "OBSTACLE_UPDATED":
-      return applyUpdateCommand(project, command);
+      return applyUpdateCommand(project, command, dependencies);
     case "OBSTACLE_REMOVED":
-      return applyRemoveCommand(project, command);
+      return applyRemoveCommand(project, command, dependencies);
     case "WALL_ELEMENT_ADDED":
       return applyAddWallElementCommand(project, command, dependencies);
     case "WALL_ELEMENT_UPDATED":
-      return applyUpdateWallElementCommand(project, command);
+      return applyUpdateWallElementCommand(project, command, dependencies);
     case "WALL_ELEMENT_REMOVED":
-      return applyRemoveWallElementCommand(project, command);
+      return applyRemoveWallElementCommand(project, command, dependencies);
+    case "PRODUCT_PLACED":
+    case "PLACEMENT_UPDATED":
+    case "PLACEMENT_REMOVED": {
+      const mutation = applyPlacementCommand(project, command, dependencies);
+      return mutation.ok
+        ? success(
+            project,
+            mutation.project,
+            command.type,
+            mutation.affectedEntityIds,
+            dependencies,
+          )
+        : failure(project, mutation.code, command.type);
+    }
   }
 }
 
 export function applyProjectCommand(
   project: GymProject,
   command: unknown,
-  dependencies: ProjectCommandDependencies = defaultProjectCommandDependencies,
+  dependencies: ProjectCommandDependencies = {},
 ): ProjectCommandExecution {
   const commandType = extractCommandType(command);
 
@@ -394,7 +413,11 @@ export function applyProjectCommand(
       return failure(project, "INVALID_COMMAND", commandType);
     }
 
-    return executeParsedCommand(project, parsedCommand.data, dependencies);
+    return executeParsedCommand(
+      project,
+      parsedCommand.data,
+      resolveProjectCommandDependencies(dependencies),
+    );
   } catch {
     return failure(project, "EXECUTION_FAILED", commandType);
   }

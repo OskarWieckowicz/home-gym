@@ -6,6 +6,7 @@ import {
   obstacleKindSchema,
   obstacleSchema,
   physicalObstacleSchema,
+  placementSchema,
   PROJECT_NAME_MAX_LENGTH,
   roomSchema,
   unavailableZoneSchema,
@@ -23,10 +24,11 @@ const validObstacle = {
 } as const;
 
 const validProject = {
-  version: 2,
+  version: 3,
   room: { widthCm: 400, depthCm: 320, heightCm: 240 },
   obstacles: [validObstacle],
   wallElements: [],
+  placements: [],
   budget: 10_000,
   trainingGoals: ["strength", "mobility"],
 } as const;
@@ -48,7 +50,7 @@ describe("project schemas", () => {
     ["zero dimensions", { room: { ...validProject.room, widthCm: 0 } }],
     ["negative budget", { budget: -1 }],
     ["fractional budget", { budget: 99.5 }],
-    ["unsupported version", { version: 3 }],
+    ["unsupported version", { version: 2 }],
     ["unsupported training goal", { trainingGoals: ["powerlifting"] }],
   ])("rejects %s", (_label, replacement) => {
     expect(gymProjectSchema.safeParse({ ...validProject, ...replacement }).success).toBe(
@@ -119,8 +121,25 @@ describe("project schemas", () => {
     ).toBe(false);
   });
 
+  it("parses placements and rejects duplicate placement IDs", () => {
+    const placement = {
+      id: "placement_rack",
+      productId: "product_northstar_half_rack",
+      position: { xCm: 20, zCm: 30 },
+      rotation: 270,
+    } as const;
+
+    expect(placementSchema.parse(placement)).toEqual(placement);
+    expect(
+      gymProjectSchema.safeParse({
+        ...validProject,
+        placements: [placement, placement],
+      }).success,
+    ).toBe(false);
+  });
+
   it("rejects unknown keys at project and nested boundaries", () => {
-    expect(gymProjectSchema.safeParse({ ...validProject, placements: [] }).success).toBe(
+    expect(gymProjectSchema.safeParse({ ...validProject, selection: null }).success).toBe(
       false,
     );
     expect(

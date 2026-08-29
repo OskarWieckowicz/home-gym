@@ -143,7 +143,16 @@ describe("persistent manual and agent editing flow", () => {
         }),
       } satisfies WebMcpModelContext,
     });
-    const imported = { ...createDefaultProject(), budget: 18_000 };
+    const imported = {
+      ...createDefaultProject(),
+      budget: 18_000,
+      placements: [{
+        id: "placement_imported_rack",
+        productId: "product_northstar_half_rack",
+        position: { xCm: 100, zCm: 80 },
+        rotation: 90 as const,
+      }],
+    };
 
     let mounted = render(<CreatorEditor persistence storage={memory.adapter} />);
     await waitFor(() => expect(tools.size).toBe(10));
@@ -162,8 +171,12 @@ describe("persistent manual and agent editing flow", () => {
     expect(memory.storage.setItem).toHaveBeenCalledOnce();
     expect(await executeTool(tools, "get_project_state", {})).toMatchObject({
       revision: 1,
-      project: { budget: 18_000 },
+      project: {
+        budget: 18_000,
+        placements: [{ id: "placement_imported_rack", rotation: 90 }],
+      },
     });
+    expect(screen.getByRole("button", { name: /Northstar Half Rack, equipment/ })).toBeTruthy();
 
     mounted.unmount();
     tools.clear();
@@ -171,7 +184,10 @@ describe("persistent manual and agent editing flow", () => {
     await waitFor(() => expect(tools.size).toBe(10));
     expect(await executeTool(tools, "get_project_state", {})).toMatchObject({
       revision: 0,
-      project: { budget: 18_000 },
+      project: {
+        budget: 18_000,
+        placements: [{ id: "placement_imported_rack", rotation: 90 }],
+      },
       canUndo: false,
     });
 

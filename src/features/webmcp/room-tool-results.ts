@@ -2,6 +2,7 @@ import type { CommandErrorCode } from "@/features/project/commands/command-resul
 import type {
   GymProject,
   Obstacle,
+  Placement,
   ProjectSettings,
   Room,
   WallElement,
@@ -60,12 +61,17 @@ export function serializeWallElement(wallElement: WallElement) {
   return { ...wallElement };
 }
 
+export function serializePlacement(placement: Placement) {
+  return { ...placement, position: { ...placement.position } };
+}
+
 export function serializeProject(project: GymProject) {
   return {
     version: project.version,
     room: serializeRoom(project.room),
     obstacles: project.obstacles.map(serializeObstacle),
     wallElements: project.wallElements.map(serializeWallElement),
+    placements: project.placements.map(serializePlacement),
     budget: project.budget,
     trainingGoals: [...project.trainingGoals],
   };
@@ -73,6 +79,19 @@ export function serializeProject(project: GymProject) {
 
 export function serializeValidationIssue(issue: ValidationIssue): ValidationIssue {
   if (issue.code === "OUTSIDE_ROOM") {
+    return {
+      ...issue,
+      entityIds: [...issue.entityIds] as [string],
+      details: {
+        ...issue.details,
+        axes: [...issue.details.axes],
+        footprint: { ...issue.details.footprint },
+        room: { ...issue.details.room },
+      },
+    };
+  }
+
+  if (issue.code === "CLEARANCE_OUTSIDE_ROOM") {
     return {
       ...issue,
       entityIds: [...issue.entityIds] as [string],
@@ -104,6 +123,33 @@ export function serializeValidationIssue(issue: ValidationIssue): ValidationIssu
     };
   }
 
+  if (issue.code === "BUDGET_EXCEEDED") {
+    return {
+      ...issue,
+      entityIds: [...issue.entityIds],
+      details: { ...issue.details },
+    };
+  }
+
+  if (issue.code === "CEILING_TOO_LOW") {
+    return {
+      ...issue,
+      entityIds: [...issue.entityIds] as [string],
+      details: { ...issue.details },
+    };
+  }
+
+  if (issue.code === "CLEARANCE_CONFLICT") {
+    return {
+      ...issue,
+      entityIds: [...issue.entityIds] as [string, string],
+      details: {
+        ...issue.details,
+        overlap: { ...issue.details.overlap },
+      },
+    };
+  }
+
   return {
     ...issue,
     entityIds: [...issue.entityIds] as [string, string],
@@ -118,6 +164,9 @@ export function serializeValidation(issues: readonly ValidationIssue[]) {
     issueCount: clonedIssues.length,
     issueCounts: {
       outsideRoom: clonedIssues.filter(({ code }) => code === "OUTSIDE_ROOM").length,
+      clearanceOutsideRoom: clonedIssues.filter(
+        ({ code }) => code === "CLEARANCE_OUTSIDE_ROOM",
+      ).length,
       physicalCollision: clonedIssues.filter(
         ({ code }) => code === "PHYSICAL_COLLISION",
       ).length,
@@ -127,6 +176,15 @@ export function serializeValidation(issues: readonly ValidationIssue[]) {
       outsideWall: clonedIssues.filter(({ code }) => code === "OUTSIDE_WALL").length,
       wallElementOverlap: clonedIssues.filter(
         ({ code }) => code === "WALL_ELEMENT_OVERLAP",
+      ).length,
+      clearanceConflict: clonedIssues.filter(
+        ({ code }) => code === "CLEARANCE_CONFLICT",
+      ).length,
+      ceilingTooLow: clonedIssues.filter(
+        ({ code }) => code === "CEILING_TOO_LOW",
+      ).length,
+      budgetExceeded: clonedIssues.filter(
+        ({ code }) => code === "BUDGET_EXCEEDED",
       ).length,
     },
     issues: clonedIssues,

@@ -4,6 +4,7 @@ import { z } from "zod";
 import {
   obstacleInputSchema,
   obstaclePatchSchema,
+  placementPatchSchema,
   projectCommandSchema,
   projectSettingsPatchSchema,
   wallElementInputSchema,
@@ -30,6 +31,9 @@ describe("projectCommandSchema", () => {
     { type: "WALL_ELEMENT_ADDED", payload: { kind: "door", name: "Door", wall: "left", offsetCm: 40, widthCm: 90 } },
     { type: "WALL_ELEMENT_UPDATED", payload: { wallElementId: "wall-element_door", patch: { offsetCm: 50 } } },
     { type: "WALL_ELEMENT_REMOVED", payload: { wallElementId: "wall-element_door" } },
+    { type: "PRODUCT_PLACED", payload: { productId: "product_northstar_half_rack", position: { xCm: 10, zCm: 20 }, rotation: 0 } },
+    { type: "PLACEMENT_UPDATED", payload: { placementId: "placement_rack", patch: { rotation: 90 } } },
+    { type: "PLACEMENT_REMOVED", payload: { placementId: "placement_rack" } },
   ] as const)("parses $type", (command) => {
     expect(projectCommandSchema.parse(command)).toEqual(command);
   });
@@ -38,6 +42,7 @@ describe("projectCommandSchema", () => {
     expect(projectSettingsPatchSchema.safeParse({}).success).toBe(false);
     expect(obstaclePatchSchema.safeParse({}).success).toBe(false);
     expect(wallElementPatchSchema.safeParse({}).success).toBe(false);
+    expect(placementPatchSchema.safeParse({}).success).toBe(false);
   });
 
   it("keeps obstacle and wall-element kinds immutable", () => {
@@ -125,6 +130,7 @@ describe("projectCommandSchema", () => {
       projectSettingsPatchSchema,
       obstaclePatchSchema,
       wallElementPatchSchema,
+      placementPatchSchema,
       projectCommandSchema,
     ]) {
       const jsonSchema = z.toJSONSchema(schema);

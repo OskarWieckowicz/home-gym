@@ -12,8 +12,13 @@ import {
 import type { ProjectCommandDependencies } from "@/features/project/commands/apply-project-command";
 import { createDefaultProject } from "@/features/project/defaults";
 import type { GymProject } from "@/features/project/schemas/project";
+import type { ProductResolver } from "@/features/project/validation/product-validation";
 
 import { ProjectStoreProvider, useProjectStoreApi } from "../store/project-store-context";
+import {
+  catalogProductResolver,
+  projectUsesKnownProducts,
+} from "../store/catalog-product-resolver";
 import {
   createLocalProjectStorage,
   type LocalProjectStorage,
@@ -65,14 +70,19 @@ export function ProjectPersistenceBoundary({
       const adapter = storage ?? createBrowserStorageAdapter();
       const fallback = fallbackProject ?? createDefaultProject();
       const loaded = adapter.load();
-      const restored = restoreSession(loaded, fallback, adapter);
+      const restored = restoreSession(
+        loaded,
+        fallback,
+        adapter,
+        dependencies?.resolveProduct ?? catalogProductResolver,
+      );
       setSession((current) => current ?? restored);
     });
 
     return () => {
       active = false;
     };
-  }, [fallbackProject, storage]);
+  }, [dependencies?.resolveProduct, fallbackProject, storage]);
 
   if (!session) {
     return (
@@ -173,8 +183,19 @@ function restoreSession(
   loaded: ReturnType<LocalProjectStorage["load"]>,
   fallback: GymProject,
   storage: LocalProjectStorage,
+  resolveProduct: ProductResolver,
 ): RestoredSession {
   if (loaded.status === "loaded") {
+    if (!projectUsesKnownProducts(loaded.project, resolveProduct)) {
+      return {
+        project: fallback,
+        status: restoreFailureStatus({
+          code: "schema-invalid",
+          message: "The saved project references an unavailable catalog product.",
+        }),
+        storage,
+      };
+    }
     return { project: loaded.project, status: SAVED_STATUS, storage };
   }
   if (loaded.status === "missing") {

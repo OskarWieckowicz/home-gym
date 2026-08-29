@@ -28,10 +28,141 @@ function dependencies(id = "obstacle_generated"): ProjectCommandDependencies {
   return {
     generateObstacleId: () => id,
     generateWallElementId: () => "wall-element_generated",
+    generatePlacementId: () => "placement_generated",
+    resolveProduct: (productId) =>
+      productId === "product_rack"
+        ? {
+            id: productId,
+            price: 2_000,
+            dimensions: { widthCm: 100, depthCm: 80, heightCm: 220 },
+            clearance: { frontCm: 50, backCm: 10, leftCm: 20, rightCm: 20 },
+            minimumCeilingHeightCm: 230,
+          }
+        : undefined,
   };
 }
 
 describe("applyProjectCommand", () => {
+  it("places, updates, and removes a known product", () => {
+    const project = createDefaultProject();
+    const placed = applyProjectCommand(
+      project,
+      {
+        type: "PRODUCT_PLACED",
+        payload: {
+          productId: "product_rack",
+          position: { xCm: 10, zCm: 20 },
+          rotation: 0,
+        },
+      },
+      dependencies(),
+    );
+
+    expect(placed.result).toMatchObject({
+      ok: true,
+      changed: true,
+      affectedEntityIds: ["placement_generated"],
+    });
+    expect(placed.project.placements).toEqual([
+      {
+        id: "placement_generated",
+        productId: "product_rack",
+        position: { xCm: 10, zCm: 20 },
+        rotation: 0,
+      },
+    ]);
+
+    const updated = applyProjectCommand(
+      placed.project,
+      {
+        type: "PLACEMENT_UPDATED",
+        payload: {
+          placementId: "placement_generated",
+          patch: { position: { xCm: 30, zCm: 40 }, rotation: 90 },
+        },
+      },
+      dependencies(),
+    );
+    expect(updated.project.placements[0]).toMatchObject({
+      position: { xCm: 30, zCm: 40 },
+      rotation: 90,
+    });
+
+    const noOp = applyProjectCommand(
+      updated.project,
+      {
+        type: "PLACEMENT_UPDATED",
+        payload: {
+          placementId: "placement_generated",
+          patch: { rotation: 90 },
+        },
+      },
+      dependencies(),
+    );
+    expect(noOp.result).toMatchObject({ ok: true, changed: false });
+
+    const removed = applyProjectCommand(
+      updated.project,
+      {
+        type: "PLACEMENT_REMOVED",
+        payload: { placementId: "placement_generated" },
+      },
+      dependencies(),
+    );
+    expect(removed.project.placements).toEqual([]);
+  });
+
+  it("rejects unknown products, placement ID conflicts, and missing placements", () => {
+    const project = createDefaultProject();
+    const unknown = applyProjectCommand(
+      project,
+      {
+        type: "PRODUCT_PLACED",
+        payload: {
+          productId: "product_unknown",
+          position: { xCm: 0, zCm: 0 },
+          rotation: 0,
+        },
+      },
+      dependencies(),
+    );
+    expect(unknown.result).toMatchObject({ ok: false, error: { code: "ENTITY_NOT_FOUND" } });
+    expect(unknown.project).toBe(project);
+
+    const withPlacement = {
+      ...project,
+      placements: [{
+        id: "placement_generated",
+        productId: "product_rack",
+        position: { xCm: 0, zCm: 0 },
+        rotation: 0 as const,
+      }],
+    };
+    const conflict = applyProjectCommand(
+      withPlacement,
+      {
+        type: "PRODUCT_PLACED",
+        payload: {
+          productId: "product_rack",
+          position: { xCm: 200, zCm: 0 },
+          rotation: 0,
+        },
+      },
+      dependencies(),
+    );
+    expect(conflict.result).toMatchObject({ ok: false, error: { code: "ID_CONFLICT" } });
+
+    const missing = applyProjectCommand(
+      project,
+      {
+        type: "PLACEMENT_REMOVED",
+        payload: { placementId: "placement_missing" },
+      },
+      dependencies(),
+    );
+    expect(missing.result).toMatchObject({ ok: false, error: { code: "ENTITY_NOT_FOUND" } });
+  });
+
   it("configures a room and applies spatially invalid shrinkage with issues", () => {
     const project = withObstacle();
     const execution = applyProjectCommand(project, {

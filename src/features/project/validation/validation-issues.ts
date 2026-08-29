@@ -6,6 +6,10 @@ export const VALIDATION_ISSUE_CODES = [
   "UNAVAILABLE_ZONE_CONFLICT",
   "OUTSIDE_WALL",
   "WALL_ELEMENT_OVERLAP",
+  "CLEARANCE_CONFLICT",
+  "CLEARANCE_OUTSIDE_ROOM",
+  "CEILING_TOO_LOW",
+  "BUDGET_EXCEEDED",
 ] as const;
 
 export type OutsideRoomAxis = "x" | "z" | "height";
@@ -57,8 +61,60 @@ export type WallElementOverlapIssue = {
   };
 };
 
+export type ClearanceConflictIssue = {
+  readonly code: "CLEARANCE_CONFLICT";
+  readonly severity: "error";
+  readonly entityIds: readonly [string, string];
+  readonly details: {
+    readonly overlap: RectangleBounds;
+    readonly clearancePlacementId: string;
+    readonly blockingEntityId: string;
+  };
+};
+
+export type ClearanceOutsideRoomIssue = {
+  readonly code: "CLEARANCE_OUTSIDE_ROOM";
+  readonly severity: "error";
+  readonly entityIds: readonly [string];
+  readonly details: {
+    readonly axes: readonly ("x" | "z")[];
+    readonly footprint: RectangleBounds;
+    readonly room: {
+      readonly widthCm: number;
+      readonly depthCm: number;
+      readonly heightCm: number;
+    };
+  };
+};
+
+export type CeilingTooLowIssue = {
+  readonly code: "CEILING_TOO_LOW";
+  readonly severity: "error";
+  readonly entityIds: readonly [string];
+  readonly details: {
+    readonly roomHeightCm: number;
+    readonly productHeightCm: number;
+    readonly requiredHeightCm: number;
+  };
+};
+
+export type BudgetExceededIssue = {
+  readonly code: "BUDGET_EXCEEDED";
+  readonly severity: "error";
+  readonly entityIds: readonly string[];
+  readonly details: {
+    readonly budget: number;
+    readonly totalPrice: number;
+    readonly excess: number;
+  };
+};
+
 export type ValidationIssue =
   | OutsideRoomIssue
   | CollisionIssue
+  | ClearanceConflictIssue
+  | ClearanceOutsideRoomIssue
+  | CeilingTooLowIssue
+  | BudgetExceededIssue
   | OutsideWallIssue
   | WallElementOverlapIssue;

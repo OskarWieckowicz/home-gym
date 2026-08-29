@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { trainingGoalSchema } from "@/shared/schemas/training-goal";
+import { productIdSchema } from "@/shared/schemas/product-id";
 
 import {
   centimetersSchema,
@@ -11,9 +12,10 @@ import {
   rotationSchema,
 } from "./geometry";
 
-export const PROJECT_VERSION = 2 as const;
+export const PROJECT_VERSION = 3 as const;
 export const PROJECT_ENTITY_ID_PATTERN = /^obstacle_[a-z0-9]+(?:[-_][a-z0-9]+)*$/;
 export const WALL_ELEMENT_ID_PATTERN = /^wall-element_[a-z0-9]+(?:[-_][a-z0-9]+)*$/;
+export const PLACEMENT_ID_PATTERN = /^placement_[a-z0-9]+(?:[-_][a-z0-9]+)*$/;
 export const PROJECT_NAME_MAX_LENGTH = 80;
 
 export const roomSchema = z
@@ -76,17 +78,27 @@ export const projectSettingsSchema = z
   })
   .strict();
 
+export const placementSchema = z
+  .object({
+    id: z.string().regex(PLACEMENT_ID_PATTERN),
+    productId: productIdSchema,
+    position: positionSchema,
+    rotation: rotationSchema,
+  })
+  .strict();
+
 export const gymProjectSchema = z
   .object({
     version: z.literal(PROJECT_VERSION),
     room: roomSchema,
     obstacles: z.array(obstacleSchema),
     wallElements: z.array(wallElementSchema),
+    placements: z.array(placementSchema),
     budget: projectSettingsSchema.shape.budget,
     trainingGoals: projectSettingsSchema.shape.trainingGoals,
   })
   .strict()
-  .superRefine(({ obstacles, wallElements }, context) => {
+  .superRefine(({ obstacles, wallElements, placements }, context) => {
     const seenObstacleIds = new Set<string>();
 
     obstacles.forEach((obstacle, index) => {
@@ -111,6 +123,18 @@ export const gymProjectSchema = z
       }
       seenWallElementIds.add(wallElement.id);
     });
+
+    const seenPlacementIds = new Set<string>();
+    placements.forEach((placement, index) => {
+      if (seenPlacementIds.has(placement.id)) {
+        context.addIssue({
+          code: "custom",
+          message: "Placement IDs must be unique.",
+          path: ["placements", index, "id"],
+        });
+      }
+      seenPlacementIds.add(placement.id);
+    });
   });
 
 export type Room = z.infer<typeof roomSchema>;
@@ -122,4 +146,5 @@ export type Wall = z.infer<typeof wallSchema>;
 export type WallElementKind = z.infer<typeof wallElementKindSchema>;
 export type WallElement = z.infer<typeof wallElementSchema>;
 export type ProjectSettings = z.infer<typeof projectSettingsSchema>;
+export type Placement = z.infer<typeof placementSchema>;
 export type GymProject = z.infer<typeof gymProjectSchema>;

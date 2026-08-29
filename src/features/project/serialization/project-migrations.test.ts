@@ -8,15 +8,15 @@ import {
 } from "./project-migrations";
 
 describe("project migrations", () => {
-  it("declares version 2 as current and supports migration from version 1", () => {
-    expect(CURRENT_PROJECT_VERSION).toBe(2);
-    expect(SUPPORTED_PROJECT_VERSIONS).toEqual([1, 2]);
+  it("declares version 3 as current and supports both older migrations", () => {
+    expect(CURRENT_PROJECT_VERSION).toBe(3);
+    expect(SUPPORTED_PROJECT_VERSIONS).toEqual([1, 2, 3]);
   });
 
   it("passes the current version through without changing its reference", () => {
     const project = createDefaultProject();
 
-    expect(migrateProjectToCurrent(project, 2)).toEqual({
+    expect(migrateProjectToCurrent(project, 3)).toEqual({
       success: true,
       data: project,
     });
@@ -54,7 +54,7 @@ describe("project migrations", () => {
       success: true,
       data: {
         ...legacyProject,
-        version: 2,
+        version: 3,
         obstacles: [
           legacyProject.obstacles[0],
           {
@@ -63,7 +63,21 @@ describe("project migrations", () => {
           },
         ],
         wallElements: [],
+        placements: [],
       },
+    });
+  });
+
+  it("migrates version 2 by adding an empty placement collection", () => {
+    const current = createDefaultProject();
+    const { placements: _placements, ...legacyProject } = {
+      ...current,
+      version: 2 as const,
+    };
+
+    expect(migrateProjectToCurrent(legacyProject, 2)).toEqual({
+      success: true,
+      data: current,
     });
   });
 

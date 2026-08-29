@@ -2,16 +2,19 @@ import { createStore, type StoreApi } from "zustand/vanilla";
 
 import {
   applyProjectCommand,
-  defaultProjectCommandDependencies,
   type ProjectCommandDependencies,
 } from "@/features/project/commands/apply-project-command";
+import { resolveProjectCommandDependencies } from "@/features/project/commands/project-command-dependencies";
 import type { DispatchResult } from "@/features/project/commands/command-results";
 import { gymProjectSchema, type GymProject } from "@/features/project/schemas/project";
-import { validateProject } from "@/features/project/validation/validate-project";
 import type { ValidationIssue } from "@/features/project/validation/validation-issues";
 
-const HISTORY_LIMIT = 50;
+import {
+  catalogProductResolver,
+  projectUsesKnownProducts,
+} from "./catalog-product-resolver";
 
+const HISTORY_LIMIT = 50;
 export type ProjectStoreState = {
   readonly project: GymProject;
   readonly validation: readonly ValidationIssue[];
@@ -63,13 +66,19 @@ export function createProjectStore(
   options: CreateProjectStoreOptions = {},
 ): ProjectStore {
   const parsedInitialProject = gymProjectSchema.parse(initialProject);
-  const dependencies = options.dependencies ?? defaultProjectCommandDependencies;
+  const dependencies = resolveProjectCommandDependencies({
+    resolveProduct: catalogProductResolver,
+    ...options.dependencies,
+  });
+  if (!projectUsesKnownProducts(parsedInitialProject, dependencies.resolveProduct)) {
+    throw new Error("The initial project references an unavailable catalog product.");
+  }
   let past: GymProject[] = [];
   let future: GymProject[] = [];
 
   return createStore<ProjectStoreState>((set, get) => ({
     project: parsedInitialProject,
-    validation: validateProject(parsedInitialProject),
+    validation: dependencies.validateProject(parsedInitialProject),
     revision: 0,
     canUndo: false,
     canRedo: false,
@@ -97,7 +106,10 @@ export function createProjectStore(
     replaceProject: (project) => {
       const current = get();
       const parsed = gymProjectSchema.safeParse(project);
-      if (!parsed.success) {
+      if (
+        !parsed.success ||
+        !projectUsesKnownProducts(parsed.data, dependencies.resolveProduct)
+      ) {
         return {
           ok: false,
           changed: false,
@@ -121,7 +133,7 @@ export function createProjectStore(
       past = [...past, cloneProjectSnapshot(current.project)].slice(-HISTORY_LIMIT);
       future = [];
       const revision = current.revision + 1;
-      const validation = validateProject(parsed.data);
+      const validation = dependencies.validateProject(parsed.data);
       set({
         project: parsed.data,
         validation,
@@ -142,7 +154,7 @@ export function createProjectStore(
       future = [cloneProjectSnapshot(current.project), ...future];
       set({
         project: previous,
-        validation: validateProject(previous),
+        validation: dependencies.validateProject(previous),
         revision: current.revision + 1,
         canUndo: past.length > 0,
         canRedo: true,
@@ -160,7 +172,7 @@ export function createProjectStore(
       past = [...past, cloneProjectSnapshot(current.project)].slice(-HISTORY_LIMIT);
       set({
         project: next,
-        validation: validateProject(next),
+        validation: dependencies.validateProject(next),
         revision: current.revision + 1,
         canUndo: true,
         canRedo: future.length > 0,

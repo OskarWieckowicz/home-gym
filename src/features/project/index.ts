@@ -28,6 +28,8 @@ export {
   gymProjectSchema,
   obstacleKindSchema,
   obstacleSchema,
+  placementSchema,
+  PLACEMENT_ID_PATTERN,
   physicalObstacleSchema,
   PROJECT_ENTITY_ID_PATTERN,
   PROJECT_NAME_MAX_LENGTH,
@@ -42,6 +44,7 @@ export {
   type GymProject,
   type Obstacle,
   type ObstacleKind,
+  type Placement,
   type PhysicalObstacle,
   type ProjectSettings,
   type Room,
@@ -69,6 +72,7 @@ export {
 export {
   obstacleInputSchema,
   obstaclePatchSchema,
+  placementPatchSchema,
   PROJECT_COMMAND_TYPES,
   projectCommandSchema,
   projectSettingsPatchSchema,
@@ -79,6 +83,15 @@ export {
 } from "./schemas/project-command";
 export { validateProject } from "./validation/validate-project";
 export type {
+  ProductResolver,
+  ProductValidationDescriptor,
+  ProjectValidationDependencies,
+} from "./validation/product-validation";
+export type {
+  BudgetExceededIssue,
+  CeilingTooLowIssue,
+  ClearanceConflictIssue,
+  ClearanceOutsideRoomIssue,
   CollisionIssue,
   OutsideWallIssue,
   OutsideRoomAxis,

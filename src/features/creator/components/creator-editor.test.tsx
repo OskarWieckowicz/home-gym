@@ -87,4 +87,28 @@ describe("CreatorEditor", () => {
     expect(screen.getByRole("alert").textContent).toContain("positive whole centimeters");
     expect(screen.getByRole("button", { name: /Undo/ })).toHaveProperty("disabled", true);
   });
+
+  it("places, rotates, removes, and restores catalog equipment", () => {
+    render(<CreatorEditor dependencies={{
+      generatePlacementId: () => "placement_northstar",
+    }} initialProject={createDefaultProject()} />);
+    const plan = screen.getByRole("group", { name: "Top-down editable room plan" });
+    Object.defineProperty(plan, "getBoundingClientRect", { value: () => ({
+      bottom: 560, height: 560, left: 0, right: 760, top: 0, width: 760,
+      x: 0, y: 0, toJSON: () => undefined,
+    }) });
+
+    fireEvent.click(screen.getByRole("button", { name: "Place Northstar Half Rack" }));
+    fireEvent.pointerDown(plan, { button: 0, clientX: 300, clientY: 230 });
+
+    expect(screen.getByRole("heading", { name: "Selected equipment" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Northstar Half Rack, equipment/ })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Rotate 90°" }));
+    expect(screen.getByRole("button", { name: /Northstar Half Rack, equipment, 90 degrees/ })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Remove" }));
+    expect(screen.queryByRole("button", { name: /Northstar Half Rack, equipment/ })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: /Undo/ }));
+    expect(screen.getByRole("button", { name: /Northstar Half Rack, equipment, 90 degrees/ })).toBeTruthy();
+  });
 });

@@ -1,6 +1,6 @@
 import { PROJECT_VERSION } from "../schemas/project";
 
-export const SUPPORTED_PROJECT_VERSIONS = [1, PROJECT_VERSION] as const;
+export const SUPPORTED_PROJECT_VERSIONS = [1, 2, PROJECT_VERSION] as const;
 export const CURRENT_PROJECT_VERSION = PROJECT_VERSION;
 
 export type ProjectMigrationError = {
@@ -14,7 +14,10 @@ export type ProjectMigrationResult =
 
 type ProjectMigration = (project: unknown) => unknown;
 
-const migrations = new Map<number, ProjectMigration>([[1, migrateV1ToV2]]);
+const migrations = new Map<number, ProjectMigration>([
+  [1, migrateV1ToV2],
+  [2, migrateV2ToV3],
+]);
 
 function migrateV1ToV2(project: unknown): unknown {
   if (typeof project !== "object" || project === null || Array.isArray(project)) {
@@ -32,6 +35,14 @@ function migrateV1ToV2(project: unknown): unknown {
     obstacles: migratedObstacles,
     wallElements: [],
   };
+}
+
+function migrateV2ToV3(project: unknown): unknown {
+  if (typeof project !== "object" || project === null || Array.isArray(project)) {
+    throw new Error("Invalid version 2 project.");
+  }
+
+  return { ...project, version: 3, placements: [] };
 }
 
 function migrateV1Obstacle(obstacle: unknown): unknown {

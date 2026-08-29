@@ -43,8 +43,8 @@ Product scope and architecture live in the [product concept](../docs/PRODUCT_CON
 
 ## Detailed plans ready to execute
 
-No detailed implementation plan is currently active. Phase 12 is next in the queue and should be
-expanded against the completed catalog and the existing room, persistence, and WebMCP contracts.
+No detailed implementation plan is currently active. Phase 13 is next in the queue and should be
+expanded against the completed catalog and deterministic equipment-placement contract.
 
 ## Later queue
 
@@ -53,13 +53,12 @@ plans should use the evidence and decisions produced by earlier work rather than
 
 | Order | Phase | Depends on | Exit gate |
 |---|---|---|---|
-| 1 | Phase 12 — Equipment placement foundation | Phases 6, 7, 9, 10, and 11 | Catalog equipment can be placed, selected, moved, rotated, and removed in the 2D plan as deterministic geometric figures; collision, clearance, height, and budget validation passes; placements survive undo/redo, persistence, and import/export. Final product imagery and models are not required. |
-| 2 | Phase 13 — Product visual assets and models | Phases 11 and 12 | Reusable procedural equipment families provide recognizable simplified 3D models, transparent top-down editor assets, and coherent catalog renders mapped by stable product ID, with geometric fallbacks and no effect on validation. |
-| 3 | Phase 14 — 3D room preview | Phases 12 and 13 | The editor can switch from the primary 2D plan to a navigable 3D room preview that integrates the Phase 13 models with walls, openings, and obstacles from the same project state; validation remains based on deterministic catalog geometry. |
-| 4 | Phase 15 — WebMCP placements and suggestions | Phases 8 and 12 | The agent can place and revise equipment using deterministic candidate generation and structured validation results. |
-| 5 | Phase 16 — Shared-editing demo and activity feed | Phases 14 and 15 | The public demo proves the complete human-change → agent-read → agent-change → validation → correction loop in the finished editor and makes tool activity visible. |
-| 6 | Phase 17 — Landing page and catalog polish | Phases 13 and 16 | The landing page and catalog match their specifications and use final product assets plus real screenshots and figures from the finished shared-editing demo. |
-| 7 | Phase 18 — Submission | Phase 17 | The public URL, repository, English description, sub-three-minute video, and Devpost checklist are complete and verified while logged out. |
+| 1 | Phase 13 — Product visual assets and models | Phases 11 and 12 | Reusable procedural equipment families provide recognizable simplified 3D models, transparent top-down editor assets, and coherent catalog renders mapped by stable product ID, with geometric fallbacks and no effect on validation. |
+| 2 | Phase 14 — 3D room preview | Phases 12 and 13 | The editor can switch from the primary 2D plan to a navigable 3D room preview that integrates the Phase 13 models with walls, openings, and obstacles from the same project state; validation remains based on deterministic catalog geometry. |
+| 3 | Phase 15 — WebMCP placements and suggestions | Phases 8 and 12 | The agent can place and revise equipment using deterministic candidate generation and structured validation results. |
+| 4 | Phase 16 — Shared-editing demo and activity feed | Phases 14 and 15 | The public demo proves the complete human-change → agent-read → agent-change → validation → correction loop in the finished editor and makes tool activity visible. |
+| 5 | Phase 17 — Landing page and catalog polish | Phases 13 and 16 | The landing page and catalog match their specifications and use final product assets plus real screenshots and figures from the finished shared-editing demo. |
+| 6 | Phase 18 — Submission | Phase 17 | The public URL, repository, English description, sub-three-minute video, and Devpost checklist are complete and verified while logged out. |
 
 ## Global exit gate
 

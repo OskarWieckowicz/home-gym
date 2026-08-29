@@ -24,6 +24,35 @@ function createStoreWithIds(initialProject: GymProject, ids: string[]) {
 }
 
 describe("createProjectStore", () => {
+  it("uses catalog product resolution while preserving partial custom dependencies", () => {
+    const store = createProjectStore(createDefaultProject(), {
+      dependencies: { generatePlacementId: () => "placement_rack" },
+    });
+
+    const result = store.getState().dispatch({
+      type: "PRODUCT_PLACED",
+      payload: {
+        productId: "product_northstar_half_rack",
+        position: { xCm: 10, zCm: 20 },
+        rotation: 0,
+      },
+    });
+
+    expect(result).toMatchObject({
+      ok: true,
+      changed: true,
+      revision: 1,
+      affectedEntityIds: ["placement_rack"],
+    });
+    expect(store.getState().project.placements).toHaveLength(1);
+    expect(store.getState().undo()).toBe(true);
+    expect(store.getState().project.placements).toEqual([]);
+    expect(store.getState().redo()).toBe(true);
+    expect(store.getState().project.placements[0]?.productId).toBe(
+      "product_northstar_half_rack",
+    );
+  });
+
   it("parses the initial project and computes initial validation once", () => {
     const input = {
       ...createDefaultProject(),
@@ -237,6 +266,20 @@ describe("project replacement", () => {
         code: "INVALID_PROJECT",
         message: "Project data is invalid.",
       },
+    });
+    expect(store.getState().replaceProject({
+      ...createDefaultProject(),
+      placements: [{
+        id: "placement_missing",
+        productId: "product_missing",
+        position: { xCm: 0, zCm: 0 },
+        rotation: 0,
+      }],
+    })).toMatchObject({
+      ok: false,
+      changed: false,
+      revision: 0,
+      error: { code: "INVALID_PROJECT" },
     });
     expect(store.getState()).toMatchObject({
       revision: 0,

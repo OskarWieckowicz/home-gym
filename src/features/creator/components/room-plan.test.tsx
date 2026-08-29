@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, createEvent, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createDefaultProject } from "@/features/project/defaults";
@@ -8,6 +8,7 @@ import type { GymProject } from "@/features/project/schemas/project";
 
 import { ProjectStoreProvider, useProjectStore } from "../store/project-store-context";
 import type { PlacementTool } from "../editor-types";
+import { EQUIPMENT_DRAG_TYPE } from "./equipment-catalog-panel";
 import { RoomPlan } from "./room-plan";
 
 const obstacle = {
@@ -37,11 +38,22 @@ function StoreProbe() {
   );
 }
 
+function EquipmentStoreProbe() {
+  const state = useProjectStore((value) => value);
+  const current = state.project.placements[0];
+  return (
+    <output aria-label="Equipment store state">
+      {state.revision}:{current?.position.xCm}:{current?.position.zCm}:{String(state.canUndo)}
+    </output>
+  );
+}
+
 function renderPlan(locked = false, name: string = obstacle.name) {
   render(
     <ProjectStoreProvider initialProject={projectWithObstacle(locked, name)}>
       <StoreProbe />
       <RoomPlan
+        activeProductId={null}
         activeTool={null}
         onCancelPlacement={vi.fn()}
         onPlacementComplete={vi.fn()}
@@ -71,7 +83,7 @@ function PlacementProbe() {
   const state = useProjectStore((value) => value);
   return (
     <output aria-label="Placement state">
-      {state.revision}:{state.project.obstacles.length}:{state.project.wallElements.length}
+      {`${state.revision}:${state.project.obstacles.length}:${state.project.wallElements.length}:${state.project.placements.length}`}
     </output>
   );
 }
@@ -95,6 +107,7 @@ function renderPlacement(tool: PlacementTool, bounds = {
     }} initialProject={createDefaultProject()}>
       <PlacementProbe />
       <RoomPlan
+        activeProductId={null}
         activeTool={tool}
         onCancelPlacement={vi.fn()}
         onPlacementComplete={onPlacementComplete}
@@ -163,6 +176,49 @@ describe("RoomPlan dragging", () => {
     fireEvent.pointerUp(lockedEntity, { clientX: 129, clientY: 129, pointerId: 5 });
     expect(screen.getByRole("status", { name: "Store state" }).textContent).toBe("0:20:30:false");
   });
+
+  it("renders equipment clearance and commits equipment drag once", () => {
+    const project: GymProject = {
+      ...createDefaultProject(),
+      placements: [{
+        id: "placement_rack",
+        productId: "product_northstar_half_rack",
+        position: { xCm: 20, zCm: 30 },
+        rotation: 0,
+      }],
+    };
+    render(
+      <ProjectStoreProvider initialProject={project}>
+        <EquipmentStoreProbe />
+        <RoomPlan
+          activeProductId={null}
+          activeTool={null}
+          onCancelPlacement={vi.fn()}
+          onPlacementComplete={vi.fn()}
+          onPlacementError={vi.fn()}
+          onSelect={vi.fn()}
+          placementError=""
+          selectedId={null}
+        />
+      </ProjectStoreProvider>,
+    );
+    const entity = screen.getByRole("button", { name: /Northstar Half Rack, equipment/ });
+    const plan = screen.getByRole("group", { name: "Top-down editable room plan" });
+    vi.spyOn(plan, "getBoundingClientRect").mockReturnValue({
+      bottom: 560, height: 560, left: 0, right: 760, top: 0, width: 760,
+      x: 0, y: 0, toJSON: () => undefined,
+    });
+
+    expect(entity.querySelector(".creator-equipment-clearance")).toBeTruthy();
+    expect(entity.querySelector(".creator-equipment-footprint")).toBeTruthy();
+    fireEvent.pointerDown(entity, { button: 0, clientX: 100, clientY: 100, pointerId: 8 });
+    fireEvent.pointerMove(entity, { clientX: 115, clientY: 115, pointerId: 8 });
+    fireEvent.pointerMove(entity, { clientX: 129, clientY: 129, pointerId: 8 });
+    fireEvent.pointerUp(entity, { clientX: 129, clientY: 129, pointerId: 8 });
+
+    expect(screen.getByRole("status", { name: "Equipment store state" }).textContent)
+      .toBe("1:40:50:true");
+  });
 });
 
 describe("RoomPlan placement", () => {
@@ -170,7 +226,7 @@ describe("RoomPlan placement", () => {
     const { plan, onPlacementComplete } = renderPlacement("unavailable-zone");
     fireEvent.pointerDown(plan, { button: 0, clientX: 380, clientY: 280 });
 
-    expect(screen.getByRole("status", { name: "Placement state" }).textContent).toBe("1:1:0");
+    expect(screen.getByRole("status", { name: "Placement state" }).textContent).toBe("1:1:0:0");
     expect(onPlacementComplete).toHaveBeenCalledWith("obstacle_placed");
     expect(screen.getByRole("button", { name: /Unavailable zone, unavailable zone/ })).toBeTruthy();
   });
@@ -179,7 +235,7 @@ describe("RoomPlan placement", () => {
     const { plan, onPlacementComplete } = renderPlacement("door");
     fireEvent.pointerDown(plan, { button: 0, clientX: 380, clientY: 48 });
 
-    expect(screen.getByRole("status", { name: "Placement state" }).textContent).toBe("1:0:1");
+    expect(screen.getByRole("status", { name: "Placement state" }).textContent).toBe("1:0:1:0");
     expect(onPlacementComplete).toHaveBeenCalledWith("wall-element_placed");
     expect(screen.getByRole("button", { name: /Door, door, top wall/ })).toBeTruthy();
   });
@@ -206,5 +262,48 @@ describe("RoomPlan placement", () => {
     });
 
     expect(screen.getByRole("button", { name: /Window, window, right wall/ })).toBeTruthy();
+  });
+
+  it("places catalog equipment from a drag-and-drop payload", () => {
+    const onPlacementComplete = vi.fn();
+    render(
+      <ProjectStoreProvider dependencies={{
+        generatePlacementId: () => "placement_dropped",
+      }} initialProject={createDefaultProject()}>
+        <PlacementProbe />
+        <RoomPlan
+          activeProductId={null}
+          activeTool={null}
+          onCancelPlacement={vi.fn()}
+          onPlacementComplete={onPlacementComplete}
+          onPlacementError={vi.fn()}
+          onSelect={vi.fn()}
+          placementError=""
+          selectedId={null}
+        />
+      </ProjectStoreProvider>,
+    );
+    const plan = screen.getByRole("group", { name: "Top-down editable room plan" });
+    vi.spyOn(plan, "getBoundingClientRect").mockReturnValue({
+      bottom: 560, height: 560, left: 0, right: 760, top: 0, width: 760,
+      x: 0, y: 0, toJSON: () => undefined,
+    });
+    const dataTransfer = {
+      dropEffect: "none",
+      types: [EQUIPMENT_DRAG_TYPE],
+      getData: vi.fn(() => "product_northstar_half_rack"),
+    };
+
+    fireEvent.dragOver(plan, { dataTransfer });
+    const drop = createEvent.drop(plan, { dataTransfer });
+    Object.defineProperties(drop, {
+      clientX: { value: 380 },
+      clientY: { value: 280 },
+    });
+    fireEvent(plan, drop);
+
+    expect(screen.getByRole("status", { name: "Placement state" }).textContent)
+      .toBe("1:0:0:1");
+    expect(onPlacementComplete).toHaveBeenCalledWith("placement_dropped");
   });
 });

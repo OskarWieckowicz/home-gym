@@ -33,6 +33,7 @@ function createStore(initialProject: GymProject = createDefaultProject()) {
   return createProjectStore(initialProject, {
     dependencies: {
       generateObstacleId: () => "obstacle_generated",
+      generatePlacementId: () => "placement_generated",
       generateWallElementId: () => "wall-element_generated",
     },
   });
@@ -55,7 +56,8 @@ describe("room read handlers", () => {
       canUndo: true,
       canRedo: false,
       project: {
-        version: 2,
+        version: 3,
+        placements: [],
         wallElements: [],
         budget: 12_500,
         trainingGoals: ["strength"],
@@ -69,6 +71,78 @@ describe("room read handlers", () => {
       room: { widthCm: 400 },
       trainingGoals: ["strength"],
     });
+    expect(() => JSON.stringify(result)).not.toThrow();
+  });
+
+  it("exposes manual equipment placements through the existing project read", () => {
+    const store = createStore();
+    const placed = store.getState().dispatch({
+      type: "PRODUCT_PLACED",
+      payload: {
+        productId: "product_northstar_half_rack",
+        position: { xCm: 20, zCm: 30 },
+        rotation: 90,
+      },
+    });
+    expect(placed.ok).toBe(true);
+
+    const result = createGetProjectStateHandler(store)({});
+    expect(result).toMatchObject({
+      ok: true,
+      revision: 1,
+      project: {
+        placements: [{
+          id: "placement_generated",
+          productId: "product_northstar_half_rack",
+          position: { xCm: 20, zCm: 30 },
+          rotation: 90,
+        }],
+      },
+      validation: {
+        issues: [{ code: "CLEARANCE_OUTSIDE_ROOM" }],
+      },
+    });
+  });
+
+  it("serializes equipment clearance, ceiling, and budget issue variants", () => {
+    const store = createStore({
+      ...createDefaultProject(),
+      room: { widthCm: 600, depthCm: 600, heightCm: 230 },
+      budget: 1_000,
+      obstacles: [{
+        id: "obstacle_clearance_blocker",
+        kind: "obstacle",
+        name: "Clearance blocker",
+        position: { xCm: 230, zCm: 100 },
+        dimensions: { widthCm: 20, depthCm: 20, heightCm: 100 },
+        rotation: 0,
+        locked: false,
+      }],
+      placements: [{
+        id: "placement_cage",
+        productId: "product_summit_power_cage",
+        position: { xCm: 100, zCm: 100 },
+        rotation: 0,
+      }],
+    });
+
+    const result = createValidateLayoutHandler(store)({});
+    expect(result).toMatchObject({
+      ok: true,
+      valid: false,
+      issueCounts: {
+        clearanceConflict: 1,
+        clearanceOutsideRoom: 0,
+        ceilingTooLow: 1,
+        budgetExceeded: 1,
+      },
+    });
+    if (!result.ok) throw new Error("Expected successful validation read.");
+    expect(result.issues.map(({ code }) => code)).toEqual([
+      "CLEARANCE_CONFLICT",
+      "BUDGET_EXCEEDED",
+      "CEILING_TOO_LOW",
+    ]);
     expect(() => JSON.stringify(result)).not.toThrow();
   });
 
