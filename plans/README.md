@@ -47,10 +47,6 @@ Product scope and architecture live in the [product concept](../docs/PRODUCT_CON
 
 ## Detailed plans ready to execute
 
-[Phase 13 — WebMCP equipment tools in the creator](phase-13-webmcp-equipment-tools.md) is active.
-It pulls the single-placement mutation slice forward at the user's request while leaving layout
-suggestions and batch changes for a later phase.
-
 [Phase 16 — Product visual assets and model families](phase-16-product-visual-assets.md) is ready
 to execute after the accepted Phase 15 vertical slice. It starts with the adjustable-bench gate,
 then builds a modular strength station and a deliberately small set of reusable MVP visual
@@ -69,7 +65,7 @@ plans should use the evidence and decisions produced by earlier work rather than
 | Order | Phase | Depends on | Exit gate |
 |---|---|---|---|
 | 1 | Phase 18 — 3D room preview completion | Phases 15–17 | The scene shell integrates the completed asset families, project-item/station state, access analysis, validation presentation, selection, and representative complete-room performance without becoming the editing or validation source of truth. |
-| 2 | Phase 19 — WebMCP placement suggestions and batch changes | Phases 13 and 17 | The agent can generate deterministic placement candidates, reject blocked required routes, score warnings, and apply a validated group of layout changes with structured results. |
+| 2 | Phase 19 — WebMCP placement suggestions and batch changes | Phase 17 | The agent can generate deterministic placement candidates, reject blocked required routes, score warnings, and apply a validated group of layout changes with structured results. |
 | 3 | Phase 20 — Shared-editing demo and activity feed | Phases 18 and 19 | The public demo proves the complete human-change → agent-read → agent-change → validation → correction loop in the finished editor and makes tool activity visible. |
 | 4 | Phase 21 — Landing page and catalog polish | Phases 16 and 20 | The landing page and catalog match their specifications and use final product assets plus real screenshots and figures from the finished shared-editing demo. |
 | 5 | Phase 22 — Submission | Phase 21 | The public URL, repository, English description, sub-three-minute video, and Devpost checklist are complete and verified while logged out. |
