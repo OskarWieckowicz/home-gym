@@ -7,6 +7,10 @@ const assets = [
   ["public/assets/quarry-power-bar.glb", "public/assets/quarry-power-bar-top.svg"],
   ["public/assets/foundry-bumper-plates.glb", "public/assets/foundry-bumper-plates-top.svg"],
   ["public/assets/strength-station-composition.glb", "public/assets/strength-station-composition-top.svg"],
+  ["public/assets/harbor-squat-stands.glb", "public/assets/harbor-squat-stands-top.svg"],
+  ["public/assets/anchor-pullup-bar.glb", "public/assets/anchor-pullup-bar-top.svg"],
+  ["public/assets/cairn-iron-plates.glb", "public/assets/cairn-iron-plates-top.svg"],
+  ["public/assets/delta-change-plates.glb", "public/assets/delta-change-plates-top.svg"],
 ];
 
 for (const [input, output] of assets) {

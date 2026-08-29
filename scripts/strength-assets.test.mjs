@@ -37,6 +37,10 @@ describe("Tier 0 asset generators", () => {
   it.each([
     ["generate-quarry-power-bar-glb.mjs", 4, [2.2, 0.054, 0.054]],
     ["generate-foundry-bumper-plates-glb.mjs", 3, [0.45, 0.45, 0.364]],
+    ["generate-harbor-squat-stands-glb.mjs", 4, [1.08, 1.78, 0.82]],
+    ["generate-anchor-pullup-bar-glb.mjs", 4, [1.12, 0.38, 0.54]],
+    ["generate-cairn-iron-plates-glb.mjs", 3, [0.45, 0.45, 0.24]],
+    ["generate-delta-change-plates-glb.mjs", 5, [0.32, 0.32, 0.18]],
   ])("generates deterministic merged geometry for %s", async (scriptName, nodes, expectedDimensions) => {
     temporaryDirectory = await mkdtemp(join(tmpdir(), "home-gym-strength-assets-"));
     const [first, second] = await generateTwice(scriptName, temporaryDirectory);
