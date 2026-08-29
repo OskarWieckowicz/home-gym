@@ -56,4 +56,13 @@ describe("EquipmentEntity top views", () => {
     expect(view.container.querySelector(".creator-equipment-footprint")).toBeTruthy();
     expect(view.container.querySelector(".creator-equipment-label")?.textContent).toBe("Northstar Half Rack");
   });
+
+  it("uses the accepted Current Fold Bike top view", () => {
+    const view = renderEquipment("product_current_fold_bike");
+    const image = view.container.querySelector(".creator-equipment-top-view");
+
+    expect(image?.getAttribute("href")).toBe("/assets/current-fold-bike-top.svg");
+    expect(view.container.querySelector(".creator-equipment-label")).toBeNull();
+    expect(view.container.querySelector(".creator-equipment-outline")).toBeTruthy();
+  });
 });

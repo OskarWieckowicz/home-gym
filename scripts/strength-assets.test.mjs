@@ -33,7 +33,7 @@ async function generateTwice(scriptName, directory) {
   return [await readFile(first), await readFile(second)];
 }
 
-describe("Tier 0 strength asset generators", () => {
+describe("Tier 0 asset generators", () => {
   it.each([
     ["generate-quarry-power-bar-glb.mjs", 4, [2.2, 0.054, 0.054]],
     ["generate-foundry-bumper-plates-glb.mjs", 3, [0.45, 0.45, 0.364]],
@@ -48,5 +48,20 @@ describe("Tier 0 strength asset generators", () => {
     expect(parsed.primitives.every((primitive) => primitive.attributes.NORMAL !== undefined)).toBe(true);
     expect(parsed.min[1]).toBeCloseTo(0, 6);
     expectedDimensions.forEach((dimension, axis) => expect(parsed.dimensions[axis]).toBeCloseTo(dimension, 5));
+  });
+
+  it("generates the deterministic Current Fold Bike inside its exact canonical envelope", async () => {
+    temporaryDirectory = await mkdtemp(join(tmpdir(), "home-gym-current-fold-bike-"));
+    const [first, second] = await generateTwice("generate-current-fold-bike-glb.mjs", temporaryDirectory);
+    const parsed = parseGlb(first);
+
+    expect(first).toEqual(second);
+    expect(first.byteLength).toBeLessThanOrEqual(1_000_000);
+    expect(parsed.gltf.nodes).toHaveLength(7);
+    expect(parsed.primitives).toHaveLength(7);
+    expect(parsed.gltf.materials).toHaveLength(7);
+    expect(parsed.primitives.every((primitive) => primitive.attributes.NORMAL !== undefined)).toBe(true);
+    [-0.265, 0, -0.49].forEach((value, axis) => expect(parsed.min[axis]).toBeCloseTo(value, 6));
+    [0.53, 1.18, 0.98].forEach((dimension, axis) => expect(parsed.dimensions[axis]).toBeCloseTo(dimension, 6));
   });
 });

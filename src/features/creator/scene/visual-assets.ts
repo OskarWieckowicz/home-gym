@@ -1,5 +1,6 @@
 export const VISUAL_ASSET_IDS = [
   "product_arc_adjustable_bench",
+  "product_current_fold_bike",
   "product_foundry_bumper_plates",
   "product_quarry_power_bar",
   "product_summit_power_cage",
@@ -22,6 +23,15 @@ export const visualAssetRegistry: Readonly<Record<VisualAssetProductId, VisualAs
     src: "/assets/arc-adjustable-bench.glb",
     topViewSrc: "/assets/arc-adjustable-bench-top.svg",
     envelopeCm: { widthCm: 66, depthCm: 142, heightCm: 46 },
+    forward: "negative-z",
+    floorPivot: "origin",
+    scale: [1, 1, 1],
+  },
+  product_current_fold_bike: {
+    productId: "product_current_fold_bike",
+    src: "/assets/current-fold-bike.glb",
+    topViewSrc: "/assets/current-fold-bike-top.svg",
+    envelopeCm: { widthCm: 53, depthCm: 98, heightCm: 118 },
     forward: "negative-z",
     floorPivot: "origin",
     scale: [1, 1, 1],

@@ -9,6 +9,12 @@ describe("visual asset registry", () => {
       envelopeCm: { widthCm: 66, depthCm: 142, heightCm: 46 },
       scale: [1, 1, 1],
     });
+    expect(getVisualAsset("product_current_fold_bike")).toMatchObject({
+      src: "/assets/current-fold-bike.glb",
+      topViewSrc: "/assets/current-fold-bike-top.svg",
+      envelopeCm: { widthCm: 53, depthCm: 98, heightCm: 118 },
+      scale: [1, 1, 1],
+    });
     expect(getVisualAsset("product_foundry_bumper_plates")).toMatchObject({
       src: "/assets/foundry-bumper-plates.glb",
       topViewSrc: "/assets/foundry-bumper-plates-top.svg",
