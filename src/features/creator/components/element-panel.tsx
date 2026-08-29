@@ -65,6 +65,9 @@ export function ElementPanel({
             </button>
           ))}
         </div>
+        <p className="creator-tool-hint">
+          Physical obstacles block walking. Unavailable zones keep equipment off that floor, but a person can still walk through them.
+        </p>
       </section>
 
       <EquipmentCatalogPanel

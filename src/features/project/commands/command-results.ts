@@ -1,4 +1,6 @@
 import type { ProjectCommandType } from "../schemas/project-command";
+import type { ProjectAccess } from "@/features/geometry/access-facts";
+import type { AccessImpact } from "../validation/access-impact";
 import type { ValidationIssue } from "../validation/validation-issues";
 
 export const COMMAND_ERROR_CODES = [
@@ -17,6 +19,8 @@ export type CommandSuccess = {
   readonly changed: boolean;
   readonly affectedEntityIds: readonly string[];
   readonly issues: readonly ValidationIssue[];
+  readonly access: ProjectAccess;
+  readonly accessImpact: AccessImpact;
 };
 
 export type CommandFailure = {

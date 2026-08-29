@@ -23,6 +23,10 @@ import {
   type ProjectCommandDependencies,
   type ResolvedProjectCommandDependencies,
 } from "./project-command-dependencies";
+import {
+  diffAccessImpact,
+  EMPTY_ACCESS_IMPACT,
+} from "../validation/access-impact";
 
 export {
   defaultProjectCommandDependencies,
@@ -83,10 +87,10 @@ function success(
   dependencies: ResolvedProjectCommandDependencies,
 ): ProjectCommandExecution {
   const changed = project !== previousProject;
-  const issues = (changed
-    ? dependencies.analyzeProject(project)
-    : dependencies.analyzeProject(previousProject)
-  ).issues;
+  const currentAnalysis = dependencies.analyzeProject(changed ? project : previousProject);
+  const previousAnalysis = changed
+    ? dependencies.analyzeProject(previousProject)
+    : currentAnalysis;
 
   return {
     project,
@@ -95,7 +99,11 @@ function success(
       commandType,
       changed,
       affectedEntityIds,
-      issues,
+      issues: currentAnalysis.issues,
+      access: currentAnalysis.access,
+      accessImpact: changed
+        ? diffAccessImpact(previousAnalysis, currentAnalysis)
+        : EMPTY_ACCESS_IMPACT,
     },
   };
 }

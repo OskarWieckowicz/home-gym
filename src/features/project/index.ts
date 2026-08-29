@@ -11,6 +11,7 @@ export type {
   DispatchResult,
   ProjectCommandResult,
 } from "./commands/command-results";
+export type { ProjectAccess } from "@/features/geometry/access-facts";
 export { createDefaultProject } from "./defaults";
 export {
   centimetersSchema,
@@ -93,14 +94,25 @@ export type {
   ProjectValidationDependencies,
 } from "./validation/product-validation";
 export type {
+  AccessImpact,
+  AccessImpactEntry,
+  AccessImpactReason,
+} from "./validation/access-impact";
+export type {
+  AccessNotEvaluatedIssue,
+  AccessTightIssue,
   BudgetExceededIssue,
   CeilingTooLowIssue,
   CollisionIssue,
+  DoorBlockedIssue,
+  DoorUnreachableIssue,
+  ObstacleUnreachableIssue,
   OutsideWallIssue,
   OutsideRoomAxis,
   OutsideRoomIssue,
   UseZoneOverlapIssue,
   UseZoneOutsideRoomIssue,
+  UseZoneUnreachableIssue,
   ValidationIssue,
   ValidationSeverity,
   WallElementOverlapIssue,

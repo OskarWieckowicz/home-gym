@@ -73,8 +73,10 @@ describe("createProjectStore", () => {
       validation: {
         valid: false,
         errorCount: 1,
-        warningCount: 0,
-        issues: [{ code: "OUTSIDE_ROOM", entityIds: ["obstacle_outside"] }],
+        warningCount: 1,
+        issues: expect.arrayContaining([
+          expect.objectContaining({ code: "OUTSIDE_ROOM", entityIds: ["obstacle_outside"] }),
+        ]),
       },
     });
     expect(store.getState().project).not.toBe(input);
@@ -217,12 +219,15 @@ describe("createProjectStore", () => {
       type: "OBSTACLE_ADDED",
       payload: { ...obstacleInput, position: { xCm: 390, zCm: 0 } },
     });
-    expect(store.getState().validation.issues).toHaveLength(1);
+    expect(store.getState().validation.issues).toHaveLength(2);
 
     store.getState().undo();
-    expect(store.getState().validation.issues).toEqual([]);
+    expect(store.getState().validation.issues).toEqual([
+      expect.objectContaining({ code: "ACCESS_NOT_EVALUATED" }),
+    ]);
     store.getState().redo();
     expect(store.getState().validation.issues).toMatchObject([
+      { code: "ACCESS_NOT_EVALUATED" },
       { code: "OUTSIDE_ROOM", entityIds: ["obstacle_generated"] },
     ]);
   });
@@ -309,7 +314,9 @@ describe("project replacement", () => {
     const result = store.getState().replaceProject(invalidLayout);
     expect(result).toMatchObject({
       ok: true,
-      issues: [{ code: "OUTSIDE_ROOM", entityIds: ["obstacle_outside"] }],
+      issues: expect.arrayContaining([
+        expect.objectContaining({ code: "OUTSIDE_ROOM", entityIds: ["obstacle_outside"] }),
+      ]),
     });
     expect(store.getState().validation.issues).toEqual(
       expect.arrayContaining([expect.objectContaining({ code: "OUTSIDE_ROOM" })]),

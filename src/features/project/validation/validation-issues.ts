@@ -10,6 +10,12 @@ export const VALIDATION_ISSUE_CODES = [
   "USE_ZONE_OUTSIDE_ROOM",
   "CEILING_TOO_LOW",
   "BUDGET_EXCEEDED",
+  "DOOR_BLOCKED",
+  "DOOR_UNREACHABLE",
+  "USE_ZONE_UNREACHABLE",
+  "OBSTACLE_UNREACHABLE",
+  "ACCESS_TIGHT",
+  "ACCESS_NOT_EVALUATED",
 ] as const;
 
 export type ValidationSeverity = "error" | "warning";
@@ -111,6 +117,52 @@ export type BudgetExceededIssue = {
   };
 };
 
+export type DoorBlockedIssue = {
+  readonly code: "DOOR_BLOCKED";
+  readonly severity: "error";
+  readonly entityIds: readonly [string];
+  readonly details: Record<string, never>;
+};
+
+export type DoorUnreachableIssue = {
+  readonly code: "DOOR_UNREACHABLE";
+  readonly severity: "error";
+  readonly entityIds: readonly [string, string];
+  readonly details: Record<string, never>;
+};
+
+export type UseZoneUnreachableIssue = {
+  readonly code: "USE_ZONE_UNREACHABLE";
+  readonly severity: "error";
+  readonly entityIds: readonly [string];
+  readonly details: Record<string, never>;
+};
+
+export type ObstacleUnreachableIssue = {
+  readonly code: "OBSTACLE_UNREACHABLE";
+  readonly severity: "warning";
+  readonly entityIds: readonly [string];
+  readonly details: Record<string, never>;
+};
+
+export type AccessTightIssue = {
+  readonly code: "ACCESS_TIGHT";
+  readonly severity: "warning";
+  readonly entityIds: readonly [string];
+  readonly details: {
+    readonly kind: "door" | "use-zone" | "placement" | "obstacle";
+  };
+};
+
+export type AccessNotEvaluatedIssue = {
+  readonly code: "ACCESS_NOT_EVALUATED";
+  readonly severity: "warning";
+  readonly entityIds: readonly [];
+  readonly details: {
+    readonly reason: "no-door";
+  };
+};
+
 export type ValidationIssue =
   | OutsideRoomIssue
   | CollisionIssue
@@ -119,4 +171,10 @@ export type ValidationIssue =
   | CeilingTooLowIssue
   | BudgetExceededIssue
   | OutsideWallIssue
-  | WallElementOverlapIssue;
+  | WallElementOverlapIssue
+  | DoorBlockedIssue
+  | DoorUnreachableIssue
+  | UseZoneUnreachableIssue
+  | ObstacleUnreachableIssue
+  | AccessTightIssue
+  | AccessNotEvaluatedIssue;

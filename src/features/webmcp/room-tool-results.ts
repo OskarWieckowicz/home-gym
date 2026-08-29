@@ -1,4 +1,6 @@
-import type { CommandErrorCode } from "@/features/project/commands/command-results";
+import type { CommandErrorCode, DispatchResult } from "@/features/project/commands/command-results";
+import type { AccessImpact } from "@/features/project/validation/access-impact";
+import type { ProjectAccess } from "@/features/geometry/access-facts";
 import type {
   GymProject,
   Obstacle,
@@ -154,10 +156,75 @@ export function serializeValidationIssue(issue: ValidationIssue): ValidationIssu
     };
   }
 
+  if (issue.code === "ACCESS_NOT_EVALUATED") {
+    return {
+      ...issue,
+      entityIds: [],
+      details: { ...issue.details },
+    };
+  }
+
+  if (issue.code === "DOOR_UNREACHABLE") {
+    return {
+      ...issue,
+      entityIds: [...issue.entityIds] as [string, string],
+      details: { ...issue.details },
+    };
+  }
+
+  if (issue.code === "ACCESS_TIGHT") {
+    return {
+      ...issue,
+      entityIds: [...issue.entityIds] as [string],
+      details: { ...issue.details },
+    };
+  }
+
+  if (
+    issue.code === "DOOR_BLOCKED" ||
+    issue.code === "USE_ZONE_UNREACHABLE" ||
+    issue.code === "OBSTACLE_UNREACHABLE"
+  ) {
+    return {
+      ...issue,
+      entityIds: [...issue.entityIds] as [string],
+      details: { ...issue.details },
+    };
+  }
+
   return {
     ...issue,
     entityIds: [...issue.entityIds] as [string, string],
     details: { overlap: { ...issue.details.overlap } },
+  };
+}
+
+export function serializeAccess(access: ProjectAccess) {
+  return {
+    evaluated: access.evaluated,
+    reason: access.reason,
+    facts: access.facts.map((fact) => ({ ...fact })),
+  };
+}
+
+export function serializeAccessImpact(impact: AccessImpact) {
+  return {
+    madeUnreachable: impact.madeUnreachable.map((entry) => ({ ...entry })),
+    restored: impact.restored.map((entry) => ({ ...entry })),
+  };
+}
+
+export function serializeMutationBase(
+  tool: RoomToolName,
+  result: Extract<DispatchResult, { ok: true }>,
+) {
+  return {
+    ok: true as const,
+    tool,
+    changed: result.changed,
+    revision: result.revision,
+    affectedEntityIds: [...result.affectedEntityIds],
+    accessImpact: serializeAccessImpact(result.accessImpact),
   };
 }
 
@@ -194,7 +261,22 @@ export function serializeValidation(analysis: ProjectAnalysis) {
       budgetExceeded: clonedIssues.filter(
         ({ code }) => code === "BUDGET_EXCEEDED",
       ).length,
+      doorBlocked: clonedIssues.filter(({ code }) => code === "DOOR_BLOCKED").length,
+      doorUnreachable: clonedIssues.filter(
+        ({ code }) => code === "DOOR_UNREACHABLE",
+      ).length,
+      useZoneUnreachable: clonedIssues.filter(
+        ({ code }) => code === "USE_ZONE_UNREACHABLE",
+      ).length,
+      obstacleUnreachable: clonedIssues.filter(
+        ({ code }) => code === "OBSTACLE_UNREACHABLE",
+      ).length,
+      accessTight: clonedIssues.filter(({ code }) => code === "ACCESS_TIGHT").length,
+      accessNotEvaluated: clonedIssues.filter(
+        ({ code }) => code === "ACCESS_NOT_EVALUATED",
+      ).length,
     },
+    access: serializeAccess(analysis.access),
     issues: clonedIssues,
   };
 }

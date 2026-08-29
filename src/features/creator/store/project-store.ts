@@ -99,7 +99,10 @@ export function createProjectStore(
       const revision = current.revision + 1;
       set({
         project: execution.project,
-        validation: createProjectAnalysis(execution.result.issues),
+        validation: createProjectAnalysis(
+          execution.result.issues,
+          execution.result.access,
+        ),
         revision,
         canUndo: true,
         canRedo: false,

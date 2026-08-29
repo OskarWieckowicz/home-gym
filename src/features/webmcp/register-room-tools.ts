@@ -38,8 +38,10 @@ import type { WebMcpTool } from "./types";
 
 const SPATIAL_INPUT_NOTE =
   "Positions are the minimum corner of the rotated footprint. Dimensions and positions use integer centimeters; rotation is 0, 90, 180, or 270 degrees. Spatially invalid layouts may still be applied and returned with validation issues.";
+const ACCESS_NOTE =
+  "Results carry reachability facts. A walking path must stay at least 100 cm wide; that is an application convention, not a building code. Unreachable doors and equipment are errors, not trade-offs. ACCESS_NOT_EVALUATED means the room has no door, so access was not judged. Inspect validation.access, validation.valid, and accessImpact on mutations.";
 const POST_MUTATION_VALIDATION_NOTE =
-  "The call succeeds even when the resulting layout is invalid; read validation.valid, validation.errorCount, and validation.warningCount and report them to the user.";
+  `The call succeeds even when the resulting layout is invalid; read validation.valid, validation.errorCount, and validation.warningCount and report them to the user. ${ACCESS_NOTE}`;
 
 export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[] {
   return [
@@ -47,7 +49,7 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "get_project_state",
       title: "Get current room project state",
       description:
-        "Read the live version-3 room project, settings, floor obstacles, wall elements, catalog equipment placements, deterministic validation, revision, and manual undo/redo availability. Canonical room IDs from this result can be used by the currently registered update and remove tools.",
+        "Read the live version-3 room project, settings, floor obstacles, wall elements, catalog equipment placements, deterministic validation, revision, and manual undo/redo availability. Canonical room IDs from this result can be used by the currently registered update and remove tools. " + ACCESS_NOTE,
       inputSchema: getProjectStateJsonSchema,
       annotations: { readOnlyHint: true },
       execute: createGetProjectStateHandler(store),
@@ -117,7 +119,7 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "validate_layout",
       title: "Validate the current room layout",
       description:
-        "Read the live deterministic layout validation and its revision without changing state or history. Reports errors and warnings separately: valid is true when errorCount is 0 even if warningCount is greater than 0. Physical collisions, room and wall bounds, unavailable-zone conflicts, use zones leaving the room or hitting obstacles, ceiling height, and budget remain errors. Equipment occupying another item's use zone, or two overlapping use zones, are warnings. Inspect validation.valid, validation.errorCount, and validation.warningCount.",
+        "Read the live deterministic layout validation and its revision without changing state or history. Reports errors and warnings separately: valid is true when errorCount is 0 even if warningCount is greater than 0. Physical collisions, room and wall bounds, unavailable-zone conflicts, use zones leaving the room or hitting obstacles, ceiling height, budget, blocked doors, disconnected doors, and unreachable equipment remain errors. Equipment occupying another item's use zone, or two overlapping use zones, are warnings. An unapproachable physical obstacle is a warning. Access facts distinguish reachable, tight, and unreachable: a walking path must stay at least 100 cm wide (application convention, not a building code). Unreachable entities are errors, not trade-offs. A project with no door reports ACCESS_NOT_EVALUATED and does not judge targets; that is missing input, not an accepted layout. Inspect validation.valid, validation.errorCount, validation.warningCount, and validation.access.",
       inputSchema: validateLayoutJsonSchema,
       annotations: { readOnlyHint: true },
       execute: createValidateLayoutHandler(store),

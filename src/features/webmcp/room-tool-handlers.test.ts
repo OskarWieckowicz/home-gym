@@ -62,7 +62,7 @@ describe("room read handlers", () => {
         budget: 12_500,
         trainingGoals: ["strength"],
       },
-      validation: { valid: true, issueCount: 0, issues: [] },
+      validation: { valid: true, issueCount: 1, issues: [{ code: "ACCESS_NOT_EVALUATED" }] },
     });
     if (!result.ok) throw new Error("Expected successful state read.");
     result.project.room.widthCm = 1;
@@ -99,7 +99,9 @@ describe("room read handlers", () => {
         }],
       },
       validation: {
-        issues: [{ code: "USE_ZONE_OUTSIDE_ROOM" }],
+        issues: expect.arrayContaining([
+          expect.objectContaining({ code: "USE_ZONE_OUTSIDE_ROOM" }),
+        ]),
       },
     });
   });
@@ -117,6 +119,14 @@ describe("room read handlers", () => {
         dimensions: { widthCm: 20, depthCm: 20, heightCm: 100 },
         rotation: 0,
         locked: false,
+      }],
+      wallElements: [{
+        id: "wall-element_door",
+        kind: "door",
+        name: "Door",
+        wall: "top",
+        offsetCm: 20,
+        widthCm: 90,
       }],
       placements: [{
         id: "placement_cage",
@@ -151,6 +161,14 @@ describe("room read handlers", () => {
       ...createDefaultProject(),
       room: { widthCm: 600, depthCm: 600, heightCm: 250 },
       budget: 20_000,
+      wallElements: [{
+        id: "wall-element_door",
+        kind: "door",
+        name: "Door",
+        wall: "bottom",
+        offsetCm: 250,
+        widthCm: 90,
+      }],
       placements: [
         {
           id: "placement_cage",
@@ -190,9 +208,11 @@ describe("room read handlers", () => {
       tool: "validate_layout",
       revision: 1,
       valid: false,
-      issueCount: 1,
-      issueCounts: { outsideRoom: 1 },
-      issues: [{ code: "OUTSIDE_ROOM", entityIds: ["obstacle_generated"] }],
+      issueCount: 2,
+      issueCounts: { outsideRoom: 1, accessNotEvaluated: 1 },
+      issues: expect.arrayContaining([
+        expect.objectContaining({ code: "OUTSIDE_ROOM", entityIds: ["obstacle_generated"] }),
+      ]),
     });
     expect(store.getState()).toMatchObject({
       revision: before.revision,
@@ -200,9 +220,11 @@ describe("room read handlers", () => {
       canRedo: before.canRedo,
     });
     if (!result.ok) throw new Error("Expected successful validation read.");
-    const returnedIssue = result.issues[0];
-    const storedIssue = store.getState().validation.issues[0];
-    if (returnedIssue.code !== "OUTSIDE_ROOM" || storedIssue.code !== "OUTSIDE_ROOM") {
+    const returnedIssue = result.issues.find(({ code }) => code === "OUTSIDE_ROOM");
+    const storedIssue = store.getState().validation.issues.find(
+      ({ code }) => code === "OUTSIDE_ROOM",
+    );
+    if (returnedIssue?.code !== "OUTSIDE_ROOM" || storedIssue?.code !== "OUTSIDE_ROOM") {
       throw new Error("Expected outside-room issues.");
     }
     (returnedIssue.details.footprint as { minX: number }).minX = 0;
@@ -248,17 +270,19 @@ describe("room read handlers", () => {
     expect(result).toMatchObject({
       ok: true,
       valid: false,
-      issueCount: 4,
+      issueCount: 5,
       issueCounts: {
         outsideRoom: 1,
         physicalCollision: 1,
         unavailableZoneConflict: 2,
         outsideWall: 0,
         wallElementOverlap: 0,
+        accessNotEvaluated: 1,
       },
     });
     if (!result.ok) throw new Error("Expected successful validation read.");
     expect(result.issues.map(({ code }) => code)).toEqual([
+      "ACCESS_NOT_EVALUATED",
       "UNAVAILABLE_ZONE_CONFLICT",
       "PHYSICAL_COLLISION",
       "UNAVAILABLE_ZONE_CONFLICT",
@@ -342,7 +366,7 @@ describe("room mutation handlers", () => {
       revision: 1,
       obstacleId: "obstacle_generated",
       obstacle: { id: "obstacle_generated", name: "Column" },
-      validation: { valid: false, issueCount: 1 },
+      validation: { valid: false, issueCount: 2 },
     });
 
     const updated = createUpdateObstacleHandler(store)({

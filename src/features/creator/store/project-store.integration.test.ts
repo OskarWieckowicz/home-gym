@@ -55,12 +55,12 @@ describe("shared room editing scenario", () => {
       ok: true,
       changed: true,
       affectedEntityIds: ["obstacle_door_zone"],
-      issues: [
-        {
+      issues: expect.arrayContaining([
+        expect.objectContaining({
           code: "UNAVAILABLE_ZONE_CONFLICT",
           entityIds: ["obstacle_door_zone", "obstacle_wardrobe"],
-        },
-      ],
+        }),
+      ]),
     });
 
     const corrected = dispatch({
@@ -70,15 +70,25 @@ describe("shared room editing scenario", () => {
         patch: { position: { xCm: 200, zCm: 0 } },
       },
     });
-    expect(corrected).toMatchObject({ ok: true, changed: true, issues: [] });
-    expect(store.getState().validation.issues).toEqual([]);
+    expect(corrected).toMatchObject({
+      ok: true,
+      changed: true,
+      issues: [expect.objectContaining({ code: "ACCESS_NOT_EVALUATED" })],
+    });
+    expect(store.getState().validation.issues).toEqual([
+      expect.objectContaining({ code: "ACCESS_NOT_EVALUATED" }),
+    ]);
 
     expect(store.getState().undo()).toBe(true);
-    expect(store.getState().validation.issues).toMatchObject([
-      { code: "UNAVAILABLE_ZONE_CONFLICT" },
-    ]);
+    expect(store.getState().validation.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: "UNAVAILABLE_ZONE_CONFLICT" }),
+      ]),
+    );
     expect(store.getState().redo()).toBe(true);
-    expect(store.getState().validation.issues).toEqual([]);
+    expect(store.getState().validation.issues).toEqual([
+      expect.objectContaining({ code: "ACCESS_NOT_EVALUATED" }),
+    ]);
 
     const lockedMove = dispatch({
       type: "OBSTACLE_UPDATED",

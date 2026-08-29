@@ -69,9 +69,20 @@ function zone(
   };
 }
 
+function entrance(): WallElement {
+  return {
+    id: "wall-element_door",
+    kind: "door",
+    name: "Door",
+    wall: "top",
+    offsetCm: 20,
+    widthCm: 90,
+  };
+}
+
 function project(
   obstacles: Obstacle[],
-  wallElements: WallElement[] = [],
+  wallElements: WallElement[] = [entrance()],
   placements: Placement[] = [],
 ): GymProject {
   return {
@@ -93,7 +104,7 @@ describe("validateProject", () => {
           obstacle("obstacle_physical", { position: { xCm: 20, zCm: 20 } }),
           zone("obstacle_zone", { position: { xCm: 80, zCm: 10 } }),
         ],
-        [],
+        [entrance()],
         [
           placement("placement_inside"),
           placement("placement_outside", { position: { xCm: 250, zCm: 220 } }),
@@ -102,20 +113,23 @@ describe("validateProject", () => {
       validationDependencies,
     );
 
-    expect(new Set(issues.map(({ code }) => code))).toEqual(new Set([
+    const codes = new Set(issues.map(({ code }) => code));
+    for (const code of [
       "PHYSICAL_COLLISION",
       "USE_ZONE_OUTSIDE_ROOM",
       "UNAVAILABLE_ZONE_CONFLICT",
       "BUDGET_EXCEEDED",
       "CEILING_TOO_LOW",
       "OUTSIDE_ROOM",
-    ]));
+    ] as const) {
+      expect(codes.has(code)).toBe(true);
+    }
     expect(issues.some(({ code }) => code === "USE_ZONE_OVERLAP")).toBe(false);
   });
 
   it("detects placement physical and use-zone conflicts but accepts touching edges", () => {
     const physicalOverlap = validateProject(
-      project([], [], [placement("placement_a"), placement("placement_b", {
+      project([], [entrance()], [placement("placement_a"), placement("placement_b", {
         position: { xCm: 99, zCm: 0 },
       })]),
       validationDependencies,
@@ -133,7 +147,7 @@ describe("validateProject", () => {
     const touching = validateProject(
       project(
         [obstacle("obstacle_touching", { position: { xCm: 120, zCm: 0 } })],
-        [],
+        [entrance()],
         [placement("placement_a")],
       ),
       validationDependencies,
@@ -143,7 +157,7 @@ describe("validateProject", () => {
     const useZoneOverlap = validateProject(
       project(
         [obstacle("obstacle_overlap", { position: { xCm: 119, zCm: 0 } })],
-        [],
+        [entrance()],
         [placement("placement_a")],
       ),
       validationDependencies,
@@ -155,7 +169,7 @@ describe("validateProject", () => {
 
   it("reports a rotated use zone outside the room independently of physical bounds", () => {
     const issues = validateProject(
-      project([], [], [placement("placement_edge", {
+      project([], [entrance()], [placement("placement_edge", {
         position: { xCm: 0, zCm: 20 },
         rotation: 90,
       })]),
@@ -174,9 +188,9 @@ describe("validateProject", () => {
 
   it("reports ceiling and aggregate budget errors with stable details", () => {
     const input = project(
-      [],
-      [],
-      [placement("placement_b", { position: { xCm: 150, zCm: 100 } }), placement("placement_a")],
+        [],
+        [entrance()],
+        [placement("placement_b", { position: { xCm: 150, zCm: 100 } }), placement("placement_a")],
     );
     const issues = validateProject(input, validationDependencies);
 
@@ -269,11 +283,10 @@ describe("validateProject", () => {
       { code: "OUTSIDE_ROOM", entityIds: ["obstacle_outside"] },
     ]);
     expect(
-      issues.some(
-        (issue) =>
-          issue.entityIds.includes("obstacle_zone") &&
-          issue.entityIds.includes("obstacle_zone-two"),
-      ),
+      issues.some((issue) => {
+        const ids: readonly string[] = issue.entityIds;
+        return ids.includes("obstacle_zone") && ids.includes("obstacle_zone-two");
+      }),
     ).toBe(false);
   });
 
@@ -413,9 +426,9 @@ describe("validateProject", () => {
     const issues = validateProject(
       {
         ...project(
-          [],
-          [],
-          [
+        [],
+        [entrance()],
+        [
             placement("placement_rack", { position: { xCm: 40, zCm: 20 } }),
             placement("placement_bench", { position: { xCm: 40, zCm: 71 } }),
           ],
@@ -440,9 +453,9 @@ describe("validateProject", () => {
     const issues = validateProject(
       {
         ...project(
-          [],
-          [],
-          [
+        [],
+        [entrance()],
+        [
             placement("placement_a", { position: { xCm: 40, zCm: 20 } }),
             placement("placement_b", { position: { xCm: 40, zCm: 105 } }),
           ],
@@ -453,7 +466,7 @@ describe("validateProject", () => {
       validationDependencies,
     );
 
-    expect(issues).toEqual([
+    expect(issues.filter(({ code }) => code === "USE_ZONE_OVERLAP")).toEqual([
       expect.objectContaining({
         code: "USE_ZONE_OVERLAP",
         severity: "warning",
@@ -468,9 +481,9 @@ describe("analyzeProject", () => {
     const warningOnly = analyzeProject(
       {
         ...project(
-          [],
-          [],
-          [
+        [],
+        [entrance()],
+        [
             placement("placement_rack", { position: { xCm: 40, zCm: 20 } }),
             placement("placement_bench", { position: { xCm: 40, zCm: 71 } }),
           ],
@@ -492,7 +505,7 @@ describe("analyzeProject", () => {
   it("is pure, deterministic, and counts mixed severities", () => {
     const input = project(
       [obstacle("obstacle_overlap", { position: { xCm: 119, zCm: 0 } })],
-      [],
+      [entrance()],
       [placement("placement_a")],
     );
     const first = analyzeProject(input, validationDependencies);

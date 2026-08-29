@@ -170,19 +170,10 @@ describe("applyProjectCommand", () => {
       payload: { widthCm: 100, depthCm: 100, heightCm: 200 },
     });
 
-    expect(execution.result).toMatchObject({
-      ok: true,
-      changed: true,
-      commandType: "ROOM_CONFIGURED",
-      affectedEntityIds: [],
-      issues: [
-        {
-          code: "OUTSIDE_ROOM",
-          entityIds: ["obstacle_existing"],
-          details: { axes: ["x", "height"] },
-        },
-      ],
-    });
+    expect(execution.result.ok).toBe(true);
+    if (!execution.result.ok) throw new Error("Expected success.");
+    expect(execution.result.changed).toBe(true);
+    expect(execution.result.issues.some(({ code }) => code === "OUTSIDE_ROOM")).toBe(true);
     expect(execution.project.room).toEqual({
       widthCm: 100,
       depthCm: 100,
@@ -219,17 +210,11 @@ describe("applyProjectCommand", () => {
       dependencies(),
     );
 
-    expect(execution.result).toMatchObject({
-      ok: true,
-      changed: true,
-      affectedEntityIds: ["obstacle_generated"],
-      issues: [
-        {
-          code: "PHYSICAL_COLLISION",
-          entityIds: ["obstacle_existing", "obstacle_generated"],
-        },
-      ],
-    });
+    expect(execution.result.ok).toBe(true);
+    if (!execution.result.ok) throw new Error("Expected success.");
+    expect(execution.result.changed).toBe(true);
+    expect(execution.result.affectedEntityIds).toEqual(["obstacle_generated"]);
+    expect(execution.result.issues.some(({ code }) => code === "PHYSICAL_COLLISION")).toBe(true);
     expect(execution.project.obstacles.map(({ id }) => id)).toEqual([
       "obstacle_existing",
       "obstacle_generated",

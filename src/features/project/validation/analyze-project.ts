@@ -22,6 +22,7 @@ import {
 import { validatePlacementRequirements } from "./validate-requirements";
 import { validateUseZones } from "./validate-use-zones";
 import { validateWallElements } from "./validate-wall-elements";
+import { validateAccess } from "./validate-access";
 
 export type { ProjectAnalysis } from "./project-analysis";
 export { createProjectAnalysis } from "./project-analysis";
@@ -32,6 +33,7 @@ export function analyzeProject(
 ): ProjectAnalysis {
   const items = collectObstacles(project);
   const placements = resolvePlacements(project, dependencies);
+  const access = validateAccess(project, items, placements);
   const issues = [
     ...validateObstacleBounds(project, items),
     ...validatePlacementBounds(project, placements),
@@ -40,9 +42,10 @@ export function analyzeProject(
     ...validateUseZones(items, placements),
     ...validatePlacementRequirements(project, placements),
     ...validateWallElements(project),
+    ...access.issues,
   ].sort(compareIssues);
 
-  return createProjectAnalysis(issues);
+  return createProjectAnalysis(issues, access.access);
 }
 
 export function validateProject(

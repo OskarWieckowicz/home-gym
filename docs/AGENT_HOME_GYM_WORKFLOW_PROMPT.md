@@ -37,7 +37,7 @@ Create an approximate model in the editor:
 
 1. Configure the room dimensions.
 2. Add visible fixed obstacles.
-3. Add doors and windows when their positions can be estimated reasonably.
+3. Add doors and windows. Doors are required before equipment is placed, not only when their positions can be estimated reasonably. Without a door, access cannot be evaluated.
 4. Add unavailable floor zones where needed.
 5. Read the current project state again after making the changes.
 6. Validate the resulting layout.
@@ -89,11 +89,17 @@ After I confirm the requirements:
 5. Add and arrange the approved equipment in the room, accounting for both its physical footprint
    and the use zone required for safe operation.
 6. After every meaningful group of changes, validate collisions, use zones, ceiling height,
-   unavailable areas, and budget.
+   unavailable areas, budget, and reachability. A walking path must stay at least 100 cm
+   wide so a person does not have to squeeze; that is an application convention, not a
+   building code.
 7. If validation reports errors, try to improve the arrangement. Warnings mean a legitimate
-   trade-off, such as a bench standing in a rack's working area; report them, but do not treat
-   them as a broken layout. Read validation.valid, validation.errorCount, and
-   validation.warningCount after each mutation. A successful tool call can still leave errors or
+   trade-off, such as a bench standing in a rack's working area, except when they describe
+   missing input or unreachable entities. Unreachable doors and equipment are errors, not
+   trade-offs. ACCESS_NOT_EVALUATED means add a door before judging the layout. If a
+   mutation returns accessImpact.madeUnreachable, resolve those entities before continuing.
+   Report remaining warnings, but do not treat them as a broken layout. Read
+   validation.valid, validation.errorCount, validation.warningCount, validation.access,
+   and accessImpact after each mutation. A successful tool call can still leave errors or
    warnings. Do not declare the layout valid based only on visual judgment or on ok: true.
 8. Do not remove or move room elements that I marked as fixed without my permission.
 

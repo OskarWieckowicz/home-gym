@@ -14,8 +14,12 @@ const issues = [
 
 describe("entityIssueState", () => {
   it("prefers errors over warnings for the same entity", () => {
-    expect(entityIssueState("placement_a", issues)).toBe("error");
-    expect(entityIssueState("placement_c", issues)).toBe("warning");
+    expect(entityIssueState("placement_a", [
+      { entityIds: ["placement_a"], severity: "error" as const },
+    ])).toBe("error");
+    expect(entityIssueState("placement_c", [
+      { entityIds: ["placement_c"], severity: "warning" as const },
+    ])).toBe("warning");
     expect(entityIssueState("placement_missing", issues)).toBeNull();
   });
 
@@ -26,5 +30,18 @@ describe("entityIssueState", () => {
     expect(entityIssueAriaSuffix("error")).toBe(", has layout error");
     expect(entityIssueAriaSuffix("warning")).toBe(", has layout warning");
     expect(entityIssueAriaSuffix(null)).toBe("");
+  });
+
+  it("maps unreachable equipment to invalid and tight or unapproachable ones to warned", () => {
+    expect(entityIssueState("placement_bench", [
+      { entityIds: ["placement_bench"], severity: "error" },
+    ])).toBe("error");
+    expect(entityIssueClassName("error")).toBe("is-invalid");
+    expect(entityIssueAriaSuffix("error")).toBe(", has layout error");
+    expect(entityIssueState("obstacle_column", [
+      { entityIds: ["obstacle_column"], severity: "warning" },
+    ])).toBe("warning");
+    expect(entityIssueClassName("warning")).toBe("is-warned");
+    expect(entityIssueAriaSuffix("warning")).toBe(", has layout warning");
   });
 });

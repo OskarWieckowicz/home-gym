@@ -28,6 +28,7 @@ import {
   serializeProject,
   serializeRoom,
   serializeSettings,
+  serializeMutationBase,
   serializeValidation,
   serializeWallElement,
   type RoomToolName,
@@ -80,13 +81,7 @@ function domainFailure(tool: RoomToolName, result: Extract<DispatchResult, { ok:
 }
 
 function mutationBase(tool: RoomToolName, result: Extract<DispatchResult, { ok: true }>) {
-  return {
-    ok: true as const,
-    tool,
-    changed: result.changed,
-    revision: result.revision,
-    affectedEntityIds: [...result.affectedEntityIds],
-  };
+  return serializeMutationBase(tool, result);
 }
 
 function readInput<T>(

@@ -63,23 +63,20 @@ the closed rack/bench station template from the original draft is rejected rathe
 demoting the physical-into-use-zone relationship to a warning achieves the same result for every
 product pair, and products that ship as one physical unit stay catalog bundles.
 
+Phase 18a is complete: every analysis derives whether doors still reach each other and whether
+equipment can still be stood in front of, unreachable entities are errors, and mutations name what
+they broke or restored. The walking path is 100 cm. Git history holds the detailed plan.
+
 [Phase 17 — Use-zone semantics and issue severity](phase-17-use-zone-semantics-and-severity.md)
 is ready to execute after Phase 16. It renames `clearance` to `useZone`, splits validation results
 into errors and warnings so a bench in a rack's working area stops blocking the project, and
 introduces `analyzeProject` as the shared read model the later phases extend. No schema change.
 
-[Phase 18a — Room reachability and the agent access contract](phase-18a-room-reachability.md)
-follows Phase 17. It derives, unconditionally and after every change, whether the room's doors still
-reach each other and whether equipment can still be stood in front of, reports unreachable entities
-as errors, names what a single change broke or restored, and closes the gap that lets an agent fill
-a room it cannot see until nothing is reachable. No schema change and no migration.
-
 [Phase 18b — Access requirements and deterministic routing](phase-18b-access-requirements-and-routing.md)
-follows Phase 18a and reuses its grid. It persists an access requirement as intent, derives the
+is next. It reuses the Phase 18a occupancy grid, persists an access requirement as intent, derives the
 route deterministically after every mutation, shows it in the plan, adds a stateless `check_access`
 question tool, and adds project version 4 through a migration that only appends an empty array. This
-is the designated cut line if the deadline tightens; Phase 18a is not, because it carries the
-behaviour that keeps agent-driven layouts usable.
+is the designated cut line if the deadline tightens.
 
 [Phase 19 — Project items, placement modes, and project v5](phase-19-project-items-and-placement-modes.md)
 comes last because it is the heaviest and the only irreversibly risky one. It separates selected

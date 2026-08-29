@@ -105,7 +105,7 @@ describe("creator WebMCP shared editing flow", () => {
     });
     expect(invalidUpdate).toMatchObject({
       revision: 3,
-      validation: { valid: false, issueCount: 1 },
+      validation: { valid: false, issueCount: 2 },
     });
     expect(container.textContent).toContain("Agent rack is outside the room on x");
 
@@ -118,8 +118,13 @@ describe("creator WebMCP shared editing flow", () => {
     expect(validation).toMatchObject({
       revision: 3,
       valid: false,
-      issueCount: 1,
-      issues: [{ code: "OUTSIDE_ROOM", entityIds: ["obstacle_agent_rack"] }],
+      issueCount: 2,
+      issues: expect.arrayContaining([
+        expect.objectContaining({
+          code: "OUTSIDE_ROOM",
+          entityIds: ["obstacle_agent_rack"],
+        }),
+      ]),
     });
 
     const corrected = await execute<{
@@ -130,7 +135,7 @@ describe("creator WebMCP shared editing flow", () => {
       patch: { position: { xCm: 250, zCm: 20 } },
     });
     expect(corrected).toMatchObject({ revision: 4, validation: { valid: true } });
-    expect(container.textContent).toContain("No layout conflicts found");
+    expect(container.textContent).toContain("Access cannot be evaluated until the room has a door");
 
     fireEvent.click(screen.getByRole("button", { name: /Undo/ }));
     expect(container.textContent).toContain("Agent rack is outside the room on x");
@@ -140,7 +145,7 @@ describe("creator WebMCP shared editing flow", () => {
     );
 
     fireEvent.click(screen.getByRole("button", { name: /Redo/ }));
-    expect(container.textContent).toContain("No layout conflicts found");
+    expect(container.textContent).toContain("Access cannot be evaluated until the room has a door");
 
     const finalState = await execute<{
       revision: number;

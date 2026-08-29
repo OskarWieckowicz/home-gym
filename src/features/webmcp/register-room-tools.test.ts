@@ -71,8 +71,12 @@ describe("room WebMCP tool definitions", () => {
       .toContain("equipment placements");
     expect(tools.find(({ name }) => name === "validate_layout")?.description)
       .toContain("errors and warnings");
+    expect(tools.find(({ name }) => name === "validate_layout")?.description)
+      .toContain("100 cm");
+    expect(tools.find(({ name }) => name === "get_project_state")?.description)
+      .toContain("reachability");
     expect(tools.find(({ name }) => name === "place_product")?.description)
-      .toContain("validation.errorCount");
+      .toContain("Unreachable");
     expect(tools.find(({ name }) => name === "remove_product")?.description)
       .toContain("placement ID");
   });

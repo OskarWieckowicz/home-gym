@@ -12,6 +12,7 @@ import {
 } from "./room-tool-schemas";
 import {
   createRoomToolError,
+  serializeMutationBase,
   serializePlacement,
   serializeValidation,
   type RoomToolName,
@@ -82,13 +83,7 @@ function mutationBase(
   tool: PlacementToolName,
   result: Extract<DispatchResult, { ok: true }>,
 ) {
-  return {
-    ok: true as const,
-    tool,
-    changed: result.changed,
-    revision: result.revision,
-    affectedEntityIds: [...result.affectedEntityIds],
-  };
+  return serializeMutationBase(tool, result);
 }
 
 export function createPlaceProductHandler(store: ProjectStore) {

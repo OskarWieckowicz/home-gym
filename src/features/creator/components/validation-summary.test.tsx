@@ -21,8 +21,25 @@ function renderSummary(project: GymProject) {
 
 describe("ValidationSummary", () => {
   it("reports a clean layout only when there are no issues", () => {
-    renderSummary(createDefaultProject());
+    renderSummary({
+      ...createDefaultProject(),
+      wallElements: [{
+        id: "wall-element_door",
+        kind: "door",
+        name: "Door",
+        wall: "top",
+        offsetCm: 40,
+        widthCm: 90,
+      }],
+    });
     expect(screen.getByText("No layout conflicts found.")).toBeTruthy();
+  });
+
+  it("states the no-door case as missing input rather than a layout warning", () => {
+    renderSummary(createDefaultProject());
+    expect(screen.getByText(/Access cannot be evaluated until the room has a door/)).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "Warnings" })).toBeNull();
+    expect(screen.queryByText("No layout conflicts found.")).toBeNull();
   });
 
   it("separates warnings from a valid layout", () => {
@@ -30,6 +47,14 @@ describe("ValidationSummary", () => {
       ...createDefaultProject(),
       room: { widthCm: 600, depthCm: 600, heightCm: 250 },
       budget: 20_000,
+      wallElements: [{
+        id: "wall-element_door",
+        kind: "door",
+        name: "Door",
+        wall: "bottom",
+        offsetCm: 250,
+        widthCm: 90,
+      }],
       placements: [
         {
           id: "placement_cage",
@@ -67,7 +92,7 @@ describe("ValidationSummary", () => {
       }],
     });
 
-    expect(screen.getByText("1 error, 0 warnings")).toBeTruthy();
+    expect(screen.getByText("1 error, 1 warning")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Errors" })).toBeTruthy();
     expect(screen.getByText(/is outside the room/)).toBeTruthy();
   });
