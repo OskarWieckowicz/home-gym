@@ -51,13 +51,10 @@ Product scope and architecture live in the [product concept](../docs/PRODUCT_CON
 It pulls the single-placement mutation slice forward at the user's request while leaving layout
 suggestions and batch changes for a later phase.
 
-[Phase 15 — 3D scene shell and squat-rack vertical slice](phase-15-3d-scene-shell.md) is ready next.
-It loads the accepted rack in a read-only 3D room driven by the existing project store while every
-unmodeled object uses a deterministic geometric fallback.
-
-[Phase 16 — Product visual assets and model families](phase-16-product-visual-assets.md) is planned
-and waits behind the Phase 15 exit gate. It starts with the adjustable-bench gate, then builds a
-modular strength station and a deliberately small set of reusable MVP visual families.
+[Phase 16 — Product visual assets and model families](phase-16-product-visual-assets.md) is ready
+to execute after the accepted Phase 15 vertical slice. It starts with the adjustable-bench gate,
+then builds a modular strength station and a deliberately small set of reusable MVP visual
+families.
 
 ## Later queue
 

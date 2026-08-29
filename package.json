@@ -14,6 +14,7 @@
     "test:watch": "vitest",
     "dupes:check": "jscpd .",
     "check:file-lines": "node scripts/check-file-lines.mjs",
+    "assets:top-views": "node scripts/generate-product-top-views.mjs",
     "quality:quick": "npm run lint:check && npm run typecheck && npm run check:file-lines && npm run dupes:check",
     "agent:verify": "npm run lint:check && npm run typecheck && npm run test && npm run dupes:check && npm run check:file-lines"
   },

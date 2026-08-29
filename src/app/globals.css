@@ -226,8 +226,11 @@ body {
 .creator-plan-equipment.is-placement-disabled { pointer-events: none; }
 .creator-equipment-clearance { fill: var(--clearance-soft); stroke: var(--clearance); stroke-width: 1.5; stroke-dasharray: 6 4; }
 .creator-equipment-footprint { fill: #bfdbfe; stroke: var(--brand-strong); stroke-width: 2.5; }
-.creator-plan-equipment.is-selected .creator-equipment-footprint { stroke: var(--select); stroke-width: 5; }
-.creator-plan-equipment.is-invalid .creator-equipment-footprint { stroke: #dc2626; stroke-dasharray: 7 4; }
+.creator-plan-equipment.has-top-view .creator-equipment-footprint { fill: #eff6ff; stroke: none; }
+.creator-equipment-top-view { pointer-events: none; }
+.creator-equipment-outline { fill: none; pointer-events: none; stroke: var(--brand-strong); stroke-width: 2.5; }
+.creator-plan-equipment.is-selected :is(.creator-equipment-footprint, .creator-equipment-outline) { stroke: var(--select); stroke-width: 5; }
+.creator-plan-equipment.is-invalid :is(.creator-equipment-footprint, .creator-equipment-outline) { stroke: #dc2626; stroke-dasharray: 7 4; }
 .creator-equipment-label { pointer-events: none; fill: var(--ink); font-size: 0.7rem; font-weight: 800; text-anchor: middle; dominant-baseline: middle; }
 .creator-plan-equipment .creator-entity-mark { fill: #b91c1c; font-size: 0.85rem; font-weight: 900; }
 .creator-plan-wall-element { cursor: pointer; }

@@ -29,7 +29,7 @@ function Box({ box, color, opacity = 1 }: { readonly box: SceneBox; readonly col
   </mesh>;
 }
 
-function RackAsset({ placement, project }: { readonly placement: Placement; readonly project: GymProject }) {
+function EquipmentAsset({ placement, project }: { readonly placement: Placement; readonly project: GymProject }) {
   const asset = getVisualAsset(placement.productId);
   const { scene } = useGLTF(asset?.src ?? "");
   const cloned = useMemo(() => scene.clone(), [scene]);
@@ -37,7 +37,7 @@ function RackAsset({ placement, project }: { readonly placement: Placement; read
   const dimensions = findProductById(placement.productId)?.dimensions;
   if (!asset || !dimensions) throw new Error("Invalid visual asset mapping.");
   // The GLB is authored with a floor pivot and negative-Z forward direction.
-  return <primitive object={cloned} position={[position.x, position.y, position.z]} rotation={[0, (placement.rotation * Math.PI) / 180, 0]} scale={[1.016, 1, 1.04]} />;
+  return <primitive object={cloned} position={[position.x, position.y, position.z]} rotation={[0, (placement.rotation * Math.PI) / 180, 0]} scale={asset.scale} />;
 }
 
 function PlacementModel({ placement, project }: { readonly placement: Placement; readonly project: GymProject }) {
@@ -49,7 +49,7 @@ function PlacementModel({ placement, project }: { readonly placement: Placement;
     rotationY: (placement.rotation * Math.PI) / 180,
   };
   const fallback = <Box box={box} color="#64748b" />;
-  return getVisualAsset(placement.productId) ? <AssetBoundary fallback={fallback}><Suspense fallback={fallback}><RackAsset placement={placement} project={project} /></Suspense></AssetBoundary> : fallback;
+  return getVisualAsset(placement.productId) ? <AssetBoundary fallback={fallback}><Suspense fallback={fallback}><EquipmentAsset placement={placement} project={project} /></Suspense></AssetBoundary> : fallback;
 }
 
 function WallMarker({ element, project }: { readonly element: GymProject["wallElements"][number]; readonly project: GymProject }) {

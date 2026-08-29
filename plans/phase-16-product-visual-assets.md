@@ -85,14 +85,28 @@ Tier 1 is produced in small batches only after Tier 0 passes in the live room.
 
 ## Scope boundary
 
+### MVP simplification decision — 29 August 2026
+
+For the current MVP, an accepted procedural GLB, explicit runtime mapping, deterministic fallback,
+measured runtime cost, and a generated top-down SVG are sufficient visual-family evidence. The SVG
+is projected deterministically from the accepted GLB and displayed inside the catalog footprint;
+domain geometry remains the 2D hit target and fallback. Deterministic catalog base renders and
+five-angle capture sets are deferred to presentation polish. Existing catalog art or the
+intentional catalog fallback is acceptable.
+
+This decision supersedes catalog-render and multi-angle requirements in the adjustable-bench gate,
+task 7, render-specific tests, and corresponding three-representation exit criteria. It retains a
+narrow tested GLB-to-top-view pipeline. It does not relax GLB recognizability, bounds/pivot checks,
+explicit product-ID mapping, load fallback, runtime cost, provenance, or the rule that mesh
+geometry is not domain truth.
+
 Included:
 
 - an auditable mapping from every placeable product to an accepted family, variant, or fallback;
 - reusable procedural geometry helpers instead of copying the complete rack generator;
 - reproducible GLBs for Tier 0 and Tier 1 products;
 - a render-only strength-station composition fixture;
-- orthographic top-down PNGs with transparency;
-- deterministic three-quarter catalog base renders;
+- orthographic top-down SVGs projected deterministically from accepted GLBs;
 - scene and catalog integration through explicit product IDs;
 - optimization, provenance, visual review evidence, and missing-asset fallbacks.
 
@@ -185,11 +199,11 @@ that discrepancy before treating the rack as the dimensional reference for later
    adjustment mechanism, feet, handle, and wheels.
 2. Author one canonical displayed incline, while keeping the catalog footprint and stored product
    behaviour unchanged.
-3. Inspect the GLB in the live room from front, side, rear, top, and the default camera.
-4. Produce its top-down render and catalog base render from the accepted GLB.
-5. Approve recognizability at actual catalog-card and editor zoom sizes, bounds, pivot, orientation,
-   load fallback, and runtime cost before generating another family.
-6. If the bench fails two focused procedural revisions, pause batch work and evaluate one clearly
+3. Inspect the GLB in the live room and approve recognizability, bounds, pivot, orientation, load
+   fallback, and runtime cost before generating another family.
+4. Generate its deterministic transparent top-down SVG from the accepted GLB. Defer catalog-base
+   and five-angle evidence renders to presentation polish.
+5. If the bench fails two focused procedural revisions, pause batch work and evaluate one clearly
    licensed sourced model for this family only.
 
 ### 5. Complete and verify the Tier 0 strength station
@@ -218,15 +232,14 @@ Produce and approve no more than two new families per batch:
 After each batch, inspect actual room placement, fallback behaviour, catalog-card legibility,
 top-down legibility, measured asset cost, and complete-room performance before continuing.
 
-### 7. Generate the two derived render types
+### 7. Generate MVP top-down projections
 
-1. Use one deterministic lighting rig, camera convention, background, shadow treatment, crop, and
-   output size for all three-quarter catalog base renders.
-2. Use a true orthographic top camera, transparent background, canonical negative-Z forward
-   direction, tight non-clipping bounds, and no baked-in UI state for editor renders.
-3. Keep selection, collision, clearance, labels, and dimensions in application UI, not in PNGs.
-4. Permit controlled AI editing only for a small approved set of GLB-derived catalog renders. Save
-   the base render, edit prompt, model/tool version, and review note, and reject structural changes.
+1. Project accepted GLB triangles orthographically from positive Y into transparent SVG with
+   canonical negative-Z pointing toward the top.
+2. Preserve source material colors, deterministic ordering, safe static markup, and tight bounds.
+3. Keep selection, collision, clearance, labels, hit targets, and dimensions in application UI,
+   not in the generated SVG.
+4. Defer deterministic catalog-base rendering and any controlled AI polish until after the MVP.
 
 ### 8. Integrate explicit runtime mappings
 
@@ -247,8 +260,8 @@ top-down legibility, measured asset cost, and complete-room performance before c
   and iron plates have accepted Tier 1 visuals or an explicitly documented stop decision.
 - Every placeable catalog item has a manifest decision: accepted family/variant or geometric
   fallback; no asset is selected by product-name guessing.
-- Every accepted product has one GLB, one transparent top-down render, and one deterministic catalog
-  base render derived from the same model.
+- Every accepted MVP visual family has one reproducible GLB, one deterministic top-down SVG, and an
+  explicit runtime mapping or intentional fallback. Deterministic catalog-base renders are deferred.
 - The catalog remains the source of all spatial and commercial truth.
 - Bench/rack nesting is not silently enabled by weakening ordinary collision checks.
 - Missing or failed assets leave 2D editing, 3D preview, WebMCP, history, and validation usable.
@@ -266,8 +279,8 @@ top-down legibility, measured asset cost, and complete-room performance before c
    allowed family/variant values, and runtime-registry agreement.
 3. Add scene tests for each accepted mapping, family variant selection, and fallback on absent or
    failed assets.
-4. Add render-pipeline smoke tests that verify dimensions, alpha for top-down output, deterministic
-   filenames, and non-empty output.
+4. Add top-view projection tests that verify deterministic transparent SVG output, material colors,
+   canonical orientation, safe markup, and non-empty output.
 5. Manually review every new family from at least five camera angles and at actual catalog-card and
    editor sizes; record accept/revise/reject in the manifest or review document.
 6. Manually inspect the Tier 0 strength-station composition without treating it as a valid planner
@@ -295,10 +308,10 @@ top-down legibility, measured asset cost, and complete-room performance before c
 
 ## Exit gate
 
-Phase 16 ends when the Tier 0 strength slice and the approved Tier 1 families are reproducible,
-integrated, visually accepted in all three representations, covered by explicit manifest decisions,
-and safe under missing-asset failure. The complete-room measurement, `npm run agent:verify`, and
-`npm run build` must pass, and no domain rule may depend on mesh geometry.
+Phase 16 ends when the Tier 0 strength slice and the approved Tier 1 families have reproducible
+GLBs and top-down SVGs, intentional catalog art or fallbacks, explicit manifest decisions, and safe
+missing-asset behavior. The complete-room measurement, `npm run agent:verify`, and `npm run build`
+must pass, and no domain rule may depend on mesh geometry.
 
 If deadline pressure prevents all Tier 1 assets, exit only with Tier 0 plus at least one free-weight,
 one wall-mounted, and one cardio family; all remaining products must have intentional geometric and
