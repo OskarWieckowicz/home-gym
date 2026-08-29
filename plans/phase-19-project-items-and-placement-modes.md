@@ -13,12 +13,13 @@ placements rather than over everything the user intends to buy.
 ## Dependencies
 
 - Phase 17 use-zone semantics, severity, and the `ProjectAnalysis` shared read model.
-- Phase 18 access requirements and project version 4, if that phase shipped.
+- Phase 18b access requirements and project version 4, if that phase shipped. Phase 18a changes no
+  schema, so it has no effect on this migration either way.
 
 This phase is the heaviest and the most breaking of the three, and it is deliberately last. It
 carries the only irreversible risk in the group, because a bad migration destroys saved work.
 
-If Phase 18 was cut, this phase migrates v3 → v4 instead of v4 → v5. Everything else is unchanged.
+If Phase 18b was cut, this phase migrates v3 → v4 instead of v4 → v5. Everything else is unchanged.
 
 ## Scope boundary
 

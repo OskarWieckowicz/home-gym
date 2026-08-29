@@ -54,7 +54,9 @@ to execute after the accepted Phase 15 vertical slice. It starts with the adjust
 then builds a modular strength station and a deliberately small set of reusable MVP visual
 families.
 
-Phases 17 to 19 were originally drafted as one spatial-semantics phase. They are split because they
+Phases 17 to 19 were originally drafted as one spatial-semantics phase, and Phase 18 was later split
+again into 18a and 18b once it became clear that automatic reachability and named access
+requirements answer different questions and carry very different risk. They are split because they
 have independent dependencies and very different cost and risk, and because splitting them means an
 interrupted queue still leaves a coherent deployable boundary. They are ordered cheapest first, and
 the closed rack/bench station template from the original draft is rejected rather than deferred:
@@ -64,12 +66,20 @@ product pair, and products that ship as one physical unit stay catalog bundles.
 [Phase 17 — Use-zone semantics and issue severity](phase-17-use-zone-semantics-and-severity.md)
 is ready to execute after Phase 16. It renames `clearance` to `useZone`, splits validation results
 into errors and warnings so a bench in a rack's working area stops blocking the project, and
-introduces `analyzeProject` as the shared read model the next two phases extend. No schema change.
+introduces `analyzeProject` as the shared read model the later phases extend. No schema change.
 
-[Phase 18 — Access requirements and deterministic routing](phase-18-access-requirements-and-routing.md)
-follows Phase 17. It persists an access requirement as intent, derives the route deterministically
-after every mutation, and adds project version 4 through a migration that only appends an empty
-array. This is the designated cut line if the deadline tightens.
+[Phase 18a — Room reachability and the agent access contract](phase-18a-room-reachability.md)
+follows Phase 17. It derives, unconditionally and after every change, whether the room's doors still
+reach each other and whether equipment can still be stood in front of, reports unreachable entities
+as errors, names what a single change broke or restored, and closes the gap that lets an agent fill
+a room it cannot see until nothing is reachable. No schema change and no migration.
+
+[Phase 18b — Access requirements and deterministic routing](phase-18b-access-requirements-and-routing.md)
+follows Phase 18a and reuses its grid. It persists an access requirement as intent, derives the
+route deterministically after every mutation, shows it in the plan, adds a stateless `check_access`
+question tool, and adds project version 4 through a migration that only appends an empty array. This
+is the designated cut line if the deadline tightens; Phase 18a is not, because it carries the
+behaviour that keeps agent-driven layouts usable.
 
 [Phase 19 — Project items, placement modes, and project v5](phase-19-project-items-and-placement-modes.md)
 comes last because it is the heaviest and the only irreversibly risky one. It separates selected
@@ -83,8 +93,8 @@ plans should use the evidence and decisions produced by earlier work rather than
 
 | Order | Phase | Depends on | Exit gate |
 |---|---|---|---|
-| 1 | Phase 20 — 3D room preview completion | Phases 15–17 | The scene shell integrates the completed asset families, placement state, validation presentation, selection, and representative complete-room performance without becoming the editing or validation source of truth. It must degrade cleanly if Phase 18 or 19 was cut. |
-| 2 | Phase 21 — WebMCP placement suggestions and batch changes | Phase 17 | The agent can generate deterministic placement candidates, reject error-producing layouts, score warnings, treat any blocked required route as a hard failure, and apply a validated group of layout changes with structured results. |
+| 1 | Phase 20 — 3D room preview completion | Phases 15–17 | The scene shell integrates the completed asset families, placement state, validation presentation, selection, and representative complete-room performance without becoming the editing or validation source of truth. It must degrade cleanly if Phase 18b or 19 was cut. |
+| 2 | Phase 21 — WebMCP placement suggestions and batch changes | Phases 17 and 18a | The agent can evaluate hypothetical placements without mutating state, generate deterministic candidates, reject error-producing layouts, score warnings, treat an unreachable entity or a blocked required route as a hard failure, and apply a validated group of layout changes with structured results. |
 | 3 | Phase 22 — Shared-editing demo and activity feed | Phases 20 and 21 | The public demo proves the complete human-change → agent-read → agent-change → validation → correction loop in the finished editor and makes tool activity visible. |
 | 4 | Phase 23 — Landing page and catalog polish | Phases 16 and 22 | The landing page and catalog match their specifications and use final product assets plus real screenshots and figures from the finished shared-editing demo. |
 | 5 | Phase 24 — Submission | Phase 23 | The public URL, repository, English description, sub-three-minute video, and Devpost checklist are complete and verified while logged out. |

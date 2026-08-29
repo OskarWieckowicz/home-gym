@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { createDefaultProject } from "@/features/project/defaults";
-import { obstacleToScene, positionToScene, rotateDimensions, roomToScene, rotationToRadians } from "./scene-transform";
+import {
+  equipmentBoxToScene,
+  equipmentUseZoneToScene,
+  obstacleToScene,
+  placementCenterToScene,
+  positionToScene,
+  rotateDimensions,
+  roomToScene,
+  rotationToRadians,
+} from "./scene-transform";
 
 describe("scene transforms", () => {
   const room = createDefaultProject().room;
@@ -18,6 +27,52 @@ describe("scene transforms", () => {
     const box = obstacleToScene({ id: "obstacle_box", kind: "obstacle", name: "Box", position: { xCm: 50, zCm: 60 }, dimensions: { widthCm: 100, depthCm: 40, heightCm: 200 }, rotation: 90, locked: false }, room);
     expect(box.position).toEqual({ x: -1.3, y: 1, z: -0.5 });
     expect(box.dimensions).toEqual({ x: 0.4, y: 2, z: 1 });
+  });
+
+  it("places equipment solids on the center of the domain footprint", () => {
+    const box = equipmentBoxToScene(
+      { position: { xCm: 0, zCm: 0 }, rotation: 0 },
+      { widthCm: 100, depthCm: 80, heightCm: 200 },
+      room,
+    );
+    expect(box.position).toEqual({ x: -1.5, y: 1, z: -1.2 });
+    expect(box.dimensions).toEqual({ x: 1, y: 2, z: 0.8 });
+    expect(box.position.x - box.dimensions.x / 2).toBeCloseTo(-2);
+    expect(box.position.z - box.dimensions.z / 2).toBeCloseTo(-1.6);
+  });
+
+  it("keeps a wall-flush rotated equipment solid inside the room AABB", () => {
+    const box = equipmentBoxToScene(
+      { position: { xCm: 0, zCm: 0 }, rotation: 90 },
+      { widthCm: 100, depthCm: 40, heightCm: 200 },
+      room,
+    );
+    expect(box.dimensions).toEqual({ x: 0.4, y: 2, z: 1 });
+    expect(box.position.x - box.dimensions.x / 2).toBeCloseTo(-2);
+    expect(box.position.z - box.dimensions.z / 2).toBeCloseTo(-1.6);
+  });
+
+  it("anchors generated equipment meshes at the same footprint center as the catalog solid", () => {
+    const placement = { position: { xCm: 35, zCm: 50 }, rotation: 0 as const };
+    const dimensions = { widthCm: 66, depthCm: 142, heightCm: 46 };
+    const solid = equipmentBoxToScene(placement, dimensions, room);
+    const mesh = placementCenterToScene(placement, dimensions, room);
+    expect(mesh.x).toBeCloseTo(solid.position.x);
+    expect(mesh.z).toBeCloseTo(solid.position.z);
+    expect(mesh.y).toBe(0);
+  });
+
+  it("draws a use-zone overlay that keeps the physical gap to the wall", () => {
+    const placement = { position: { xCm: 35, zCm: 20 }, rotation: 0 as const };
+    const product = {
+      dimensions: { widthCm: 66, depthCm: 142 },
+      useZone: { frontCm: 20, backCm: 20, leftCm: 35, rightCm: 35 },
+    };
+    const solid = equipmentBoxToScene(placement, { ...product.dimensions, heightCm: 46 }, room);
+    const overlay = equipmentUseZoneToScene(placement, product, room);
+    expect(overlay.position.x - overlay.dimensions.x / 2).toBeCloseTo(-2);
+    expect(solid.position.x - solid.dimensions.x / 2).toBeCloseTo(-1.65);
+    expect(overlay.dimensions.x).toBeGreaterThan(solid.dimensions.x);
   });
 
   it("keeps a corner obstacle flush with the room walls", () => {

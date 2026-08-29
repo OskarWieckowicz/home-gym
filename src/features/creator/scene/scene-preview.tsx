@@ -6,7 +6,16 @@ import { Component, Suspense, useMemo, type ErrorInfo, type ReactNode } from "re
 import type { GymProject, Placement } from "@/features/project/schemas/project";
 import { findProductById } from "@/features/catalog/queries/catalog";
 import { getVisualAsset } from "./visual-assets";
-import { obstacleToScene, positionToScene, roomToScene, wallElementRotation, wallElementToScene, type SceneBox } from "./scene-transform";
+import {
+  equipmentBoxToScene,
+  equipmentUseZoneToScene,
+  obstacleToScene,
+  placementCenterToScene,
+  roomToScene,
+  wallElementRotation,
+  wallElementToScene,
+  type SceneBox,
+} from "./scene-transform";
 
 const WALL_OPACITY = 0.32;
 const FLOOR_RENDER_OFFSET = -0.003;
@@ -25,7 +34,14 @@ class AssetBoundary extends Component<AssetBoundaryProps, AssetBoundaryState> {
 function Box({ box, color, opacity = 1 }: { readonly box: SceneBox; readonly color: string; readonly opacity?: number }) {
   return <mesh position={[box.position.x, box.position.y, box.position.z]} rotation={[0, box.rotationY, 0]}>
     <boxGeometry args={[box.dimensions.x, box.dimensions.y, box.dimensions.z]} />
-    <meshStandardMaterial color={color} transparent={opacity < 1} opacity={opacity} roughness={0.8} />
+    <meshStandardMaterial color={color} transparent={opacity < 1} opacity={opacity} roughness={0.8} depthWrite={opacity >= 1} />
+  </mesh>;
+}
+
+function UseZoneOverlay({ box }: { readonly box: SceneBox }) {
+  return <mesh position={[box.position.x, box.position.y, box.position.z]} renderOrder={1}>
+    <boxGeometry args={[box.dimensions.x, box.dimensions.y, box.dimensions.z]} />
+    <meshBasicMaterial color="#3b82f6" depthWrite={false} opacity={0.22} transparent />
   </mesh>;
 }
 
@@ -33,23 +49,21 @@ function EquipmentAsset({ placement, project }: { readonly placement: Placement;
   const asset = getVisualAsset(placement.productId);
   const { scene } = useGLTF(asset?.src ?? "");
   const cloned = useMemo(() => scene.clone(), [scene]);
-  const position = positionToScene(placement.position, project.room);
   const dimensions = findProductById(placement.productId)?.dimensions;
   if (!asset || !dimensions) throw new Error("Invalid visual asset mapping.");
-  // The GLB is authored with a floor pivot and negative-Z forward direction.
+  const position = placementCenterToScene(placement, dimensions, project.room);
+  // The GLB is authored with a floor pivot at the envelope center and negative-Z forward.
   return <primitive object={cloned} position={[position.x, position.y, position.z]} rotation={[0, (placement.rotation * Math.PI) / 180, 0]} scale={asset.scale} />;
 }
 
 function PlacementModel({ placement, project }: { readonly placement: Placement; readonly project: GymProject }) {
   const product = findProductById(placement.productId);
   if (!product) return null;
-  const box: SceneBox = {
-    position: positionToScene(placement.position, project.room, product.dimensions.heightCm / 2),
-    dimensions: { x: product.dimensions.widthCm / 100, y: product.dimensions.heightCm / 100, z: product.dimensions.depthCm / 100 },
-    rotationY: (placement.rotation * Math.PI) / 180,
-  };
-  const fallback = <Box box={box} color="#64748b" />;
-  return getVisualAsset(placement.productId) ? <AssetBoundary fallback={fallback}><Suspense fallback={fallback}><EquipmentAsset placement={placement} project={project} /></Suspense></AssetBoundary> : fallback;
+  const fallback = <Box box={equipmentBoxToScene(placement, product.dimensions, project.room)} color="#64748b" />;
+  return <group>
+    <UseZoneOverlay box={equipmentUseZoneToScene(placement, product, project.room)} />
+    {getVisualAsset(placement.productId) ? <AssetBoundary fallback={fallback}><Suspense fallback={fallback}><EquipmentAsset placement={placement} project={project} /></Suspense></AssetBoundary> : fallback}
+  </group>;
 }
 
 function WallMarker({ element, project }: { readonly element: GymProject["wallElements"][number]; readonly project: GymProject }) {

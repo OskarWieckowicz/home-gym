@@ -51,7 +51,7 @@ are modeled as catalog bundles, which already works: `product_summit_strength_st
 
 - station templates, product roles, or any user-controlled overlap exception;
 - project items, placement modes, or any project schema version change (Phase 19);
-- access requirements and route analysis (Phase 18);
+- room reachability (Phase 18a), access requirements, and route analysis (Phase 18b);
 - polygon use zones, exercise-specific zone shapes, or open-frame rack geometry;
 - changing which relationships are checked, beyond the severities listed below;
 - placement suggestions or batch layout changes.
@@ -95,9 +95,10 @@ type ProjectAnalysis = {
 };
 ```
 
-`analyzeProject` is pure and free of React, Zustand, and Three.js. Phase 18 adds `routes` and
-Phase 19 adds resolved item facts to this same type. Keep `validateProject` as a thin compatibility
-wrapper only if that avoids a broad one-step rewrite inside this phase.
+`analyzeProject` is pure and free of React, Zustand, and Three.js. Phase 18a adds access facts,
+Phase 18b adds `routes`, and Phase 19 adds resolved item facts to this same type. Keep
+`validateProject` as a thin compatibility wrapper only if that avoids a broad one-step rewrite
+inside this phase.
 
 ### 4. A successful mutation may leave the project invalid
 

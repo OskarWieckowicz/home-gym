@@ -1,11 +1,18 @@
-import { createRectangleFootprint } from "@/features/geometry/rectangles";
-import type { Dimensions as Dimensions3D } from "@/features/project/schemas/geometry";
+import { createEquipmentFootprints, type ProductGeometryDescriptor } from "@/features/geometry/equipment-footprints";
+import { createRectangleFootprint, type RectangleFootprint } from "@/features/geometry/rectangles";
+import type { Dimensions as Dimensions3D, Rotation } from "@/features/project/schemas/geometry";
 import type { Obstacle, Room, WallElement } from "@/features/project/schemas/project";
 
 export type SceneVector3 = { readonly x: number; readonly y: number; readonly z: number };
 export type SceneBox = { readonly position: SceneVector3; readonly dimensions: SceneVector3; readonly rotationY: number };
+export type PlacementPose = {
+  readonly position: { readonly xCm: number; readonly zCm: number };
+  readonly rotation: Rotation;
+};
 
 const CM_TO_M = 0.01;
+const FLOOR_OVERLAY_THICKNESS_M = 0.012;
+const USE_ZONE_HEIGHT_CM = 0.6;
 
 export function centimetersToMeters(valueCm: number): number {
   return valueCm * CM_TO_M;
@@ -40,15 +47,69 @@ export function positionToScene(position: { xCm: number; zCm: number }, room: Ro
   };
 }
 
+function footprintCenter(footprint: Pick<RectangleFootprint, "minX" | "minZ" | "widthCm" | "depthCm">) {
+  return { xCm: footprint.minX + footprint.widthCm / 2, zCm: footprint.minZ + footprint.depthCm / 2 };
+}
+
+export function footprintCenterToScene(
+  footprint: Pick<RectangleFootprint, "minX" | "minZ" | "widthCm" | "depthCm">,
+  room: Room,
+  heightCm = 0,
+): SceneVector3 {
+  return positionToScene(footprintCenter(footprint), room, heightCm);
+}
+
+export function placementCenterToScene(
+  placement: PlacementPose,
+  dimensions: Pick<Dimensions3D, "widthCm" | "depthCm">,
+  room: Room,
+  heightCm = 0,
+): SceneVector3 {
+  return footprintCenterToScene(
+    createRectangleFootprint(placement.position, dimensions, placement.rotation),
+    room,
+    heightCm,
+  );
+}
+
+export function equipmentBoxToScene(
+  placement: PlacementPose,
+  dimensions: Dimensions3D,
+  room: Room,
+): SceneBox {
+  return {
+    position: placementCenterToScene(placement, dimensions, room, dimensions.heightCm / 2),
+    dimensions: rotateDimensions(dimensions, placement.rotation),
+    rotationY: 0,
+  };
+}
+
+export function equipmentUseZoneToScene(
+  placement: PlacementPose,
+  product: ProductGeometryDescriptor,
+  room: Room,
+): SceneBox {
+  const { useZone } = createEquipmentFootprints(placement, product);
+  return {
+    position: footprintCenterToScene(useZone, room, USE_ZONE_HEIGHT_CM),
+    dimensions: {
+      x: centimetersToMeters(useZone.widthCm),
+      y: FLOOR_OVERLAY_THICKNESS_M,
+      z: centimetersToMeters(useZone.depthCm),
+    },
+    rotationY: 0,
+  };
+}
+
 export function obstacleToScene(obstacle: Obstacle, room: Room): SceneBox {
   const footprint = createRectangleFootprint(obstacle.position, obstacle.dimensions, obstacle.rotation);
   const dimensions = obstacle.kind === "obstacle"
     ? rotateDimensions(obstacle.dimensions, obstacle.rotation)
-    : { x: centimetersToMeters(footprint.widthCm), y: 0.012, z: centimetersToMeters(footprint.depthCm) };
+    : { x: centimetersToMeters(footprint.widthCm), y: FLOOR_OVERLAY_THICKNESS_M, z: centimetersToMeters(footprint.depthCm) };
   return {
     // Domain position is the min-corner; Three.js boxGeometry is centered on mesh.position.
-    position: positionToScene(
-      { xCm: footprint.minX + footprint.widthCm / 2, zCm: footprint.minZ + footprint.depthCm / 2 },
+    position: footprintCenterToScene(
+      footprint,
       room,
       obstacle.kind === "obstacle" ? obstacle.dimensions.heightCm / 2 : 0.006,
     ),
