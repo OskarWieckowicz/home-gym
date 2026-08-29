@@ -27,7 +27,8 @@ the project version, persistence, import, or export.
 ### Included
 
 - a deterministic occupancy grid, clearance map, and connected-component labelling in
-  `src/features/geometry/`;
+  `src/features/geometry/`, with a blocker set limited to solid geometry so that use zones and
+  unavailable zones stay walkable;
 - reachability facts derived from doors and attached to `ProjectAnalysis`;
 - new issue codes with the severities in the table below;
 - an explicit "access cannot be evaluated" state when the project has no door;
@@ -45,6 +46,8 @@ the project version, persistence, import, or export.
 - hypothetical "what if I place it here" evaluation, which belongs with placement candidates in
   Phase 21;
 - door swing arcs, hinge direction, and automatically generated unavailable zones;
+- automatic detection that everyday traffic crosses a use zone or an unavailable zone, which needs a
+  second labelling and is only reported for declared routes in Phase 18b;
 - navigation meshes, irregular rooms, and arbitrary rotation angles;
 - any command that blocks, relocates, or refuses a placement because of access;
 - project schema changes, a new project version, or new persisted fields;
@@ -63,7 +66,45 @@ The agent is never told what to do about the result. It receives a fact and inte
 keeps the split required by the repository invariants — deterministic geometry in the engine,
 interpretation in the agent.
 
-### 2. Two constants, not a project setting
+### 2. Only solid geometry blocks a person
+
+A cell is blocked when something with a height occupies it: the room boundary, an equipment physical
+footprint, or a physical obstacle. Use zones and unavailable zones are traversable.
+
+The project schema already draws this line. `physicalObstacleSchema` carries `dimensions` with
+`heightCm`, while `unavailableZoneSchema` uses `footprintDimensionsSchema` and has no height at all.
+A rectangle without a height is a marking on the floor, not something a walking person collides
+with, so height is the existing and sufficient signal for solidity.
+
+The two traversable kinds mean different things and both are genuinely walkable:
+
+- A **use zone** is the empty space needed to operate equipment, which Phase 17 established is not a
+  forbidden region. You walk across the front of a rack freely; you simply should not stand there
+  while someone is mid-set.
+- An **unavailable zone** means "do not put equipment here". Its everyday uses are the swing area of
+  a door, access to a radiator, access to a window, and floor reserved for something else. A person
+  walks through all of them, and through a door swing area they must.
+
+Treating unavailable zones as solid would be actively harmful rather than merely conservative.
+`docs/AGENT_HOME_GYM_WORKFLOW_PROMPT.md` instructs the agent in stage 2 to add unavailable floor
+zones, and in practice it places them at doors. Since doors seed the search, a solid interpretation
+would report `DOOR_BLOCKED` in nearly every agent-modelled room and turn the safety net into a
+false-alarm generator, which is the fastest way to get a check ignored.
+
+Anything that genuinely cannot be walked through — a stairwell opening, a permanently parked bike —
+is modelled as a physical obstacle with a height. That option already exists and the editor copy
+should say so where the two kinds are offered.
+
+This also preserves the existing manual workaround for protecting a passage: a hand-drawn
+unavailable zone still keeps equipment out of a corridor, and the walking check now passes straight
+through it, which is what the person drawing it intended.
+
+The accepted consequence is that this phase never reports traffic crossing a use zone or a reserved
+area. Reporting that requires comparing a second labelling computed with those areas excluded, and
+for a declared route it is Phase 18b's `ACCESS_PATH_CROSSES_USE_ZONE`. Automatic crossing detection
+is deliberately out of scope here.
+
+### 3. Two constants, not a project setting
 
 ```ts
 const PASSABLE_WIDTH_CM = 55; // below this, a person does not get through
@@ -80,7 +121,7 @@ boolean: reachable comfortably, reachable but tight, or unreachable. The two sta
 running the same labelling twice, once per threshold. An exact narrowest-point measurement needs a
 concrete route and therefore belongs to Phase 18b.
 
-### 3. Unreachable is an error; tight is a warning
+### 4. Unreachable is an error; tight is a warning
 
 `docs/AGENT_HOME_GYM_WORKFLOW_PROMPT.md` currently instructs the agent that warnings mean a
 legitimate trade-off that must not be treated as a broken layout. Reporting an unwalkable room at
@@ -98,13 +139,14 @@ it ignored the signal. Equipment that cannot be reached is not a trade-off, it i
 
 A physical obstacle stays advisory because obstacles legitimately include columns, radiators, and
 niches that nobody needs to approach, and placing a rack tightly against a column is a normal
-layout, not an error. Unavailable zones are not access targets at all.
+layout, not an error. Following decision 2, unavailable zones are neither blockers nor targets, so
+no row of this table can be triggered by drawing one.
 
 `ACCESS_NOT_EVALUATED` is a warning only because the severity vocabulary has two values. Its copy
 must read as missing input rather than as an accepted trade-off, in both the editor and the tool
 result.
 
-### 4. Doors seed the search and are exempt from the width threshold
+### 5. Doors seed the search and are exempt from the width threshold
 
 The check judges what equipment does to the room, not what the building is. A 70 cm door is a fact
 of the flat, so door seed cells are exempt from the clearance threshold and count as blocked only
@@ -112,7 +154,7 @@ when something physically covers them. Propagation away from the seeds obeys the
 Judging a door opening against a required width is Phase 18b's job, where the user states that width
 explicitly.
 
-### 5. Target definitions are fixed and deterministic
+### 6. Target definitions are fixed and deterministic
 
 - **Door** — the grid cells immediately inside its wall opening.
 - **Placement with declared use-zone margins** — the cells inside its use-zone rectangle. A use zone
@@ -121,7 +163,8 @@ explicitly.
 - **Placement without margins** — the cells within `REACH_CM` of its physical rectangle, because
   products such as plates declare no use zone and would otherwise be unreachable by construction.
 - **Physical obstacle** — the cells within `REACH_CM` of its rectangle.
-- **Unavailable zone** — not a target.
+- **Unavailable zone** — not a target. It is traversable floor with a rule attached to it, not an
+  object anybody needs to walk up to.
 
 A target is reachable when at least one of its cells belongs to a labelled component that contains
 at least one door seed.
@@ -133,14 +176,15 @@ at least one door seed.
 1. Add `occupancy-grid.ts` in `src/features/geometry/`: a 10 cm grid matching the editor's existing
    snap, indexed row-major by z then x, with room dimensions rounded up and any partial boundary
    cell marked blocked.
-2. Mark as blocked: cells outside the room, equipment physical footprints, physical obstacles, and
-   unavailable zones. Use zones stay traversable, since they are empty operating space.
+2. Mark as blocked exactly the solid geometry of decision 2: cells outside the room, equipment
+   physical footprints, and physical obstacles. Use zones and unavailable zones stay traversable and
+   must not appear in the blocker set under any option or flag.
 3. Add `clearance-map.ts`: a deterministic integer distance transform from blocked cells. A two-pass
    chamfer with 3/4 weights is the default choice; whatever is used must be documented as an
    approximation of Euclidean distance and covered by tests.
 4. Add `reachability.ts`: threshold the clearance map at half the requested width, label connected
    components in scan order, and expose component lookup by cell.
-5. Add `access-targets.ts` implementing decision 5, and `access-facts.ts` producing one fact per
+5. Add `access-targets.ts` implementing decision 6, and `access-facts.ts` producing one fact per
    target with state `comfortable`, `tight`, or `unreachable`.
 
 Import no React, Zustand, or Three.js in any of these modules. Keep each well under the 500-line
@@ -156,7 +200,7 @@ move.
    `evaluated` flag carrying the reason when it is false.
 2. Add `validate-access.ts` next to the existing rule modules and call it from `analyzeProject`,
    preserving the existing `compareIssues` ordering.
-3. Add the six codes from decision 3 to `VALIDATION_ISSUE_CODES` and their issue types to
+3. Add the six codes from decision 4 to `VALIDATION_ISSUE_CODES` and their issue types to
    `validation-issues.ts`, keeping `entityIds` sorted for pair issues.
 4. Skip every target check when there is no door and emit `ACCESS_NOT_EVALUATED` exactly once.
 
@@ -218,6 +262,11 @@ accessible labels do not announce a warned entity as an error.
 - A project without doors reports exactly one `ACCESS_NOT_EVALUATED` and no target issues.
 - A door narrower than `PASSABLE_WIDTH_CM` does not by itself produce an issue.
 - A door covered by equipment reports `DOOR_BLOCKED`.
+- An unavailable zone drawn across a doorway produces no access issue at all.
+- An unavailable zone drawn across the only corridor produces no access issue at all.
+- A use zone lying across the only corridor produces no access issue at all.
+- Replacing that unavailable zone with a physical obstacle of the same footprint does produce one,
+  proving the solidity distinction is what decides passability.
 - A successful mutation names the entities it made unreachable and those it restored.
 - Repeated analysis of an unchanged project returns equivalent structured access data.
 - The project schema, project version, persistence, import, and export are untouched.
@@ -228,18 +277,23 @@ accessible labels do not announce a warned entity as an error.
 
 ### Narrow automated checks
 
-1. Grid tests for rounding, partial boundary cells, blocker marking, and traversable use zones.
+1. Grid tests for rounding, partial boundary cells, and blocker marking, including explicit cases
+   proving that use zones and unavailable zones never enter the blocker set while a physical
+   obstacle with the same footprint does.
 2. Clearance-map tests for the documented approximation, symmetry, and integer arithmetic.
 3. Component-labelling tests for scan-order determinism and for two rooms separated by equipment.
 4. Target tests for all four target kinds, all four rotations, zero-margin products, and doors on
    each of the four walls.
 5. Analysis tests for every row of the severity table, the no-door case, stable ordering alongside
    existing issues, purity, and determinism.
-6. Command tests for the access impact on break, restore, no-op, and failure, and for undo and redo
+6. Traversability regression tests: an unavailable zone covering a doorway, an unavailable zone
+   sealing the only corridor, and a use zone spanning the only corridor each leave the project free
+   of access issues, while the same footprint modelled as a physical obstacle reports one.
+7. Command tests for the access impact on break, restore, no-op, and failure, and for undo and redo
    reporting analysis without an impact.
-7. WebMCP tests for the serialized access block, the `issueCounts` keys, detached results, and the
+8. WebMCP tests for the serialized access block, the `issueCounts` keys, detached results, and the
    error-only `valid` derivation.
-8. Component tests for the new entity states, the summary copy, and the no-door message.
+9. Component tests for the new entity states, the summary copy, and the no-door message.
 
 ### Manual scenario
 
@@ -248,8 +302,11 @@ accessible labels do not announce a warned entity as an error.
    the named access impact.
 3. Move the equipment aside and confirm the restored impact.
 4. Wall a bench in behind a rack and confirm `USE_ZONE_UNREACHABLE` on the bench alone.
-5. Remove both doors and confirm the evaluation stops with a single explicit message.
-6. Ask an agent to fill the room with equipment and confirm it reports the blockage from the tool
+5. Draw an unavailable zone over the entrance doorway, as an agent does when reserving door swing
+   space, and confirm nothing is reported. Convert the same rectangle into a physical obstacle and
+   confirm the door is now reported as blocked.
+6. Remove both doors and confirm the evaluation stops with a single explicit message.
+7. Ask an agent to fill the room with equipment and confirm it reports the blockage from the tool
    result rather than declaring success.
 
 ### Validation ladder
@@ -263,7 +320,8 @@ accessible labels do not announce a warned entity as an error.
 
 ## Exit gate
 
-Phase 18a is complete when reachability is derived unconditionally from current geometry, the
+Phase 18a is complete when reachability is derived unconditionally from current geometry, only solid
+geometry blocks a person and that is proven by the traversability regression tests, the
 severity table is implemented and tested, the no-door state is explicit, every mutation reports what
 it broke or restored, the agent contract and workflow prompt exclude unreachable entities from the
 trade-off rule, the editor presents the new issues through its existing surfaces, and the canonical

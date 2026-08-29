@@ -33,9 +33,9 @@ This phase does not depend on Phase 19. It reads placements as they exist today.
 - support door endpoints and explicit floor-target endpoints;
 - derive the route deterministically on the Phase 18a grid with a fixed neighbour and tie-break
   order;
-- run a two-pass search that first avoids use zones and then allows them as traversable;
-- report `clear`, `crosses-use-zone`, or `blocked` with a derived polyline and the narrowest width
-  along the route;
+- run a two-pass search that first avoids reserved areas and then allows them as traversable;
+- report `clear`, `crosses-reserved-area`, or `blocked` with a derived polyline and the narrowest
+  width along the route;
 - add project version 4 with a migration that only adds an empty `accessRequirements` array;
 - extend `ProjectAnalysis` with resolved routes next to the Phase 18a access facts;
 - add editor creation, inspection, and overlay for requirements and their current routes;
@@ -83,31 +83,47 @@ deterministic engine instead of interpreting it.
 ### 2. Routing rules
 
 1. Reuse the Phase 18a grid, clearance map, and blocker rules. Do not introduce a second occupancy
-   model.
+   model, and do not widen the blocker set: only solid geometry blocks a person here too.
 2. Threshold the clearance map at half the requested width rather than expanding blockers per
    requirement, so one map serves every width.
 3. Search with a fixed neighbour order and a fixed tie-break rule.
 4. Convert a door into an interior portal centred on its wall opening. Reject an opening narrower
    than the requested width with a structured error rather than silently routing through it. This is
    the check Phase 18a deliberately omits, because here the width is stated by the user.
-5. First search for a path that also avoids every use zone.
-6. If none exists, search again treating use zones as traversable weighted areas.
-7. Return the status, the path length, the narrowest width along the route, the IDs of any crossed
-   use zones, and a simplified polyline for display.
-8. Emit `ACCESS_PATH_CROSSES_USE_ZONE` as a warning and `ACCESS_PATH_BLOCKED` as an error.
+5. First search for a path that also avoids every **reserved area**: every use zone and every
+   unavailable zone.
+6. If none exists, search again treating reserved areas as traversable weighted areas, so the route
+   crosses as little of them as possible.
+7. Return the status, the path length, the narrowest width along the route, the IDs and kinds of any
+   crossed reserved areas, and a simplified polyline for display.
+8. Emit `ACCESS_PATH_CROSSES_USE_ZONE` and `ACCESS_PATH_CROSSES_UNAVAILABLE_ZONE` as warnings and
+   `ACCESS_PATH_BLOCKED` as an error.
 9. Recalculate after every mutation. Never serialize the polyline.
 
 The route proves connectivity at the chosen grid resolution. It is not a centimetre-exact
 architectural guarantee, and the copy must say so.
 
-### 3. `check_access` is a question, not an entity
+### 3. Reserved areas are soft, never solid
+
+Phase 18a establishes that only geometry with a height blocks a person: use zones and unavailable
+zones are walkable floor carrying a rule, not obstructions. This phase must not quietly reverse that
+by promoting either of them back into the blocker set, because an unavailable zone drawn across a
+doorway to reserve door swing space would then make every requirement through that door fail.
+
+What changes here is preference, not passability. A declared route should avoid the space in front
+of a rack and the floor someone reserved for another purpose, but when there is no alternative it
+should say so rather than claim no passage exists. Both kinds therefore share one mechanism — the
+avoid-then-allow pass — and differ only in the code they report, so the user can tell "the route
+runs through your squat area" from "the route runs through the floor you set aside".
+
+### 4. `check_access` is a question, not an entity
 
 A read-only tool answering "is there a path of this width between these two things" lets an agent
 interrogate the geometry without creating anything, without touching history, and without the
 project growing state that only the agent understands. It persists nothing and is not required for
 correctness: Phase 18a already pushes access facts into every result whether or not the agent asks.
 
-### 4. Project version 4 is deliberately trivial
+### 5. Project version 4 is deliberately trivial
 
 The v3 → v4 migration adds `accessRequirements: []` and changes nothing else, matching the shape of
 the existing `migrateV2ToV3`. Keeping it separate from the Phase 19 item split means each migration
@@ -138,9 +154,10 @@ elements, placements, budget, or training goals; canonical v4 JSON round-trips.
    `src/features/geometry/`, importing no React, Zustand, or Three.js.
 2. Implement the deterministic search, path reconstruction, narrowest-width measurement, and display
    simplification as separate modules so none approaches the 500-line limit.
-3. Implement the two-pass avoid-then-allow strategy over use zones.
-4. Return a structured result carrying status, polyline, length, narrowest width, and crossed
-   use-zone entity IDs.
+3. Implement the two-pass avoid-then-allow strategy over reserved areas, collecting use zones and
+   unavailable zones into one soft-area set rather than two parallel code paths.
+4. Return a structured result carrying status, polyline, length, narrowest width, and the crossed
+   reserved areas with their entity IDs and kinds.
 
 Checkpoint: the same project produces byte-for-byte equivalent route data on repeated calls, and
 moving one blocker deterministically changes or restores the route.
@@ -148,14 +165,15 @@ moving one blocker deterministically changes or restores the route.
 ### 3. Integrate routes into the shared analysis
 
 1. Extend `ProjectAnalysis` with a resolved route per requirement, alongside the Phase 18a facts.
-2. Emit `ACCESS_PATH_CROSSES_USE_ZONE` warnings and `ACCESS_PATH_BLOCKED` errors into the existing
-   sorted issue list, preserving the stable ordering rule.
+2. Emit `ACCESS_PATH_CROSSES_USE_ZONE` and `ACCESS_PATH_CROSSES_UNAVAILABLE_ZONE` warnings and
+   `ACCESS_PATH_BLOCKED` errors into the existing sorted issue list, preserving the stable ordering
+   rule.
 3. Add structured issues for a dangling endpoint, an endpoint referencing a window, an endpoint
    buried in solid geometry, and a door opening narrower than the requested width.
 4. Extend the Phase 18a access impact so a change that breaks a required route names it too.
 
-Checkpoint: a blocked required route makes the project invalid; a route that only crosses a use
-zone leaves it valid with a warning.
+Checkpoint: a blocked required route makes the project invalid; a route that only crosses a reserved
+area leaves it valid with a warning naming the area it crossed.
 
 ### 4. Add commands and editor controls
 
@@ -175,14 +193,17 @@ and see it fail; undo restores both the layout and the reported route.
 ### 5. Extend the WebMCP contract
 
 1. Add narrowly scoped tools to create, update, remove, and list access requirements, plus
-   `check_access` returning reachability, narrowest width, length, and crossed use zones for an
+   `check_access` returning reachability, narrowest width, length, and crossed reserved areas for an
    ad-hoc pair. Do not add a generic geometry or pathfinding tool.
-2. Include resolved routes, their status, and crossed use-zone IDs in project-state and analysis
-   results.
-3. Validate every argument with strict Zod schemas that produce unambiguous JSON Schema.
-4. Ensure a dangling endpoint, a window reference, cancellation, or an unexpected failure leaves
+2. Include resolved routes, their status, and crossed reserved-area IDs and kinds in project-state
+   and analysis results.
+3. State in the `check_access` description that a crossed use zone or unavailable zone lowers the
+   quality of a route but does not mean the path is impossible, so the agent does not read a warning
+   as a blockage.
+4. Validate every argument with strict Zod schemas that produce unambiguous JSON Schema.
+5. Ensure a dangling endpoint, a window reference, cancellation, or an unexpected failure leaves
    state untouched.
-5. Keep handlers free of geometry: they dispatch shared commands or read the shared analysis, and
+6. Keep handlers free of geometry: they dispatch shared commands or read the shared analysis, and
    serialize detached results.
 
 Checkpoint: an agent can add a requirement, observe a blocked route, move equipment, and verify the
@@ -195,8 +216,11 @@ restored route through structured results while the same change is visible in th
 - A door narrower than the requested width produces a structured error rather than a false route.
 - A floor target buried in solid geometry cannot produce a successful route.
 - A route is recalculated after every mutation and can move without the stored requirement changing.
-- A route forced through a use zone returns a warning; no corridor of the requested width returns
-  an error.
+- A route forced through a use zone or an unavailable zone returns a warning naming that area; no
+  corridor of the requested width returns an error.
+- A route prefers a clear corridor over an equally long one crossing a reserved area.
+- An unavailable zone drawn across a doorway never turns a satisfiable requirement into a blocked
+  one; neither use zones nor unavailable zones ever enter the blocker set.
 - A route result reports the narrowest width along the route.
 - Repeated analysis of an unchanged project returns equivalent structured route data.
 - `check_access` changes no state, no revision, and no history.
@@ -213,14 +237,18 @@ restored route through structured results while the same change is visible in th
 1. Schema tests for requirement IDs, endpoint validity, width bounds, and identical endpoints.
 2. Migration and codec tests for v1→v4, v2→v4, v3→v4, and v4 round-trip serialization.
 3. Routing tests for narrow doors, blocked endpoints, exact-width corridors, alternative paths,
-   use-zone-only paths, complete blockage, all four rotations, narrowest-width measurement, and
-   deterministic tie-breaking.
-4. Analysis tests for route issues, severity, and stable ordering alongside existing issues.
-5. Command and store tests for requirement CRUD, the removed-door consequence, no-ops, undo and
+   complete blockage, all four rotations, narrowest-width measurement, and deterministic
+   tie-breaking.
+4. Reserved-area tests: a path available only through a use zone, only through an unavailable zone,
+   and only through both; a clear corridor preferred over an equal-length crossing one; an
+   unavailable zone over a doorway leaving the requirement satisfiable; and each crossed area
+   reported with the correct code and entity ID.
+5. Analysis tests for route issues, severity, and stable ordering alongside existing issues.
+6. Command and store tests for requirement CRUD, the removed-door consequence, no-ops, undo and
    redo, and revision.
-6. Persistence tests for localStorage, import and export, and reset.
-7. Component tests for requirement creation, the inspector, and the three overlay states.
-8. WebMCP schema, handler, registration, cancellation, and detached-result tests, including
+7. Persistence tests for localStorage, import and export, and reset.
+8. Component tests for requirement creation, the inspector, and the three overlay states.
+9. WebMCP schema, handler, registration, cancellation, and detached-result tests, including
    `check_access` leaving revision and history untouched.
 
 ### Manual scenario
@@ -230,8 +258,10 @@ restored route through structured results while the same change is visible in th
 3. Drag equipment until the route reroutes, then until it only passes through a use zone, then
    until it is blocked.
 4. Confirm the warning, then the error, then undo back to a clear route.
-5. Ask the agent to read the analysis and correct the blocking placement through WebMCP.
-6. Export, re-import, and confirm the requirement survives and the polyline does not.
+5. Draw an unavailable zone across the balcony doorway and confirm the route still exists, now
+   reported as crossing a reserved area rather than blocked.
+6. Ask the agent to read the analysis and correct the blocking placement through WebMCP.
+7. Export, re-import, and confirm the requirement survives and the polyline does not.
 
 ### Validation ladder
 
@@ -246,8 +276,9 @@ restored route through structured results while the same change is visible in th
 ## Exit gate
 
 Phase 18b is complete when access requirements persist as intent, routes derive deterministically
-from the Phase 18a grid and never serialize, the two-pass search and its status values are proven by
-tests, v3 → v4 migration and v4 round-trip pass, the editor shows rerouting and failure live, WebMCP
+from the Phase 18a grid and never serialize, reserved areas stay soft rather than solid, the two-pass
+search and its status values are proven by tests, v3 → v4 migration and v4 round-trip pass, the
+editor shows rerouting and failure live, WebMCP
 exposes the same capabilities through shared commands plus a stateless `check_access`, and the
 canonical validation ladder passes.
 
