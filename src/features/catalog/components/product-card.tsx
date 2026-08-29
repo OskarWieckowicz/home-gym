@@ -1,5 +1,6 @@
 import { CheckCircle2, ImageOff, Ruler, TriangleAlert } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 import { buttonClassName } from "@/components/ui/button-styles";
 import type { Product } from "@/features/catalog/schemas";
@@ -10,6 +11,7 @@ import {
   formatFootprint,
   formatPricePln,
 } from "./catalog-formatters";
+import { getProductImage } from "../product-assets";
 
 type ProductCardProps = {
   readonly position: number;
@@ -19,6 +21,7 @@ type ProductCardProps = {
 export function ProductCard({ position, product }: ProductCardProps) {
   const requiresAnchoring = product.requirements.anchoring === "required";
   const tags = [product.exercises[0], product.trainingGoals[0]];
+  const image = getProductImage(product.id);
 
   return (
     <article className="group flex min-w-0 flex-col overflow-hidden rounded-lg border border-line bg-surface shadow-card transition hover:border-brand-muted hover:shadow-md">
@@ -26,10 +29,14 @@ export function ProductCard({ position, product }: ProductCardProps) {
         <span className="absolute left-3 top-3 flex size-7 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">
           {position}
         </span>
-        <div className="grid place-items-center gap-2 text-center text-ink-subtle">
-          <ImageOff aria-hidden="true" className="size-8 stroke-[1.5]" />
-          <span className="text-xs font-medium">Product image coming later</span>
-        </div>
+        {image ? (
+          <Image alt={`${product.name} catalog image`} className="object-contain p-4" fill sizes="(max-width: 768px) 100vw, 33vw" src={image} />
+        ) : (
+          <div className="grid place-items-center gap-2 text-center text-ink-subtle">
+            <ImageOff aria-hidden="true" className="size-8 stroke-[1.5]" />
+            <span className="text-xs font-medium">Product image coming later</span>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-1 flex-col p-4">
