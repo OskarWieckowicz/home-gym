@@ -6,7 +6,7 @@ import { useProjectPersistence } from "../persistence/project-persistence-bounda
 import { useProjectStore } from "../store/project-store-context";
 import { ProjectFileActions } from "./project-file-actions";
 
-export function CreatorToolbar() {
+export function CreatorToolbar({ viewMode, onViewModeChange }: { readonly viewMode: "2d" | "3d"; readonly onViewModeChange: (mode: "2d" | "3d") => void }) {
   const canUndo = useProjectStore((state) => state.canUndo);
   const canRedo = useProjectStore((state) => state.canRedo);
   const undo = useProjectStore((state) => state.undo);
@@ -31,8 +31,8 @@ export function CreatorToolbar() {
       <div className="creator-toolbar-actions" aria-label="Editor controls" role="group">
         <ProjectFileActions />
         <div className="creator-view-switch" aria-label="Plan view" role="group">
-          <span aria-current="true">2D</span>
-          <button disabled title="3D preview arrives in a later phase" type="button">3D</button>
+          <button aria-pressed={viewMode === "2d"} onClick={() => onViewModeChange("2d")} type="button">2D</button>
+          <button aria-pressed={viewMode === "3d"} onClick={() => onViewModeChange("3d")} type="button">3D</button>
         </div>
         <button disabled={!canUndo} onClick={undo} type="button">
           <Undo2 aria-hidden="true" size={17} /> Undo

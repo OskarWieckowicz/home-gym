@@ -14,6 +14,15 @@ function change(name: string, value: string) {
 }
 
 describe("CreatorEditor", () => {
+  it("switches presentation views without creating project history", () => {
+    render(<CreatorEditor initialProject={createDefaultProject()} />);
+    fireEvent.click(screen.getByRole("button", { name: "3D" }));
+    expect(screen.getByRole("button", { name: "3D" }).getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByRole("button", { name: /Undo/ })).toHaveProperty("disabled", true);
+    fireEvent.click(screen.getByRole("button", { name: "2D" }));
+    expect(screen.getByRole("group", { name: "Top-down editable room plan" })).toBeTruthy();
+  });
+
   it("places floor areas directly and preserves locking, validation, undo and redo", () => {
     const ids = ["obstacle_wardrobe", "obstacle_zone"];
     const { container } = render(<CreatorEditor dependencies={{ generateObstacleId: () => ids.shift() ?? "obstacle_fallback" }} initialProject={createDefaultProject()} />);

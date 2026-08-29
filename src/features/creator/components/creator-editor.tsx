@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useState } from "react";
 
 import type { ProjectCommandDependencies } from "@/features/project/commands/apply-project-command";
@@ -23,15 +24,22 @@ import { RoomPlan } from "./room-plan";
 import { ValidationSummary } from "./validation-summary";
 import { WallElementForm } from "./wall-element-form";
 
+const ScenePreview = dynamic(
+  () => import("../scene/scene-preview").then((module) => module.ScenePreview),
+  { ssr: false, loading: () => <section className="creator-scene-shell" aria-label="Loading 3D room preview"><p className="creator-help">Loading 3D preview…</p></section> },
+);
+
 function EditorWorkspace() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [activePanel, setActivePanel] = useState<EditorPanel>("room");
   const [activeTool, setActiveTool] = useState<PlacementTool | null>(null);
   const [activeProductId, setActiveProductId] = useState<string | null>(null);
   const [placementError, setPlacementError] = useState("");
+  const [viewMode, setViewMode] = useState<"2d" | "3d">("2d");
   const obstacles = useProjectStore((state) => state.project.obstacles);
   const placements = useProjectStore((state) => state.project.placements);
   const wallElements = useProjectStore((state) => state.project.wallElements);
+  const project = useProjectStore((state) => state.project);
   const selectedObstacle = obstacles.find((obstacle) => obstacle.id === selectedId);
   const selectedPlacement = placements.find((placement) => placement.id === selectedId);
   const selectedProduct = selectedPlacement
@@ -84,7 +92,7 @@ function EditorWorkspace() {
 
   return (
     <main className="creator-editor" id="creator-content" tabIndex={-1}>
-      <CreatorToolbar />
+      <CreatorToolbar viewMode={viewMode} onViewModeChange={setViewMode} />
       <div className="creator-layout">
         <ElementPanel
           activePanel={activePanel}
@@ -96,7 +104,7 @@ function EditorWorkspace() {
           onToolChange={changeTool}
           selectedId={visibleSelectedId}
         />
-        <RoomPlan
+        {viewMode === "2d" ? <RoomPlan
           activeProductId={activeProductId}
           activeTool={activeTool}
           onCancelPlacement={() => {
@@ -108,7 +116,7 @@ function EditorWorkspace() {
           onSelect={select}
           placementError={placementError}
           selectedId={visibleSelectedId}
-        />
+        /> : <ScenePreview project={project} />}
         <aside className="creator-side creator-properties" aria-label="Properties and validation">
           {activePanel === "room" ? <RoomForm /> : null}
           {activePanel === "settings" ? <ProjectSettingsForm /> : null}
