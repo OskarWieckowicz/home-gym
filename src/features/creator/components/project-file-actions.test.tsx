@@ -12,14 +12,14 @@ import { PROJECT_IMPORT_MAX_BYTES } from "./project-file-actions";
 
 afterEach(() => {
   cleanup();
+  vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
 
 describe("ProjectFileActions", () => {
   it("exports the canonical project and revokes its object URL", () => {
-    const createObjectURL = vi.fn<(blob: Blob) => string>(() => "blob:project");
-    const revokeObjectURL = vi.fn<(url: string) => void>();
-    vi.stubGlobal("URL", { createObjectURL, revokeObjectURL });
+    const createObjectURL = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:project");
+    const revokeObjectURL = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
     const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => undefined);
     const project = { ...createDefaultProject(), budget: 12_500 };
     render(<CreatorEditor initialProject={project} />);

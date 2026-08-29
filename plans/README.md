@@ -56,6 +56,11 @@ to execute after the accepted Phase 15 vertical slice. It starts with the adjust
 then builds a modular strength station and a deliberately small set of reusable MVP visual
 families.
 
+[Phase 17 — Spatial semantics, strength stations, and access routes](phase-17-spatial-semantics-and-access-routes.md)
+is ready to execute after Phase 16. It separates selected products from placements, replaces the
+overloaded clearance model with use-zone semantics, adds one controlled rack/bench/barbell station,
+and gives both the user and the agent deterministic flexible access-route analysis.
+
 ## Later queue
 
 These phases remain intentionally brief until they reach the front of the queue. Their detailed
@@ -63,11 +68,11 @@ plans should use the evidence and decisions produced by earlier work rather than
 
 | Order | Phase | Depends on | Exit gate |
 |---|---|---|---|
-| 1 | Phase 17 — 3D room preview completion | Phases 15 and 16 | The scene shell integrates the completed asset families, validation presentation, selection, and representative complete-room performance without becoming the editing or validation source of truth. |
-| 2 | Phase 18 — WebMCP placement suggestions and batch changes | Phase 13 | The agent can generate deterministic placement candidates and apply a validated group of layout changes with structured results. |
-| 3 | Phase 19 — Shared-editing demo and activity feed | Phases 17 and 18 | The public demo proves the complete human-change → agent-read → agent-change → validation → correction loop in the finished editor and makes tool activity visible. |
-| 4 | Phase 20 — Landing page and catalog polish | Phases 16 and 19 | The landing page and catalog match their specifications and use final product assets plus real screenshots and figures from the finished shared-editing demo. |
-| 5 | Phase 21 — Submission | Phase 20 | The public URL, repository, English description, sub-three-minute video, and Devpost checklist are complete and verified while logged out. |
+| 1 | Phase 18 — 3D room preview completion | Phases 15–17 | The scene shell integrates the completed asset families, project-item/station state, access analysis, validation presentation, selection, and representative complete-room performance without becoming the editing or validation source of truth. |
+| 2 | Phase 19 — WebMCP placement suggestions and batch changes | Phases 13 and 17 | The agent can generate deterministic placement candidates, reject blocked required routes, score warnings, and apply a validated group of layout changes with structured results. |
+| 3 | Phase 20 — Shared-editing demo and activity feed | Phases 18 and 19 | The public demo proves the complete human-change → agent-read → agent-change → validation → correction loop in the finished editor and makes tool activity visible. |
+| 4 | Phase 21 — Landing page and catalog polish | Phases 16 and 20 | The landing page and catalog match their specifications and use final product assets plus real screenshots and figures from the finished shared-editing demo. |
+| 5 | Phase 22 — Submission | Phase 21 | The public URL, repository, English description, sub-three-minute video, and Devpost checklist are complete and verified while logged out. |
 
 ## Global exit gate
 
