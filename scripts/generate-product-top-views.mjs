@@ -6,6 +6,7 @@ const assets = [
   ["public/assets/current-fold-bike.glb", "public/assets/current-fold-bike-top.svg"],
   ["public/assets/quarry-power-bar.glb", "public/assets/quarry-power-bar-top.svg"],
   ["public/assets/foundry-bumper-plates.glb", "public/assets/foundry-bumper-plates-top.svg"],
+  ["public/assets/strength-station-composition.glb", "public/assets/strength-station-composition-top.svg"],
 ];
 
 for (const [input, output] of assets) {

@@ -4,6 +4,7 @@ export const VISUAL_ASSET_IDS = [
   "product_foundry_bumper_plates",
   "product_quarry_power_bar",
   "product_summit_power_cage",
+  "product_summit_strength_station",
 ] as const;
 export type VisualAssetProductId = (typeof VISUAL_ASSET_IDS)[number];
 
@@ -62,6 +63,15 @@ export const visualAssetRegistry: Readonly<Record<VisualAssetProductId, VisualAs
     forward: "negative-z",
     floorPivot: "origin",
     scale: [1.016, 1, 1.04],
+  },
+  product_summit_strength_station: {
+    productId: "product_summit_strength_station",
+    src: "/assets/strength-station-composition.glb",
+    topViewSrc: "/assets/strength-station-composition-top.svg",
+    envelopeCm: { widthCm: 228, depthCm: 174, heightCm: 227 },
+    forward: "negative-z",
+    floorPivot: "origin",
+    scale: [1, 1, 1],
   },
 };
 

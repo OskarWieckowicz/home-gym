@@ -64,4 +64,20 @@ describe("Tier 0 asset generators", () => {
     [-0.265, 0, -0.49].forEach((value, axis) => expect(parsed.min[axis]).toBeCloseTo(value, 6));
     [0.53, 1.18, 0.98].forEach((dimension, axis) => expect(parsed.dimensions[axis]).toBeCloseTo(dimension, 6));
   });
+
+  it("generates a deterministic render-only strength-station composition", async () => {
+    temporaryDirectory = await mkdtemp(join(tmpdir(), "home-gym-strength-composition-"));
+    const [first, second] = await generateTwice("generate-strength-station-composition-glb.mjs", temporaryDirectory);
+    const parsed = parseGlb(first);
+
+    expect(first).toEqual(second);
+    expect(first.byteLength).toBeLessThanOrEqual(1_000_000);
+    expect(parsed.gltf.asset.generator).toContain("render-only strength station composition");
+    expect(parsed.gltf.nodes).toHaveLength(8);
+    expect(parsed.primitives).toHaveLength(8);
+    expect(parsed.gltf.materials).toHaveLength(8);
+    expect(parsed.primitives.every((primitive) => primitive.attributes.NORMAL !== undefined)).toBe(true);
+    expect(parsed.min[1]).toBeCloseTo(0, 6);
+    [2.275, 2.27, 1.74].forEach((dimension, axis) => expect(parsed.dimensions[axis]).toBeCloseTo(dimension, 5));
+  });
 });

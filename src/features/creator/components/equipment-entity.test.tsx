@@ -65,4 +65,13 @@ describe("EquipmentEntity top views", () => {
     expect(view.container.querySelector(".creator-equipment-label")).toBeNull();
     expect(view.container.querySelector(".creator-equipment-outline")).toBeTruthy();
   });
+
+  it("uses the combined strength-station top view", () => {
+    const view = renderEquipment("product_summit_strength_station");
+    const image = view.container.querySelector(".creator-equipment-top-view");
+
+    expect(image?.getAttribute("href")).toBe("/assets/strength-station-composition-top.svg");
+    expect(view.container.querySelector(".creator-equipment-label")).toBeNull();
+    expect(view.container.querySelector(".creator-equipment-outline")).toBeTruthy();
+  });
 });

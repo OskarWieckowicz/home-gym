@@ -59,6 +59,12 @@ make the staged scene look valid. For the MVP, either:
 Option 1 is the Phase 16 default; option 2 expands domain behaviour and needs its own plan and
 tests.
 
+**Product decision — 29 August 2026:** the composition was subsequently approved as one placeable
+catalog bundle under `product_summit_strength_station`. Its rack, bench, bar, and plates remain one
+combined placement with a single deterministic footprint; they are not independently selectable
+within the bundle. This does not introduce supported nesting between independent products and does
+not weaken collision checks.
+
 ### Tier 1 — required MVP breadth
 
 | Product | Asset family | Reason |

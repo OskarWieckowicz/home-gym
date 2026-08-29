@@ -90,6 +90,31 @@ remained legible inside the catalog footprint, and the 3D model loaded at 1:1 sc
 geometric fallback or a framework error overlay. The default room camera preserved a recognizable
 compact-bike silhouette and the X-frame, flywheel, pedals, saddle, and handlebar remained distinct.
 
+## Strength-station catalog bundle
+
+`public/assets/strength-station-composition.glb` is a deterministic fixture assembled from the
+accepted Summit Power Cage, Arc Adjustable Bench, Quarry Power Bar, and Foundry Bumper Plates
+geometry. On 29 August 2026, the product owner expanded its scope from review-only to a catalog
+bundle. It is mapped as `product_summit_strength_station` and enters project state as one combined
+unit with a single 228 × 174 cm deterministic footprint; its nested components are not independent
+placements and do not weaken global collision rules.
+
+The rack remains at the composition origin. The bench is rotated 180 degrees around Y beneath the
+bar, the bar is translated to `[0, 1.453, -0.59]` so its shaft rests at `y = 1.48`, and four
+render-only bumper discs are mounted symmetrically on its sleeves. The stored spare-plate set is
+translated to `[0.95, 0, 0.35]` outside the rack footprint. Canonical forward remains negative Z.
+
+Measured production facts:
+
+- bounds: 2.275 × 2.27 × 1.74 m (W × H × D), with floor contact at `y = 0`;
+- triangles: 16,648; vertices: 18,000; 25 imported or authored parts merged into 8 runtime nodes
+  and 8 materials;
+- file size: 538,800 bytes;
+- SHA-256: `572b0cbec518f5d2fc255a5b84640195b05afeef7dd5312ce6a1d0ba179d19e5`;
+- deterministic top view: 4,142 projected triangles, 187,858 bytes;
+- procedural/composed provenance with byte-identical output for identical inputs;
+- catalog product: Summit Complete Strength Station, PLN 8,999, category `racks`.
+
 ## Deterministic MVP top views
 
 The 2D plan uses transparent SVG views projected directly from accepted GLB geometry. The offline
@@ -104,9 +129,11 @@ Current outputs:
 - `current-fold-bike-top.svg`: 376 projected triangles, 20,027 bytes;
 - `quarry-power-bar-top.svg`: 218 projected triangles, 10,187 bytes;
 - `foundry-bumper-plates-top.svg`: 386 projected triangles, 18,738 bytes.
+- `strength-station-composition-top.svg`: 4,142 projected triangles, 187,858 bytes.
 
-The SVG is presentation only. The catalog footprint remains the hit target, selection/invalid
+The SVG is presentation only. For placeable products, the catalog footprint remains the hit target, selection/invalid
 outline, collision input, and missing-image fallback. Canonical negative-Z points toward the top of
 the generated SVG; placement rotation is applied in the 2D renderer using the same convention as
-the 3D scene. The Arc bench was visually checked at 0 and 90 degrees, and all five SVG files were
-reviewed directly in the browser without a framework error overlay.
+the 3D scene. The Arc bench was visually checked at 0 and 90 degrees, and the five product SVG files
+were reviewed directly in the browser without a framework error overlay. The composition SVG uses
+the bundle's single catalog footprint as its planner hit target.

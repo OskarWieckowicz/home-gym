@@ -31,6 +31,12 @@ describe("visual asset registry", () => {
       src: "/assets/squat-rack.glb",
       topViewSrc: "/assets/squat-rack-top.svg",
     });
+    expect(getVisualAsset("product_summit_strength_station")).toMatchObject({
+      src: "/assets/strength-station-composition.glb",
+      topViewSrc: "/assets/strength-station-composition-top.svg",
+      envelopeCm: { widthCm: 228, depthCm: 174, heightCm: 227 },
+      scale: [1, 1, 1],
+    });
     expect(getVisualAsset("product_northstar_half_rack")).toBeUndefined();
     expect(visualAssetRegistry.product_summit_power_cage.envelopeCm).toEqual({ widthCm: 130, depthCm: 165, heightCm: 225 });
   });

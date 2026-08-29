@@ -7,7 +7,7 @@ import {
 } from "@/features/catalog/schemas";
 
 const EXPECTED_CATEGORY_COUNTS: Record<ProductCategory, number> = {
-  racks: 4,
+  racks: 5,
   benches: 4,
   barbells: 4,
   plates: 4,
@@ -31,7 +31,7 @@ function assertProductValuesAreUnique(product: Product): void {
 }
 
 function assertCatalogInvariants(products: Product[]): void {
-  if (products.length !== 32) throw new Error("Catalog must contain exactly 32 products.");
+  if (products.length !== 33) throw new Error("Catalog must contain exactly 33 products.");
 
   assertUniqueValues(products.map(({ id }) => id), "Catalog product IDs must be unique.");
   assertUniqueValues(products.map(({ slug }) => slug), "Catalog product slugs must be unique.");

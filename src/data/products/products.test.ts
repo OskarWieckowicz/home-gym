@@ -11,7 +11,7 @@ import { catalogProducts } from "./products";
 import { parseCatalogSeeds } from "./catalog-validation";
 
 const EXPECTED_CATEGORY_COUNTS: Record<ProductCategory, number> = {
-  racks: 4,
+  racks: 5,
   benches: 4,
   barbells: 4,
   plates: 4,
@@ -38,8 +38,8 @@ function normalized(values: string[]): string[] {
 }
 
 describe("catalogProducts", () => {
-  it("contains 32 schema-valid fictional products in the agreed distribution", () => {
-    expect(catalogProducts).toHaveLength(32);
+  it("contains 33 schema-valid fictional products in the agreed distribution", () => {
+    expect(catalogProducts).toHaveLength(33);
     expect(() => productSchema.array().parse(catalogProducts)).not.toThrow();
     expect(catalogProducts.every(({ brand }) => !/nike|adidas|rogue/i.test(brand))).toBe(true);
 
