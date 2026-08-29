@@ -1,3 +1,4 @@
+import { createRectangleFootprint } from "@/features/geometry/rectangles";
 import type { Dimensions as Dimensions3D } from "@/features/project/schemas/geometry";
 import type { Obstacle, Room, WallElement } from "@/features/project/schemas/project";
 
@@ -40,12 +41,17 @@ export function positionToScene(position: { xCm: number; zCm: number }, room: Ro
 }
 
 export function obstacleToScene(obstacle: Obstacle, room: Room): SceneBox {
-  const quarterTurn = obstacle.rotation === 90 || obstacle.rotation === 270;
+  const footprint = createRectangleFootprint(obstacle.position, obstacle.dimensions, obstacle.rotation);
   const dimensions = obstacle.kind === "obstacle"
     ? rotateDimensions(obstacle.dimensions, obstacle.rotation)
-    : { x: centimetersToMeters(quarterTurn ? obstacle.dimensions.depthCm : obstacle.dimensions.widthCm), y: 0.012, z: centimetersToMeters(quarterTurn ? obstacle.dimensions.widthCm : obstacle.dimensions.depthCm) };
+    : { x: centimetersToMeters(footprint.widthCm), y: 0.012, z: centimetersToMeters(footprint.depthCm) };
   return {
-    position: positionToScene(obstacle.position, room, obstacle.kind === "obstacle" ? obstacle.dimensions.heightCm / 2 : 0.006),
+    // Domain position is the min-corner; Three.js boxGeometry is centered on mesh.position.
+    position: positionToScene(
+      { xCm: footprint.minX + footprint.widthCm / 2, zCm: footprint.minZ + footprint.depthCm / 2 },
+      room,
+      obstacle.kind === "obstacle" ? obstacle.dimensions.heightCm / 2 : 0.006,
+    ),
     dimensions,
     // Dimensions are already rotated above, so the renderer must not rotate the box again.
     rotationY: 0,
