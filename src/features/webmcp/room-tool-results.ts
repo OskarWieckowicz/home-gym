@@ -21,7 +21,10 @@ export type RoomToolName =
   | "remove_obstacle"
   | "add_wall_element"
   | "update_wall_element"
-  | "remove_wall_element";
+  | "remove_wall_element"
+  | "place_product"
+  | "update_placement"
+  | "remove_product";
 
 export type RoomToolErrorCode = "INVALID_INPUT" | CommandErrorCode;
 

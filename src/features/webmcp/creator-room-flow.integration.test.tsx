@@ -46,7 +46,7 @@ describe("creator WebMCP shared editing flow", () => {
         initialProject={createDefaultProject()}
       />,
     );
-    await waitFor(() => expect(tools.size).toBe(10));
+    await waitFor(() => expect(tools.size).toBe(14));
 
     fireEvent.click(screen.getByRole("button", { name: "Project settings" }));
     setNumber("Budget", "12500");
@@ -156,5 +156,84 @@ describe("creator WebMCP shared editing flow", () => {
       },
       canRedo: false,
     });
+  });
+
+  it("searches, places, moves, rotates and removes equipment in the live editor", async () => {
+    const tools = new Map<string, WebMcpTool>();
+    Object.defineProperty(document, "modelContext", {
+      configurable: true,
+      value: {
+        registerTool: vi.fn<WebMcpModelContext["registerTool"]>(async (tool) => {
+          tools.set(tool.name, tool);
+        }),
+      } satisfies WebMcpModelContext,
+    });
+
+    render(
+      <CreatorEditor
+        dependencies={{ generatePlacementId: () => "placement_agent-rack" }}
+        initialProject={createDefaultProject()}
+      />,
+    );
+    await waitFor(() => expect(tools.size).toBe(14));
+
+    const execute = async <T,>(name: string, input: unknown): Promise<T> => {
+      const tool = tools.get(name);
+      if (!tool) throw new Error(`Tool ${name} was not registered.`);
+      let result: unknown;
+      await act(async () => {
+        result = await tool.execute(input);
+      });
+      return result as T;
+    };
+
+    const search = await execute<{
+      matchCount: number;
+      products: Array<{ productId: string; name: string }>;
+    }>("search_products", { query: "Northstar Half Rack" });
+    expect(search).toMatchObject({
+      matchCount: 1,
+      products: [{ productId: "product_northstar_half_rack" }],
+    });
+
+    const placed = await execute<{ placementId: string; revision: number }>(
+      "place_product",
+      {
+        productId: search.products[0].productId,
+        position: { xCm: 20, zCm: 20 },
+        rotation: 0,
+      },
+    );
+    expect(placed).toMatchObject({ placementId: "placement_agent-rack", revision: 1 });
+    expect(screen.getByRole("button", { name: /Northstar Half RackEquipment · 0°/ }))
+      .toBeTruthy();
+
+    const updated = await execute<{
+      revision: number;
+      placement: { position: { xCm: number; zCm: number }; rotation: number };
+    }>("update_placement", {
+      placementId: placed.placementId,
+      patch: { position: { xCm: 150, zCm: 80 }, rotation: 90 },
+    });
+    expect(updated).toMatchObject({
+      revision: 2,
+      placement: { position: { xCm: 150, zCm: 80 }, rotation: 90 },
+    });
+    expect(screen.getByRole("button", { name: /Northstar Half RackEquipment · 90°/ }))
+      .toBeTruthy();
+
+    expect(
+      await execute("remove_product", { placementId: placed.placementId }),
+    ).toMatchObject({
+      changed: true,
+      revision: 3,
+      removedPlacementId: placed.placementId,
+      removedProductId: search.products[0].productId,
+    });
+    expect(screen.getByText("No equipment placed yet.")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: /Undo/ }));
+    expect(screen.getByRole("button", { name: /Northstar Half RackEquipment · 90°/ }))
+      .toBeTruthy();
   });
 });

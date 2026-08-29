@@ -48,12 +48,15 @@ describe("persistent manual and agent editing flow", () => {
 
     const first = render(
       <CreatorEditor
-        dependencies={{ generateObstacleId: () => "obstacle_agent_rack" }}
+        dependencies={{
+          generateObstacleId: () => "obstacle_agent_rack",
+          generatePlacementId: () => "placement_agent_rack",
+        }}
         persistence
         storage={memory.adapter}
       />,
     );
-    await waitFor(() => expect(tools.size).toBe(10));
+    await waitFor(() => expect(tools.size).toBe(14));
 
     const initial = await executeTool<{
       revision: number;
@@ -78,13 +81,22 @@ describe("persistent manual and agent editing flow", () => {
     expect(memory.storage.setItem).toHaveBeenCalledOnce();
     expect(screen.getByRole("button", { name: /Agent rack, physical obstacle/ })).toBeTruthy();
 
+    await executeTool(tools, "place_product", {
+      productId: "product_northstar_half_rack",
+      position: { xCm: 160, zCm: 90 },
+      rotation: 90,
+    });
+    expect(memory.storage.setItem).toHaveBeenCalledTimes(2);
+    expect(screen.getByRole("button", { name: /Northstar Half Rack, equipment/ }))
+      .toBeTruthy();
+
     await executeTool(tools, "get_project_state", {});
-    expect(memory.storage.setItem).toHaveBeenCalledOnce();
+    expect(memory.storage.setItem).toHaveBeenCalledTimes(2);
 
     fireEvent.click(screen.getByRole("button", { name: /Undo/ }));
-    expect(memory.storage.setItem).toHaveBeenCalledTimes(2);
-    fireEvent.click(screen.getByRole("button", { name: /Redo/ }));
     expect(memory.storage.setItem).toHaveBeenCalledTimes(3);
+    fireEvent.click(screen.getByRole("button", { name: /Redo/ }));
+    expect(memory.storage.setItem).toHaveBeenCalledTimes(4);
 
     first.unmount();
     tools.clear();
@@ -95,11 +107,15 @@ describe("persistent manual and agent editing flow", () => {
         storage={memory.adapter}
       />,
     );
-    await waitFor(() => expect(tools.size).toBe(10));
+    await waitFor(() => expect(tools.size).toBe(14));
 
     const restored = await executeTool<{
       revision: number;
-      project: { budget: number; obstacles: Array<{ id: string; name: string }> };
+      project: {
+        budget: number;
+        obstacles: Array<{ id: string; name: string }>;
+        placements: Array<{ id: string; productId: string; rotation: number }>;
+      };
       canUndo: boolean;
     }>(tools, "get_project_state", {});
     expect(restored).toMatchObject({
@@ -107,12 +123,17 @@ describe("persistent manual and agent editing flow", () => {
       project: {
         budget: 12_500,
         obstacles: [{ id: "obstacle_agent_rack", name: "Agent rack" }],
+        placements: [{
+          id: "placement_agent_rack",
+          productId: "product_northstar_half_rack",
+          rotation: 90,
+        }],
       },
       canUndo: false,
     });
   });
 
-  it("registers one real ten-tool set after a Strict Mode restore", async () => {
+  it("registers one real fourteen-tool set after a Strict Mode restore", async () => {
     const registerTool = vi.fn<WebMcpModelContext["registerTool"]>(async () => undefined);
     Object.defineProperty(document, "modelContext", {
       configurable: true,
@@ -126,9 +147,9 @@ describe("persistent manual and agent editing flow", () => {
       </StrictMode>,
     );
 
-    await waitFor(() => expect(registerTool).toHaveBeenCalledTimes(10));
+    await waitFor(() => expect(registerTool).toHaveBeenCalledTimes(14));
     await act(async () => Promise.resolve());
-    expect(registerTool).toHaveBeenCalledTimes(10);
+    expect(registerTool).toHaveBeenCalledTimes(14);
     expect(memory.storage.setItem).not.toHaveBeenCalled();
   });
 
@@ -155,7 +176,7 @@ describe("persistent manual and agent editing flow", () => {
     };
 
     let mounted = render(<CreatorEditor persistence storage={memory.adapter} />);
-    await waitFor(() => expect(tools.size).toBe(10));
+    await waitFor(() => expect(tools.size).toBe(14));
     fireEvent.change(screen.getByLabelText("Choose project JSON to import"), {
       target: {
         files: [
@@ -181,7 +202,7 @@ describe("persistent manual and agent editing flow", () => {
     mounted.unmount();
     tools.clear();
     mounted = render(<CreatorEditor persistence storage={memory.adapter} />);
-    await waitFor(() => expect(tools.size).toBe(10));
+    await waitFor(() => expect(tools.size).toBe(14));
     expect(await executeTool(tools, "get_project_state", {})).toMatchObject({
       revision: 0,
       project: {
@@ -203,7 +224,7 @@ describe("persistent manual and agent editing flow", () => {
     mounted.unmount();
     tools.clear();
     render(<CreatorEditor persistence storage={memory.adapter} />);
-    await waitFor(() => expect(tools.size).toBe(10));
+    await waitFor(() => expect(tools.size).toBe(14));
     expect(await executeTool(tools, "get_project_state", {})).toMatchObject({
       revision: 0,
       project: { budget: 10_000 },

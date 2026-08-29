@@ -51,6 +51,9 @@ const FAILURE_MESSAGES: Readonly<Record<RoomToolName, string>> = {
   add_wall_element: "Wall element could not be added.",
   update_wall_element: "Wall element could not be updated.",
   remove_wall_element: "Wall element could not be removed.",
+  place_product: "Product placement could not be added.",
+  update_placement: "Product placement could not be updated.",
+  remove_product: "Product placement could not be removed.",
 };
 
 function cancelled(tool: RoomToolName) {

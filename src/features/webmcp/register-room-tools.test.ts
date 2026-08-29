@@ -26,7 +26,7 @@ function expectStrictObjectSchema(schema: Readonly<Record<string, unknown>>) {
 }
 
 describe("room WebMCP tool definitions", () => {
-  it("defines exactly ten unique, strict and correctly annotated tools", () => {
+  it("defines exactly fourteen unique, strict and correctly annotated tools", () => {
     const tools = createRoomWebMcpTools(createProjectStore(createDefaultProject()));
 
     expect(tools.map(({ name }) => name)).toEqual([
@@ -40,14 +40,18 @@ describe("room WebMCP tool definitions", () => {
       "update_wall_element",
       "remove_wall_element",
       "validate_layout",
+      "search_products",
+      "place_product",
+      "update_placement",
+      "remove_product",
     ]);
-    expect(new Set(tools.map(({ name }) => name))).toHaveLength(10);
+    expect(new Set(tools.map(({ name }) => name))).toHaveLength(14);
     for (const tool of tools) {
       expect(tool.description.length).toBeGreaterThan(40);
       expectStrictObjectSchema(tool.inputSchema);
       expect(tool.execute).toBeTypeOf("function");
       expect(tool.annotations).toEqual(
-        ["get_project_state", "validate_layout"].includes(tool.name)
+        ["get_project_state", "validate_layout", "search_products"].includes(tool.name)
           ? { readOnlyHint: true }
           : undefined,
       );
@@ -67,6 +71,8 @@ describe("room WebMCP tool definitions", () => {
       .toContain("equipment placements");
     expect(tools.find(({ name }) => name === "validate_layout")?.description)
       .toContain("ceiling and budget");
+    expect(tools.find(({ name }) => name === "remove_product")?.description)
+      .toContain("placement ID");
   });
 });
 
@@ -88,7 +94,7 @@ describe("registerRoomTools", () => {
         createProjectStore(createDefaultProject()),
       ),
     ).resolves.toEqual({ status: "ready" });
-    expect(registered).toHaveLength(10);
+    expect(registered).toHaveLength(14);
   });
 
   it("preserves unsupported and all-or-unavailable lifecycle behavior", async () => {

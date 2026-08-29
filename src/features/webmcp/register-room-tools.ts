@@ -1,5 +1,11 @@
 import type { ProjectStore } from "@/features/creator/store/project-store";
 
+import { searchProductsWebMcpTool } from "./register-catalog-tools";
+import {
+  createPlaceProductHandler,
+  createRemoveProductHandler,
+  createUpdatePlacementHandler,
+} from "./placement-tool-handlers";
 import {
   createAddObstacleHandler,
   createAddWallElementHandler,
@@ -19,6 +25,9 @@ import {
   getProjectStateJsonSchema,
   removeObstacleJsonSchema,
   removeWallElementJsonSchema,
+  placeProductJsonSchema,
+  removeProductJsonSchema,
+  updatePlacementJsonSchema,
   updateObstacleJsonSchema,
   updateWallElementJsonSchema,
   updateProjectSettingsJsonSchema,
@@ -110,6 +119,29 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       inputSchema: validateLayoutJsonSchema,
       annotations: { readOnlyHint: true },
       execute: createValidateLayoutHandler(store),
+    },
+    searchProductsWebMcpTool,
+    {
+      name: "place_product",
+      title: "Place catalog equipment in the room",
+      description: `Place one canonical catalog product in the live room. The project generates and returns a placement ID; callers must not supply one. ${SPATIAL_INPUT_NOTE}`,
+      inputSchema: placeProductJsonSchema,
+      execute: createPlaceProductHandler(store),
+    },
+    {
+      name: "update_placement",
+      title: "Move or rotate placed equipment",
+      description: `Update one canonical placement ID using a non-empty position and/or rotation patch. The product identity is immutable. ${SPATIAL_INPUT_NOTE}`,
+      inputSchema: updatePlacementJsonSchema,
+      execute: createUpdatePlacementHandler(store),
+    },
+    {
+      name: "remove_product",
+      title: "Remove placed equipment from the room",
+      description:
+        "Remove one equipment instance using its canonical placement ID returned by get_project_state or place_product. This does not remove or modify the catalog product.",
+      inputSchema: removeProductJsonSchema,
+      execute: createRemoveProductHandler(store),
     },
   ];
 }

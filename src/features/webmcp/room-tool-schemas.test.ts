@@ -10,16 +10,22 @@ import {
   getProjectStateInputSchema,
   getProjectStateJsonSchema,
   mapRoomToolInputIssues,
+  placeProductInputSchema,
+  placeProductJsonSchema,
   removeObstacleInputSchema,
   removeObstacleJsonSchema,
   removeWallElementInputSchema,
   removeWallElementJsonSchema,
+  removeProductInputSchema,
+  removeProductJsonSchema,
   updateObstacleInputSchema,
   updateObstacleJsonSchema,
   updateWallElementInputSchema,
   updateWallElementJsonSchema,
   updateProjectSettingsInputSchema,
   updateProjectSettingsJsonSchema,
+  updatePlacementInputSchema,
+  updatePlacementJsonSchema,
   validateLayoutInputSchema,
   validateLayoutJsonSchema,
 } from "./room-tool-schemas";
@@ -192,6 +198,9 @@ describe("room tool input schemas", () => {
       addWallElementJsonSchema,
       updateWallElementJsonSchema,
       removeWallElementJsonSchema,
+      placeProductJsonSchema,
+      updatePlacementJsonSchema,
+      removeProductJsonSchema,
     ]) {
       const branches = "oneOf" in schema ? schema.oneOf : undefined;
       if (Array.isArray(branches)) {
@@ -227,6 +236,10 @@ describe("room tool input schemas", () => {
     expect(updateWallElementJsonSchema).toMatchObject({
       required: ["wallElementId", "patch"],
     });
+    expect(placeProductJsonSchema).not.toHaveProperty("properties.id");
+    expect(updatePlacementJsonSchema).toMatchObject({
+      required: ["placementId", "patch"],
+    });
   });
 
   it("maps nested and unknown-key failures to stable authored issues", () => {
@@ -245,5 +258,46 @@ describe("room tool input schemas", () => {
         { path: "patch.extra", message: "This field is not supported." },
       ]),
     );
+  });
+});
+
+describe("placement tool input schemas", () => {
+  it("requires canonical strict inputs and non-empty move/rotation patches", () => {
+    const placement = {
+      productId: "product_northstar_half_rack",
+      position: { xCm: 0, zCm: 12 },
+      rotation: 90,
+    } as const;
+    expect(placeProductInputSchema.parse(placement)).toEqual(placement);
+    expect(
+      updatePlacementInputSchema.parse({
+        placementId: "placement_agent-rack",
+        patch: { position: { xCm: 25, zCm: 30 }, rotation: 180 },
+      }),
+    ).toEqual({
+      placementId: "placement_agent-rack",
+      patch: { position: { xCm: 25, zCm: 30 }, rotation: 180 },
+    });
+    expect(
+      removeProductInputSchema.parse({ placementId: "placement_agent-rack" }),
+    ).toEqual({ placementId: "placement_agent-rack" });
+
+    for (const input of [
+      { ...placement, id: "placement_caller" },
+      { ...placement, productId: "rack" },
+      { ...placement, position: { xCm: -1, zCm: 0 } },
+      { ...placement, position: { xCm: 1.5, zCm: 0 } },
+      { ...placement, rotation: 45 },
+    ]) {
+      expect(placeProductInputSchema.safeParse(input).success).toBe(false);
+    }
+    for (const input of [
+      { placementId: "bad-id", patch: { rotation: 90 } },
+      { placementId: "placement_agent-rack", patch: {} },
+      { placementId: "placement_agent-rack", patch: { productId: placement.productId } },
+      { placementId: "placement_agent-rack", patch: { rotation: 90 }, extra: true },
+    ]) {
+      expect(updatePlacementInputSchema.safeParse(input).success).toBe(false);
+    }
   });
 });
