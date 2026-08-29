@@ -17,7 +17,7 @@ const validProduct = {
   description: "A complete valid product used to exercise the runtime contract.",
   price: 1500,
   dimensions: { widthCm: 120, depthCm: 100, heightCm: 210 },
-  clearance: { frontCm: 100, backCm: 0, leftCm: 50, rightCm: 50 },
+  useZone: { frontCm: 100, backCm: 0, leftCm: 50, rightCm: 50 },
   exercises: ["back squat"],
   trainingGoals: ["strength"],
   muscleGroups: ["legs"],
@@ -80,11 +80,11 @@ describe("productSchema", () => {
     ).toThrow();
   });
 
-  it("rejects negative clearance", () => {
+  it("rejects negative use zone", () => {
     expect(() =>
       productSchema.parse({
         ...validProduct,
-        clearance: { ...validProduct.clearance, frontCm: -1 },
+        useZone: { ...validProduct.useZone, frontCm: -1 },
       }),
     ).toThrow();
   });

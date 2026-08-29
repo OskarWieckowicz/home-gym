@@ -22,7 +22,7 @@ import { routes } from "@/lib/navigation";
 export const metadata: Metadata = {
   title: "Equipment — Home Gym Creator",
   description:
-    "Browse fictional home gym equipment with dimensions, clearance zones, and training goals.",
+    "Browse fictional home gym equipment with dimensions, use zones, and training goals.",
 };
 
 function activeFilterLabels(filters: ReturnType<typeof normalizeCatalogFilters>) {

@@ -221,7 +221,7 @@ describe("RoomPlan dragging", () => {
     expect(screen.getByRole("status", { name: "Store state" }).textContent).toBe("0:20:30:false");
   });
 
-  it("renders equipment clearance and commits equipment drag once", () => {
+  it("renders equipment use zones and commits equipment drag once", () => {
     const project: GymProject = {
       ...createDefaultProject(),
       placements: [{
@@ -253,7 +253,7 @@ describe("RoomPlan dragging", () => {
       x: 0, y: 0, toJSON: () => undefined,
     });
 
-    expect(entity.querySelector(".creator-equipment-clearance")).toBeTruthy();
+    expect(entity.querySelector(".creator-equipment-use-zone")).toBeTruthy();
     expect(entity.querySelector(".creator-equipment-footprint")).toBeTruthy();
     fireEvent.pointerDown(entity, { button: 0, clientX: 100, clientY: 100, pointerId: 8 });
     fireEvent.pointerMove(entity, { clientX: 115, clientY: 115, pointerId: 8 });

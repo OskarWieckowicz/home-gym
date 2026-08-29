@@ -1,4 +1,3 @@
-import type { ValidationIssue } from "../validation/validation-issues";
 import {
   PROJECT_COMMAND_TYPES,
   projectCommandSchema,
@@ -84,9 +83,10 @@ function success(
   dependencies: ResolvedProjectCommandDependencies,
 ): ProjectCommandExecution {
   const changed = project !== previousProject;
-  const issues: ValidationIssue[] = changed
-    ? dependencies.validateProject(project)
-    : dependencies.validateProject(previousProject);
+  const issues = (changed
+    ? dependencies.analyzeProject(project)
+    : dependencies.analyzeProject(previousProject)
+  ).issues;
 
   return {
     project,

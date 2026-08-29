@@ -72,7 +72,7 @@ export function createProductDetailsResult(product: Product) {
     product: {
       ...product,
       dimensions: { ...product.dimensions },
-      clearance: { ...product.clearance },
+      useZone: { ...product.useZone },
       exercises: [...product.exercises],
       trainingGoals: [...product.trainingGoals],
       muscleGroups: [...product.muscleGroups],

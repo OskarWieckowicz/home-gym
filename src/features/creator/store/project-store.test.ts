@@ -70,7 +70,12 @@ describe("createProjectStore", () => {
       revision: 0,
       canUndo: false,
       canRedo: false,
-      validation: [{ code: "OUTSIDE_ROOM", entityIds: ["obstacle_outside"] }],
+      validation: {
+        valid: false,
+        errorCount: 1,
+        warningCount: 0,
+        issues: [{ code: "OUTSIDE_ROOM", entityIds: ["obstacle_outside"] }],
+      },
     });
     expect(store.getState().project).not.toBe(input);
   });
@@ -212,12 +217,12 @@ describe("createProjectStore", () => {
       type: "OBSTACLE_ADDED",
       payload: { ...obstacleInput, position: { xCm: 390, zCm: 0 } },
     });
-    expect(store.getState().validation).toHaveLength(1);
+    expect(store.getState().validation.issues).toHaveLength(1);
 
     store.getState().undo();
-    expect(store.getState().validation).toEqual([]);
+    expect(store.getState().validation.issues).toEqual([]);
     store.getState().redo();
-    expect(store.getState().validation).toMatchObject([
+    expect(store.getState().validation.issues).toMatchObject([
       { code: "OUTSIDE_ROOM", entityIds: ["obstacle_generated"] },
     ]);
   });
@@ -306,7 +311,7 @@ describe("project replacement", () => {
       ok: true,
       issues: [{ code: "OUTSIDE_ROOM", entityIds: ["obstacle_outside"] }],
     });
-    expect(store.getState().validation).toEqual(
+    expect(store.getState().validation.issues).toEqual(
       expect.arrayContaining([expect.objectContaining({ code: "OUTSIDE_ROOM" })]),
     );
   });

@@ -145,7 +145,7 @@ export function RoomPlan({
   onCancelPlacement,
 }: RoomPlanProps) {
   const project = useProjectStore((state) => state.project);
-  const issues = useProjectStore((state) => state.validation);
+  const issues = useProjectStore((state) => state.validation.issues);
   const dispatch = useProjectStore((state) => state.dispatch);
   const transform = useMemo(() => createPlanTransform(project.room, VIEWPORT, 48), [project.room]);
   const gridId = useId();

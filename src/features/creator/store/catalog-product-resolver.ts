@@ -13,7 +13,7 @@ export const catalogProductResolver: ProductResolver = (productId) => {
     id: product.id,
     price: product.price,
     dimensions: product.dimensions,
-    clearance: product.clearance,
+    useZone: product.useZone,
     minimumCeilingHeightCm: product.requirements.minimumCeilingHeightCm,
   };
 };

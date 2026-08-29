@@ -7,6 +7,7 @@ import type {
   Room,
   WallElement,
 } from "@/features/project/schemas/project";
+import type { ProjectAnalysis } from "@/features/project/validation/analyze-project";
 import type { ValidationIssue } from "@/features/project/validation/validation-issues";
 
 import type { InputIssue } from "./room-tool-schemas";
@@ -94,7 +95,7 @@ export function serializeValidationIssue(issue: ValidationIssue): ValidationIssu
     };
   }
 
-  if (issue.code === "CLEARANCE_OUTSIDE_ROOM") {
+  if (issue.code === "USE_ZONE_OUTSIDE_ROOM") {
     return {
       ...issue,
       entityIds: [...issue.entityIds] as [string],
@@ -142,7 +143,7 @@ export function serializeValidationIssue(issue: ValidationIssue): ValidationIssu
     };
   }
 
-  if (issue.code === "CLEARANCE_CONFLICT") {
+  if (issue.code === "USE_ZONE_OVERLAP") {
     return {
       ...issue,
       entityIds: [...issue.entityIds] as [string, string],
@@ -160,15 +161,19 @@ export function serializeValidationIssue(issue: ValidationIssue): ValidationIssu
   };
 }
 
-export function serializeValidation(issues: readonly ValidationIssue[]) {
-  const clonedIssues = issues.map(serializeValidationIssue);
+export function serializeValidation(analysis: ProjectAnalysis) {
+  const clonedIssues = analysis.issues.map(serializeValidationIssue);
+  const errorCount = clonedIssues.filter((issue) => issue.severity === "error").length;
+  const warningCount = clonedIssues.filter((issue) => issue.severity === "warning").length;
   return {
-    valid: clonedIssues.length === 0,
+    valid: errorCount === 0,
+    errorCount,
+    warningCount,
     issueCount: clonedIssues.length,
     issueCounts: {
       outsideRoom: clonedIssues.filter(({ code }) => code === "OUTSIDE_ROOM").length,
-      clearanceOutsideRoom: clonedIssues.filter(
-        ({ code }) => code === "CLEARANCE_OUTSIDE_ROOM",
+      useZoneOutsideRoom: clonedIssues.filter(
+        ({ code }) => code === "USE_ZONE_OUTSIDE_ROOM",
       ).length,
       physicalCollision: clonedIssues.filter(
         ({ code }) => code === "PHYSICAL_COLLISION",
@@ -180,8 +185,8 @@ export function serializeValidation(issues: readonly ValidationIssue[]) {
       wallElementOverlap: clonedIssues.filter(
         ({ code }) => code === "WALL_ELEMENT_OVERLAP",
       ).length,
-      clearanceConflict: clonedIssues.filter(
-        ({ code }) => code === "CLEARANCE_CONFLICT",
+      useZoneOverlap: clonedIssues.filter(
+        ({ code }) => code === "USE_ZONE_OVERLAP",
       ).length,
       ceilingTooLow: clonedIssues.filter(
         ({ code }) => code === "CEILING_TOO_LOW",

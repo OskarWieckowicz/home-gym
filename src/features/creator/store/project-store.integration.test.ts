@@ -71,14 +71,14 @@ describe("shared room editing scenario", () => {
       },
     });
     expect(corrected).toMatchObject({ ok: true, changed: true, issues: [] });
-    expect(store.getState().validation).toEqual([]);
+    expect(store.getState().validation.issues).toEqual([]);
 
     expect(store.getState().undo()).toBe(true);
-    expect(store.getState().validation).toMatchObject([
+    expect(store.getState().validation.issues).toMatchObject([
       { code: "UNAVAILABLE_ZONE_CONFLICT" },
     ]);
     expect(store.getState().redo()).toBe(true);
-    expect(store.getState().validation).toEqual([]);
+    expect(store.getState().validation.issues).toEqual([]);
 
     const lockedMove = dispatch({
       type: "OBSTACLE_UPDATED",

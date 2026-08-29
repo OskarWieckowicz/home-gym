@@ -81,7 +81,12 @@ export {
   type ProjectCommand,
   type ProjectCommandType,
 } from "./schemas/project-command";
-export { validateProject } from "./validation/validate-project";
+export {
+  analyzeProject,
+  createProjectAnalysis,
+  validateProject,
+  type ProjectAnalysis,
+} from "./validation/analyze-project";
 export type {
   ProductResolver,
   ProductValidationDescriptor,
@@ -90,12 +95,13 @@ export type {
 export type {
   BudgetExceededIssue,
   CeilingTooLowIssue,
-  ClearanceConflictIssue,
-  ClearanceOutsideRoomIssue,
   CollisionIssue,
   OutsideWallIssue,
   OutsideRoomAxis,
   OutsideRoomIssue,
+  UseZoneOverlapIssue,
+  UseZoneOutsideRoomIssue,
   ValidationIssue,
+  ValidationSeverity,
   WallElementOverlapIssue,
 } from "./validation/validation-issues";

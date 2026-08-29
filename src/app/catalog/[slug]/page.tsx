@@ -100,10 +100,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 </Card>
                 <Card className="p-5">
                   <p className="text-sm font-semibold text-ink-subtle">
-                    Clearance by side
+                    Use zone by side
                   </p>
                   <dl className="mt-3 grid grid-cols-2 gap-x-5 gap-y-2 text-sm">
-                    {Object.entries(product.clearance).map(([side, value]) => (
+                    {Object.entries(product.useZone).map(([side, value]) => (
                       <div className="flex justify-between gap-2" key={side}>
                         <dt className="text-ink-muted">
                           {formatCatalogLabel(side.replace("Cm", ""))}

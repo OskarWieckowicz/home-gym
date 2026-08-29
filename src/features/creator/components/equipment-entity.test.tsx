@@ -66,6 +66,44 @@ describe("EquipmentEntity top views", () => {
     expect(view.container.querySelector(".creator-equipment-outline")).toBeTruthy();
   });
 
+  it("uses a warned state instead of an error for use-zone overlap", () => {
+    const product = findProductById("product_arc_adjustable_bench");
+    if (!product) throw new Error("Missing test product");
+    const placement: Placement = {
+      id: "placement_test",
+      productId: product.id,
+      position: { xCm: 20, zCm: 30 },
+      rotation: 0,
+    };
+    const view = render(
+      <svg>
+        <EquipmentEntity
+          interactive
+          issues={[{
+            entityIds: ["placement_test"],
+            severity: "warning",
+          }]}
+          onBeginDrag={vi.fn()}
+          onCancelDrag={vi.fn()}
+          onFinishDrag={vi.fn()}
+          onKeySelect={vi.fn()}
+          onMoveDrag={vi.fn()}
+          placement={placement}
+          position={placement.position}
+          product={product}
+          selectedId={null}
+          transform={{ scale: 1, offsetX: 0, offsetY: 0, roomWidth: 400, roomHeight: 320 }}
+        />
+      </svg>,
+    );
+    const entity = view.container.querySelector(".creator-plan-equipment");
+
+    expect(entity?.classList.contains("is-warned")).toBe(true);
+    expect(entity?.classList.contains("is-invalid")).toBe(false);
+    expect(entity?.getAttribute("aria-label")).toContain("has layout warning");
+    expect(entity?.getAttribute("aria-label")).not.toContain("has layout error");
+  });
+
   it("uses the combined strength-station top view", () => {
     const view = renderEquipment("product_summit_strength_station");
     const image = view.container.querySelector(".creator-equipment-top-view");

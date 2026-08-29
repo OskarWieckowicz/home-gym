@@ -45,7 +45,7 @@ const dimensionsSchema = z
   })
   .strict();
 
-const clearanceSchema = z
+const useZoneSchema = z
   .object({
     frontCm: nonNegativeInteger,
     backCm: nonNegativeInteger,
@@ -73,7 +73,7 @@ export const productSchema = z
     description: z.string().trim().min(1).max(240),
     price: positiveInteger,
     dimensions: dimensionsSchema,
-    clearance: clearanceSchema,
+    useZone: useZoneSchema,
     exercises: z.array(z.string().trim().min(1)).min(1),
     trainingGoals: z.array(trainingGoalSchema).min(1),
     muscleGroups: z.array(z.string().trim().min(1)).min(1),

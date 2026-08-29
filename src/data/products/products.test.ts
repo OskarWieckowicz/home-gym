@@ -134,7 +134,7 @@ describe("catalogProducts", () => {
     for (const product of catalogProducts) {
       expect(Object.isFrozen(product)).toBe(true);
       expect(Object.isFrozen(product.dimensions)).toBe(true);
-      expect(Object.isFrozen(product.clearance)).toBe(true);
+      expect(Object.isFrozen(product.useZone)).toBe(true);
       expect(Object.isFrozen(product.trainingGoals)).toBe(true);
       expect(Object.isFrozen(product.requirements)).toBe(true);
     }

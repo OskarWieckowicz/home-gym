@@ -4,7 +4,7 @@ type Dimensions = {
   readonly heightCm: number;
 };
 
-type Clearance = {
+type UseZone = {
   readonly frontCm: number;
   readonly backCm: number;
   readonly leftCm: number;
@@ -27,20 +27,20 @@ export function formatFootprint(dimensions: Dimensions) {
   return `${dimensions.widthCm} × ${dimensions.depthCm} cm`;
 }
 
-export function formatClearanceSummary(clearance: Clearance) {
+export function formatUseZoneSummary(useZone: UseZone) {
   const values = [
-    clearance.frontCm,
-    clearance.backCm,
-    clearance.leftCm,
-    clearance.rightCm,
+    useZone.frontCm,
+    useZone.backCm,
+    useZone.leftCm,
+    useZone.rightCm,
   ];
   const maximum = Math.max(...values);
 
   if (maximum === 0) {
-    return "No additional clearance";
+    return "No additional use zone";
   }
 
-  return `Up to ${maximum} cm additional clearance`;
+  return `Up to ${maximum} cm additional use zone`;
 }
 
 export function formatCatalogLabel(value: string) {

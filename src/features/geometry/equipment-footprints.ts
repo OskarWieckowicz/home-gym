@@ -5,7 +5,7 @@ import {
   type RectangleFootprint,
 } from "./rectangles";
 
-export type ProductClearance = {
+export type ProductUseZone = {
   readonly frontCm: number;
   readonly backCm: number;
   readonly leftCm: number;
@@ -17,12 +17,12 @@ export type ProductGeometryDescriptor = {
     readonly widthCm: number;
     readonly depthCm: number;
   };
-  readonly clearance: ProductClearance;
+  readonly useZone: ProductUseZone;
 };
 
 export type EquipmentFootprints = {
   readonly physical: RectangleFootprint;
-  readonly clearance: RectangleFootprint;
+  readonly useZone: RectangleFootprint;
 };
 
 type FootprintInsets = {
@@ -32,38 +32,38 @@ type FootprintInsets = {
   readonly maxZ: number;
 };
 
-function getRotatedClearanceInsets(
-  clearance: ProductClearance,
+export function getRotatedUseZoneInsets(
+  useZone: ProductUseZone,
   rotation: Placement["rotation"],
 ): FootprintInsets {
   switch (rotation) {
     case 0:
       return {
-        minX: clearance.leftCm,
-        minZ: clearance.backCm,
-        maxX: clearance.rightCm,
-        maxZ: clearance.frontCm,
+        minX: useZone.leftCm,
+        minZ: useZone.backCm,
+        maxX: useZone.rightCm,
+        maxZ: useZone.frontCm,
       };
     case 90:
       return {
-        minX: clearance.frontCm,
-        minZ: clearance.leftCm,
-        maxX: clearance.backCm,
-        maxZ: clearance.rightCm,
+        minX: useZone.frontCm,
+        minZ: useZone.leftCm,
+        maxX: useZone.backCm,
+        maxZ: useZone.rightCm,
       };
     case 180:
       return {
-        minX: clearance.rightCm,
-        minZ: clearance.frontCm,
-        maxX: clearance.leftCm,
-        maxZ: clearance.backCm,
+        minX: useZone.rightCm,
+        minZ: useZone.frontCm,
+        maxX: useZone.leftCm,
+        maxZ: useZone.backCm,
       };
     case 270:
       return {
-        minX: clearance.backCm,
-        minZ: clearance.rightCm,
-        maxX: clearance.frontCm,
-        maxZ: clearance.leftCm,
+        minX: useZone.backCm,
+        minZ: useZone.rightCm,
+        maxX: useZone.frontCm,
+        maxZ: useZone.leftCm,
       };
   }
 }
@@ -77,7 +77,7 @@ export function createEquipmentFootprints(
     product.dimensions,
     placement.rotation,
   );
-  const insets = getRotatedClearanceInsets(product.clearance, placement.rotation);
+  const insets = getRotatedUseZoneInsets(product.useZone, placement.rotation);
   const minX = physical.minX - insets.minX;
   const minZ = physical.minZ - insets.minZ;
   const maxX = physical.maxX + insets.maxX;
@@ -85,7 +85,7 @@ export function createEquipmentFootprints(
 
   return {
     physical,
-    clearance: {
+    useZone: {
       minX,
       minZ,
       maxX,
@@ -95,4 +95,3 @@ export function createEquipmentFootprints(
     },
   };
 }
-

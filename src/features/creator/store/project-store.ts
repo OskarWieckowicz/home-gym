@@ -7,6 +7,10 @@ import {
 import { resolveProjectCommandDependencies } from "@/features/project/commands/project-command-dependencies";
 import type { DispatchResult } from "@/features/project/commands/command-results";
 import { gymProjectSchema, type GymProject } from "@/features/project/schemas/project";
+import {
+  createProjectAnalysis,
+  type ProjectAnalysis,
+} from "@/features/project/validation/analyze-project";
 import type { ValidationIssue } from "@/features/project/validation/validation-issues";
 
 import {
@@ -17,7 +21,7 @@ import {
 const HISTORY_LIMIT = 50;
 export type ProjectStoreState = {
   readonly project: GymProject;
-  readonly validation: readonly ValidationIssue[];
+  readonly validation: ProjectAnalysis;
   readonly revision: number;
   readonly canUndo: boolean;
   readonly canRedo: boolean;
@@ -78,7 +82,7 @@ export function createProjectStore(
 
   return createStore<ProjectStoreState>((set, get) => ({
     project: parsedInitialProject,
-    validation: dependencies.validateProject(parsedInitialProject),
+    validation: dependencies.analyzeProject(parsedInitialProject),
     revision: 0,
     canUndo: false,
     canRedo: false,
@@ -95,7 +99,7 @@ export function createProjectStore(
       const revision = current.revision + 1;
       set({
         project: execution.project,
-        validation: execution.result.issues,
+        validation: createProjectAnalysis(execution.result.issues),
         revision,
         canUndo: true,
         canRedo: false,
@@ -126,14 +130,14 @@ export function createProjectStore(
           ok: true,
           changed: false,
           revision: current.revision,
-          issues: current.validation,
+          issues: current.validation.issues,
         };
       }
 
       past = [...past, cloneProjectSnapshot(current.project)].slice(-HISTORY_LIMIT);
       future = [];
       const revision = current.revision + 1;
-      const validation = dependencies.validateProject(parsed.data);
+      const validation = dependencies.analyzeProject(parsed.data);
       set({
         project: parsed.data,
         validation,
@@ -141,7 +145,7 @@ export function createProjectStore(
         canUndo: true,
         canRedo: false,
       });
-      return { ok: true, changed: true, revision, issues: validation };
+      return { ok: true, changed: true, revision, issues: validation.issues };
     },
     undo: () => {
       const previous = past.at(-1);
@@ -154,7 +158,7 @@ export function createProjectStore(
       future = [cloneProjectSnapshot(current.project), ...future];
       set({
         project: previous,
-        validation: dependencies.validateProject(previous),
+        validation: dependencies.analyzeProject(previous),
         revision: current.revision + 1,
         canUndo: past.length > 0,
         canRedo: true,
@@ -172,7 +176,7 @@ export function createProjectStore(
       past = [...past, cloneProjectSnapshot(current.project)].slice(-HISTORY_LIMIT);
       set({
         project: next,
-        validation: dependencies.validateProject(next),
+        validation: dependencies.analyzeProject(next),
         revision: current.revision + 1,
         canUndo: true,
         canRedo: future.length > 0,

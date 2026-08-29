@@ -6,6 +6,12 @@ import type { KeyboardEvent, PointerEvent } from "react";
 import type { Obstacle, WallElement } from "@/features/project/schemas/project";
 
 import {
+  entityIssueAriaSuffix,
+  entityIssueClassName,
+  entityIssueState,
+  type PlanIssueRef,
+} from "../plan/entity-issue-state";
+import {
   obstacleToPlanRectangle,
   type PlanLine,
   type PlanTransform,
@@ -45,16 +51,9 @@ function wallLabelLayout(element: WallElement, line: PlanLine): WallLabelLayout 
 type EntityLayerProps = {
   readonly interactive: boolean;
   readonly selectedId: string | null;
-  readonly issues: readonly { readonly entityIds: readonly string[] }[];
+  readonly issues: readonly PlanIssueRef[];
   readonly transform: PlanTransform;
 };
-
-function hasIssue(
-  id: string,
-  issues: readonly { readonly entityIds: readonly string[] }[],
-) {
-  return issues.some((issue) => issue.entityIds.includes(id));
-}
 
 export function ObstacleEntity({
   obstacle,
@@ -79,15 +78,15 @@ export function ObstacleEntity({
 }) {
   const rectangle = obstacleToPlanRectangle({ ...obstacle, position }, transform);
   const selected = selectedId === obstacle.id;
-  const invalid = hasIssue(obstacle.id, issues);
+  const issueState = entityIssueState(obstacle.id, issues);
   const lockSpace = obstacle.locked ? LOCK_SIZE + LOCK_GAP : 0;
   const labelWidth = Math.max(0, rectangle.width - LABEL_INSET * 2 - lockSpace);
 
   return (
     <g
-      aria-label={`${obstacle.name}, ${obstacle.kind === "obstacle" ? "physical obstacle" : "unavailable zone"}${obstacle.locked ? ", locked" : ""}${invalid ? ", has layout issue" : ""}`}
+      aria-label={`${obstacle.name}, ${obstacle.kind === "obstacle" ? "physical obstacle" : "unavailable zone"}${obstacle.locked ? ", locked" : ""}${entityIssueAriaSuffix(issueState)}`}
       aria-pressed={selected}
-      className={["creator-plan-entity", `creator-plan-${obstacle.kind}`, selected && "is-selected", invalid && "is-invalid", obstacle.locked && "is-locked", !interactive && "is-placement-disabled"].filter(Boolean).join(" ")}
+      className={["creator-plan-entity", `creator-plan-${obstacle.kind}`, selected && "is-selected", entityIssueClassName(issueState), obstacle.locked && "is-locked", !interactive && "is-placement-disabled"].filter(Boolean).join(" ")}
       onKeyDown={(event) => onKeySelect(event, obstacle.id)}
       onLostPointerCapture={onCancelDrag}
       onPointerCancel={onCancelDrag}
@@ -118,7 +117,7 @@ export function ObstacleEntity({
           y={rectangle.y + 6}
         />
       ) : null}
-      {invalid ? <text aria-hidden="true" className="creator-entity-mark" x={rectangle.x + rectangle.width - 18} y={rectangle.y + rectangle.height - 8}>!</text> : null}
+      {issueState ? <text aria-hidden="true" className="creator-entity-mark" x={rectangle.x + rectangle.width - 18} y={rectangle.y + rectangle.height - 8}>!</text> : null}
     </g>
   );
 }
@@ -139,13 +138,13 @@ export function WallElementEntity({
   const line = wallElementToPlanLine(element, transform);
   const label = wallLabelLayout(element, line);
   const selected = selectedId === element.id;
-  const invalid = hasIssue(element.id, issues);
+  const issueState = entityIssueState(element.id, issues);
 
   return (
     <g
-      aria-label={`${element.name}, ${element.kind}, ${element.wall} wall${invalid ? ", has layout issue" : ""}`}
+      aria-label={`${element.name}, ${element.kind}, ${element.wall} wall${entityIssueAriaSuffix(issueState)}`}
       aria-pressed={selected}
-      className={["creator-plan-wall-element", `creator-plan-${element.kind}`, selected && "is-selected", invalid && "is-invalid", !interactive && "is-placement-disabled"].filter(Boolean).join(" ")}
+      className={["creator-plan-wall-element", `creator-plan-${element.kind}`, selected && "is-selected", entityIssueClassName(issueState), !interactive && "is-placement-disabled"].filter(Boolean).join(" ")}
       onKeyDown={(event) => onKeySelect(event, element.id)}
       onPointerDown={(event) => onSelect(event, element)}
       role="button"

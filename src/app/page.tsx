@@ -16,8 +16,8 @@ export default function Home() {
           </h1>
           <p className="mt-5 max-w-xl text-lg leading-8 text-ink-muted">
             Give your dimensions, budget, and training goals. Pick equipment
-            with an agent, place it on the plan, and see collisions and safety
-            clearances checked as you go.
+            with an agent, place it on the plan, and see collisions and use
+            zones checked as you go.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <LinkButton href={siteLinks.runDemo.href}>
@@ -31,7 +31,7 @@ export default function Home() {
         <Card className="p-4">
           <HeroPlanSketch />
           <p className="mt-3 rounded-lg bg-caution-soft px-3 py-2 text-sm text-caution">
-            Bench clearance is tight against the rack — the kind of warning the
+            Bench use zone is tight against the rack — the kind of warning the
             planner will raise.
           </p>
         </Card>

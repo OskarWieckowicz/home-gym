@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   formatCatalogLabel,
-  formatClearanceSummary,
+  formatUseZoneSummary,
   formatDimensions,
   formatFootprint,
   formatPricePln,
@@ -18,23 +18,23 @@ describe("catalog formatters", () => {
     expect(formatFootprint(dimensions)).toBe("120 × 140 cm");
   });
 
-  it("summarizes the largest required clearance", () => {
+  it("summarizes the largest required use zone", () => {
     expect(
-      formatClearanceSummary({
+      formatUseZoneSummary({
         frontCm: 120,
         backCm: 10,
         leftCm: 50,
         rightCm: 50,
       }),
-    ).toBe("Up to 120 cm additional clearance");
+    ).toBe("Up to 120 cm additional use zone");
     expect(
-      formatClearanceSummary({
+      formatUseZoneSummary({
         frontCm: 0,
         backCm: 0,
         leftCm: 0,
         rightCm: 0,
       }),
-    ).toBe("No additional clearance");
+    ).toBe("No additional use zone");
   });
 
   it("turns canonical vocabulary into display labels", () => {

@@ -14,8 +14,8 @@ export function describeValidationIssue(
   if (issue.code === "OUTSIDE_ROOM") {
     return `${label(issue.entityIds[0])} is outside the room on ${issue.details.axes.join(", ")}.`;
   }
-  if (issue.code === "CLEARANCE_OUTSIDE_ROOM") {
-    return `${label(issue.entityIds[0])}'s required clearance leaves the room on ${issue.details.axes.join(", ")}.`;
+  if (issue.code === "USE_ZONE_OUTSIDE_ROOM") {
+    return `${label(issue.entityIds[0])}'s use zone leaves the room on ${issue.details.axes.join(", ")}.`;
   }
   if (issue.code === "OUTSIDE_WALL") {
     return `${label(issue.entityIds[0])} does not fit on the ${issue.details.wall} wall.`;
@@ -30,12 +30,45 @@ export function describeValidationIssue(
   if (issue.code === "WALL_ELEMENT_OVERLAP") {
     return `${pair} overlap on the ${issue.details.wall} wall.`;
   }
-  if (issue.code === "CLEARANCE_CONFLICT") {
-    return `${pair} conflict with required equipment clearance.`;
+  if (issue.code === "USE_ZONE_OVERLAP") {
+    return issue.severity === "warning"
+      ? `${pair} share a use zone.`
+      : `${pair} conflict with a required use zone.`;
   }
   return issue.code === "PHYSICAL_COLLISION"
     ? `${pair} physically overlap.`
     : `${pair} conflict with an unavailable zone.`;
+}
+
+function issueList(
+  title: string,
+  issues: readonly ValidationIssue[],
+  names: ReadonlyMap<string, string>,
+  severityClass: "creator-issue-error" | "creator-issue-warning",
+) {
+  if (issues.length === 0) {
+    return null;
+  }
+
+  return (
+    <div>
+      <h3>{title}</h3>
+      <ul aria-live="polite">
+        {issues.map((issue) => (
+          <li
+            className={`creator-issue ${severityClass} creator-issue-${issue.code.toLowerCase()}`}
+            key={`${issue.code}-${issue.entityIds.join("-")}`}
+          >
+            <span aria-hidden="true">!</span> {describeValidationIssue(issue, names)}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function countLabel(count: number, singular: string, plural: string) {
+  return `${count} ${count === 1 ? singular : plural}`;
 }
 
 export function ValidationSummary() {
@@ -51,20 +84,25 @@ export function ValidationSummary() {
       findProductById(placement.productId)?.name ?? "Unavailable product",
     ] as const),
   ]);
+  const errors = validation.issues.filter((issue) => issue.severity === "error");
+  const warnings = validation.issues.filter((issue) => issue.severity === "warning");
+  const counts = `${countLabel(validation.errorCount, "error", "errors")}, ${countLabel(validation.warningCount, "warning", "warnings")}`;
 
   return (
     <section className="creator-validation" aria-labelledby="validation-title">
       <h2 id="validation-title">Layout checks</h2>
-      {validation.length === 0 ? (
+      {validation.issues.length === 0 ? (
         <p className="creator-valid"><span aria-hidden="true">✓</span> No layout conflicts found.</p>
       ) : (
-        <ul aria-live="polite">
-          {validation.map((issue) => (
-            <li className={`creator-issue creator-issue-${issue.code.toLowerCase()}`} key={`${issue.code}-${issue.entityIds.join("-")}`}>
-              <span aria-hidden="true">!</span> {describeValidationIssue(issue, names)}
-            </li>
-          ))}
-        </ul>
+        <>
+          <p className={validation.errorCount === 0 ? "creator-validation-warnings-only" : "creator-validation-counts"}>
+            {validation.errorCount === 0
+              ? `No errors, ${countLabel(validation.warningCount, "warning", "warnings")}`
+              : counts}
+          </p>
+          {issueList("Errors", errors, names, "creator-issue-error")}
+          {issueList("Warnings", warnings, names, "creator-issue-warning")}
+        </>
       )}
     </section>
   );

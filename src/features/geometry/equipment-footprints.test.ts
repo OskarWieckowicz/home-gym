@@ -4,7 +4,7 @@ import { createEquipmentFootprints } from "./equipment-footprints";
 
 const product = {
   dimensions: { widthCm: 100, depthCm: 50 },
-  clearance: { frontCm: 40, backCm: 10, leftCm: 20, rightCm: 30 },
+  useZone: { frontCm: 40, backCm: 10, leftCm: 20, rightCm: 30 },
 };
 
 describe("createEquipmentFootprints", () => {
@@ -13,16 +13,16 @@ describe("createEquipmentFootprints", () => {
     [90, { minX: 60, minZ: 180, maxX: 160, maxZ: 330 }],
     [180, { minX: 70, minZ: 160, maxX: 220, maxZ: 260 }],
     [270, { minX: 90, minZ: 170, maxX: 190, maxZ: 320 }],
-  ] as const)("rotates asymmetric clearance at %s degrees", (rotation, expected) => {
+  ] as const)("rotates an asymmetric use zone at %s degrees", (rotation, expected) => {
     const footprints = createEquipmentFootprints(
       { position: { xCm: 100, zCm: 200 }, rotation },
       product,
     );
 
-    expect(footprints.clearance).toMatchObject(expected);
+    expect(footprints.useZone).toMatchObject(expected);
   });
 
-  it("keeps the physical footprint independent from clearance", () => {
+  it("keeps the physical footprint independent from the use zone", () => {
     expect(
       createEquipmentFootprints(
         { position: { xCm: 10, zCm: 20 }, rotation: 90 },
@@ -40,4 +40,3 @@ describe("createEquipmentFootprints", () => {
     });
   });
 });
-

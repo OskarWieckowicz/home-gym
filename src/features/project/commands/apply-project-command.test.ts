@@ -35,7 +35,7 @@ function dependencies(id = "obstacle_generated"): ProjectCommandDependencies {
             id: productId,
             price: 2_000,
             dimensions: { widthCm: 100, depthCm: 80, heightCm: 220 },
-            clearance: { frontCm: 50, backCm: 10, leftCm: 20, rightCm: 20 },
+            useZone: { frontCm: 50, backCm: 10, leftCm: 20, rightCm: 20 },
             minimumCeilingHeightCm: 230,
           }
         : undefined,

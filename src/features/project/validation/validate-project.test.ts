@@ -8,14 +8,14 @@ import type {
   UnavailableZone,
   WallElement,
 } from "../schemas/project";
-import { validateProject } from "./validate-project";
+import { analyzeProject, validateProject } from "./validate-project";
 import type { ProductValidationDescriptor } from "./product-validation";
 
 const product: ProductValidationDescriptor = {
   id: "product_test",
   price: 6_000,
   dimensions: { widthCm: 100, depthCm: 50, heightCm: 210 },
-  clearance: { frontCm: 30, backCm: 10, leftCm: 20, rightCm: 20 },
+  useZone: { frontCm: 30, backCm: 10, leftCm: 20, rightCm: 20 },
   minimumCeilingHeightCm: 230,
 };
 
@@ -104,16 +104,16 @@ describe("validateProject", () => {
 
     expect(new Set(issues.map(({ code }) => code))).toEqual(new Set([
       "PHYSICAL_COLLISION",
-      "CLEARANCE_OUTSIDE_ROOM",
+      "USE_ZONE_OUTSIDE_ROOM",
       "UNAVAILABLE_ZONE_CONFLICT",
       "BUDGET_EXCEEDED",
       "CEILING_TOO_LOW",
       "OUTSIDE_ROOM",
     ]));
-    expect(issues.some(({ code }) => code === "CLEARANCE_CONFLICT")).toBe(false);
+    expect(issues.some(({ code }) => code === "USE_ZONE_OVERLAP")).toBe(false);
   });
 
-  it("detects placement physical and clearance conflicts but accepts touching edges", () => {
+  it("detects placement physical and use-zone conflicts but accepts touching edges", () => {
     const physicalOverlap = validateProject(
       project([], [], [placement("placement_a"), placement("placement_b", {
         position: { xCm: 99, zCm: 0 },
@@ -126,7 +126,7 @@ describe("validateProject", () => {
         entityIds: ["placement_a", "placement_b"],
       }),
     ]));
-    expect(physicalOverlap.some(({ code }) => code === "CLEARANCE_CONFLICT")).toBe(
+    expect(physicalOverlap.some(({ code }) => code === "USE_ZONE_OVERLAP")).toBe(
       false,
     );
 
@@ -138,9 +138,9 @@ describe("validateProject", () => {
       ),
       validationDependencies,
     );
-    expect(touching.some(({ code }) => code === "CLEARANCE_CONFLICT")).toBe(false);
+    expect(touching.some(({ code }) => code === "USE_ZONE_OVERLAP")).toBe(false);
 
-    const clearanceOverlap = validateProject(
+    const useZoneOverlap = validateProject(
       project(
         [obstacle("obstacle_overlap", { position: { xCm: 119, zCm: 0 } })],
         [],
@@ -148,12 +148,12 @@ describe("validateProject", () => {
       ),
       validationDependencies,
     );
-    expect(clearanceOverlap).toEqual(expect.arrayContaining([
-      expect.objectContaining({ code: "CLEARANCE_CONFLICT" }),
+    expect(useZoneOverlap).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: "USE_ZONE_OVERLAP", severity: "error" }),
     ]));
   });
 
-  it("reports rotated clearance outside the room independently of physical bounds", () => {
+  it("reports a rotated use zone outside the room independently of physical bounds", () => {
     const issues = validateProject(
       project([], [], [placement("placement_edge", {
         position: { xCm: 0, zCm: 20 },
@@ -164,7 +164,7 @@ describe("validateProject", () => {
 
     expect(issues).toEqual(expect.arrayContaining([
       expect.objectContaining({
-        code: "CLEARANCE_OUTSIDE_ROOM",
+        code: "USE_ZONE_OUTSIDE_ROOM",
         entityIds: ["placement_edge"],
         details: expect.objectContaining({ axes: ["x"] }),
       }),
@@ -408,4 +408,100 @@ describe("validateProject", () => {
       { code: "OUTSIDE_WALL", entityIds: ["wall-element_other-wall"] },
     ]);
   });
+
+  it("demotes equipment occupying another item's use zone to a single warning", () => {
+    const issues = validateProject(
+      {
+        ...project(
+          [],
+          [],
+          [
+            placement("placement_rack", { position: { xCm: 40, zCm: 20 } }),
+            placement("placement_bench", { position: { xCm: 40, zCm: 71 } }),
+          ],
+        ),
+        room: { widthCm: 400, depthCm: 400, heightCm: 250 },
+        budget: 50_000,
+      },
+      validationDependencies,
+    );
+
+    expect(issues.filter(({ code }) => code === "USE_ZONE_OVERLAP")).toEqual([
+      expect.objectContaining({
+        code: "USE_ZONE_OVERLAP",
+        severity: "warning",
+        entityIds: ["placement_bench", "placement_rack"],
+      }),
+    ]);
+    expect(issues.some(({ severity }) => severity === "error")).toBe(false);
+  });
+
+  it("warns when two use zones overlap without a physical collision", () => {
+    const issues = validateProject(
+      {
+        ...project(
+          [],
+          [],
+          [
+            placement("placement_a", { position: { xCm: 40, zCm: 20 } }),
+            placement("placement_b", { position: { xCm: 40, zCm: 105 } }),
+          ],
+        ),
+        room: { widthCm: 400, depthCm: 400, heightCm: 250 },
+        budget: 50_000,
+      },
+      validationDependencies,
+    );
+
+    expect(issues).toEqual([
+      expect.objectContaining({
+        code: "USE_ZONE_OVERLAP",
+        severity: "warning",
+        entityIds: ["placement_a", "placement_b"],
+      }),
+    ]);
+  });
 });
+
+describe("analyzeProject", () => {
+  it("derives valid from error-severity issues only", () => {
+    const warningOnly = analyzeProject(
+      {
+        ...project(
+          [],
+          [],
+          [
+            placement("placement_rack", { position: { xCm: 40, zCm: 20 } }),
+            placement("placement_bench", { position: { xCm: 40, zCm: 71 } }),
+          ],
+        ),
+        room: { widthCm: 400, depthCm: 400, heightCm: 250 },
+        budget: 50_000,
+      },
+      validationDependencies,
+    );
+
+    expect(warningOnly).toMatchObject({
+      valid: true,
+      errorCount: 0,
+      warningCount: 1,
+    });
+    expect(warningOnly.issues).toHaveLength(1);
+  });
+
+  it("is pure, deterministic, and counts mixed severities", () => {
+    const input = project(
+      [obstacle("obstacle_overlap", { position: { xCm: 119, zCm: 0 } })],
+      [],
+      [placement("placement_a")],
+    );
+    const first = analyzeProject(input, validationDependencies);
+    const second = analyzeProject(input, validationDependencies);
+
+    expect(second).toEqual(first);
+    expect(first.valid).toBe(false);
+    expect(first.errorCount).toBeGreaterThan(0);
+    expect(first.issues.every((issue) => issue.severity === "error" || issue.severity === "warning")).toBe(true);
+  });
+});
+

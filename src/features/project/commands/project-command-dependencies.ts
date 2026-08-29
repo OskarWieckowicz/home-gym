@@ -1,5 +1,5 @@
-import { validateProject } from "../validation/validate-project";
-import type { ValidationIssue } from "../validation/validation-issues";
+import { analyzeProject } from "../validation/analyze-project";
+import type { ProjectAnalysis } from "../validation/project-analysis";
 import type { ProductResolver } from "../validation/product-validation";
 import type { GymProject } from "../schemas/project";
 
@@ -8,7 +8,7 @@ export type ProjectCommandDependencies = {
   readonly generateWallElementId?: () => string;
   readonly generatePlacementId?: () => string;
   readonly resolveProduct?: ProductResolver;
-  readonly validateProject?: (project: GymProject) => ValidationIssue[];
+  readonly analyzeProject?: (project: GymProject) => ProjectAnalysis;
 };
 
 export type ResolvedProjectCommandDependencies = Required<
@@ -22,7 +22,7 @@ export const defaultProjectCommandDependencies: ResolvedProjectCommandDependenci
   generateWallElementId: () => `wall-element_${globalThis.crypto.randomUUID()}`,
   generatePlacementId: () => `placement_${globalThis.crypto.randomUUID()}`,
   resolveProduct: missingProductResolver,
-  validateProject: (project) => validateProject(project),
+  analyzeProject: (project) => analyzeProject(project),
 };
 
 export function resolveProjectCommandDependencies(
@@ -35,9 +35,8 @@ export function resolveProjectCommandDependencies(
     ...defaultProjectCommandDependencies,
     ...dependencies,
     resolveProduct,
-    validateProject:
-      dependencies.validateProject ??
-      ((project) => validateProject(project, { resolveProduct })),
+    analyzeProject:
+      dependencies.analyzeProject ??
+      ((project) => analyzeProject(project, { resolveProduct })),
   };
 }
-

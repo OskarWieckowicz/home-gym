@@ -9,6 +9,12 @@ import type { Placement } from "@/features/project/schemas/project";
 import { getVisualAsset } from "@/features/creator/scene/visual-assets";
 
 import type { PlanTransform } from "../plan/plan-transform";
+import {
+  entityIssueAriaSuffix,
+  entityIssueClassName,
+  entityIssueState,
+  type PlanIssueRef,
+} from "../plan/entity-issue-state";
 
 function toPlanRectangle(footprint: RectangleFootprint, transform: PlanTransform) {
   return {
@@ -43,7 +49,7 @@ export function EquipmentEntity({
   onMoveDrag,
 }: {
   readonly interactive: boolean;
-  readonly issues: readonly { readonly entityIds: readonly string[] }[];
+  readonly issues: readonly PlanIssueRef[];
   readonly placement: Placement;
   readonly position: Placement["position"];
   readonly product: Product;
@@ -57,18 +63,18 @@ export function EquipmentEntity({
 }) {
   const footprints = createEquipmentFootprints({ ...placement, position }, product);
   const physical = toPlanRectangle(footprints.physical, transform);
-  const clearance = toPlanRectangle(footprints.clearance, transform);
+  const useZone = toPlanRectangle(footprints.useZone, transform);
   const selected = placement.id === selectedId;
-  const invalid = issues.some((issue) => issue.entityIds.includes(placement.id));
+  const issueState = entityIssueState(placement.id, issues);
   const topViewSrc = getVisualAsset(product.id)?.topViewSrc;
   const canonicalWidth = product.dimensions.widthCm * transform.scale;
   const canonicalHeight = product.dimensions.depthCm * transform.scale;
 
   return (
     <g
-      aria-label={`${product.name}, equipment, ${placement.rotation} degrees${invalid ? ", has layout issue" : ""}`}
+      aria-label={`${product.name}, equipment, ${placement.rotation} degrees${entityIssueAriaSuffix(issueState)}`}
       aria-pressed={selected}
-      className={["creator-plan-equipment", topViewSrc && "has-top-view", selected && "is-selected", invalid && "is-invalid", !interactive && "is-placement-disabled"].filter(Boolean).join(" ")}
+      className={["creator-plan-equipment", topViewSrc && "has-top-view", selected && "is-selected", entityIssueClassName(issueState), !interactive && "is-placement-disabled"].filter(Boolean).join(" ")}
       onKeyDown={(event) => onKeySelect(event, placement.id)}
       onLostPointerCapture={onCancelDrag}
       onPointerCancel={onCancelDrag}
@@ -80,11 +86,11 @@ export function EquipmentEntity({
     >
       <rect
         aria-hidden="true"
-        className="creator-equipment-clearance"
-        height={clearance.height}
-        width={clearance.width}
-        x={clearance.x}
-        y={clearance.y}
+        className="creator-equipment-use-zone"
+        height={useZone.height}
+        width={useZone.width}
+        x={useZone.x}
+        y={useZone.y}
       />
       <rect
         className="creator-equipment-footprint"
@@ -124,7 +130,7 @@ export function EquipmentEntity({
           {product.name}
         </text>
       )}
-      {invalid ? (
+      {issueState ? (
         <text aria-hidden="true" className="creator-entity-mark" x={physical.x + physical.width - 15} y={physical.y + physical.height - 7}>!</text>
       ) : null}
     </g>

@@ -8,7 +8,7 @@ type Rect = {
 type PlanItem = {
   readonly label: string;
   readonly footprint: Rect;
-  readonly clearance: Rect;
+  readonly useZone: Rect;
   readonly tight: boolean;
 };
 
@@ -16,19 +16,19 @@ const PLAN_ITEMS: readonly PlanItem[] = [
   {
     label: "Power rack",
     footprint: { x: 78, y: 78, width: 70, height: 44 },
-    clearance: { x: 64, y: 64, width: 98, height: 72 },
+    useZone: { x: 64, y: 64, width: 98, height: 72 },
     tight: false,
   },
   {
     label: "Treadmill",
     footprint: { x: 250, y: 78, width: 62, height: 36 },
-    clearance: { x: 238, y: 66, width: 86, height: 60 },
+    useZone: { x: 238, y: 66, width: 86, height: 60 },
     tight: false,
   },
   {
     label: "Bench",
     footprint: { x: 176, y: 168, width: 34, height: 68 },
-    clearance: { x: 158, y: 154, width: 70, height: 96 },
+    useZone: { x: 158, y: 154, width: 70, height: 96 },
     tight: true,
   },
 ];
@@ -39,8 +39,8 @@ const ROOM = { x: 56, y: 56, width: 300, height: 210 } as const;
 const LEGEND = [
   { label: "Physical outline", swatch: "bg-footprint" },
   {
-    label: "Clearance",
-    swatch: "border border-dashed border-clearance bg-clearance-soft",
+    label: "Use zone",
+    swatch: "border border-dashed border-use-zone bg-use-zone-soft",
   },
   {
     label: "Needs more space",
@@ -71,7 +71,7 @@ export function HeroPlanSketch() {
       <svg
         viewBox="0 0 400 300"
         role="img"
-        aria-label="Top-down floor plan showing equipment outlines and the clearance each one needs"
+        aria-label="Top-down floor plan showing equipment outlines and the use zone each one needs"
         className="w-full rounded-xl bg-surface-muted"
       >
         <rect {...ROOM} fill="var(--surface)" rx="2" />
@@ -92,7 +92,7 @@ export function HeroPlanSketch() {
               x1={ROOM.x}
               y1={y}
               x2={ROOM.x + ROOM.width}
-              y2={y}
+              y2={ROOM.y + ROOM.height}
             />
           ))}
         </g>
@@ -108,10 +108,10 @@ export function HeroPlanSketch() {
         {PLAN_ITEMS.map((item) => (
           <g key={item.label}>
             <rect
-              {...item.clearance}
+              {...item.useZone}
               rx="6"
-              fill={item.tight ? "var(--caution-soft)" : "var(--clearance-soft)"}
-              stroke={item.tight ? "var(--caution)" : "var(--clearance)"}
+              fill={item.tight ? "var(--caution-soft)" : "var(--use-zone-soft)"}
+              stroke={item.tight ? "var(--caution)" : "var(--use-zone)"}
               strokeWidth="1.5"
               strokeDasharray="5 4"
             />

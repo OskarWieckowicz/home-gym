@@ -99,20 +99,20 @@ describe("room read handlers", () => {
         }],
       },
       validation: {
-        issues: [{ code: "CLEARANCE_OUTSIDE_ROOM" }],
+        issues: [{ code: "USE_ZONE_OUTSIDE_ROOM" }],
       },
     });
   });
 
-  it("serializes equipment clearance, ceiling, and budget issue variants", () => {
+  it("serializes equipment use-zone, ceiling, and budget issue variants", () => {
     const store = createStore({
       ...createDefaultProject(),
       room: { widthCm: 600, depthCm: 600, heightCm: 230 },
       budget: 1_000,
       obstacles: [{
-        id: "obstacle_clearance_blocker",
+        id: "obstacle_use_zone_blocker",
         kind: "obstacle",
-        name: "Clearance blocker",
+        name: "Use-zone blocker",
         position: { xCm: 230, zCm: 100 },
         dimensions: { widthCm: 20, depthCm: 20, heightCm: 100 },
         rotation: 0,
@@ -131,19 +131,52 @@ describe("room read handlers", () => {
       ok: true,
       valid: false,
       issueCounts: {
-        clearanceConflict: 1,
-        clearanceOutsideRoom: 0,
+        useZoneOverlap: 1,
+        useZoneOutsideRoom: 0,
         ceilingTooLow: 1,
         budgetExceeded: 1,
       },
     });
     if (!result.ok) throw new Error("Expected successful validation read.");
     expect(result.issues.map(({ code }) => code)).toEqual([
-      "CLEARANCE_CONFLICT",
+      "USE_ZONE_OVERLAP",
       "BUDGET_EXCEEDED",
       "CEILING_TOO_LOW",
     ]);
     expect(() => JSON.stringify(result)).not.toThrow();
+  });
+
+  it("treats a warning-only equipment use-zone overlap as valid", () => {
+    const store = createStore({
+      ...createDefaultProject(),
+      room: { widthCm: 600, depthCm: 600, heightCm: 250 },
+      budget: 20_000,
+      placements: [
+        {
+          id: "placement_cage",
+          productId: "product_summit_power_cage",
+          position: { xCm: 80, zCm: 40 },
+          rotation: 0,
+        },
+        {
+          id: "placement_bench",
+          productId: "product_arc_adjustable_bench",
+          position: { xCm: 112, zCm: 206 },
+          rotation: 0,
+        },
+      ],
+    });
+
+    const result = createValidateLayoutHandler(store)({});
+    expect(result).toMatchObject({
+      ok: true,
+      valid: true,
+      errorCount: 0,
+      warningCount: 1,
+      issueCount: 1,
+      issueCounts: { useZoneOverlap: 1 },
+      issues: [{ code: "USE_ZONE_OVERLAP", severity: "warning" }],
+    });
   });
 
   it("returns deterministic cloned validation without changing history", () => {
@@ -168,7 +201,7 @@ describe("room read handlers", () => {
     });
     if (!result.ok) throw new Error("Expected successful validation read.");
     const returnedIssue = result.issues[0];
-    const storedIssue = store.getState().validation[0];
+    const storedIssue = store.getState().validation.issues[0];
     if (returnedIssue.code !== "OUTSIDE_ROOM" || storedIssue.code !== "OUTSIDE_ROOM") {
       throw new Error("Expected outside-room issues.");
     }
@@ -481,7 +514,7 @@ describe("wall element WebMCP handlers", () => {
     const overlap = result.issues.find(
       ({ code }) => code === "WALL_ELEMENT_OVERLAP",
     );
-    const stored = store.getState().validation.find(
+    const stored = store.getState().validation.issues.find(
       ({ code }) => code === "WALL_ELEMENT_OVERLAP",
     );
     if (overlap?.code !== "WALL_ELEMENT_OVERLAP" || stored?.code !== "WALL_ELEMENT_OVERLAP") {

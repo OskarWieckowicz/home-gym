@@ -9,6 +9,6 @@ describe("HeroPlanSketch", () => {
 
     expect(tree.type).toBe("figure");
     expect(svg.type).toBe("svg");
-    expect(svg.props["aria-label"]).toMatch(/clearance/i);
+    expect(svg.props["aria-label"]).toMatch(/use zone/i);
   });
 });
