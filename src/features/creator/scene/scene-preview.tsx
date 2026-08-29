@@ -3,6 +3,7 @@
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, useGLTF } from "@react-three/drei";
 import { Component, Suspense, useMemo, type ErrorInfo, type ReactNode } from "react";
+import { PCFShadowMap } from "three";
 import type { GymProject, Placement } from "@/features/project/schemas/project";
 import { findProductById } from "@/features/catalog/queries/catalog";
 import { getVisualAsset } from "./visual-assets";
@@ -113,7 +114,7 @@ export function ScenePreview({ project }: ScenePreviewProps) {
   return <section className="creator-scene-shell" aria-labelledby="scene-title">
     <div className="creator-plan-heading"><div><h2 id="scene-title">3D room preview</h2><p>Read-only spatial review. Orbit and zoom to inspect the shared room.</p></div><span>{project.room.widthCm} × {project.room.depthCm} cm</span></div>
     <div className="creator-scene-canvas" role="img" aria-label="Navigable 3D room preview">
-      <Canvas camera={{ position: [4.8, 4.4, 5.2], fov: 45 }} shadows dpr={[1, 1.5]}>
+      <Canvas camera={{ position: [4.8, 4.4, 5.2], fov: 45 }} dpr={[1, 1.5]} shadows={{ type: PCFShadowMap }}>
         <SceneContents project={project} />
         <OrbitControls enablePan={false} minDistance={2} maxDistance={12} target={[0, 0.8, 0]} />
       </Canvas>
