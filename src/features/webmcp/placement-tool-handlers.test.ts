@@ -125,7 +125,7 @@ describe("placement WebMCP handlers", () => {
   it("rejects selection-only floor placement without mutating", () => {
     const store = createStore();
     const rejected = createPlaceProductHandler(store)({
-      productId: "product_cove_wrist_wraps",
+      productId: "product_groundwork_foam_roller",
       position: { xCm: 10, zCm: 20 },
       rotation: 0,
     });
@@ -139,7 +139,7 @@ describe("placement WebMCP handlers", () => {
     expect(store.getState()).toMatchObject({ revision: 0, canUndo: false });
 
     const added = createAddProductToProjectHandler(store)({
-      productId: "product_cove_wrist_wraps",
+      productId: "product_groundwork_foam_roller",
     });
     expect(added).toMatchObject({
       ok: true,

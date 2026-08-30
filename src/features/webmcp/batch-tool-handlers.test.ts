@@ -165,7 +165,7 @@ describe("suggest placements tool", () => {
       expect(handler(input)).toMatchObject({ ok: false, error: { code: "INVALID_INPUT", issues: expect.any(Array) } });
     }
     expect(handler({ productId: "product_missing" })).toMatchObject({ ok: false, error: { code: "ENTITY_NOT_FOUND" } });
-    expect(handler({ productId: "product_cove_wrist_wraps" })).toMatchObject({ ok: false, error: { code: "INVALID_COMMAND" } });
+    expect(handler({ productId: "product_groundwork_foam_roller" })).toMatchObject({ ok: false, error: { code: "INVALID_COMMAND" } });
     expect(handler(request, { signal: AbortSignal.abort() })).toMatchObject({ ok: false, error: { code: "EXECUTION_FAILED" } });
   });
 });

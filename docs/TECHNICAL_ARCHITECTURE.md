@@ -514,8 +514,8 @@ SVG applies the inverse angle. Asset orientation must not change catalog clearan
 
 ## 11. Product catalog
 
-The active MVP catalog is static and contains 24 fictional products: 21 placeable products with
-photos/models and three shopping-list-only accessories. Sixteen incomplete products were removed
+The active MVP catalog is static and contains 23 fictional products: 21 placeable products with
+photos/models and two shopping-list-only accessories. Seventeen products were removed
 at the user's request. Their frozen specifications live separately in `src/data/products/retired/`
 only to interpret existing saved projects. Active search, detail queries and product routes exclude
 them. Project-specific lookups retain names, costs and geometry; the shared command layer rejects
@@ -527,7 +527,7 @@ access checks, even when suspended above the floor (the Wall-Mounted Punching Ba
 false retains the existing elevated-bar behavior. Mount height still governs visuals, ceiling and
 wall-opening checks; UI and WebMCP use the same validation path.
 
-Signal Resistance Bands, Groundwork Foam Roller and Cove Wrist Wraps are shopping-list-only
+Signal Resistance Bands and Groundwork Foam Roller are active shopping-list-only
 products. They count toward cost and training coverage but cannot be placed in the room.
 Signal bands changed from floor placement after user clarification. Creator ingress reconciles
 legacy Signal placements into existing unplaced shopping items before catalog validation, keeping

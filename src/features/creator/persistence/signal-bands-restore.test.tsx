@@ -27,7 +27,7 @@ function Probe() {
     <output data-testid="project">{JSON.stringify(state.project)}</output>
     <output data-testid="history">{`${state.revision}:${state.canUndo}`}</output>
     <output data-testid="persistence">{persistence?.status.message}</output>
-    <button onClick={() => state.dispatch({ type: "PROJECT_ITEM_ADDED", payload: { productId: "product_cove_wrist_wraps" } })}>Add wraps</button>
+    <button onClick={() => state.dispatch({ type: "PROJECT_ITEM_ADDED", payload: { productId: "product_groundwork_foam_roller" } })}>Add roller</button>
   </>;
 }
 
@@ -43,7 +43,7 @@ describe("legacy Signal bands session compatibility", () => {
     expect(screen.getByTestId("history").textContent).toBe("0:false");
     expect(storage.setItem).not.toHaveBeenCalled();
     expect(storage.removeItem).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: "Add wraps" }));
+    fireEvent.click(screen.getByRole("button", { name: "Add roller" }));
     expect(storage.setItem).toHaveBeenCalledTimes(1);
     const saved = JSON.parse(storage.setItem.mock.calls[0][1]);
     expect(saved.projectItems).toHaveLength(2);

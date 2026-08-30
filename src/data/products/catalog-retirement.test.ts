@@ -17,9 +17,9 @@ import { createPlaceProductCommand, createPlaceProjectItemCommand } from "@/feat
 import { suggestPlacements } from "@/features/project/suggestions/suggest-placements";
 
 describe("incomplete product retirement", () => {
-  it("leaves exactly 21 fully illustrated placeable products and three list-only items", () => {
-    expect(catalogProducts).toHaveLength(24);
-    expect(retiredProducts).toHaveLength(16);
+  it("leaves exactly 21 fully illustrated placeable products and two list-only items", () => {
+    expect(catalogProducts).toHaveLength(23);
+    expect(retiredProducts).toHaveLength(17);
     expect(new Set([...catalogProducts, ...retiredProducts].map(({ id }) => id)).size).toBe(40);
     const floor = catalogProducts.filter(({ placementMode }) => placementMode === "floor");
     expect(floor).toHaveLength(21);
@@ -59,6 +59,23 @@ describe("incomplete product retirement", () => {
     const saved = serializeProject(state.project);
     expect(saved.success).toBe(true);
     if (saved.success) expect(decodeProject(JSON.parse(saved.json))).toEqual(decoded);
+  });
+
+  it("preserves saved wrist wraps and allows undoable removal", () => {
+    const item = { id: "project-item_wraps", productId: "product_cove_wrist_wraps" };
+    const project = { ...createDefaultProject(), projectItems: [item] };
+    const saved = serializeProject(project);
+    if (!saved.success) throw new Error(saved.error.message);
+    const decoded = decodeProject(JSON.parse(saved.json));
+    if (!decoded.success) throw new Error(decoded.error.message);
+    const store = createProjectStore(decoded.project);
+    expect(store.getState().project).toEqual(project);
+    expect(store.getState().validation.items).toEqual([expect.objectContaining({ price: 89 })]);
+    expect(serializeProjectItem(item, project)).toMatchObject({ retired: true, name: "Cove Wrist Wraps", placed: false });
+    expect(store.getState().dispatch({ type: "PROJECT_ITEM_REMOVED", payload: { projectItemId: item.id } })).toMatchObject({ ok: true });
+    expect(store.getState().project.projectItems).toEqual([]);
+    expect(store.getState().undo()).toBe(true);
+    expect(store.getState().project.projectItems).toEqual([item]);
   });
 
   it("keeps legacy purchases editable and supports undoable imports and re-placement", () => {

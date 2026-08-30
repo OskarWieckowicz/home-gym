@@ -5,9 +5,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { EquipmentCatalogPanel } from "./equipment-catalog-panel";
 import { searchProducts } from "@/features/catalog/queries/catalog";
+import * as productAssets from "@/features/catalog/product-assets";
 import { catalogProducts } from "@/data/products";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+});
 
 function renderCatalog(onActivate = vi.fn(), onAdd = vi.fn()) {
   return render(
@@ -16,6 +20,15 @@ function renderCatalog(onActivate = vi.fn(), onAdd = vi.fn()) {
 }
 
 describe("EquipmentCatalogPanel", () => {
+  it("does not offer retired wrist wraps", () => {
+    renderCatalog();
+    fireEvent.change(screen.getByRole("searchbox", { name: "Search equipment" }), {
+      target: { value: "cove wrist wraps" },
+    });
+    expect(screen.getByText("No equipment matches this search.")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Add Cove Wrist Wraps to project" })).toBeNull();
+  });
+
   it("filters by actual catalog categories together with search and restores All equipment", () => {
     renderCatalog();
     const category = screen.getByRole("combobox", { name: "Equipment category" });
@@ -52,13 +65,14 @@ describe("EquipmentCatalogPanel", () => {
   });
 
   it("keeps the icon fallback when a product has no thumbnail", () => {
+    vi.spyOn(productAssets, "getProductImage").mockReturnValue(undefined);
     const { container } = renderCatalog();
 
     fireEvent.change(screen.getByRole("searchbox", { name: "Search equipment" }), {
-      target: { value: "cove wrist wraps" },
+      target: { value: "signal resistance bands" },
     });
     expect(container.querySelector("img")).toBeNull();
-    expect(screen.getByText("Cove Wrist Wraps")).toBeTruthy();
+    expect(screen.getByText("Signal Resistance Bands")).toBeTruthy();
   });
 
   it("still activates placement from the list", () => {
@@ -81,10 +95,10 @@ describe("EquipmentCatalogPanel", () => {
     renderCatalog(vi.fn(), onAdd);
 
     fireEvent.change(screen.getByRole("searchbox", { name: "Search equipment" }), {
-      target: { value: "wrist wraps" },
+      target: { value: "resistance bands" },
     });
-    expect(screen.queryByRole("button", { name: "Place Cove Wrist Wraps" })).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Add Cove Wrist Wraps to project" }));
-    expect(onAdd).toHaveBeenCalledWith("product_cove_wrist_wraps");
+    expect(screen.queryByRole("button", { name: "Place Signal Resistance Bands" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Add Signal Resistance Bands to project" }));
+    expect(onAdd).toHaveBeenCalledWith("product_signal_resistance_bands");
   });
 });

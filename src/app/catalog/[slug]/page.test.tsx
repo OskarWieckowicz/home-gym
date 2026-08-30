@@ -1,9 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
+import * as productAssets from "@/features/catalog/product-assets";
 import { catalogProducts } from "@/data/products";
 import { retiredProducts } from "@/data/products/retired-products";
 
 import ProductPage, { generateMetadata, generateStaticParams } from "./page";
+
+afterEach(() => vi.restoreAllMocks());
 
 function params(slug: string) {
   return { params: Promise.resolve({ slug }) };
@@ -55,7 +58,8 @@ describe("product detail route", () => {
   });
 
   it("shows a placeholder when the product has no catalog image", async () => {
-    const page = await ProductPage(params("cove-wrist-wraps"));
+    vi.spyOn(productAssets, "getProductImage").mockReturnValue(undefined);
+    const page = await ProductPage(params("signal-resistance-bands"));
     expect(findProp(page, "src")).toBeUndefined();
     expect(collectText(page)).toContain("Product image coming later");
   });

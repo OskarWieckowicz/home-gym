@@ -38,21 +38,21 @@ describe("ProjectItemForm", () => {
   });
 
   it("explains that a selection-only accessory cannot be placed", () => {
-    const wraps = findProductById("product_cove_wrist_wraps");
-    if (!wraps) throw new Error("Missing catalog fixture.");
+    const roller = findProductById("product_groundwork_foam_roller");
+    if (!roller) throw new Error("Missing catalog fixture.");
 
     render(
       <ProjectStoreProvider
         initialProject={{
           ...createDefaultProject(),
-          projectItems: [{ id: "project-item_wraps", productId: wraps.id }],
+          projectItems: [{ id: "project-item_roller", productId: roller.id }],
         }}
       >
         <ProjectItemForm
-          item={{ id: "project-item_wraps", productId: wraps.id }}
+          item={{ id: "project-item_roller", productId: roller.id }}
           onPlace={vi.fn()}
           onRemoved={vi.fn()}
-          product={wraps}
+          product={roller}
         />
       </ProjectStoreProvider>,
     );
