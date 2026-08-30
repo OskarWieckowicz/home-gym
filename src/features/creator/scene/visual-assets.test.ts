@@ -3,6 +3,18 @@ import { findProductById } from "@/features/catalog/queries/catalog";
 import { getVisualAsset, visualAssetRegistry } from "./visual-assets";
 
 describe("visual asset registry", () => {
+  it("fits the Loop single-column model to its existing catalog envelope", () => {
+    const product = findProductById("product_loop_cable_trainer");
+    expect(product).toBeDefined();
+    expect(getVisualAsset("product_loop_cable_trainer")).toMatchObject({
+      src: "/assets/loop-cable-trainer.glb",
+      topViewSrc: "/assets/loop-cable-trainer-top.svg",
+      envelopeCm: product?.dimensions,
+      forward: "negative-z",
+      floorPivot: "origin",
+      scale: [1, 1, 1],
+    });
+  });
   it("keeps the kettlebell visual envelope aligned with its catalog dimensions", () => {
     const product = findProductById("product_forge_kettlebell_16kg");
     expect(product).toBeDefined();

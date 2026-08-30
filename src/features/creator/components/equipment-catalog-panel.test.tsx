@@ -32,6 +32,7 @@ describe("EquipmentCatalogPanel", () => {
   });
 
   it.each([
+    ["loop", "/assets/single-column-cable-machine-catalog-concept-v2.png"],
     ["dual-pulley", "/assets/compact-dual-pulley-station-catalog-concept-v1.png"],
     ["summit", "/assets/squat-rack-catalog.png"],
     ["northstar", "/assets/northstar-half-rack-catalog.png"],

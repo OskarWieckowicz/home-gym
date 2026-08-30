@@ -8,6 +8,7 @@ export const VISUAL_ASSET_IDS = [
   "product_delta_change_plates",
   "product_foundry_bumper_plates",
   "product_harbor_squat_stands",
+  "product_loop_cable_trainer",
   "product_northstar_half_rack",
   "product_pivot_flat_bench",
   "product_quarry_power_bar",
@@ -29,6 +30,15 @@ export type VisualAssetDefinition = {
 };
 
 export const visualAssetRegistry: Readonly<Record<VisualAssetProductId, VisualAssetDefinition>> = {
+  product_loop_cable_trainer: {
+    productId: "product_loop_cable_trainer",
+    src: "/assets/loop-cable-trainer.glb",
+    topViewSrc: "/assets/loop-cable-trainer-top.svg",
+    envelopeCm: { widthCm: 62, depthCm: 28, heightCm: 205 },
+    forward: "negative-z",
+    floorPivot: "origin",
+    scale: [1, 1, 1],
+  },
   product_compact_dual_pulley_station: {
     productId: "product_compact_dual_pulley_station",
     src: "/assets/compact-dual-pulley-station.glb",

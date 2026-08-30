@@ -36,6 +36,7 @@ async function generateTwice(scriptName, directory) {
 
 describe("Product asset generators", () => {
   it.each([
+    { slug: "loop-cable-trainer", groups: 5, minimum: [-0.31, 0, -0.14], dimensions: [0.62, 2.05, 0.28], viewBox: "-0.31 -0.14 0.62 0.28" },
     { slug: "compact-dual-pulley-station", groups: 5, minimum: [-0.8, 0, -0.5], dimensions: [1.6, 2.2, 1], viewBox: "-0.8 -0.5 1.6 1" },
     { slug: "northstar-half-rack", groups: 4, minimum: [-0.61, 0, -0.65], dimensions: [1.22, 2.15, 1.3], viewBox: "-0.61 -0.65 1.22 1.3" },
     { slug: "pivot-flat-bench", groups: 5, minimum: [-0.29, 0, -0.62], dimensions: [0.58, 0.44, 1.24], viewBox: "-0.29 -0.62 0.58 1.24" },

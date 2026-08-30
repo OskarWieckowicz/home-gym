@@ -1,0 +1,14 @@
+{
+  "candidate": "Separate single-column cable machine",
+  "productId": "product_loop_cable_trainer",
+  "date": "2026-08-30",
+  "output": "public/assets/single-column-cable-machine-catalog-concept-v2.png",
+  "method": "Built-in image_gen; targeted edit of concept v1",
+  "authorization": "User requested regeneration with exactly one handle instead of the duplicated handles.",
+  "editSource": "public/assets/single-column-cable-machine-catalog-concept-v1.png",
+  "prompt": "Use case: precise-object-edit.\nEdit the supplied catalog image of a single-column cable machine. Correct ONLY the adjustable front carriage and hanging handle arrangement: there must be exactly ONE black triangular D-handle, connected by one black strap and one metal carabiner to ONE cable outlet on one mechanically plausible swivel pulley carriage. Keep the single handle on the viewer-left side of the front rail, hanging clearly in open space. Remove the entire viewer-right duplicate handle, strap, carabiner and duplicate cable outlet, restoring a clean unobstructed view of the guide rods behind it. Retain the main carriage body with its orange adjustment knob and credible attachment to the single front rail; the carriage should read as one single-outlet assembly, not two mirrored assemblies. No unused dangling connector.\nPreserve the original full machine, front adjustment rail, single rear weight stack and selector pin, guide rods, upper cable-return assembly, rear wall brackets, base feet, graphite powder coat, brushed metal, orange accents, camera angle, square framing, proportions, warm off-white studio background and soft lighting. Premium realistic studio product photograph, no people, text, logos, watermarks, extra equipment or second handle. Exactly one hanging D-handle in the whole image.",
+  "review": "Visually inspected: exactly one hanging black D-handle with strap and connector on the viewer-left of the front rail. Removed viewer-right handle and duplicate carriage outlet. Single stack, guide rods, wall brackets, base, graphite/orange finish and studio composition retained. AI-generated fictional concept, not engineering evidence.",
+  "status": "Current concept v2 supersedes v1, which is retained for history. Subsequently approved by the user for catalog integration and mapped to the existing Loop Wall Cable Trainer. No new product, GLB, domain dimensions, price, mounting or saved-project changes.",
+  "integrationAuthorization": "User accepted the one-handle correction and requested adding it to the catalog. Reused the existing narrow wall cable trainer identity; presentation mapping only.",
+  "model": "Built-in tool default; no explicit model override"
+}

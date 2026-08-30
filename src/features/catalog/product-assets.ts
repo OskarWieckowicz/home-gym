@@ -9,6 +9,7 @@ const PRODUCT_IMAGE_BY_ID = {
   product_groundwork_exercise_mat: "/assets/groundwork-exercise-mat-catalog.png",
   product_groundwork_foam_roller: "/assets/groundwork-foam-roller-catalog.png",
   product_harbor_squat_stands: "/assets/harbor-squat-stands-catalog.png",
+  product_loop_cable_trainer: "/assets/single-column-cable-machine-catalog-concept-v2.png",
   product_northstar_half_rack: "/assets/northstar-half-rack-catalog.png",
   product_pivot_flat_bench: "/assets/pivot-flat-bench-catalog.png",
   product_quarry_power_bar: "/assets/quarry-power-bar-catalog.png",
