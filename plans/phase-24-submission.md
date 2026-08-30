@@ -1,6 +1,7 @@
 # Phase 24 — Submission
 
-> Order 4 in the [active queue](README.md). Depends on Phase 23.
+> Order 4 in the [active queue](README.md). Depends on Phase 23 for final submission;
+> shared-editing verification and script preparation can start as soon as Phase 26 is deployed.
 > Hard deadline: 3 September 2026, 22:00 CEST. Start the video no later than 2 September.
 
 ## Problem
@@ -15,8 +16,9 @@ yet. Sample prompts exist only in `docs/AGENT_HOME_GYM_WORKFLOW_PROMPT.md`.
 
 ## Scope
 
-In scope: verifying the deployed build, rewriting the root README, writing the Devpost description,
-recording the video, and completing the submission form.
+In scope: verifying the deployed build and shared-editing loop, preparing the demo script,
+rewriting the root README, writing the Devpost description, recording the video, and completing
+the submission form. No in-editor activity feed is planned.
 
 Out of scope: any behaviour change. If verification finds a real defect, fix it under the phase that
 owns it and note it here; do not fold product changes into the submission commit.
@@ -31,8 +33,10 @@ Tool registration in particular depends on the deployed client bundle.
 the prompts, the testing instructions and a short architecture summary in the README itself. Link
 `docs/TECHNICAL_ARCHITECTURE.md` for detail rather than deferring the summary to it.
 
-**D3 — the video follows `docs/DEMO_SCRIPT.md`.** The script written in Phase 22 is the shot list.
-Recording a different flow would mean narrating something no test covers.
+**D3 — prepare and verify the shot list in this phase.** Write `docs/DEMO_SCRIPT.md` from the
+existing shared-editing flow, starting at `/creator?start=demo`, with exact prompts and expected
+observable results. Run it on the deployed build before recording. Show actual tool calls in the
+agent host alongside their visible effects in the editor; do not build a duplicate activity feed.
 
 **D4 — record early, polish once.** A finished sub-three-minute video with plain narration submitted
 on 2 September is worth more than a better one that misses the deadline. Reserve the last day for the
@@ -44,7 +48,10 @@ form, not for editing.
    the landing page and every CTA; `/creator?start=demo` and `?start=new`, each after a reload;
    the catalog with filters and a product detail page; 2D and 3D; export, import, reset, undo, redo.
 
-2. **Verify WebMCP on the deployed build.** In a fresh session, in both target environments — Chrome
+2. **Prepare the script and verify WebMCP on the deployed build.** Write `docs/DEMO_SCRIPT.md`
+   in the primary 3D editor, with a manual change, the agent reading the updated state, an agent change, deterministic
+   validation, correction of a conflict, and shared undo. The conflict can come from the manual
+   edit; the agent does not need to introduce an error deliberately. In a fresh session, in both target environments — Chrome
    with the WebMCP flag and the ChatGPT in-app browser — confirm the creator registers its full tool
    set and the catalog registers its two, confirm the schemas are discoverable, and run
    `docs/DEMO_SCRIPT.md` to completion. Record the browser versions and the exact flag used; the
@@ -69,10 +76,10 @@ form, not for editing.
 
 5. **Record the video.** Under three minutes, public on YouTube, with narration and no unlicensed
    music. Show a real browser against the live URL. Structure: the problem in fifteen seconds, the
-   demo project loading, a manual change, the agent reading state, the agent making a change that
-   fails validation, the agent correcting it, the activity feed and the shared undo, and a closing
-   line about the deterministic core. Keep the editor visible whenever the agent acts, so the shared
-   surface is obvious rather than asserted.
+   demo project loading, a manual change, the agent reading current state and resolving a conflict,
+   validation of the result, and shared undo, followed by a closing line about the deterministic
+   core. Show the actual tool calls in the agent host and keep the editor visible whenever the
+   agent acts, so the shared surface is obvious rather than asserted.
 
 6. **Submit.** Complete the Devpost form with the live URL, the public repository, the video link and
    the description, then verify the repository is public, the license shows in the GitHub About panel
@@ -107,7 +114,7 @@ once in a private window on the final commit, with each link opened rather than 
 
 The two schedule risks are recording the video too late and discovering a WebMCP registration
 difference on the deployed build that does not reproduce locally. Task 2 exists to surface the second
-one early; do it as soon as Phase 22 is deployed rather than waiting for Phase 23.
+one early; do it as soon as Phase 26 is deployed rather than waiting for Phase 23.
 
 ## Exit gate
 

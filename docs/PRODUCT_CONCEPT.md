@@ -38,7 +38,7 @@ Gym equipment should have at least two areas:
 - **physical area** — the space actually occupied by the equipment,
 - **clearance zone** — the additional space needed for exercise, access, or safe operation.
 
-The interface may present a 2D plan and a simple 3D view, but spatial calculations should rely on the simplest practical deterministic geometry.
+The interface opens in the editable 3D view, with a precise 2D alternative and recovery path. Both use the same deterministic geometry; rendered meshes never define placement or validation.
 
 ## Creating a room from a photo
 
@@ -89,7 +89,16 @@ The user should be able to:
 
 Manual user operations and operations performed through WebMCP should use the same domain logic. This keeps the project consistent regardless of who made a change.
 
-The editor follows a **palette → plan → inspector** interaction: the left panel chooses what to add, the plan determines where it is created, and the right panel edits an existing selection. The inspector is not a second creation step.
+The editor follows a **palette → room → inspector** interaction in either view: the left panel chooses what to add, a floor or wall-edge target determines where it is created, and the right panel edits an existing selection. The inspector is not a second creation step.
+
+3D is the default working view, with one contextual interaction mode: click an entity to select it,
+then drag the selected entity to move it. Dragging elsewhere (including an unselected entity)
+orbits the camera without changing selection; clicking empty space clears selection. Placement
+tools temporarily own primary input. Drafts and camera changes do not enter history; a completed
+changed drag creates one command. An agent edit cancels a stale manual draft. Camera-facing walls
+are cut away for visibility, while openings, mounted equipment and all wall targets remain
+available. Native lists, exact inspector fields and centre placement provide keyboard alternatives.
+If graphics fail, the same project can continue in 2D without resetting history or WebMCP.
 
 ## Agent role
 
@@ -159,7 +168,7 @@ The MVP should focus on one complete, reliable flow:
 - a rectangular room with editable dimensions,
 - simple obstacles and unavailable zones,
 - simple wall-bound doors and windows without automatic clearance or swing zones,
-- a 2D plan and an optional simple 3D preview,
+- a primary editable 3D view and a precise 2D alternative/fallback,
 - manual equipment placement and rotation,
 - budget and training goals,
 - deterministic collision detection,

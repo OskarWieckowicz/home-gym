@@ -4,6 +4,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { ScenePreviewProps } from "../scene/scene-preview";
+import { useSceneEditing } from "../scene/use-scene-editing";
 import { catalogProductResolver } from "../store/catalog-product-resolver";
 import { useProjectStore } from "../store/project-store-context";
 import { analyzeProject } from "@/features/project/validation/analyze-project";
@@ -17,8 +18,18 @@ const { sceneProps } = vi.hoisted(() => ({ sceneProps: vi.fn() }));
 vi.mock("next/dynamic", () => ({
   default: () => function ScenePreviewProbe(props: ScenePreviewProps) {
     const revision = useProjectStore((state) => state.revision);
+    const { controller, snapshot } = useSceneEditing(props.store, props);
     sceneProps(props);
-    return <output aria-label="Scene store revision">{revision}</output>;
+    return <>
+      <output aria-label="Scene store revision">{revision}</output>
+      <output aria-label="Scene draft">{snapshot.command?.type ?? "none"}</output>
+      <span data-testid="scene-error">{props.placementError}</span>
+      <button onClick={controller.placeCenter}>Scene place at centre</button>
+      <button onClick={() => props.onSelect(props.project.obstacles[0]?.id ?? props.project.placements[0]?.id ?? null)}>Scene select first</button>
+      <button onClick={() => controller.pointerMove({ pointerId: 1, clientX: 200, clientY: 160 }, { point: { xCm: 200, zCm: 160 }, entityId: null })}>Scene preview target</button>
+      <button onClick={() => props.onPlacementError("Target unavailable")}>Scene report error</button>
+      <button onClick={props.onFallback}>Scene fallback</button>
+    </>;
   },
 }));
 
@@ -44,15 +55,16 @@ describe("CreatorEditor", () => {
       projectItemId: item.id, position: { xCm: 100, zCm: 100 }, rotation: 0,
     }));
     render(<CreatorEditor initialProject={project} />);
+    fireEvent.click(screen.getByRole("button", { name: "2D" }));
     fireEvent.keyDown(screen.getByRole("button", { name: /^Northstar Half Rack, equipment/ }), { key: "Enter" });
     fireEvent.click(screen.getByRole("button", { name: "3D" }));
     const expectedIssues = analyzeProject(project, { resolveProduct: catalogProductResolver }).issues;
     expect(expectedIssues.some((issue) => issue.severity === "error" && issue.entityIds.includes("placement_rack") && issue.entityIds.includes("placement_bench"))).toBe(true);
-    expect(sceneProps).toHaveBeenLastCalledWith({ project, selectedId: "placement_rack", issues: expectedIssues });
+    expect(sceneProps).toHaveBeenLastCalledWith(expect.objectContaining({ project, selectedId: "placement_rack", issues: expectedIssues }));
     expect(screen.getByLabelText("Scene store revision").textContent).toBe("0");
 
     fireEvent.click(screen.getByRole("button", { name: /Arc Adjustable Bench.*Placed/ }));
-    expect(sceneProps).toHaveBeenLastCalledWith({ project, selectedId: "placement_bench", issues: expectedIssues });
+    expect(sceneProps).toHaveBeenLastCalledWith(expect.objectContaining({ project, selectedId: "placement_bench", issues: expectedIssues }));
     expect(screen.getByLabelText("Scene store revision").textContent).toBe("0");
 
     // Inspector edits remain normal commands; the still-mounted scene gets fresh issues.
@@ -64,7 +76,7 @@ describe("CreatorEditor", () => {
     expect(updated.issues).toEqual(analyzeProject(updated.project, { resolveProduct: catalogProductResolver }).issues);
     expect(updated.issues).not.toEqual(expectedIssues);
     fireEvent.click(screen.getByRole("button", { name: /Undo/ }));
-    expect(sceneProps).toHaveBeenLastCalledWith({ project, selectedId: "placement_bench", issues: expectedIssues });
+    expect(sceneProps).toHaveBeenLastCalledWith(expect.objectContaining({ project, selectedId: "placement_bench", issues: expectedIssues }));
     expect(screen.getByRole("button", { name: "3D" }).getAttribute("aria-pressed")).toBe("true");
     expect(screen.getByRole("button", { name: /Undo/ })).toHaveProperty("disabled", true);
     fireEvent.click(screen.getByRole("button", { name: "2D" }));
@@ -74,6 +86,7 @@ describe("CreatorEditor", () => {
   it("places floor areas directly and preserves locking, validation, undo and redo", () => {
     const ids = ["obstacle_wardrobe", "obstacle_zone"];
     const { container } = render(<CreatorEditor dependencies={{ generateObstacleId: () => ids.shift() ?? "obstacle_fallback" }} initialProject={createDefaultProject()} />);
+    fireEvent.click(screen.getByRole("button", { name: "2D" }));
     const plan = screen.getByRole("group", { name: "Top-down editable room plan" });
     Object.defineProperty(plan, "getBoundingClientRect", { value: () => ({
       bottom: 560, height: 560, left: 0, right: 760, top: 0, width: 760,
@@ -120,6 +133,7 @@ describe("CreatorEditor", () => {
       generateObstacleId: () => "obstacle_fallback",
       generateWallElementId: () => wallIds.shift() ?? "wall-element_fallback",
     }} initialProject={createDefaultProject()} />);
+    fireEvent.click(screen.getByRole("button", { name: "2D" }));
     const plan = screen.getByRole("group", { name: "Top-down editable room plan" });
     Object.defineProperty(plan, "getBoundingClientRect", { value: () => ({
       bottom: 560, height: 560, left: 0, right: 760, top: 0, width: 760,
@@ -149,6 +163,7 @@ describe("CreatorEditor", () => {
     render(<CreatorEditor dependencies={{
       generatePlacementId: () => "placement_northstar",
     }} initialProject={createDefaultProject()} />);
+    fireEvent.click(screen.getByRole("button", { name: "2D" }));
     const plan = screen.getByRole("group", { name: "Top-down editable room plan" });
     Object.defineProperty(plan, "getBoundingClientRect", { value: () => ({
       bottom: 560, height: 560, left: 0, right: 760, top: 0, width: 760,
@@ -168,5 +183,55 @@ describe("CreatorEditor", () => {
     expect(screen.queryByRole("button", { name: /Northstar Half Rack, equipment/ })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: /Undo/ }));
     expect(screen.getByRole("button", { name: /Northstar Half Rack, equipment, 90 degrees/ })).toBeTruthy();
+  });
+
+  it("opens in 3D, creates through scene callbacks, selects the inspector, and shares undo", () => {
+    render(<CreatorEditor initialProject={createDefaultProject()} dependencies={{ generateObstacleId: () => "obstacle_scene" }} />);
+    expect(screen.getByRole("button", { name: "3D" }).getAttribute("aria-pressed")).toBe("true");
+    expect(screen.queryByRole("group", { name: "Top-down editable room plan" })).toBeNull();
+    expect(screen.getByLabelText("Scene store revision").textContent).toBe("0");
+    fireEvent.click(screen.getByRole("button", { name: "Physical obstacle" }));
+    expect(sceneProps.mock.lastCall![0]).toMatchObject({ activeTool: "obstacle", activeProductId: null, activeProjectItemId: null });
+    fireEvent.click(screen.getByRole("button", { name: "Scene place at centre" }));
+    expect(screen.getByLabelText("Scene store revision").textContent).toBe("1");
+    expect(sceneProps.mock.lastCall![0]).toMatchObject({ selectedId: "obstacle_scene", activeTool: null });
+    expect(screen.getByRole("button", { name: "Apply changes" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Room dimensions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Scene select first" }));
+    expect(screen.getByRole("button", { name: "Apply changes" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Undo" }));
+    expect(sceneProps.mock.lastCall![0]).toMatchObject({ project: { obstacles: [] }, selectedId: null });
+    expect(screen.getByRole("button", { name: "Undo" })).toHaveProperty("disabled", true);
+  });
+
+  it("cancels placement preview and errors on a view switch without changing revision", () => {
+    render(<CreatorEditor initialProject={createDefaultProject()} />);
+    fireEvent.click(screen.getByRole("button", { name: "Physical obstacle" }));
+    fireEvent.click(screen.getByRole("button", { name: "Scene preview target" }));
+    fireEvent.click(screen.getByRole("button", { name: "Scene report error" }));
+    expect(screen.getByLabelText("Scene draft").textContent).toBe("OBSTACLE_ADDED");
+    expect(screen.getByTestId("scene-error").textContent).toBe("Target unavailable");
+    const store = (sceneProps.mock.lastCall![0] as ScenePreviewProps).store;
+    fireEvent.click(screen.getByRole("button", { name: "2D" }));
+    expect(screen.getByRole("button", { name: "Physical obstacle" }).getAttribute("aria-pressed")).toBe("false");
+    fireEvent.click(screen.getByRole("button", { name: "3D" }));
+    expect(screen.getByLabelText("Scene draft").textContent).toBe("none");
+    expect(screen.getByTestId("scene-error").textContent).toBe("");
+    expect((sceneProps.mock.lastCall![0] as ScenePreviewProps).store).toBe(store);
+    expect(store.getState()).toMatchObject({ revision: 0, canUndo: false });
+  });
+
+  it("recovers the same project and selection in 2D without replacing the store", () => {
+    render(<CreatorEditor initialProject={createDefaultProject()} dependencies={{ generateObstacleId: () => "obstacle_scene" }} />);
+    fireEvent.click(screen.getByRole("button", { name: "Physical obstacle" }));
+    fireEvent.click(screen.getByRole("button", { name: "Scene place at centre" }));
+    const store = (sceneProps.mock.lastCall![0] as ScenePreviewProps).store;
+    fireEvent.click(screen.getByRole("button", { name: "Scene fallback" }));
+    expect(screen.getByRole("group", { name: "Top-down editable room plan" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Apply changes" })).toBeTruthy();
+    expect(store.getState().revision).toBe(1);
+    fireEvent.click(screen.getByRole("button", { name: "3D" }));
+    expect((sceneProps.mock.lastCall![0] as ScenePreviewProps).store).toBe(store);
+    expect(sceneProps.mock.lastCall![0]).toMatchObject({ selectedId: "obstacle_scene" });
   });
 });

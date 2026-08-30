@@ -59,7 +59,7 @@ The switch changes how the same project is presented. The views do not have sepa
 
 ### 2D view
 
-The 2D view is the primary editing mode. It shows the room from above and allows precise:
+The 2D view is the precise alternative and graphics-failure fallback. It shows the room from above and allows:
 
 - placement and rotation of equipment,
 - changing element dimensions and positions,
@@ -69,9 +69,10 @@ The 2D view is the primary editing mode. It shows the room from above and allows
 
 ### 3D view
 
-The 3D view is a supporting spatial preview. The room and obstacles use simple solids; equipment
-uses simplified generated GLB families with geometric fallbacks. The preview is not a
-photorealistic interior or a source of placement geometry.
+The 3D view is the default project editor. The room and obstacles use simple solids; equipment
+uses simplified generated GLB families with permanent geometric fallbacks. Neither GLBs nor their
+fallbacks define placement geometry. Domain-sized envelopes provide stable selection even while
+a model is loading or unavailable.
 
 The user can orbit the camera, zoom, and inspect the project from different sides. The view helps check:
 
@@ -81,7 +82,26 @@ The user can orbit the camera, zoom, and inspect the project from different side
 - passageway availability,
 - overall readability and functionality of the layout.
 
-The main interaction rule: **2D is for precise design, and 3D is for spatial review of the result**.
+The main interaction rule: **both views edit one room, through one command path and undo history**.
+
+- There is no Edit/Navigate toggle. A short click/tap selects an entity; an empty-space click
+  clears selection. Dragging an already-selected entity moves it. Dragging elsewhere, including
+  an unselected entity, orbits without changing selection. Ownership is fixed at pointer-down.
+  Scroll zoom remains available outside active edits; placement tools temporarily own primary input.
+- Click/tap a floor or highlighted wall edge to create once; Escape/Cancel discards the preview.
+  Enter on the scene or Place at centre offers the keyboard creation path.
+- Drag equipment/areas on the floor. Doors/windows and mounted equipment retain their wall and
+  move along it. A changed release commits once; cancellation, camera movement and previews do not.
+- Near-side wall surfaces disappear as the camera moves. The floor perimeter, wall markers and
+  four wall-edge placement targets are independent of that cutaway. Reset view and Top view are
+  explicit camera actions and never edit the room.
+- Exact inspector edits, supported rotations/locks, unplace/remove, lists, validation and file
+  actions remain available. An agent revision cancels in-progress manual gestures immediately.
+- The toolbar's 2D switch remains available during loading. Whole-scene errors and context loss
+  expose Continue in 2D without remounting the project store or WebMCP bridge.
+
+Local observations and outstanding device/deployment acceptance are recorded in
+[Phase 27 verification](PHASE_27_3D_EDITOR_VERIFICATION.md).
 
 ## Source of truth
 

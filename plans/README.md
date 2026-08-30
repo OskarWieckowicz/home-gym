@@ -42,7 +42,10 @@ Product scope and architecture live in the [product concept](../docs/PRODUCT_CON
   its orthographic top-down render before producing a batch.
 - Treat generated, purchased, and downloaded visual assets as licensed inputs with recorded
   provenance. An unclear license is a rejection, not a later cleanup task.
-- Landing-page work starts only after the shared-editing demo can provide real screenshots.
+- Phase 27 makes 3D the primary editor before demo bootstrap and presentation work. Keep 2D
+  available and retain the same deterministic model, commands, history and WebMCP path.
+- Landing screenshots use the Phase 27 editor with the reproducible Phase 26 demo project. No in-editor
+  activity feed is required; shared-editing verification and the video script belong to Phase 24.
 
 ## Parallel work
 
@@ -58,10 +61,10 @@ Bar and Foundry Bumper Plates. Resume one product at a time at the user's reques
 
 | Order | Phase | Depends on | Exit gate |
 |---|---|---|---|
-| 1 | [Phase 26 — Demo bootstrap and creator start modes](phase-26-demo-bootstrap.md) | None | `/creator?start=demo` loads a checked-in demo project in a fresh session with no prior local storage, and `?start=new` opens an empty room instead of restoring a previous session. Both survive a reload and a direct visit. The fixture is built and validated through the same schema and commands as any other project, and it is not a second persistence path. |
-| 2 | [Phase 22 — Shared-editing demo and activity feed](phase-22-shared-editing-demo.md) | Phase 26; Phase 21 complete | The public demo proves the complete human-change → agent-read → agent-change → validation → correction loop in the editor and makes tool activity visible to the user in the same interface. |
-| 3 | [Phase 23 — Landing page and catalog polish](phase-23-landing-catalog-polish.md) | Phases 16 and 22 | The landing page and catalog match their specifications and use final product assets plus real screenshots and figures from the finished shared-editing demo. |
-| 4 | [Phase 24 — Submission](phase-24-submission.md) | Phase 23 | The live URL is verified logged out and in a fresh WebMCP session, the repository README carries the demo URL, tool list, sample prompts, WebMCP testing instructions, and architecture, and the English description and sub-three-minute video complete the Devpost checklist. |
+| 1 | [Phase 27 — 3D as the primary project editor](phase-27-primary-3d-editor.md) | Existing editor and scene; no queued phase | Fresh sessions default to 3D and the complete add/select/edit/move/rotate/unplace/remove flow works without switching to 2D. Manual edits and WebMCP share validation and undo/redo; camera gestures never edit; 2D remains a working fallback. |
+| 2 | [Phase 26 — Demo bootstrap and creator start modes](phase-26-demo-bootstrap.md) | After Phase 27 in the queue | `/creator?start=demo` loads a checked-in demo project in a fresh session with no prior local storage, and `?start=new` opens an empty room instead of restoring a previous session. Both survive a reload and a direct visit. The fixture is built and validated through the same schema and commands as any other project, and it is not a second persistence path. |
+| 3 | [Phase 23 — Landing page and catalog polish](phase-23-landing-catalog-polish.md) | Phases 16, 27 and 26 | The landing page and catalog match their specifications and use final product assets plus real screenshots of the primary 3D editor and figures from the reproducible demo project. |
+| 4 | [Phase 24 — Submission](phase-24-submission.md) | Phase 23 | The live URL and complete shared-editing loop are verified logged out and in a fresh WebMCP session, the repository README carries the demo URL, tool list, sample prompts, WebMCP testing instructions, and architecture, and the English description and sub-three-minute video complete the Devpost checklist. |
 
 The live URL already satisfies the hosting part of Phase 24, so that phase is now documentation,
 description, and video rather than infrastructure. Verify tool registration against the deployed

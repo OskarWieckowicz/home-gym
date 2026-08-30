@@ -1,8 +1,9 @@
 # Phase 26 — Demo bootstrap and creator start modes
 
-> Order 1 in the [active queue](README.md). Depends on nothing.
-> Blocks Phase 22 (the demo needs a reproducible starting layout) and Phase 23
-> (landing CTAs already point at both start modes).
+> Order 2 in the [active queue](README.md), after Phase 27's primary 3D editor.
+> No technical dependency on 3D interactions; this is the agreed execution order.
+> Blocks Phase 23 (landing CTAs, screenshots and figures need a reproducible demo project).
+> Phase 24 also uses that project for shared-editing verification and the video.
 
 ## Problem
 
@@ -44,7 +45,7 @@ existing `decodeProject`, so it passes migration, `gymProjectSchema` and `projec
 exactly like an imported file. No demo-only store, no demo-only storage key, no bypass of validation.
 
 **D4 — the demo layout must be valid but not sterile.** It must produce zero errors and at least one
-warning, so the validation panel and the Phase 22 correction story both have something real to show
+warning, so the validation panel and the demo screenshots have something real to show
 on first paint.
 
 ## Implementation tasks
@@ -62,7 +63,7 @@ on first paint.
    shape: a 400 × 320 × 240 room, the locked wardrobe obstacle, the entry door on the top wall, and
    the Northstar half rack, Arc adjustable bench, Ironvale barbell set and Foundry bumper plates,
    with `budget: 10000` and the strength and muscle-gain goals. Keep every ID readable
-   (`project-item_rack`, `placement_rack`) so activity-feed and tool output stay legible in the
+   (`project-item_rack`, `placement_rack`) so tool output stays legible in the
    video. Do not copy or move the v3 fixture; migration tests keep owning it.
 
 3. **Branch the restore path.** Give `ProjectPersistenceBoundary` an optional
@@ -95,6 +96,7 @@ on first paint.
   a click from the landing page.
 - The demo project round-trips through `serializeProject` / `decodeProject` without change.
 - Undo, redo, export, import, reset and every WebMCP tool behave identically in all three modes.
+- Both start modes open in the primary 3D editor, retaining the same 2D fallback and shared store.
 
 ## Tests
 

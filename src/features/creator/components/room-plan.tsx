@@ -4,8 +4,7 @@ import { useId, useMemo, useRef, useState, type DragEvent, type KeyboardEvent, t
 
 import { getEffectiveMounting } from "@/features/catalog/queries/catalog";
 import { constrainMountedDrag } from "@/features/geometry/wall-mounting";
-import type { ProjectCommand } from "@/features/project/schemas/project-command";
-import type { GymProject, Obstacle, Placement, WallElement } from "@/features/project/schemas/project";
+import type { Obstacle, Placement, WallElement } from "@/features/project/schemas/project";
 
 import { productForPlacement } from "../placement-product";
 
@@ -16,7 +15,8 @@ import {
   getDragPosition,
   type DragSession,
 } from "../plan/drag-session";
-import { centerFloorRectangle, centerWallElement, getPlacementTarget, type PlacementTarget } from "../plan/placement-target";
+import { getPlacementTarget, type PlacementTarget } from "../plan/placement-target";
+import { createRoomElementCommand } from "../plan/create-room-element-command";
 import { createPlaceProductCommand, createPlaceProjectItemCommand } from "../plan/place-equipment";
 import {
   clientPointToPlanPoint,
@@ -28,14 +28,6 @@ import { EquipmentEntity } from "./equipment-entity";
 import { ObstacleEntity, WallElementEntity } from "./room-plan-entities";
 
 const VIEWPORT = { width: 760, height: 560 } as const;
-const FLOOR_DEFAULTS = {
-  obstacle: { name: "Physical obstacle", dimensions: { widthCm: 100, depthCm: 50, heightCm: 200 } },
-  "unavailable-zone": { name: "Unavailable zone", dimensions: { widthCm: 100, depthCm: 100 } },
-} as const;
-const WALL_DEFAULTS = {
-  door: { name: "Door", widthCm: 90 },
-  window: { name: "Window", widthCm: 120 },
-} as const;
 
 type RoomPlanProps = {
   readonly activeTool: PlacementTool | null;
@@ -64,78 +56,6 @@ function placementInstruction(
   if (tool) return "Click inside the room to place it. Press Escape to cancel.";
   if (productId || projectItemId) return "Click inside the room to place the selected equipment. Press Escape to cancel.";
   return "Drag areas and equipment. Positions snap to 10 cm.";
-}
-
-type PlacementCommandResult =
-  | { readonly ok: true; readonly command: ProjectCommand }
-  | { readonly ok: false; readonly error: string };
-
-function createPlacementCommand(
-  tool: PlacementTool,
-  target: PlacementTarget,
-  project: GymProject,
-): PlacementCommandResult {
-  if (tool === "obstacle" || tool === "unavailable-zone") {
-    if (target.kind !== "floor") return { ok: false, error: "Place this area inside the room." };
-    const defaults = FLOOR_DEFAULTS[tool];
-    const position = centerFloorRectangle(target.position, defaults.dimensions, project.room);
-    if (!position) return { ok: false, error: "The default area does not fit in this room." };
-    if (tool === "obstacle") {
-      return {
-        ok: true,
-        command: {
-          type: "OBSTACLE_ADDED",
-          payload: {
-            kind: tool,
-            name: defaults.name,
-            position,
-            dimensions: FLOOR_DEFAULTS.obstacle.dimensions,
-            rotation: 0,
-            locked: false,
-          },
-        },
-      };
-    }
-    return {
-      ok: true,
-      command: {
-        type: "OBSTACLE_ADDED",
-        payload: {
-          kind: tool,
-          name: defaults.name,
-          position,
-          dimensions: FLOOR_DEFAULTS["unavailable-zone"].dimensions,
-          rotation: 0,
-          locked: false,
-        },
-      },
-    };
-  }
-
-  if (target.kind !== "wall") {
-    return { ok: false, error: "Place doors and windows on a room wall." };
-  }
-  const defaults = WALL_DEFAULTS[tool];
-  const wallLength = target.wall === "top" || target.wall === "bottom"
-    ? project.room.widthCm
-    : project.room.depthCm;
-  const offsetCm = centerWallElement(target.offsetCm, defaults.widthCm, wallLength);
-  if (offsetCm === null) {
-    return { ok: false, error: "The default wall element does not fit on this wall." };
-  }
-  return {
-    ok: true,
-    command: {
-      type: "WALL_ELEMENT_ADDED",
-      payload: {
-        kind: tool,
-        name: defaults.name,
-        wall: target.wall,
-        offsetCm,
-        widthCm: defaults.widthCm,
-      },
-    },
-  };
 }
 
 export function RoomPlan({
@@ -275,7 +195,7 @@ export function RoomPlan({
 
   function place(target: PlacementTarget) {
     if (!activeTool) return;
-    const result = createPlacementCommand(activeTool, target, project);
+    const result = createRoomElementCommand(activeTool, target, project);
     if (!result.ok) {
       onPlacementError(result.error);
       return;

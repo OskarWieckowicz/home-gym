@@ -256,6 +256,13 @@ body {
 .creator-scene-shell { display: grid; align-content: start; min-width: 0; padding: clamp(1rem, 2vw, 2rem); }
 .creator-scene-canvas { min-height: min(62dvh, 38rem); overflow: hidden; border: 1px solid var(--line); border-radius: 0.9rem; background: #dbe4ee; }
 .creator-scene-canvas canvas { display: block; min-height: min(62dvh, 38rem); }
+.creator-scene-canvas { touch-action: none; }
+.creator-scene-canvas:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.creator-scene-controls { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem; }
+.creator-scene-controls button, .creator-scene-recovery button { padding: 0.6rem 0.8rem; border: 1px solid var(--line); border-radius: 0.5rem; background: white; color: #1e293b; }
+.creator-editor .creator-scene-controls button[aria-pressed="true"] { background: #1e293b; color: white; }
+.creator-scene-recovery { padding: 1.5rem; }
+.creator-scene-status { min-height: 1.5em; font-size: 0.85rem; }
 .creator-plan.is-placing { cursor: crosshair; }
 .creator-placement-help { color: var(--brand-strong) !important; font-weight: 700; }
 .creator-placement-error { margin: -0.45rem 0 0.8rem; padding: 0.55rem 0.7rem; border-radius: 0.5rem; background: #fef2f2; color: #991b1b; font-size: 0.78rem; }
@@ -380,7 +387,7 @@ body {
   .creator-toolbar-actions { max-width: 19rem; }
   .creator-layout { display: flex; flex-direction: column; }
   .creator-elements { order: 1; border-inline-end: 0; border-block-end: 1px solid var(--line); }
-  .creator-plan-shell { order: 2; }
+  .creator-plan-shell, .creator-scene-shell { order: 2; }
   .creator-properties { order: 3; }
   .creator-elements nav { grid-template-columns: repeat(2, 1fr); }
   .creator-elements nav button { justify-content: center; text-align: center; }

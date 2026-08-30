@@ -433,11 +433,11 @@ revision, undo/redo or autosave. Application rechecks the live state rather than
 The creator uses two presentation adapters:
 
 - the existing SVG `RoomPlan` for precise top-down editing;
-- a React Three Fiber scene with a perspective camera for spatial review.
+- a default editable React Three Fiber scene with a perspective camera.
 
 They do not share renderer objects. They share one `GymProject`, one Zustand store, the same catalog
 dimensions, and the same deterministic geometry and validation rules. The 3D adapter receives the
-project, visible selection and validation issues as props from the editor, without another store subscription or a renderer-specific store. Switching view is
+project, visible selection and validation issues as props from the editor, without a renderer-specific store. The input controller subscribes to revisions solely to invalidate drafts. Switching view is
 transient UI state and does not affect project revision, history, persistence, or WebMCP.
 
 Basic scene elements:
@@ -453,19 +453,46 @@ Basic scene elements:
 - red collision marking,
 - labels and basic dimensions.
 
-The Phase 15 scene shell is read-only and supports:
+Phase 27 replaces the read-only shell with editable 3D. `CreatorEditor` retains the store and
+bridge above both views and supplies callbacks plus its store API to the scene adapter.
+`create-room-element-command.ts` and existing equipment builders are shared by both renderers.
 
-- switching between the SVG plan and 3D preview,
-- orbiting the perspective camera,
-- zooming,
-- inspecting room scale, obstacle height, and equipment placement.
+`SceneEditController` is renderer-independent: it owns pointer identity, revision, movement
+threshold, capture cleanup and a transient command draft. `use-scene-editing` connects its snapshot
+to React, subscribes to synchronous store revisions, and cleans up global cancellation listeners.
+Any committed external revision cancels drafts; release rechecks the live revision and builders
+re-resolve the entity before dispatch. One changed gesture is one normal domain command. No
+preview project, autosave or separate agent mutation path is introduced.
 
-Selection comes from the 2D editor or element list and appears in 3D as an additive amber envelope
-outline. Validation uses the same `entityIssueState` helper as 2D: errors take precedence over warnings,
-and tint use zones, fallback solids, obstacles and wall markers without modifying GLB materials.
-Placement, dragging, snapping, rotation, and locking remain in the 2D editor. The 3D scene dispatches
-no commands and never calculates layout validity from rendered meshes. Only assets for currently
-placed products are preloaded; a failed model keeps its own fallback, outline and use zone.
+`ScenePicking` builds a camera ray from DOM coordinates and intersects only catalog/domain-sized
+boxes, independently of the visual scene graph. DOM pointer capture deliberately avoids Fiber's
+additive mesh-capture propagation. `scene-targeting` projects onto the floor plane and applies the
+inverse centred-metres conversion. `scene-move-command` preserves grab offsets and snapping;
+mounted movement is projected onto the retained wall axis before mounting constraints. Door and
+window offsets are snapped/clamped along their existing wall. Command-aligned ghosts display
+footprints/use zones without claiming the draft has passed validation.
+
+Contextual pointer-down arbitration replaces the Edit/Navigate toggle. The controller captures
+placement and already-selected entity gestures; the DOM capture handler stops them before the
+native camera listener. Other gestures reach OrbitControls and retain only a click candidate:
+short click selects/clears, drag navigates without selection or project mutation. Ownership cannot
+change when a pointer crosses another entity; selection changes cancel pending gestures. Fit/reset/top
+camera presets do not run on ordinary revisions. Camera-relative wall cutaway keeps both side
+walls near frontal views: hide the nearer side after 25° of horizontal rotation, restore below
+20° (hysteresis), symmetrically around all four axes. Top-down retains its separate thresholds;
+floor edges, openings, mounted equipment and placement targets remain independent of visual wall
+visibility. Native lists/inspector controls and keyboard centre placement provide an alternative
+to pointer interaction. Switching views clears incomplete work, not project selection/history.
+
+Selection appears as an additive amber envelope outline. Validation uses the same
+`entityIssueState` helper as 2D: errors take precedence over warnings and tint use zones, fallback
+solids, obstacles and wall markers without modifying GLB materials. Only currently placed assets
+are preloaded; a failed model keeps its fallback, outline and use zone. `SceneBoundary` wraps the
+whole Canvas and `SceneContextLoss` listens for context loss; both offer recovery to the same
+project in 2D. Neither failure remounts persistence or the WebMCP bridge.
+
+See [Phase 27 verification](PHASE_27_3D_EDITOR_VERIFICATION.md) for observed browser coverage and
+remaining device/deployment acceptance; unit/controller tests are not claims of GPU validation.
 
 The primary equipment visuals are reproducible, AI-generated procedural GLB assets produced
 offline and mapped by visual family. They remain simplified presentation assets rather than

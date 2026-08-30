@@ -5,6 +5,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-libra
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { CreatorEditor } from "../components/creator-editor";
+import type { ScenePreviewProps } from "../scene/scene-preview";
 import { createDefaultProject } from "@/features/project/defaults";
 import { serializeProject } from "@/features/project/serialization/project-codec";
 import { toProjectItemsAndPlacements } from "@/features/project/validation/test-placed-equipment";
@@ -19,8 +20,17 @@ import {
 } from "./local-project-storage";
 
 let originalModelContext: PropertyDescriptor | undefined;
+const sceneRestores = vi.hoisted(() => vi.fn());
+// Persistence integration verifies shared state; WebGL rendering has separate coverage.
+vi.mock("next/dynamic", () => ({
+  default: () => function ScenePersistenceProbe(props: ScenePreviewProps) {
+    sceneRestores(props);
+    return <span aria-label="Restored scene revision">{props.store.getState().revision}</span>;
+  },
+}));
 
 beforeEach(() => {
+  sceneRestores.mockClear();
   originalModelContext = Object.getOwnPropertyDescriptor(document, "modelContext");
 });
 
@@ -58,6 +68,10 @@ describe("persistent manual and agent editing flow", () => {
       />,
     );
     await waitFor(() => expect(tools.size).toBe(20));
+    expect(screen.getByRole("button", { name: "3D" }).getAttribute("aria-pressed")).toBe("true");
+    expect(sceneRestores.mock.lastCall![0]).toMatchObject({ project: seeded });
+    // Preserve this existing SVG visibility scenario as an explicit 2D workflow.
+    fireEvent.click(screen.getByRole("button", { name: "2D" }));
 
     const initial = await executeTool<{
       revision: number;
@@ -178,6 +192,7 @@ describe("persistent manual and agent editing flow", () => {
 
     let mounted = render(<CreatorEditor persistence storage={memory.adapter} />);
     await waitFor(() => expect(tools.size).toBe(20));
+    fireEvent.click(screen.getByRole("button", { name: "2D" }));
     fireEvent.change(screen.getByLabelText("Choose project JSON to import"), {
       target: {
         files: [

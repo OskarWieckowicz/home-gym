@@ -9,6 +9,7 @@ import {
   rotateDimensions,
   roomToScene,
   rotationToRadians,
+  scenePointToPosition,
 } from "./scene-transform";
 
 describe("scene transforms", () => {
@@ -17,6 +18,13 @@ describe("scene transforms", () => {
     expect(roomToScene(room)).toEqual({ x: 4, y: 2.4, z: 3.2 });
     expect(positionToScene({ xCm: 200, zCm: 160 }, room)).toEqual({ x: 0, y: 0, z: 0 });
   });
+  it.each([{ xCm: 0, zCm: 0 }, { xCm: 400, zCm: 320 }, { xCm: 57, zCm: 123 }])(
+    "round-trips domain points in a non-square room without footprint centering: %o", (position) => {
+      const actual = scenePointToPosition(positionToScene(position, room, 100), room);
+      expect(actual.xCm).toBeCloseTo(position.xCm);
+      expect(actual.zCm).toBeCloseTo(position.zCm);
+    },
+  );
   it("swaps width and depth for cardinal quarter turns", () => {
     const dimensions = { widthCm: 120, depthCm: 80, heightCm: 200 };
     expect(rotateDimensions(dimensions, 0)).toEqual({ x: 1.2, y: 2, z: 0.8 });

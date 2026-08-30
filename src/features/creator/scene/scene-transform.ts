@@ -47,6 +47,17 @@ export function positionToScene(position: { xCm: number; zCm: number }, room: Ro
   };
 }
 
+/** Inverse of positionToScene; returns the pointer coordinate, never an entity min-corner. */
+export function scenePointToPosition(
+  point: Pick<SceneVector3, "x" | "z">,
+  room: Pick<Room, "widthCm" | "depthCm">,
+): { xCm: number; zCm: number } {
+  return {
+    xCm: point.x / CM_TO_M + room.widthCm / 2,
+    zCm: point.z / CM_TO_M + room.depthCm / 2,
+  };
+}
+
 function footprintCenter(footprint: Pick<RectangleFootprint, "minX" | "minZ" | "widthCm" | "depthCm">) {
   return { xCm: footprint.minX + footprint.widthCm / 2, zCm: footprint.minZ + footprint.depthCm / 2 };
 }

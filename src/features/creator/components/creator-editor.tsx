@@ -14,7 +14,7 @@ import {
   type ProjectPersistenceBoundaryProps,
 } from "../persistence/project-persistence-boundary";
 import { productForPlacement } from "../placement-product";
-import { ProjectStoreProvider, useProjectStore } from "../store/project-store-context";
+import { ProjectStoreProvider, useProjectStore, useProjectStoreApi } from "../store/project-store-context";
 import { CreatorToolbar } from "./creator-toolbar";
 import { ElementPanel } from "./element-panel";
 import { ObstacleForm } from "./obstacle-form";
@@ -28,17 +28,18 @@ import { WallElementForm } from "./wall-element-form";
 
 const ScenePreview = dynamic(
   () => import("../scene/scene-preview").then((module) => module.ScenePreview),
-  { ssr: false, loading: () => <section className="creator-scene-shell" aria-label="Loading 3D room preview"><p className="creator-help">Loading 3D preview…</p></section> },
+  { ssr: false, loading: () => <section className="creator-scene-shell" aria-label="Loading 3D room editor"><p className="creator-help">Loading 3D editor… You can switch to 2D at any time.</p></section> },
 );
 
 function EditorWorkspace() {
+  const store = useProjectStoreApi();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [activePanel, setActivePanel] = useState<EditorPanel>("room");
   const [activeTool, setActiveTool] = useState<PlacementTool | null>(null);
   const [activeProductId, setActiveProductId] = useState<string | null>(null);
   const [activeProjectItemId, setActiveProjectItemId] = useState<string | null>(null);
   const [placementError, setPlacementError] = useState("");
-  const [viewMode, setViewMode] = useState<"2d" | "3d">("2d");
+  const [viewMode, setViewMode] = useState<"2d" | "3d">("3d");
   const obstacles = useProjectStore((state) => state.project.obstacles);
   const placements = useProjectStore((state) => state.project.placements);
   const wallElements = useProjectStore((state) => state.project.wallElements);
@@ -63,6 +64,11 @@ function EditorWorkspace() {
     setActiveProductId(null);
     setActiveProjectItemId(null);
     setPlacementError("");
+  }
+
+  function changeView(mode: "2d" | "3d") {
+    clearPlacementMode();
+    setViewMode(mode);
   }
 
   function select(id: string | null) {
@@ -127,7 +133,7 @@ function EditorWorkspace() {
 
   return (
     <main className="creator-editor" id="creator-content" tabIndex={-1}>
-      <CreatorToolbar viewMode={viewMode} onViewModeChange={setViewMode} />
+      <CreatorToolbar viewMode={viewMode} onViewModeChange={changeView} />
       <div className="creator-layout">
         <ElementPanel
           activePanel={activePanel}
@@ -152,7 +158,10 @@ function EditorWorkspace() {
           onSelect={select}
           placementError={placementError}
           selectedId={visibleSelectedId}
-        /> : <ScenePreview project={project} selectedId={visibleSelectedId} issues={issues} />}
+        /> : <ScenePreview project={project} selectedId={visibleSelectedId} issues={issues} store={store}
+          activeTool={activeTool} activeProductId={activeProductId} activeProjectItemId={activeProjectItemId}
+          placementError={placementError} onSelect={select} onPlacementComplete={finishPlacement}
+          onPlacementError={setPlacementError} onCancelPlacement={clearPlacementMode} onFallback={() => changeView("2d")} />}
         <aside className="creator-side creator-properties" aria-label="Properties and validation">
           {activePanel === "room" ? <RoomForm /> : null}
           {activePanel === "settings" ? <ProjectSettingsForm /> : null}
@@ -172,8 +181,8 @@ function EditorWorkspace() {
           {activePanel === "selected" && !selectedObstacle && !selectedWallElement && !selectedPlacement && !selectedItem ? (
             <p className="creator-help">
               {placing
-                ? "Place the selected item on the plan."
-                : "Select an element on the plan or in the list."}
+                ? "Place the selected item in the room."
+                : "Select an element in the room or in the list."}
             </p>
           ) : null}
           <ValidationSummary />

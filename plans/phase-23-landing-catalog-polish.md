@@ -1,7 +1,7 @@
 # Phase 23 — Landing page and catalog polish
 
-> Order 3 in the [active queue](README.md). Depends on Phase 16 for final product assets and
-> Phase 22 for real demo screenshots and figures. Blocks Phase 24.
+> Order 3 in the [active queue](README.md). Depends on Phase 16 for final product assets,
+> Phase 27 for the primary 3D editor and Phase 26 for its reproducible demo project. Blocks Phase 24.
 
 ## Problem
 
@@ -31,9 +31,9 @@ Phase 26 is the real thing. Derive every number on the page from that project's 
 state them once; if they disagree with the doc, the doc is what changes.
 
 **D2 — one real screenshot beats three synthetic ones.** The hero and the sample scenario use
-captures from the Phase 22 demo run, including a visible clearance warning and a visible agent entry
-in the activity feed. `HeroPlanSketch` stays in the repository as the fallback only if a real capture
-cannot be produced; it is not the shipped hero once Phase 22 lands.
+captures of the Phase 26 demo project in the Phase 27 primary 3D editor, showing the layout and its validation
+warning. An in-editor activity feed is not required. `HeroPlanSketch` stays in the repository as the
+fallback only if a real capture cannot be produced; it is not the shipped hero when a capture is available.
 
 **D3 — a missing catalog photo is a decision, not a gap.** Every one of the 34 products either gets
 an image or is recorded as an intentional fallback with a reason. The current
@@ -70,8 +70,9 @@ the `Card` and `LinkButton` primitives, and the tokens already in `globals.css`.
    or update the specification if the current wording is preferred. One of the two must move; the
    mismatch cannot survive into submission.
 
-4. **Real imagery.** Replace the hero visual with a Phase 22 capture and add a second capture to the
-   sample scenario showing the agent's activity next to the validation panel. Use `next/image` with
+4. **Real imagery.** Capture the Phase 26 demo project in the primary 3D editor, replace the hero visual with
+   a real capture, and illustrate the sample scenario with the layout and validation panel. Record
+   the captures' provenance. Use `next/image` with
    explicit dimensions, meaningful alt text and appropriate priority on the hero image so the largest
    contentful paint does not regress.
 

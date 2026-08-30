@@ -4,14 +4,24 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-libra
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { CreatorEditor } from "@/features/creator/components/creator-editor";
+import type { ScenePreviewProps } from "@/features/creator/scene/scene-preview";
 import { createDefaultProject } from "@/features/project/defaults";
 import type { ProjectCommand } from "@/features/project/schemas/project-command";
 
 import type { WebMcpModelContext, WebMcpTool } from "./types";
 
 let originalModelContext: PropertyDescriptor | undefined;
+const sceneState = vi.hoisted(() => vi.fn());
+// Keep real registered tools and the shared editor/store, not WebGL in jsdom.
+vi.mock("next/dynamic", () => ({
+  default: () => function SceneWebMcpProbe(props: ScenePreviewProps) {
+    sceneState(props);
+    return <span aria-label="Agent scene revision">{props.store.getState().revision}</span>;
+  },
+}));
 
 beforeEach(() => {
+  sceneState.mockClear();
   originalModelContext = Object.getOwnPropertyDescriptor(document, "modelContext");
 });
 
@@ -63,6 +73,9 @@ describe("creator WebMCP shared editing flow", () => {
     expect(await execute("get_project_state", {})).toEqual(before);
     expect(screen.getByText("No equipment in the project yet.")).toBeTruthy();
     expect(await execute("apply_layout_changes", { changes })).toMatchObject({ ok: true, changed: true, revision: 1 });
+    expect(screen.getByRole("button", { name: "3D" }).getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByLabelText("Agent scene revision").textContent).toBe("1");
+    expect((sceneState.mock.lastCall![0] as ScenePreviewProps).project.placements).toHaveLength(4);
     expect(screen.getAllByRole("button", { name: /Groundwork Exercise MatPlaced · 0°/ })).toHaveLength(4);
     fireEvent.click(screen.getByRole("button", { name: /Undo/ }));
     expect(screen.getByText("No equipment in the project yet.")).toBeTruthy();
@@ -90,6 +103,7 @@ describe("existing creator WebMCP shared editing flow", () => {
         initialProject={createDefaultProject()}
       />,
     );
+    fireEvent.click(screen.getByRole("button", { name: "2D" }));
     await waitFor(() => expect(tools.size).toBe(20));
 
     fireEvent.click(screen.getByRole("button", { name: "Project settings" }));
