@@ -46,6 +46,8 @@ Keep these decisions:
    accessory and cardio. Record loaded assets, triangles, draw calls, texture memory where
    available, and responsiveness at the demo viewport. Coordinate this with Phase 20 instead of
    duplicating the measurement; individual asset estimates are not a room benchmark.
+   [Shared performance notes](../docs/PERFORMANCE_NOTES.md) now record the static asset census;
+   runtime draw calls, first-frame timing and orbit responsiveness are still open.
 
 ## Validation and exit gate
 

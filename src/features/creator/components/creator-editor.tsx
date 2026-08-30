@@ -43,6 +43,7 @@ function EditorWorkspace() {
   const placements = useProjectStore((state) => state.project.placements);
   const wallElements = useProjectStore((state) => state.project.wallElements);
   const project = useProjectStore((state) => state.project);
+  const issues = useProjectStore((state) => state.validation.issues);
   const dispatch = useProjectStore((state) => state.dispatch);
   const selectedObstacle = obstacles.find((obstacle) => obstacle.id === selectedId);
   const selectedPlacement = placements.find((placement) => placement.id === selectedId);
@@ -151,7 +152,7 @@ function EditorWorkspace() {
           onSelect={select}
           placementError={placementError}
           selectedId={visibleSelectedId}
-        /> : <ScenePreview project={project} />}
+        /> : <ScenePreview project={project} selectedId={visibleSelectedId} issues={issues} />}
         <aside className="creator-side creator-properties" aria-label="Properties and validation">
           {activePanel === "room" ? <RoomForm /> : null}
           {activePanel === "settings" ? <ProjectSettingsForm /> : null}

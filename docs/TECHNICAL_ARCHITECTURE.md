@@ -406,8 +406,8 @@ The creator uses two presentation adapters:
 - a React Three Fiber scene with a perspective camera for spatial review.
 
 They do not share renderer objects. They share one `GymProject`, one Zustand store, the same catalog
-dimensions, and the same deterministic geometry and validation rules. The 3D adapter subscribes to
-the existing project state without copying it into a renderer-specific store. Switching view is
+dimensions, and the same deterministic geometry and validation rules. The 3D adapter receives the
+project, visible selection and validation issues as props from the editor, without another store subscription or a renderer-specific store. Switching view is
 transient UI state and does not affect project revision, history, persistence, or WebMCP.
 
 Basic scene elements:
@@ -430,9 +430,12 @@ The Phase 15 scene shell is read-only and supports:
 - zooming,
 - inspecting room scale, obstacle height, and equipment placement.
 
-Precise selection, placement, dragging, snapping, rotation, and locking remain in the 2D editor.
-Later 3D-preview work may add selection and validation presentation, but it must still dispatch the
-same domain commands and must never calculate layout validity from rendered meshes.
+Selection comes from the 2D editor or element list and appears in 3D as an additive amber envelope
+outline. Validation uses the same `entityIssueState` helper as 2D: errors take precedence over warnings,
+and tint use zones, fallback solids, obstacles and wall markers without modifying GLB materials.
+Placement, dragging, snapping, rotation, and locking remain in the 2D editor. The 3D scene dispatches
+no commands and never calculates layout validity from rendered meshes. Only assets for currently
+placed products are preloaded; a failed model keeps its own fallback, outline and use zone.
 
 The primary equipment visuals are reproducible, AI-generated procedural GLB assets produced
 offline and mapped by visual family. They remain simplified presentation assets rather than

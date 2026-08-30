@@ -4,6 +4,26 @@
 > the asset registry Phase 16 owns. Nothing depends on this phase, so it is the first candidate for
 > narrowing if the schedule tightens.
 
+## Implementation status — 30 August 2026
+
+- Tasks 1–3 and 5 implemented: selection and validation are props, issue presentation reuses the
+  2D helper, selection uses an independent envelope outline, and only placed products are preloaded.
+  Entity rendering and the per-placement error boundary are extracted into sibling scene files.
+- Task 4 explicitly cut: the scene remains one-way selection sync from the plan/list. No `onSelect`
+  prop or pointer handler was added, so orbiting cannot accidentally select or mutate an entity.
+- Automated coverage includes the appearance policy, preload scope, editor props after plan/list
+  selection and inspector edits/undo, unchanged scene transforms, and isolated asset-error fallbacks.
+- Validation passed: `npm run quality:quick`, `npm run lint:report` (advisory warnings only),
+  and `npm run agent:verify` (83 test files, 596 tests). Read-only code review found no actionable
+  issues. The dynamic client import boundary is unchanged, so no production build was required.
+- Task 6 remains open. [Performance notes](../docs/PERFORMANCE_NOTES.md) record measured asset
+  counts and the exact limitations; those static numbers do not replace a full-room runtime run.
+  Phase 26's demo fixture does not yet exist. No manual/live browser checks were performed, per the
+  user's instruction. User visual checks and runtime metrics are still unverified.
+
+Keep this plan and its index row until the runtime exit gate is met; implementation is not a claim
+that the unmeasured benchmark or manual checks passed.
+
 ## Problem
 
 `src/features/creator/scene/scene-preview.tsx` (139 lines) receives only `project`. It renders the

@@ -3,13 +3,29 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import type { ScenePreviewProps } from "../scene/scene-preview";
+import { catalogProductResolver } from "../store/catalog-product-resolver";
+import { useProjectStore } from "../store/project-store-context";
+import { analyzeProject } from "@/features/project/validation/analyze-project";
 import { createDefaultProject } from "@/features/project/defaults";
 
 import { CreatorEditor } from "./creator-editor";
 
+const { sceneProps } = vi.hoisted(() => ({ sceneProps: vi.fn() }));
+
+// Exercise the editor-to-scene props boundary, not WebGL under jsdom.
+vi.mock("next/dynamic", () => ({
+  default: () => function ScenePreviewProbe(props: ScenePreviewProps) {
+    const revision = useProjectStore((state) => state.revision);
+    sceneProps(props);
+    return <output aria-label="Scene store revision">{revision}</output>;
+  },
+}));
+
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
+  sceneProps.mockClear();
 });
 
 function change(name: string, value: string) {
@@ -18,8 +34,37 @@ function change(name: string, value: string) {
 
 describe("CreatorEditor", () => {
   it("switches presentation views without creating project history", () => {
-    render(<CreatorEditor initialProject={createDefaultProject()} />);
+    const project = createDefaultProject();
+    project.projectItems = [
+      { id: "project-item_rack", productId: "product_northstar_half_rack" },
+      { id: "project-item_bench", productId: "product_arc_adjustable_bench" },
+    ];
+    project.placements = project.projectItems.map((item, index) => ({
+      id: index === 0 ? "placement_rack" : "placement_bench",
+      projectItemId: item.id, position: { xCm: 100, zCm: 100 }, rotation: 0,
+    }));
+    render(<CreatorEditor initialProject={project} />);
+    fireEvent.keyDown(screen.getByRole("button", { name: /^Northstar Half Rack, equipment/ }), { key: "Enter" });
     fireEvent.click(screen.getByRole("button", { name: "3D" }));
+    const expectedIssues = analyzeProject(project, { resolveProduct: catalogProductResolver }).issues;
+    expect(expectedIssues.some((issue) => issue.severity === "error" && issue.entityIds.includes("placement_rack") && issue.entityIds.includes("placement_bench"))).toBe(true);
+    expect(sceneProps).toHaveBeenLastCalledWith({ project, selectedId: "placement_rack", issues: expectedIssues });
+    expect(screen.getByLabelText("Scene store revision").textContent).toBe("0");
+
+    fireEvent.click(screen.getByRole("button", { name: /Arc Adjustable Bench.*Placed/ }));
+    expect(sceneProps).toHaveBeenLastCalledWith({ project, selectedId: "placement_bench", issues: expectedIssues });
+    expect(screen.getByLabelText("Scene store revision").textContent).toBe("0");
+
+    // Inspector edits remain normal commands; the still-mounted scene gets fresh issues.
+    change("X (cm)", "270");
+    change("Z (cm)", "170");
+    fireEvent.click(screen.getByRole("button", { name: "Apply changes" }));
+    const updated = sceneProps.mock.lastCall![0] as ScenePreviewProps;
+    expect(updated.project).not.toEqual(project);
+    expect(updated.issues).toEqual(analyzeProject(updated.project, { resolveProduct: catalogProductResolver }).issues);
+    expect(updated.issues).not.toEqual(expectedIssues);
+    fireEvent.click(screen.getByRole("button", { name: /Undo/ }));
+    expect(sceneProps).toHaveBeenLastCalledWith({ project, selectedId: "placement_bench", issues: expectedIssues });
     expect(screen.getByRole("button", { name: "3D" }).getAttribute("aria-pressed")).toBe("true");
     expect(screen.getByRole("button", { name: /Undo/ })).toHaveProperty("disabled", true);
     fireEvent.click(screen.getByRole("button", { name: "2D" }));
