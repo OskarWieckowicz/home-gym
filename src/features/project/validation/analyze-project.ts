@@ -19,6 +19,7 @@ import {
   validateObstacleCollisions,
   validatePlacementCollisions,
 } from "./validate-collisions";
+import { validateMounting } from "./validate-mounting";
 import { validatePlacementRequirements } from "./validate-requirements";
 import { validateUseZones } from "./validate-use-zones";
 import { validateWallElements } from "./validate-wall-elements";
@@ -40,6 +41,7 @@ export function analyzeProject(
     ...validateObstacleCollisions(items),
     ...validatePlacementCollisions(items, placements),
     ...validateUseZones(items, placements),
+    ...validateMounting(project, placements),
     ...validatePlacementRequirements(project, placements),
     ...validateWallElements(project),
     ...access.issues,

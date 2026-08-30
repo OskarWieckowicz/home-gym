@@ -63,6 +63,13 @@ const requirementsSchema = z
   })
   .strict();
 
+export const productMountingSchema = z
+  .object({
+    kind: z.literal("wall"),
+    bottomHeightCm: positiveInteger,
+  })
+  .strict();
+
 export const productSchema = z
   .object({
     id: z.string().regex(PRODUCT_ID_PATTERN),
@@ -81,6 +88,7 @@ export const productSchema = z
     maximumLoadKg: positiveInteger.optional(),
     requirements: requirementsSchema,
     constraints: z.array(z.string().trim().min(1)).optional(),
+    mounting: productMountingSchema.optional(),
   })
   .strict()
   .refine(
@@ -91,9 +99,22 @@ export const productSchema = z
       message: "Minimum ceiling height cannot be lower than product height.",
       path: ["requirements", "minimumCeilingHeightCm"],
     },
+  )
+  .refine(
+    ({ dimensions, requirements, mounting }) =>
+      mounting === undefined ||
+      requirements.minimumCeilingHeightCm === undefined ||
+      requirements.minimumCeilingHeightCm >=
+        mounting.bottomHeightCm + dimensions.heightCm,
+    {
+      message: "Minimum ceiling height cannot be lower than the mounted product top.",
+      path: ["requirements", "minimumCeilingHeightCm"],
+    },
   );
 
 export type ProductCategory = (typeof PRODUCT_CATEGORIES)[number];
 export type AnchoringFilter = (typeof ANCHORING_FILTER_VALUES)[number];
+export type ProductMounting = z.infer<typeof productMountingSchema>;
+export type EffectiveMounting = ProductMounting | { readonly kind: "floor" };
 export { TRAINING_GOALS, type TrainingGoal };
 export type Product = z.infer<typeof productSchema>;

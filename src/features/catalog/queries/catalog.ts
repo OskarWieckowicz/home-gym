@@ -4,6 +4,7 @@ import {
   PRODUCT_CATEGORIES,
   TRAINING_GOALS,
   type AnchoringFilter,
+  type EffectiveMounting,
   type Product,
   type ProductCategory,
   type TrainingGoal,
@@ -82,8 +83,16 @@ export function normalizeCatalogFilters(filters: CatalogFilters = {}): Normalize
   };
 }
 
+export function getEffectiveMounting(product: Product): EffectiveMounting {
+  return product.mounting ?? { kind: "floor" };
+}
+
 export function getEffectiveRequiredHeightCm(product: Product): number {
-  return product.requirements.minimumCeilingHeightCm ?? product.dimensions.heightCm;
+  const stored = product.requirements.minimumCeilingHeightCm ?? product.dimensions.heightCm;
+  const mounting = getEffectiveMounting(product);
+  return mounting.kind === "wall"
+    ? Math.max(stored, mounting.bottomHeightCm + product.dimensions.heightCm)
+    : stored;
 }
 
 export function getEffectiveAnchoring(product: Product): AnchoringFilter {

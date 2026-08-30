@@ -246,6 +246,14 @@ body {
 .creator-plan-equipment.has-top-view .creator-equipment-footprint { fill: #eff6ff; stroke: none; }
 .creator-equipment-top-view { pointer-events: none; }
 .creator-equipment-outline { fill: none; pointer-events: none; stroke: var(--brand-strong); stroke-width: 2.5; }
+.creator-plan-equipment.is-wall-mounted .creator-equipment-footprint {
+  fill: rgb(191 219 254 / 0.28);
+  stroke: var(--brand-strong);
+  stroke-width: 2;
+  stroke-dasharray: 7 5;
+}
+.creator-plan-equipment.is-wall-mounted.has-top-view .creator-equipment-footprint { fill: none; }
+.creator-plan-equipment.is-wall-mounted .creator-equipment-outline { stroke-dasharray: 7 5; }
 .creator-plan-equipment.is-selected :is(.creator-equipment-footprint, .creator-equipment-outline) { stroke: var(--select); stroke-width: 5; }
 .creator-plan-equipment.is-invalid :is(.creator-equipment-footprint, .creator-equipment-outline) { stroke: #dc2626; stroke-dasharray: 7 4; }
 .creator-plan-equipment.is-warned :is(.creator-equipment-footprint, .creator-equipment-outline) { stroke: var(--caution); stroke-dasharray: 7 4; }

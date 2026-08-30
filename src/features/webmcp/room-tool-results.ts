@@ -1,3 +1,4 @@
+import { findProductById, getEffectiveMounting } from "@/features/catalog/queries";
 import type { CommandErrorCode, DispatchResult } from "@/features/project/commands/command-results";
 import type { AccessImpact } from "@/features/project/validation/access-impact";
 import type { ProjectAccess } from "@/features/geometry/access-facts";
@@ -68,7 +69,12 @@ export function serializeWallElement(wallElement: WallElement) {
 }
 
 export function serializePlacement(placement: Placement) {
-  return { ...placement, position: { ...placement.position } };
+  const product = findProductById(placement.productId);
+  return {
+    ...placement,
+    position: { ...placement.position },
+    mounting: product ? getEffectiveMounting(product) : { kind: "floor" as const },
+  };
 }
 
 export function serializeProject(project: GymProject) {
@@ -142,6 +148,25 @@ export function serializeValidationIssue(issue: ValidationIssue): ValidationIssu
       ...issue,
       entityIds: [...issue.entityIds] as [string],
       details: { ...issue.details },
+    };
+  }
+
+  if (issue.code === "WALL_MOUNT_OFF_WALL") {
+    return {
+      ...issue,
+      entityIds: [...issue.entityIds] as [string],
+      details: { ...issue.details },
+    };
+  }
+
+  if (issue.code === "WALL_MOUNT_OVERLAPS_OPENING") {
+    return {
+      ...issue,
+      entityIds: [...issue.entityIds] as [string, string],
+      details: {
+        ...issue.details,
+        overlap: { ...issue.details.overlap },
+      },
     };
   }
 
@@ -257,6 +282,12 @@ export function serializeValidation(analysis: ProjectAnalysis) {
       ).length,
       ceilingTooLow: clonedIssues.filter(
         ({ code }) => code === "CEILING_TOO_LOW",
+      ).length,
+      wallMountOffWall: clonedIssues.filter(
+        ({ code }) => code === "WALL_MOUNT_OFF_WALL",
+      ).length,
+      wallMountOverlapsOpening: clonedIssues.filter(
+        ({ code }) => code === "WALL_MOUNT_OVERLAPS_OPENING",
       ).length,
       budgetExceeded: clonedIssues.filter(
         ({ code }) => code === "BUDGET_EXCEEDED",

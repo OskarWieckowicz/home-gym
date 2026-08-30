@@ -77,6 +77,8 @@ describe("room WebMCP tool definitions", () => {
       .toContain("reachability");
     expect(tools.find(({ name }) => name === "place_product")?.description)
       .toContain("Unreachable");
+    expect(tools.find(({ name }) => name === "place_product")?.description)
+      .toContain("flush");
     expect(tools.find(({ name }) => name === "remove_product")?.description)
       .toContain("placement ID");
   });

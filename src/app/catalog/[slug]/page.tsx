@@ -52,6 +52,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
     product.requirements.anchoring
       ? ["Anchoring", formatCatalogLabel(product.requirements.anchoring)]
       : undefined,
+    product.mounting
+      ? ["Mount height", `${product.mounting.bottomHeightCm} cm`]
+      : undefined,
     product.requirements.flooring
       ? ["Flooring", formatCatalogLabel(product.requirements.flooring)]
       : undefined,

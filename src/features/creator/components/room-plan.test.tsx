@@ -350,4 +350,88 @@ describe("RoomPlan placement", () => {
       .toBe("1:0:0:1");
     expect(onPlacementComplete).toHaveBeenCalledWith("placement_dropped");
   });
+
+  it("snaps a dropped wall-mounted bar flush to the nearest wall", () => {
+    const onPlacementComplete = vi.fn();
+    render(
+      <ProjectStoreProvider dependencies={{
+        generatePlacementId: () => "placement_bar",
+      }} initialProject={createDefaultProject()}>
+        <EquipmentStoreProbe />
+        <RoomPlan
+          activeProductId={null}
+          activeTool={null}
+          onCancelPlacement={vi.fn()}
+          onPlacementComplete={onPlacementComplete}
+          onPlacementError={vi.fn()}
+          onSelect={vi.fn()}
+          placementError=""
+          selectedId={null}
+        />
+      </ProjectStoreProvider>,
+    );
+    const plan = screen.getByRole("group", { name: "Top-down editable room plan" });
+    vi.spyOn(plan, "getBoundingClientRect").mockReturnValue({
+      bottom: 560, height: 560, left: 0, right: 760, top: 0, width: 760,
+      x: 0, y: 0, toJSON: () => undefined,
+    });
+    const dataTransfer = {
+      dropEffect: "none",
+      types: [EQUIPMENT_DRAG_TYPE],
+      getData: vi.fn(() => "product_anchor_pullup_bar"),
+    };
+    const drop = createEvent.drop(plan, { dataTransfer });
+    Object.defineProperties(drop, {
+      clientX: { value: 380 },
+      clientY: { value: 280 },
+    });
+    fireEvent(plan, drop);
+
+    expect(screen.getByRole("status", { name: "Equipment store state" }).textContent)
+      .toBe("1:144:0:true");
+    expect(onPlacementComplete).toHaveBeenCalledWith("placement_bar");
+    expect(screen.getByRole("button", { name: /wall-mounted equipment, 0 degrees/ })).toBeTruthy();
+  });
+
+  it("rejects dragging a wall-mounted bar off its wall", () => {
+    const onPlacementError = vi.fn();
+    render(
+      <ProjectStoreProvider initialProject={{
+        ...createDefaultProject(),
+        room: { widthCm: 300, depthCm: 400, heightCm: 250 },
+        placements: [{
+          id: "placement_bar",
+          productId: "product_anchor_pullup_bar",
+          position: { xCm: 246, zCm: 80 },
+          rotation: 90,
+        }],
+      }}>
+        <EquipmentStoreProbe />
+        <RoomPlan
+          activeProductId={null}
+          activeTool={null}
+          onCancelPlacement={vi.fn()}
+          onPlacementComplete={vi.fn()}
+          onPlacementError={onPlacementError}
+          onSelect={vi.fn()}
+          placementError=""
+          selectedId={null}
+        />
+      </ProjectStoreProvider>,
+    );
+    const entity = screen.getByRole("button", { name: /wall-mounted equipment/ });
+    const plan = screen.getByRole("group", { name: "Top-down editable room plan" });
+    vi.spyOn(plan, "getBoundingClientRect").mockReturnValue({
+      bottom: 560, height: 560, left: 0, right: 760, top: 0, width: 760,
+      x: 0, y: 0, toJSON: () => undefined,
+    });
+
+    fireEvent.pointerDown(entity, { button: 0, clientX: 200, clientY: 200, pointerId: 9 });
+    fireEvent.pointerMove(entity, { clientX: 80, clientY: 200, pointerId: 9 });
+    fireEvent.pointerUp(entity, { clientX: 80, clientY: 200, pointerId: 9 });
+
+    expect(screen.getByRole("status", { name: "Equipment store state" }).textContent)
+      .toBe("0:246:80:false");
+    expect(onPlacementError).not.toHaveBeenCalled();
+  });
 });

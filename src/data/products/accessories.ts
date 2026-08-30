@@ -56,10 +56,11 @@ export const accessorySeeds = [
     weightKg: 11,
     maximumLoadKg: 140,
     requirements: {
-      minimumCeilingHeightCm: 225,
+      minimumCeilingHeightCm: 233,
       anchoring: "required",
       assembly: "professional",
     },
+    mounting: { kind: "wall", bottomHeightCm: 195 },
     constraints: ["Mount only to a structurally suitable wall."],
   },
   {

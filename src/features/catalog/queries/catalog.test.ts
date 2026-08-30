@@ -8,6 +8,7 @@ import {
   findProductBySlug,
   getCatalogExerciseOptions,
   getEffectiveAnchoring,
+  getEffectiveMounting,
   getEffectiveRequiredHeightCm,
   normalizeCatalogFilters,
   searchProducts,
@@ -192,6 +193,23 @@ describe("findProductBySlug", () => {
 
   it("returns undefined for an unknown slug", () => {
     expect(findProductBySlug("not-a-product")).toBeUndefined();
+  });
+});
+
+describe("getEffectiveMounting", () => {
+  it("defaults to floor and reports the anchor bar as wall-mounted", () => {
+    const floorProduct = catalogProducts.find(({ id }) => id !== "product_anchor_pullup_bar");
+    const bar = findProductById("product_anchor_pullup_bar");
+    expect(floorProduct).toBeDefined();
+    expect(bar).toBeDefined();
+    if (!floorProduct || !bar) return;
+
+    expect(getEffectiveMounting(floorProduct)).toEqual({ kind: "floor" });
+    expect(getEffectiveMounting(bar)).toEqual({ kind: "wall", bottomHeightCm: 195 });
+    expect(
+      catalogProducts.filter((product) => getEffectiveMounting(product).kind === "wall"),
+    ).toEqual([bar]);
+    expect(getEffectiveRequiredHeightCm(bar)).toBe(233);
   });
 });
 

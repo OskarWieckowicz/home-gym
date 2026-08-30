@@ -9,6 +9,8 @@ export const VALIDATION_ISSUE_CODES = [
   "USE_ZONE_OVERLAP",
   "USE_ZONE_OUTSIDE_ROOM",
   "CEILING_TOO_LOW",
+  "WALL_MOUNT_OFF_WALL",
+  "WALL_MOUNT_OVERLAPS_OPENING",
   "BUDGET_EXCEEDED",
   "DOOR_BLOCKED",
   "DOOR_UNREACHABLE",
@@ -103,6 +105,27 @@ export type CeilingTooLowIssue = {
     readonly roomHeightCm: number;
     readonly productHeightCm: number;
     readonly requiredHeightCm: number;
+    readonly mountBottomHeightCm?: number;
+  };
+};
+
+export type WallMountOffWallIssue = {
+  readonly code: "WALL_MOUNT_OFF_WALL";
+  readonly severity: "error";
+  readonly entityIds: readonly [string];
+  readonly details: {
+    readonly wall: "top" | "right" | "bottom" | "left";
+    readonly gapCm: number;
+  };
+};
+
+export type WallMountOverlapsOpeningIssue = {
+  readonly code: "WALL_MOUNT_OVERLAPS_OPENING";
+  readonly severity: "error";
+  readonly entityIds: readonly [string, string];
+  readonly details: {
+    readonly wall: "top" | "right" | "bottom" | "left";
+    readonly overlap: { readonly startCm: number; readonly endCm: number };
   };
 };
 
@@ -169,6 +192,8 @@ export type ValidationIssue =
   | UseZoneOverlapIssue
   | UseZoneOutsideRoomIssue
   | CeilingTooLowIssue
+  | WallMountOffWallIssue
+  | WallMountOverlapsOpeningIssue
   | BudgetExceededIssue
   | OutsideWallIssue
   | WallElementOverlapIssue

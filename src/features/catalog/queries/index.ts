@@ -2,6 +2,7 @@ export {
   findProductBySlug,
   getCatalogExerciseOptions,
   getEffectiveAnchoring,
+  getEffectiveMounting,
   getEffectiveRequiredHeightCm,
   findProductById,
   normalizeCatalogFilters,

@@ -52,6 +52,22 @@ describe("scene transforms", () => {
     expect(box.position.z - box.dimensions.z / 2).toBeCloseTo(-1.6);
   });
 
+  it("lifts a mounted solid and asset origin while keeping the use-zone overlay on the floor", () => {
+    const placement = { position: { xCm: 246, zCm: 80 }, rotation: 90 as const };
+    const dimensions = { widthCm: 112, depthCm: 54, heightCm: 38 };
+    const product = {
+      dimensions: { widthCm: 112, depthCm: 54 },
+      useZone: { frontCm: 70, backCm: 0, leftCm: 30, rightCm: 30 },
+    };
+    const solid = equipmentBoxToScene(placement, dimensions, room, 195);
+    const origin = placementCenterToScene(placement, dimensions, room, 195);
+    const overlay = equipmentUseZoneToScene(placement, product, room);
+
+    expect(solid.position.y).toBeCloseTo(2.14);
+    expect(origin.y).toBeCloseTo(1.95);
+    expect(overlay.position.y).toBeCloseTo(0.006);
+  });
+
   it("anchors generated equipment meshes at the same footprint center as the catalog solid", () => {
     const placement = { position: { xCm: 35, zCm: 50 }, rotation: 0 as const };
     const dimensions = { widthCm: 66, depthCm: 142, heightCm: 46 };

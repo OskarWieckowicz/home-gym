@@ -4,7 +4,9 @@ import { RotateCw, Trash2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
 
 import { formatDimensions, formatPricePln } from "@/features/catalog/components/catalog-formatters";
+import { getEffectiveMounting } from "@/features/catalog/queries";
 import type { Product } from "@/features/catalog/schemas";
+import { getMountedWall } from "@/features/geometry/wall-mounting";
 import type { Rotation } from "@/features/project/schemas/geometry";
 import { placementPatchSchema } from "@/features/project/schemas/project-command";
 import type { Placement } from "@/features/project/schemas/project";
@@ -24,6 +26,7 @@ export function PlacementForm({
   const dispatch = useProjectStore((state) => state.dispatch);
   const revision = useProjectStore((state) => state.revision);
   const [error, setError] = useState("");
+  const mounting = getEffectiveMounting(product);
 
   function update(patch: Record<string, unknown>) {
     const result = dispatch({
@@ -66,6 +69,14 @@ export function PlacementForm({
       <dl className="creator-product-facts">
         <div><dt>Price</dt><dd>{formatPricePln(product.price)}</dd></div>
         <div><dt>Dimensions</dt><dd>{formatDimensions(product.dimensions)}</dd></div>
+        {mounting.kind === "wall" ? (
+          <div>
+            <dt>Mounting</dt>
+            <dd>
+              Mounted on the {getMountedWall(placement.rotation)} wall at {mounting.bottomHeightCm} cm
+            </dd>
+          </div>
+        ) : null}
       </dl>
       <div className="creator-field-grid">
         <NumberField defaultValue={placement.position.xCm} id="placement-x" label="X (cm)" min="0" name="xCm" step="1" />

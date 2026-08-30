@@ -153,4 +153,42 @@ describe("placement WebMCP handlers", () => {
     });
     expect(store.getState().project.placements).toHaveLength(1);
   });
+
+  it("returns WALL_MOUNT_OFF_WALL with the derived wall and gap for an off-wall agent placement", () => {
+    const store = createProjectStore({
+      ...createDefaultProject(),
+      room: { widthCm: 300, depthCm: 400, heightCm: 250 },
+      wallElements: [{
+        id: "wall-element_door",
+        kind: "door",
+        name: "Door",
+        wall: "top",
+        offsetCm: 20,
+        widthCm: 90,
+      }],
+    }, {
+      dependencies: { generatePlacementId: () => "placement_agent-bar" },
+    });
+
+    const placed = createPlaceProductHandler(store)({
+      productId: "product_anchor_pullup_bar",
+      position: { xCm: 200, zCm: 80 },
+      rotation: 90,
+    });
+    expect(placed).toMatchObject({
+      ok: true,
+      placement: {
+        id: "placement_agent-bar",
+        mounting: { kind: "wall", bottomHeightCm: 195 },
+      },
+      validation: {
+        valid: false,
+        issueCounts: { wallMountOffWall: 1 },
+        issues: [{
+          code: "WALL_MOUNT_OFF_WALL",
+          details: { wall: "right", gapCm: 46 },
+        }],
+      },
+    });
+  });
 });

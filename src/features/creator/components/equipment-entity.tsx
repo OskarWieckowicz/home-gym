@@ -2,6 +2,7 @@
 
 import type { KeyboardEvent, PointerEvent } from "react";
 
+import { getEffectiveMounting } from "@/features/catalog/queries";
 import type { Product } from "@/features/catalog/schemas";
 import { createEquipmentFootprints } from "@/features/geometry/equipment-footprints";
 import type { RectangleFootprint } from "@/features/geometry/rectangles";
@@ -67,14 +68,15 @@ export function EquipmentEntity({
   const selected = placement.id === selectedId;
   const issueState = entityIssueState(placement.id, issues);
   const topViewSrc = getVisualAsset(product.id)?.topViewSrc;
+  const wallMounted = getEffectiveMounting(product).kind === "wall";
   const canonicalWidth = product.dimensions.widthCm * transform.scale;
   const canonicalHeight = product.dimensions.depthCm * transform.scale;
 
   return (
     <g
-      aria-label={`${product.name}, equipment, ${placement.rotation} degrees${entityIssueAriaSuffix(issueState)}`}
+      aria-label={`${product.name}, ${wallMounted ? "wall-mounted equipment" : "equipment"}, ${placement.rotation} degrees${entityIssueAriaSuffix(issueState)}`}
       aria-pressed={selected}
-      className={["creator-plan-equipment", topViewSrc && "has-top-view", selected && "is-selected", entityIssueClassName(issueState), !interactive && "is-placement-disabled"].filter(Boolean).join(" ")}
+      className={["creator-plan-equipment", wallMounted && "is-wall-mounted", topViewSrc && "has-top-view", selected && "is-selected", entityIssueClassName(issueState), !interactive && "is-placement-disabled"].filter(Boolean).join(" ")}
       onKeyDown={(event) => onKeySelect(event, placement.id)}
       onLostPointerCapture={onCancelDrag}
       onPointerCancel={onCancelDrag}

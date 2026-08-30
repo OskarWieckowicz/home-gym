@@ -15,6 +15,7 @@ export const catalogProductResolver: ProductResolver = (productId) => {
     dimensions: product.dimensions,
     useZone: product.useZone,
     minimumCeilingHeightCm: product.requirements.minimumCeilingHeightCm,
+    mounting: product.mounting,
   };
 };
 

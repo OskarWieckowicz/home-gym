@@ -1,5 +1,6 @@
 import {
   getEffectiveAnchoring,
+  getEffectiveMounting,
   getEffectiveRequiredHeightCm,
   type NormalizedCatalogFilters,
 } from "@/features/catalog/queries";
@@ -47,6 +48,7 @@ export function createProductSummary(product: Product) {
     dimensions: { ...product.dimensions },
     requiredHeightCm: getEffectiveRequiredHeightCm(product),
     anchoring: getEffectiveAnchoring(product),
+    mounting: getEffectiveMounting(product),
     trainingGoals: [...product.trainingGoals],
     exercises: [...product.exercises],
   };
@@ -78,6 +80,7 @@ export function createProductDetailsResult(product: Product) {
       muscleGroups: [...product.muscleGroups],
       requirements: { ...product.requirements },
       ...(product.constraints ? { constraints: [...product.constraints] } : {}),
+      mounting: getEffectiveMounting(product),
     },
   };
 }

@@ -116,4 +116,6 @@ export type {
   ValidationIssue,
   ValidationSeverity,
   WallElementOverlapIssue,
+  WallMountOffWallIssue,
+  WallMountOverlapsOpeningIssue,
 } from "./validation/validation-issues";

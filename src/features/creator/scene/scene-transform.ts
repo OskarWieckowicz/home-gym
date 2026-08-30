@@ -76,9 +76,15 @@ export function equipmentBoxToScene(
   placement: PlacementPose,
   dimensions: Dimensions3D,
   room: Room,
+  bottomHeightCm = 0,
 ): SceneBox {
   return {
-    position: placementCenterToScene(placement, dimensions, room, dimensions.heightCm / 2),
+    position: placementCenterToScene(
+      placement,
+      dimensions,
+      room,
+      bottomHeightCm + dimensions.heightCm / 2,
+    ),
     dimensions: rotateDimensions(dimensions, placement.rotation),
     rotationY: 0,
   };

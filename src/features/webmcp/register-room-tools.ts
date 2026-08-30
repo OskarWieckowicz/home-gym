@@ -128,7 +128,7 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
     {
       name: "place_product",
       title: "Place catalog equipment in the room",
-      description: `Place one canonical catalog product in the live room. The project generates and returns a placement ID; callers must not supply one. ${SPATIAL_INPUT_NOTE} ${POST_MUTATION_VALIDATION_NOTE}`,
+      description: `Place one canonical catalog product in the live room. The project generates and returns a placement ID; callers must not supply one. Wall-mounted products must sit flush against the wall implied by rotation: 0 top, 90 right, 180 bottom, 270 left. They must not cross a door or window on that wall. The call does not snap or correct an off-wall position; read WALL_MOUNT_OFF_WALL and WALL_MOUNT_OVERLAPS_OPENING on the returned validation. ${SPATIAL_INPUT_NOTE} ${POST_MUTATION_VALIDATION_NOTE}`,
       inputSchema: placeProductJsonSchema,
       execute: createPlaceProductHandler(store),
     },

@@ -43,6 +43,7 @@ describe("search_products handler", () => {
         catalogProducts[0].requirements.minimumCeilingHeightCm ??
         catalogProducts[0].dimensions.heightCm,
       anchoring: catalogProducts[0].requirements.anchoring ?? "none",
+      mounting: { kind: "floor" },
       trainingGoals: catalogProducts[0].trainingGoals,
       exercises: catalogProducts[0].exercises,
     });
@@ -132,13 +133,30 @@ describe("get_product_details handler", () => {
     expect(result).toEqual({
       ok: true,
       tool: "get_product_details",
-      product,
+      product: { ...product, mounting: { kind: "floor" } },
     });
     if (!result.ok) throw new Error("Expected a successful result.");
     expect(result.product).not.toBe(product);
     expect(result.product.dimensions).not.toBe(product.dimensions);
     expect(result.product.exercises).not.toBe(product.exercises);
     expect(() => JSON.stringify(result)).not.toThrow();
+  });
+
+  it("reports effective wall mounting on the anchor bar", () => {
+    const result = createGetProductDetailsHandler()(
+      { productId: "product_anchor_pullup_bar" },
+      options(),
+    );
+    expect(result).toMatchObject({
+      ok: true,
+      product: { mounting: { kind: "wall", bottomHeightCm: 195 } },
+    });
+    const search = createSearchProductsHandler()({ query: "anchor pull-up" }, options());
+    expect(search).toMatchObject({ ok: true });
+    if (!search.ok) return;
+    expect(
+      search.products.find(({ productId }) => productId === "product_anchor_pullup_bar")?.mounting,
+    ).toEqual({ kind: "wall", bottomHeightCm: 195 });
   });
 
   it("distinguishes malformed and unknown product IDs", () => {

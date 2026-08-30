@@ -10,9 +10,13 @@ export function validatePlacementRequirements(
   const issues: ValidationIssue[] = [];
   let totalPrice = 0;
 
-  for (const { placement, product } of placements) {
+  for (const { placement, product, mounting } of placements) {
     totalPrice += product.price;
-    const requiredHeightCm = product.minimumCeilingHeightCm ?? product.dimensions.heightCm;
+    const storedRequiredCm = product.minimumCeilingHeightCm ?? product.dimensions.heightCm;
+    const mountedTopCm = mounting.kind === "wall"
+      ? mounting.bottomHeightCm + product.dimensions.heightCm
+      : 0;
+    const requiredHeightCm = Math.max(storedRequiredCm, mountedTopCm);
     if (requiredHeightCm > project.room.heightCm) {
       issues.push({
         code: "CEILING_TOO_LOW",
@@ -22,6 +26,9 @@ export function validatePlacementRequirements(
           roomHeightCm: project.room.heightCm,
           productHeightCm: product.dimensions.heightCm,
           requiredHeightCm,
+          ...(mounting.kind === "wall"
+            ? { mountBottomHeightCm: mounting.bottomHeightCm }
+            : {}),
         },
       });
     }

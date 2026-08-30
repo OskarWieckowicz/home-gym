@@ -10,6 +10,7 @@ import type { GymProject, Obstacle, Placement } from "@/features/project/schemas
 
 import type { ValidationIssue } from "./validation-issues";
 import type {
+  EffectiveMounting,
   ProductValidationDescriptor,
   ProjectValidationDependencies,
 } from "./product-validation";
@@ -23,6 +24,7 @@ export type ResolvedPlacement = {
   readonly placement: Placement;
   readonly product: ProductValidationDescriptor;
   readonly footprints: EquipmentFootprints;
+  readonly mounting: EffectiveMounting;
 };
 
 export function compareIssues(first: ValidationIssue, second: ValidationIssue): number {
@@ -56,7 +58,12 @@ export function resolvePlacements(
   return project.placements.flatMap((placement) => {
     const product = dependencies.resolveProduct?.(placement.productId);
     return product
-      ? [{ placement, product, footprints: createEquipmentFootprints(placement, product) }]
+      ? [{
+          placement,
+          product,
+          footprints: createEquipmentFootprints(placement, product),
+          mounting: product.mounting ?? { kind: "floor" },
+        }]
       : [];
   });
 }

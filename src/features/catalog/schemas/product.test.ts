@@ -101,6 +101,41 @@ describe("productSchema", () => {
     ).toThrow(/ceiling height/i);
   });
 
+  it("accepts a wall-mounted product whose ceiling covers the mounted top", () => {
+    expect(
+      productSchema.parse({
+        ...validProduct,
+        mounting: { kind: "wall", bottomHeightCm: 195 },
+        requirements: {
+          ...validProduct.requirements,
+          minimumCeilingHeightCm: 195 + validProduct.dimensions.heightCm,
+        },
+      }).mounting,
+    ).toEqual({ kind: "wall", bottomHeightCm: 195 });
+  });
+
+  it("rejects a non-positive mount height", () => {
+    expect(() =>
+      productSchema.parse({
+        ...validProduct,
+        mounting: { kind: "wall", bottomHeightCm: 0 },
+      }),
+    ).toThrow();
+  });
+
+  it("rejects a ceiling requirement below the mounted product top", () => {
+    expect(() =>
+      productSchema.parse({
+        ...validProduct,
+        mounting: { kind: "wall", bottomHeightCm: 195 },
+        requirements: {
+          ...validProduct.requirements,
+          minimumCeilingHeightCm: 194 + validProduct.dimensions.heightCm,
+        },
+      }),
+    ).toThrow(/mounted product top/i);
+  });
+
   it("rejects unknown keys at every object boundary", () => {
     expect(() => productSchema.parse({ ...validProduct, typo: true })).toThrow();
     expect(() =>

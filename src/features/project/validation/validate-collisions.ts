@@ -60,6 +60,32 @@ export function validateObstacleCollisions(
   return issues;
 }
 
+function placementPairReaches(first: ResolvedPlacement, second: ResolvedPlacement): boolean {
+  if (first.mounting.kind === "wall" && second.mounting.kind === "wall") {
+    return true;
+  }
+  if (first.mounting.kind === "wall") {
+    return second.product.dimensions.heightCm > first.mounting.bottomHeightCm;
+  }
+  if (second.mounting.kind === "wall") {
+    return first.product.dimensions.heightCm > second.mounting.bottomHeightCm;
+  }
+  return true;
+}
+
+function placementReachesObstacle(
+  placement: ResolvedPlacement,
+  obstacle: ObstacleWithFootprint,
+): boolean {
+  if (placement.mounting.kind !== "wall") {
+    return true;
+  }
+  if (obstacle.obstacle.kind === "unavailable-zone") {
+    return true;
+  }
+  return obstacle.obstacle.dimensions.heightCm > placement.mounting.bottomHeightCm;
+}
+
 export function validatePlacementCollisions(
   obstacles: readonly ObstacleWithFootprint[],
   placements: readonly ResolvedPlacement[],
@@ -70,6 +96,9 @@ export function validatePlacementCollisions(
     for (let secondIndex = firstIndex + 1; secondIndex < placements.length; secondIndex += 1) {
       const first = placements[firstIndex];
       const second = placements[secondIndex];
+      if (!placementPairReaches(first, second)) {
+        continue;
+      }
       const overlap = intersectRectangles(
         first.footprints.physical,
         second.footprints.physical,
@@ -89,6 +118,9 @@ export function validatePlacementCollisions(
 
   for (const placement of placements) {
     for (const obstacle of obstacles) {
+      if (!placementReachesObstacle(placement, obstacle)) {
+        continue;
+      }
       const overlap = intersectRectangles(
         placement.footprints.physical,
         obstacle.footprint,

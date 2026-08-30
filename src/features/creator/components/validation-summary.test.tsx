@@ -96,4 +96,64 @@ describe("ValidationSummary", () => {
     expect(screen.getByRole("heading", { name: "Errors" })).toBeTruthy();
     expect(screen.getByText(/is outside the room/)).toBeTruthy();
   });
+
+  it("describes wall-mount errors in the same sentence style as the ceiling rule", () => {
+    renderSummary({
+      ...createDefaultProject(),
+      room: { widthCm: 300, depthCm: 400, heightCm: 250 },
+      wallElements: [{
+        id: "wall-element_door",
+        kind: "door",
+        name: "Door",
+        wall: "top",
+        offsetCm: 20,
+        widthCm: 90,
+      }],
+      placements: [{
+        id: "placement_bar",
+        productId: "product_anchor_pullup_bar",
+        position: { xCm: 200, zCm: 80 },
+        rotation: 90,
+      }],
+    });
+
+    expect(screen.getByText(
+      "Anchor Pull-Up Bar must sit flush on the right wall; it is 46 cm away.",
+    )).toBeTruthy();
+  });
+
+  it("names the opening a wall mount crosses", () => {
+    renderSummary({
+      ...createDefaultProject(),
+      room: { widthCm: 300, depthCm: 400, heightCm: 250 },
+      wallElements: [
+        {
+          id: "wall-element_door",
+          kind: "door",
+          name: "Door",
+          wall: "top",
+          offsetCm: 20,
+          widthCm: 90,
+        },
+        {
+          id: "wall-element_window",
+          kind: "window",
+          name: "Window",
+          wall: "right",
+          offsetCm: 80,
+          widthCm: 120,
+        },
+      ],
+      placements: [{
+        id: "placement_bar",
+        productId: "product_anchor_pullup_bar",
+        position: { xCm: 246, zCm: 40 },
+        rotation: 90,
+      }],
+    });
+
+    expect(screen.getByText(
+      "Anchor Pull-Up Bar overlaps Window on the right wall.",
+    )).toBeTruthy();
+  });
 });

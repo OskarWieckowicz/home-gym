@@ -33,8 +33,16 @@ const bar: ProductValidationDescriptor = {
   useZone: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
 };
 
+const mountedBar: ProductValidationDescriptor = {
+  id: "product_mounted_bar",
+  price: 699,
+  dimensions: { widthCm: 112, depthCm: 54, heightCm: 38 },
+  useZone: { frontCm: 70, backCm: 0, leftCm: 30, rightCm: 30 },
+  mounting: { kind: "wall", bottomHeightCm: 195 },
+};
+
 const productsById = new Map(
-  [rack, plates, bar].map((product) => [product.id, product] as const),
+  [rack, plates, bar, mountedBar].map((product) => [product.id, product] as const),
 );
 
 const dependencies = {
@@ -296,6 +304,40 @@ describe("validateAccess", () => {
       dependencies,
     );
     expect(blocked.some(({ code }) => code === "DOOR_UNREACHABLE")).toBe(true);
+  });
+
+  it("lets a walking path run under a mounted bar that would block as a floor item", () => {
+    const corridorDoors = [
+      door("wall-element_front", "top", 55),
+      door("wall-element_back", "bottom", 55),
+    ];
+    const corridor = {
+      ...project(corridorDoors),
+      room: { widthCm: 200, depthCm: 400, heightCm: 250 },
+    };
+    const placement = {
+      id: "placement_bar",
+      productId: mountedBar.id,
+      position: { xCm: 44, zCm: 174 },
+      rotation: 0 as const,
+    };
+    const mounted = validateProject(
+      { ...corridor, placements: [placement] },
+      dependencies,
+    );
+    const asFloor = validateProject(
+      { ...corridor, placements: [placement] },
+      {
+        resolveProduct: (productId) => {
+          if (productId !== mountedBar.id) return productsById.get(productId);
+          const { mounting: _mounting, ...floorProduct } = mountedBar;
+          return floorProduct;
+        },
+      },
+    );
+
+    expect(mounted.some(({ code }) => code === "DOOR_UNREACHABLE")).toBe(false);
+    expect(asFloor.some(({ code }) => code === "DOOR_UNREACHABLE")).toBe(true);
   });
 
   it("lets a walking path cross geometry no taller than the step-over height", () => {

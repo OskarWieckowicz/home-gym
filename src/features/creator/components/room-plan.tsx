@@ -2,7 +2,8 @@
 
 import { useId, useMemo, useRef, useState, type DragEvent, type KeyboardEvent, type PointerEvent } from "react";
 
-import { findProductById } from "@/features/catalog/queries/catalog";
+import { findProductById, getEffectiveMounting } from "@/features/catalog/queries/catalog";
+import { constrainMountedDrag, snapWallMountedPlacement } from "@/features/geometry/wall-mounting";
 import type { ProjectCommand } from "@/features/project/schemas/project-command";
 import type { GymProject, Obstacle, Placement, WallElement } from "@/features/project/schemas/project";
 
@@ -187,24 +188,59 @@ export function RoomPlan({
     setDragDraft({ obstacleId: placement.id, position: placement.position });
   }
 
+  function mountedPlacementForDrag(placementId: string) {
+    const placement = project.placements.find((item) => item.id === placementId);
+    if (!placement) return null;
+    const product = findProductById(placement.productId);
+    if (!product || getEffectiveMounting(product).kind !== "wall") return null;
+    return { placement, product };
+  }
+
   function moveDrag(event: PointerEvent<SVGGElement>) {
     if (!session || session.pointerId !== event.pointerId) return;
-    setDragDraft({ obstacleId: session.obstacleId, position: getDragPosition(session, svgPoint(event), transform) });
+    const next = getDragPosition(session, svgPoint(event), transform);
+    if (dragEntityKind === "placement") {
+      const mounted = mountedPlacementForDrag(session.obstacleId);
+      if (mounted) {
+        const constrained = constrainMountedDrag(
+          next,
+          mounted.placement.rotation,
+          mounted.product.dimensions,
+          project.room,
+        );
+        if (!constrained) return;
+        setDragDraft({ obstacleId: session.obstacleId, position: constrained });
+        return;
+      }
+    }
+    setDragDraft({ obstacleId: session.obstacleId, position: next });
   }
 
   function finishDrag(event: PointerEvent<SVGGElement>) {
     if (!session || session.pointerId !== event.pointerId) return;
     const finalDraft = draftRef.current;
     if (finalDraft && dragPositionChanged(session, finalDraft.position)) {
-      dispatch(dragEntityKind === "placement"
-        ? {
-            type: "PLACEMENT_UPDATED",
-            payload: { placementId: session.obstacleId, patch: { position: finalDraft.position } },
-          }
-        : {
-            type: "OBSTACLE_UPDATED",
-            payload: { obstacleId: session.obstacleId, patch: { position: finalDraft.position } },
-          });
+      const mounted = dragEntityKind === "placement"
+        ? mountedPlacementForDrag(session.obstacleId)
+        : null;
+      if (mounted && !constrainMountedDrag(
+        finalDraft.position,
+        mounted.placement.rotation,
+        mounted.product.dimensions,
+        project.room,
+      )) {
+        onPlacementError("Keep wall-mounted equipment flush to its wall.");
+      } else {
+        dispatch(dragEntityKind === "placement"
+          ? {
+              type: "PLACEMENT_UPDATED",
+              payload: { placementId: session.obstacleId, patch: { position: finalDraft.position } },
+            }
+          : {
+              type: "OBSTACLE_UPDATED",
+              payload: { obstacleId: session.obstacleId, patch: { position: finalDraft.position } },
+            });
+      }
     }
     setSession(null);
     setDragEntityKind(null);
@@ -251,6 +287,18 @@ export function RoomPlan({
     const product = findProductById(productId);
     if (!product) {
       onPlacementError("This catalog product is unavailable.");
+      return;
+    }
+    if (getEffectiveMounting(product).kind === "wall") {
+      const snapped = snapWallMountedPlacement(target.position, product.dimensions, project.room);
+      if (!snapped) {
+        onPlacementError("This equipment footprint does not fit on a wall in the room.");
+        return;
+      }
+      finishCommand(dispatch({
+        type: "PRODUCT_PLACED",
+        payload: { productId, position: snapped.position, rotation: snapped.rotation },
+      }));
       return;
     }
     const position = centerFloorRectangle(

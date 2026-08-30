@@ -1,7 +1,7 @@
 # Home Gym Creator — implementation plan index
 
 > Status: active queue.
-> Updated: 29 August 2026.
+> Updated: 30 August 2026.
 > Submission deadline: 3 September 2026, 22:00 CEST.
 
 This document is the entry point for implementation work. It keeps the remaining phases in
@@ -82,6 +82,10 @@ is the designated cut line if the deadline tightens.
 comes last because it is the heaviest and the only irreversibly risky one. It separates selected
 products from floor placements, adds selection-only products, moves budget and coverage onto project
 items, and makes one breaking change to `remove_product`.
+
+Phase 25 is complete: wall mounting is a catalog fact, the project schema stays at version 3, and a
+mounted item never obstructs a walking path. Git history holds the detailed plan. Phase 20 can now
+complete the 3D preview around the correct spatial contract.
 
 ## Later queue
 

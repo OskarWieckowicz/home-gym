@@ -45,7 +45,10 @@ export function validateAccess(
     [
       ...items.filter(obstructsWalking).map((item) => item.footprint),
       ...placements
-        .filter((placement) => blocksMovement(placement.product.dimensions.heightCm))
+        .filter((placement) =>
+          placement.mounting.kind !== "wall" &&
+          blocksMovement(placement.product.dimensions.heightCm),
+        )
         .map((placement) => placement.footprints.physical),
     ],
     doors.map((door) => ({

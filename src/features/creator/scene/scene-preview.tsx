@@ -5,7 +5,7 @@ import { OrbitControls, useGLTF } from "@react-three/drei";
 import { Component, Suspense, useMemo, type ErrorInfo, type ReactNode } from "react";
 import { PCFShadowMap } from "three";
 import type { GymProject, Placement } from "@/features/project/schemas/project";
-import { findProductById } from "@/features/catalog/queries/catalog";
+import { findProductById, getEffectiveMounting } from "@/features/catalog/queries/catalog";
 import { getVisualAsset } from "./visual-assets";
 import {
   equipmentBoxToScene,
@@ -46,13 +46,25 @@ function UseZoneOverlay({ box }: { readonly box: SceneBox }) {
   </mesh>;
 }
 
+function mountBottomHeightCm(productId: string): number {
+  const product = findProductById(productId);
+  if (!product) return 0;
+  const mounting = getEffectiveMounting(product);
+  return mounting.kind === "wall" ? mounting.bottomHeightCm : 0;
+}
+
 function EquipmentAsset({ placement, project }: { readonly placement: Placement; readonly project: GymProject }) {
   const asset = getVisualAsset(placement.productId);
   const { scene } = useGLTF(asset?.src ?? "");
   const cloned = useMemo(() => scene.clone(), [scene]);
   const dimensions = findProductById(placement.productId)?.dimensions;
   if (!asset || !dimensions) throw new Error("Invalid visual asset mapping.");
-  const position = placementCenterToScene(placement, dimensions, project.room);
+  const position = placementCenterToScene(
+    placement,
+    dimensions,
+    project.room,
+    mountBottomHeightCm(placement.productId),
+  );
   // The GLB is authored with a floor pivot at the envelope center and negative-Z forward.
   return <primitive object={cloned} position={[position.x, position.y, position.z]} rotation={[0, (placement.rotation * Math.PI) / 180, 0]} scale={asset.scale} />;
 }
@@ -60,7 +72,7 @@ function EquipmentAsset({ placement, project }: { readonly placement: Placement;
 function PlacementModel({ placement, project }: { readonly placement: Placement; readonly project: GymProject }) {
   const product = findProductById(placement.productId);
   if (!product) return null;
-  const fallback = <Box box={equipmentBoxToScene(placement, product.dimensions, project.room)} color="#64748b" />;
+  const fallback = <Box box={equipmentBoxToScene(placement, product.dimensions, project.room, mountBottomHeightCm(product.id))} color="#64748b" />;
   return <group>
     <UseZoneOverlay box={equipmentUseZoneToScene(placement, product, project.room)} />
     {getVisualAsset(placement.productId) ? <AssetBoundary fallback={fallback}><Suspense fallback={fallback}><EquipmentAsset placement={placement} project={project} /></Suspense></AssetBoundary> : fallback}

@@ -61,6 +61,12 @@ export function describeValidationIssue(
   if (issue.code === "CEILING_TOO_LOW") {
     return `${label(issue.entityIds[0])} needs ${issue.details.requiredHeightCm} cm of ceiling height; the room has ${issue.details.roomHeightCm} cm.`;
   }
+  if (issue.code === "WALL_MOUNT_OFF_WALL") {
+    return `${label(issue.entityIds[0])} must sit flush on the ${issue.details.wall} wall; it is ${issue.details.gapCm} cm away.`;
+  }
+  if (issue.code === "WALL_MOUNT_OVERLAPS_OPENING") {
+    return `${label(issue.entityIds[0])} overlaps ${label(issue.entityIds[1])} on the ${issue.details.wall} wall.`;
+  }
   if (issue.code === "BUDGET_EXCEEDED") {
     return `Placed equipment costs ${formatPricePln(issue.details.totalPrice)}, exceeding the ${formatPricePln(issue.details.budget)} budget by ${formatPricePln(issue.details.excess)}.`;
   }
