@@ -6,6 +6,18 @@ import {
 } from "@/features/project/commands/apply-project-command";
 import { resolveProjectCommandDependencies } from "@/features/project/commands/project-command-dependencies";
 import type { DispatchResult } from "@/features/project/commands/command-results";
+import {
+  applyProjectCommands,
+  type BatchDispatchResult,
+  type ProjectCommandsExecution,
+} from "@/features/project/commands/apply-project-commands";
+import { previewProjectCommands } from "@/features/project/commands/preview-project-commands";
+import { scoreCandidate } from "@/features/project/suggestions/candidate-scoring";
+import type { PlacementSuggestionRequest } from "@/features/project/suggestions/request-schema";
+import {
+  suggestPlacements,
+  type PlacementSuggestions,
+} from "@/features/project/suggestions/suggest-placements";
 import { gymProjectSchema, type GymProject } from "@/features/project/schemas/project";
 import {
   createProjectAnalysis,
@@ -26,6 +38,9 @@ export type ProjectStoreState = {
   readonly canUndo: boolean;
   readonly canRedo: boolean;
   readonly dispatch: (command: unknown) => DispatchResult;
+  readonly dispatchBatch: (commands: unknown) => BatchDispatchResult;
+  readonly previewBatch: (commands: unknown) => ProjectCommandsExecution;
+  readonly suggestPlacements: (request: PlacementSuggestionRequest) => PlacementSuggestions;
   readonly replaceProject: (project: unknown) => ReplaceProjectResult;
   readonly undo: () => boolean;
   readonly redo: () => boolean;
@@ -111,6 +126,47 @@ export function createProjectStore(
       });
 
       return { ...execution.result, revision };
+    },
+    previewBatch: (commands) => previewProjectCommands(get().project, commands, dependencies),
+    suggestPlacements: (request) => suggestPlacements(get().project, request, {
+      ...dependencies,
+      candidateIdPrefix: "candidate",
+    }),
+    dispatchBatch: (commands) => {
+      const current = get();
+      const execution = applyProjectCommands(current.project, commands, dependencies);
+      const result = execution.result;
+      if (!result.ok) return { ...result, revision: current.revision };
+
+      const scoring = scoreCandidate(result.analysis);
+      if (scoring.rejected) {
+        return {
+          ok: false,
+          commandType: "LAYOUT_CHANGES_APPLIED",
+          revision: current.revision,
+          error: {
+            index: null,
+            commandType: null,
+            code: "INVALID_COMMAND",
+            message: "The batch leaves layout errors or unreachable entities.",
+          },
+          analysis: result.analysis,
+          reasons: scoring.reasons,
+        };
+      }
+      if (!result.changed) return { ...result, revision: current.revision };
+
+      past = [...past, cloneProjectSnapshot(current.project)].slice(-HISTORY_LIMIT);
+      future = [];
+      const revision = current.revision + 1;
+      set({
+        project: execution.project,
+        validation: result.analysis,
+        revision,
+        canUndo: true,
+        canRedo: false,
+      });
+      return { ...result, revision };
     },
     replaceProject: (project) => {
       const current = get();

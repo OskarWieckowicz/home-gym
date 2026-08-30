@@ -5,6 +5,7 @@ import { createDefaultProject } from "@/features/project/defaults";
 
 import { createRoomWebMcpTools, registerRoomTools } from "./register-room-tools";
 import type { WebMcpModelContext } from "./types";
+import { suggestPlacementsJsonSchema } from "./batch-tool-schemas";
 
 function documentWith(modelContext?: WebMcpModelContext): Document {
   return { modelContext } as unknown as Document;
@@ -26,7 +27,13 @@ function expectStrictObjectSchema(schema: Readonly<Record<string, unknown>>) {
 }
 
 describe("room WebMCP tool definitions", () => {
-  it("defines exactly seventeen unique, strict and correctly annotated tools", () => {
+  it("advertises the suggestion limit as optional, matching runtime defaults", () => {
+    for (const branch of suggestPlacementsJsonSchema.anyOf ?? []) {
+      expect(branch.required).not.toContain("limit");
+      expect(branch.properties?.limit).toMatchObject({ default: 3, minimum: 1, maximum: 10 });
+    }
+  });
+  it("defines exactly twenty unique, strict and correctly annotated tools", () => {
     const tools = createRoomWebMcpTools(createProjectStore(createDefaultProject()));
 
     expect(tools.map(({ name }) => name)).toEqual([
@@ -47,14 +54,17 @@ describe("room WebMCP tool definitions", () => {
       "update_placement",
       "unplace_product",
       "remove_product",
+      "suggest_placements",
+      "evaluate_layout_changes",
+      "apply_layout_changes",
     ]);
-    expect(new Set(tools.map(({ name }) => name))).toHaveLength(17);
+    expect(new Set(tools.map(({ name }) => name))).toHaveLength(20);
     for (const tool of tools) {
       expect(tool.description.length).toBeGreaterThan(40);
       expectStrictObjectSchema(tool.inputSchema);
       expect(tool.execute).toBeTypeOf("function");
       expect(tool.annotations).toEqual(
-        ["get_project_state", "validate_layout", "search_products"].includes(tool.name)
+        ["get_project_state", "validate_layout", "search_products", "suggest_placements", "evaluate_layout_changes"].includes(tool.name)
           ? { readOnlyHint: true }
           : undefined,
       );
@@ -105,7 +115,7 @@ describe("registerRoomTools", () => {
         createProjectStore(createDefaultProject()),
       ),
     ).resolves.toEqual({ status: "ready" });
-    expect(registered).toHaveLength(17);
+    expect(registered).toHaveLength(20);
   });
 
   it("preserves unsupported and all-or-unavailable lifecycle behavior", async () => {

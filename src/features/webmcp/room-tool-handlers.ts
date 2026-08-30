@@ -58,6 +58,9 @@ const FAILURE_MESSAGES: Readonly<Record<RoomToolName, string>> = {
   update_placement: "Product placement could not be updated.",
   unplace_product: "Product placement could not be removed from the floor.",
   remove_product: "Project item could not be removed.",
+  suggest_placements: "Placement suggestions could not be generated.",
+  evaluate_layout_changes: "Layout changes could not be evaluated.",
+  apply_layout_changes: "Layout changes could not be applied.",
 };
 
 function cancelled(tool: RoomToolName) {

@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { CreatorEditor } from "@/features/creator/components/creator-editor";
 import { createDefaultProject } from "@/features/project/defaults";
+import type { ProjectCommand } from "@/features/project/schemas/project-command";
 
 import type { WebMcpModelContext, WebMcpTool } from "./types";
 
@@ -30,6 +31,49 @@ function setNumber(name: string, value: string) {
 }
 
 describe("creator WebMCP shared editing flow", () => {
+  it("suggests and evaluates without mutation, applies four placements visibly, and undoes the whole batch", async () => {
+    const tools = new Map<string, WebMcpTool>();
+    Object.defineProperty(document, "modelContext", {
+      configurable: true,
+      value: { registerTool: async (tool: WebMcpTool) => { tools.set(tool.name, tool); } },
+    });
+    let nextId = 0;
+    render(<CreatorEditor initialProject={createDefaultProject()} dependencies={{
+      generatePlacementId: () => `placement_batch_${++nextId}`,
+      generateProjectItemId: () => `project-item_batch_${++nextId}`,
+    }} />);
+    await waitFor(() => expect(tools.size).toBe(20));
+    const execute = async (name: string, input: unknown) => {
+      let result: unknown;
+      await act(async () => { result = await tools.get(name)!.execute(input); });
+      return result;
+    };
+    const before = await execute("get_project_state", {});
+    const suggestion = await execute("suggest_placements", {
+      productId: "product_groundwork_exercise_mat", rotations: [0], limit: 1,
+      region: { minXCm: 0, minZCm: 0, maxXCm: 0, maxZCm: 0 },
+    }) as { ok: boolean; candidates: { command: ProjectCommand }[] };
+    expect(suggestion.ok).toBe(true);
+    expect(suggestion.candidates).toHaveLength(1);
+    const changes = [suggestion.candidates[0].command, ...[80, 160, 240].map((xCm) => ({
+      type: "PRODUCT_PLACED",
+      payload: { productId: "product_groundwork_exercise_mat", position: { xCm, zCm: 0 }, rotation: 0 },
+    }))];
+    expect(await execute("evaluate_layout_changes", { changes })).toMatchObject({ ok: true, applies: true, revision: 0 });
+    expect(await execute("get_project_state", {})).toEqual(before);
+    expect(screen.getByText("No equipment in the project yet.")).toBeTruthy();
+    expect(await execute("apply_layout_changes", { changes })).toMatchObject({ ok: true, changed: true, revision: 1 });
+    expect(screen.getAllByRole("button", { name: /Groundwork Exercise MatPlaced · 0°/ })).toHaveLength(4);
+    fireEvent.click(screen.getByRole("button", { name: /Undo/ }));
+    expect(screen.getByText("No equipment in the project yet.")).toBeTruthy();
+    expect(await execute("get_project_state", {})).toMatchObject({
+      revision: 2, canUndo: false, canRedo: true, project: { placements: [], projectItems: [] },
+    });
+  });
+
+});
+
+describe("existing creator WebMCP shared editing flow", () => {
   it("keeps manual UI, registered tools, validation, revision and history in one state", async () => {
     const tools = new Map<string, WebMcpTool>();
     const registerTool = vi.fn<WebMcpModelContext["registerTool"]>(async (tool) => {
@@ -46,7 +90,7 @@ describe("creator WebMCP shared editing flow", () => {
         initialProject={createDefaultProject()}
       />,
     );
-    await waitFor(() => expect(tools.size).toBe(17));
+    await waitFor(() => expect(tools.size).toBe(20));
 
     fireEvent.click(screen.getByRole("button", { name: "Project settings" }));
     setNumber("Budget", "12500");
@@ -183,7 +227,7 @@ describe("creator WebMCP shared editing flow", () => {
         initialProject={createDefaultProject()}
       />,
     );
-    await waitFor(() => expect(tools.size).toBe(17));
+    await waitFor(() => expect(tools.size).toBe(20));
 
     const execute = async <T,>(name: string, input: unknown): Promise<T> => {
       const tool = tools.get(name);

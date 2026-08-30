@@ -1,4 +1,10 @@
 import type { ProjectStore } from "@/features/creator/store/project-store";
+import {
+  createApplyLayoutChangesHandler,
+  createEvaluateLayoutChangesHandler,
+  createSuggestPlacementsHandler,
+} from "./batch-tool-handlers";
+import { layoutChangesJsonSchema, suggestPlacementsJsonSchema } from "./batch-tool-schemas";
 
 import { searchProductsWebMcpTool } from "./register-catalog-tools";
 import {
@@ -175,6 +181,32 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
         "Remove one project item using its canonical projectItemId returned by get_project_state, add_product_to_project, or place_product. If the item is placed, that placement is removed in the same command. The result enumerates the cascade. This does not remove or modify the catalog product.",
       inputSchema: removeProductJsonSchema,
       execute: createRemoveProductHandler(store),
+    },
+    {
+      name: "suggest_placements",
+      title: "Suggest safe equipment placements",
+      description:
+        "Read deterministic placement suggestions without changing the project or history. Supply exactly one productId or projectItemId; an already placed item is repositioned in memory, and its current pose may be returned if it is already a best fit (applying that pose is a no-op). Scan minimum-corner positions on a 10 cm grid in z, x, then 0/90/180/270 order, filtered by optional rotations and inclusive region bounds. Return the best 3 candidates by default (maximum 10), exact commands, warning penalties, and rejection counts. Errors and any unreachable entity reject a candidate; warnings increase its score. No door means access was not evaluated. Searches above 20,000 candidates are rejected; with doors, at most 20,000 room grid cells and 30 million candidate-cell evaluations are allowed. Narrow region or rotations for large searches. Apply a chosen command explicitly with apply_layout_changes; suggestions are never accepted automatically.",
+      inputSchema: suggestPlacementsJsonSchema,
+      annotations: { readOnlyHint: true },
+      execute: createSuggestPlacementsHandler(store),
+    },
+    {
+      name: "evaluate_layout_changes",
+      title: "Evaluate hypothetical layout changes",
+      description:
+        "Evaluate an ordered changes array of 1–25 existing project commands in memory. Never mutates the project, revision, or undo history. Returns applies, full hypothetical validation and error/warning count deltas; command failures identify their zero-based index. Errors and any unreachable entity make applies false, while warnings are allowed. Generated preview IDs are temporary, not IDs to reference in later commands. Use the same payload with apply_layout_changes after inspection; the live state is checked again at apply time.",
+      inputSchema: layoutChangesJsonSchema,
+      annotations: { readOnlyHint: true },
+      execute: createEvaluateLayoutChangesHandler(store),
+    },
+    {
+      name: "apply_layout_changes",
+      title: "Apply an atomic layout change batch",
+      description:
+        "Apply an ordered changes array of 1–25 project commands atomically and undoable as one step. Any command failure or final layout error/unreachable entity rejects the entire batch without changing state or history. Intermediate layouts are never committed. A successful apply can still leave warnings: inspect validation and accessImpact. Returns per-change outcomes and generated IDs. Commands may reference existing canonical IDs, not guessed IDs for entities created earlier in this batch. Uses the same input as evaluate_layout_changes, with final validation against the live project.",
+      inputSchema: layoutChangesJsonSchema,
+      execute: createApplyLayoutChangesHandler(store),
     },
   ];
 }

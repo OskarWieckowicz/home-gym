@@ -36,7 +36,10 @@ export type RoomToolName =
   | "place_project_item"
   | "update_placement"
   | "unplace_product"
-  | "remove_product";
+  | "remove_product"
+  | "suggest_placements"
+  | "evaluate_layout_changes"
+  | "apply_layout_changes";
 
 export type RoomToolErrorCode = "INVALID_INPUT" | CommandErrorCode;
 
@@ -268,7 +271,8 @@ export function serializeAccessImpact(impact: AccessImpact) {
 
 export function serializeMutationBase(
   tool: RoomToolName,
-  result: Extract<DispatchResult, { ok: true }>,
+  result: Pick<Extract<DispatchResult, { ok: true }>,
+    "changed" | "revision" | "affectedEntityIds" | "accessImpact">,
 ) {
   return {
     ok: true as const,

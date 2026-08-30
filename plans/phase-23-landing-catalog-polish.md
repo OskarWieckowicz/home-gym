@@ -1,6 +1,6 @@
 # Phase 23 — Landing page and catalog polish
 
-> Order 4 in the [active queue](README.md). Depends on Phase 16 for final product assets and
+> Order 3 in the [active queue](README.md). Depends on Phase 16 for final product assets and
 > Phase 22 for real demo screenshots and figures. Blocks Phase 24.
 
 ## Problem

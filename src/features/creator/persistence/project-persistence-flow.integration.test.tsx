@@ -57,7 +57,7 @@ describe("persistent manual and agent editing flow", () => {
         storage={memory.adapter}
       />,
     );
-    await waitFor(() => expect(tools.size).toBe(17));
+    await waitFor(() => expect(tools.size).toBe(20));
 
     const initial = await executeTool<{
       revision: number;
@@ -108,7 +108,7 @@ describe("persistent manual and agent editing flow", () => {
         storage={memory.adapter}
       />,
     );
-    await waitFor(() => expect(tools.size).toBe(17));
+    await waitFor(() => expect(tools.size).toBe(20));
 
     const restored = await executeTool<{
       revision: number;
@@ -134,7 +134,7 @@ describe("persistent manual and agent editing flow", () => {
     });
   });
 
-  it("registers one real seventeen-tool set after a Strict Mode restore", async () => {
+  it("registers one real twenty-tool set after a Strict Mode restore", async () => {
     const registerTool = vi.fn<WebMcpModelContext["registerTool"]>(async () => undefined);
     Object.defineProperty(document, "modelContext", {
       configurable: true,
@@ -148,9 +148,9 @@ describe("persistent manual and agent editing flow", () => {
       </StrictMode>,
     );
 
-    await waitFor(() => expect(registerTool).toHaveBeenCalledTimes(17));
+    await waitFor(() => expect(registerTool).toHaveBeenCalledTimes(20));
     await act(async () => Promise.resolve());
-    expect(registerTool).toHaveBeenCalledTimes(17);
+    expect(registerTool).toHaveBeenCalledTimes(20);
     expect(memory.storage.setItem).not.toHaveBeenCalled();
   });
 
@@ -177,7 +177,7 @@ describe("persistent manual and agent editing flow", () => {
     };
 
     let mounted = render(<CreatorEditor persistence storage={memory.adapter} />);
-    await waitFor(() => expect(tools.size).toBe(17));
+    await waitFor(() => expect(tools.size).toBe(20));
     fireEvent.change(screen.getByLabelText("Choose project JSON to import"), {
       target: {
         files: [
@@ -204,7 +204,7 @@ describe("persistent manual and agent editing flow", () => {
     mounted.unmount();
     tools.clear();
     mounted = render(<CreatorEditor persistence storage={memory.adapter} />);
-    await waitFor(() => expect(tools.size).toBe(17));
+    await waitFor(() => expect(tools.size).toBe(20));
     expect(await executeTool(tools, "get_project_state", {})).toMatchObject({
       revision: 0,
       project: {
@@ -226,7 +226,7 @@ describe("persistent manual and agent editing flow", () => {
     mounted.unmount();
     tools.clear();
     render(<CreatorEditor persistence storage={memory.adapter} />);
-    await waitFor(() => expect(tools.size).toBe(17));
+    await waitFor(() => expect(tools.size).toBe(20));
     expect(await executeTool(tools, "get_project_state", {})).toMatchObject({
       revision: 0,
       project: { budget: 10_000 },

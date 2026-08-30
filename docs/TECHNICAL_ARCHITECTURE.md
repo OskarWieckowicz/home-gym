@@ -376,15 +376,28 @@ The engine returns codes and data, and the presentation layer creates messages f
 
 The agent should not guess all coordinates on its own. The application will expose a deterministic `suggestPlacements` function.
 
-Proposed MVP algorithm:
+Implemented MVP algorithm (`src/features/project/suggestions/`):
 
-1. generate grid points, for example every 10 cm,
-2. check rotations `0`, `90`, `180`, `270`,
-3. reject positions that fall outside the room,
-4. reject physical collisions,
-5. score working-zone conflicts,
-6. award points for wall placement and keeping the center free,
-7. return several of the best candidates.
+1. generate origin-aligned 10 cm grid positions in ascending Z, X, then rotation
+   `0`, `90`, `180`, `270`, filtered by optional rotations and inclusive region bounds;
+2. apply each candidate through the shared pure domain command with deterministic injected IDs;
+3. reject every layout with an error or any unreachable access fact, including obstacles whose
+   global issue severity remains a warning;
+4. score warnings using `CANDIDATE_WARNING_WEIGHTS`: unevaluated access 1, use-zone overlap 10,
+   tight access 25 (unreachable obstacles are always rejected, regardless of their weight);
+5. sort by integer score, then generation index, returning 3 suggestions by default, at most 10.
+
+The request identifies exactly one `productId` or `projectItemId`. Existing placed items are moved
+in memory rather than duplicated. Each suggestion includes its exact command, pose, warning counts
+and warnings. Results include generated/rejected counts and rejection reasons, including an
+explained empty list when nothing fits. No suggestion is applied automatically.
+The current pose is also a candidate for an existing placement: if it is already a best fit,
+applying that suggestion is a no-op rather than forcing an unnecessary move.
+
+Searches are bounded to 20,000 candidates. Rooms with doors also require at most 20,000 access-grid
+cells and 30 million candidate-cell evaluations. Oversized requests fail explicitly with advice to
+narrow the region or rotations; they are never silently truncated. No door means access was not
+evaluated, not that the layout is known to be reachable.
 
 ```ts
 type PlacementCandidate = {
@@ -392,11 +405,28 @@ type PlacementCandidate = {
   rotation: Rotation;
   score: number;
   warnings: ValidationIssue[];
-  reasons: string[];
+  warningCounts: Record<string, number>;
+  command: ProjectCommand;
 };
 ```
 
 We will not build a global solver that optimizes all products at once in the MVP. The agent will iteratively choose products, fetch candidates, place them, and re-validate the project.
+
+### Atomic layout changes
+
+`evaluate_layout_changes` and `apply_layout_changes` share a strict `{ changes: ProjectCommand[] }`
+schema accepting 1–25 ordered commands. `applyProjectCommands` folds them in memory and returns
+the final analysis, merged affected IDs and per-change outcomes, or the failing zero-based index
+and original command error. Intermediate invalid layouts are permitted; no intermediate state is
+published. `dispatchBatch` rejects final errors and unreachable facts using the same scoring policy,
+then records one history snapshot and one revision increment. Warnings may remain on success.
+Rejected and net-unchanged batches do not change history. Existing single-command dispatch is unchanged.
+
+The store's read-only `previewBatch` and `suggestPlacements` use the same injected product resolver
+and analyzer as mutations. Preview IDs are temporary and do not consume the real ID generators;
+commands should reference existing canonical IDs, not guessed IDs for entities created in the batch.
+Evaluation reports hypothetical validation and error/warning deltas without changing project,
+revision, undo/redo or autosave. Application rechecks the live state rather than trusting a preview.
 
 ## 10. 2D plan and React Three Fiber scene
 
@@ -585,6 +615,10 @@ Each handler:
 5. reports warnings and possible next steps.
 
 Read tools receive `readOnlyHint`. Tool descriptions must clearly distinguish reading, proposing, and applying a change.
+
+Phase 21 extends the creator registration to 20 tools with read-only `suggest_placements` and
+`evaluate_layout_changes`, plus mutating `apply_layout_changes`. They reuse the room-tool error,
+validation, access-impact and mutation envelopes and the existing registration lifecycle.
 
 ## 14. Main scenario flow
 

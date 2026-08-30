@@ -1,7 +1,7 @@
 # Phase 22 — Shared-editing demo and activity feed
 
-> Order 3 in the [active queue](README.md). Depends on Phase 26 (a reproducible demo project) and
-> Phase 21 (suggestions and batch apply). Blocks Phase 23, which needs real screenshots from here.
+> Order 2 in the [active queue](README.md). Depends on Phase 26 (a reproducible demo project) and
+> completed Phase 21 (suggestions and batch apply). Blocks Phase 23, which needs real screenshots from here.
 
 ## Problem
 
