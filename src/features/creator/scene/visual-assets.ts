@@ -9,6 +9,7 @@ export const VISUAL_ASSET_IDS = [
   "product_northstar_half_rack",
   "product_pivot_flat_bench",
   "product_quarry_power_bar",
+  "product_range_adjustable_dumbbells",
   "product_summit_power_cage",
   "product_summit_strength_station",
 ] as const;
@@ -25,6 +26,15 @@ export type VisualAssetDefinition = {
 };
 
 export const visualAssetRegistry: Readonly<Record<VisualAssetProductId, VisualAssetDefinition>> = {
+  product_range_adjustable_dumbbells: {
+    productId: "product_range_adjustable_dumbbells",
+    src: "/assets/range-adjustable-dumbbells.glb",
+    topViewSrc: "/assets/range-adjustable-dumbbells-top.svg",
+    envelopeCm: { widthCm: 48, depthCm: 54, heightCm: 62 },
+    forward: "negative-z",
+    floorPivot: "origin",
+    scale: [1, 1, 1],
+  },
   product_pivot_flat_bench: {
     productId: "product_pivot_flat_bench",
     src: "/assets/pivot-flat-bench.glb",

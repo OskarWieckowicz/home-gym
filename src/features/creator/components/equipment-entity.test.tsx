@@ -46,6 +46,23 @@ function renderEquipment(productId: string, rotation: Placement["rotation"] = 0)
 
 describe("EquipmentEntity top views", () => {
   it.each([
+    [0, "translate(68 84) rotate(-180)", ["-20", "20", "128", "104"]],
+    [90, "translate(20 78) rotate(-90)", ["-20", "-10", "104", "128"]],
+    [180, "translate(20 30)", ["-20", "-10", "128", "104"]],
+    [270, "translate(74 30) rotate(-270)", ["10", "-10", "104", "128"]],
+  ] as const)("aligns Range dumbbells with the 40 cm front zone at %s degrees", (rotation, pose, bounds) => {
+    const view = renderEquipment("product_range_adjustable_dumbbells", rotation);
+    const image = view.container.querySelector(".creator-equipment-top-view");
+    const zone = view.container.querySelector(".creator-equipment-use-zone");
+    expect(image?.getAttribute("href")).toBe("/assets/range-adjustable-dumbbells-top.svg");
+    expect(["width", "height", "pointer-events"].map((attribute) => image?.getAttribute(attribute)))
+      .toEqual(["48", "54", "none"]);
+    expect(image?.parentElement?.getAttribute("transform")).toBe(pose);
+    expect(view.container.querySelector(".creator-equipment-outline")).toBeTruthy();
+    expect(["x", "y", "width", "height"].map((attribute) => zone?.getAttribute(attribute))).toEqual(bounds);
+  });
+
+  it.each([
     [0, "translate(78 154) rotate(-180)", ["-20", "10", "138", "164"]],
     [90, "translate(20 88) rotate(-90)", ["0", "-10", "164", "138"]],
     [180, "translate(20 30)", ["-20", "10", "138", "164"]],

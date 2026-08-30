@@ -3,6 +3,14 @@ import { getVisualAsset, visualAssetRegistry } from "./visual-assets";
 
 describe("visual asset registry", () => {
   it("maps accepted product models explicitly", () => {
+    expect(getVisualAsset("product_range_adjustable_dumbbells")).toMatchObject({
+      src: "/assets/range-adjustable-dumbbells.glb",
+      topViewSrc: "/assets/range-adjustable-dumbbells-top.svg",
+      envelopeCm: { widthCm: 48, depthCm: 54, heightCm: 62 },
+      forward: "negative-z",
+      floorPivot: "origin",
+      scale: [1, 1, 1],
+    });
     expect(getVisualAsset("product_pivot_flat_bench")).toMatchObject({
       src: "/assets/pivot-flat-bench.glb",
       topViewSrc: "/assets/pivot-flat-bench-top.svg",

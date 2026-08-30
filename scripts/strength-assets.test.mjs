@@ -38,6 +38,7 @@ describe("Product asset generators", () => {
   it.each([
     { slug: "northstar-half-rack", groups: 4, minimum: [-0.61, 0, -0.65], dimensions: [1.22, 2.15, 1.3], viewBox: "-0.61 -0.65 1.22 1.3" },
     { slug: "pivot-flat-bench", groups: 5, minimum: [-0.29, 0, -0.62], dimensions: [0.58, 0.44, 1.24], viewBox: "-0.29 -0.62 0.58 1.24" },
+    { slug: "range-adjustable-dumbbells", groups: 5, minimum: [-0.24, 0, -0.27], dimensions: [0.48, 0.62, 0.54], viewBox: "-0.24 -0.27 0.48 0.54" },
   ])("ships a reproducible $slug model and top view within production budgets", async ({ slug, groups, minimum, dimensions, viewBox }) => {
     temporaryDirectory = await mkdtemp(join(tmpdir(), `home-gym-${slug}-`));
     const [first, second] = await generateTwice(`generate-${slug}-glb.mjs`, temporaryDirectory);
