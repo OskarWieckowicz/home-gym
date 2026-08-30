@@ -26,9 +26,19 @@ const plates: ProductValidationDescriptor = {
   useZone: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
 };
 
+const bar: ProductValidationDescriptor = {
+  id: "product_bar",
+  price: 1_500,
+  dimensions: { widthCm: 400, depthCm: 5, heightCm: 5 },
+  useZone: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
+};
+
+const productsById = new Map(
+  [rack, plates, bar].map((product) => [product.id, product] as const),
+);
+
 const dependencies = {
-  resolveProduct: (productId: string) =>
-    productId === rack.id ? rack : productId === plates.id ? plates : undefined,
+  resolveProduct: (productId: string) => productsById.get(productId),
 };
 
 function door(
@@ -286,6 +296,36 @@ describe("validateAccess", () => {
       dependencies,
     );
     expect(blocked.some(({ code }) => code === "DOOR_UNREACHABLE")).toBe(true);
+  });
+
+  it("lets a walking path cross geometry no taller than the step-over height", () => {
+    const barAcrossTheRoom = validateProject(
+      project(
+        twoDoors,
+        [],
+        [{
+          id: "placement_bar",
+          productId: bar.id,
+          position: { xCm: 0, zCm: 200 },
+          rotation: 0,
+        }],
+      ),
+      dependencies,
+    );
+    expect(barAcrossTheRoom.some(({ code }) => code === "DOOR_UNREACHABLE")).toBe(false);
+    expect(barAcrossTheRoom.some(({ code }) => code === "USE_ZONE_UNREACHABLE")).toBe(false);
+
+    const lowObstacleAcrossTheRoom = validateProject(
+      project(
+        twoDoors,
+        [obstacle("obstacle_threshold", {
+          position: { xCm: 0, zCm: 200 },
+          dimensions: { widthCm: 400, depthCm: 80, heightCm: 15 },
+        })],
+      ),
+      dependencies,
+    );
+    expect(lowObstacleAcrossTheRoom.some(({ code }) => code === "DOOR_UNREACHABLE")).toBe(false);
   });
 
   it("is pure and deterministic", () => {

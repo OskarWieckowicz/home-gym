@@ -1,5 +1,6 @@
 import { evaluateAccess, type DoorAccessRecord, type ProjectAccess, UNEVALUATED_ACCESS } from "@/features/geometry/access-facts";
 import { hasUseZoneMargins } from "@/features/geometry/access-targets";
+import { blocksMovement } from "@/features/geometry/movement-blockers";
 import type { GymProject } from "@/features/project/schemas/project";
 
 import type { ObstacleWithFootprint, ResolvedPlacement } from "./validation-model";
@@ -26,6 +27,13 @@ function doorsShareComponent(first: DoorAccessRecord, second: DoorAccessRecord):
   return first.passableComponent > 0 && first.passableComponent === second.passableComponent;
 }
 
+function obstructsWalking(item: ObstacleWithFootprint): boolean {
+  return (
+    item.obstacle.kind === "obstacle" &&
+    blocksMovement(item.obstacle.dimensions.heightCm)
+  );
+}
+
 export function validateAccess(
   project: GymProject,
   items: readonly ObstacleWithFootprint[],
@@ -35,10 +43,10 @@ export function validateAccess(
   const evaluation = evaluateAccess(
     project.room,
     [
-      ...items
-        .filter((item) => item.obstacle.kind === "obstacle")
-        .map((item) => item.footprint),
-      ...placements.map((placement) => placement.footprints.physical),
+      ...items.filter(obstructsWalking).map((item) => item.footprint),
+      ...placements
+        .filter((placement) => blocksMovement(placement.product.dimensions.heightCm))
+        .map((placement) => placement.footprints.physical),
     ],
     doors.map((door) => ({
       id: door.id,

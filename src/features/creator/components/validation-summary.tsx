@@ -6,10 +6,28 @@ import { formatPricePln } from "@/features/catalog/components/catalog-formatters
 
 import { useProjectStore } from "../store/project-store-context";
 
+const ACCESS_ISSUE_CODES = [
+  "ACCESS_NOT_EVALUATED",
+  "DOOR_BLOCKED",
+  "USE_ZONE_UNREACHABLE",
+  "OBSTACLE_UNREACHABLE",
+  "ACCESS_TIGHT",
+  "DOOR_UNREACHABLE",
+] as const;
+
+type AccessIssue = Extract<
+  ValidationIssue,
+  { readonly code: (typeof ACCESS_ISSUE_CODES)[number] }
+>;
+
+function isAccessIssue(issue: ValidationIssue): issue is AccessIssue {
+  return (ACCESS_ISSUE_CODES as readonly string[]).includes(issue.code);
+}
+
 function describeAccessIssue(
-  issue: ValidationIssue,
+  issue: AccessIssue,
   label: (id: string) => string,
-): string | undefined {
+): string {
   switch (issue.code) {
     case "ACCESS_NOT_EVALUATED":
       return "Access cannot be evaluated because this room has no door.";
@@ -23,8 +41,6 @@ function describeAccessIssue(
       return `Access to ${label(issue.entityIds[0])} is tight.`;
     case "DOOR_UNREACHABLE":
       return `${label(issue.entityIds[0])} and ${label(issue.entityIds[1])} cannot be reached from each other.`;
-    default:
-      return undefined;
   }
 }
 
@@ -48,9 +64,8 @@ export function describeValidationIssue(
   if (issue.code === "BUDGET_EXCEEDED") {
     return `Placed equipment costs ${formatPricePln(issue.details.totalPrice)}, exceeding the ${formatPricePln(issue.details.budget)} budget by ${formatPricePln(issue.details.excess)}.`;
   }
-  const accessCopy = describeAccessIssue(issue, label);
-  if (accessCopy) {
-    return accessCopy;
+  if (isAccessIssue(issue)) {
+    return describeAccessIssue(issue, label);
   }
   const pair = `${label(issue.entityIds[0])} and ${label(issue.entityIds[1])}`;
   if (issue.code === "WALL_ELEMENT_OVERLAP") {
