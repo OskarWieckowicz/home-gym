@@ -3,8 +3,10 @@ import type { Position } from "@/features/project/schemas/geometry";
 import type { PlacementTool } from "../editor-types";
 import type { PlanIssueRef } from "../plan/entity-issue-state";
 import type { ProjectStore } from "../store/project-store";
+import type { SceneCameraPreset } from "./scene-camera-controls";
 
 export type SceneEditorProps = {
+  readonly cameraPreset?: SceneCameraPreset;
   readonly project: GymProject;
   readonly selectedId: string | null;
   readonly issues: readonly PlanIssueRef[];

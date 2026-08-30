@@ -16,6 +16,22 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+function openProjectActions() {
+  const trigger = screen.getByRole("button", { name: "Project" });
+  if (trigger.getAttribute("aria-expanded") !== "true") fireEvent.click(trigger);
+}
+
+function chooseImportInput() {
+  openProjectActions();
+  fireEvent.click(screen.getByRole("button", { name: "Import" }));
+  return screen.getByLabelText("Choose project JSON to import");
+}
+
+function openProjectSettings() {
+  fireEvent.click(screen.getByRole("tab", { name: "Room" }));
+  fireEvent.click(screen.getByRole("button", { name: "Project settings" }));
+}
+
 describe("ProjectFileActions", () => {
   it("exports the canonical project and revokes its object URL", () => {
     const createObjectURL = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:project");
@@ -24,13 +40,14 @@ describe("ProjectFileActions", () => {
     const project = { ...createDefaultProject(), budget: 12_500 };
     render(<CreatorEditor initialProject={project} />);
 
+    openProjectActions();
     fireEvent.click(screen.getByRole("button", { name: /Export/ }));
 
     expect(createObjectURL).toHaveBeenCalledOnce();
     expect(createObjectURL.mock.calls[0][0]).toBeInstanceOf(Blob);
     expect(click).toHaveBeenCalledOnce();
     expect(revokeObjectURL).toHaveBeenCalledWith("blob:project");
-    expect(screen.getByRole("status").textContent).toBe("Project exported.");
+    expect(screen.getByText("Project exported.").getAttribute("role")).toBe("status");
   });
 
   it("imports a validated project through one undoable replacement", async () => {
@@ -38,12 +55,12 @@ describe("ProjectFileActions", () => {
     const imported = { ...createDefaultProject(), budget: 18_000 };
     const file = jsonFile(projectJson(imported));
 
-    fireEvent.change(screen.getByLabelText("Choose project JSON to import"), {
+    fireEvent.change(chooseImportInput(), {
       target: { files: [file] },
     });
 
     expect(await screen.findByText("Project imported.")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Project settings" }));
+    openProjectSettings();
     expect(screen.getByRole("spinbutton", { name: "Budget" })).toHaveProperty(
       "value",
       "18000",
@@ -57,7 +74,7 @@ describe("ProjectFileActions", () => {
 
   it("rejects invalid and oversized imports without changing history", async () => {
     render(<CreatorEditor initialProject={createDefaultProject()} />);
-    const input = screen.getByLabelText("Choose project JSON to import");
+    const input = chooseImportInput();
 
     fireEvent.change(input, { target: { files: [jsonFile("not json")] } });
     expect(await screen.findByRole("alert")).toHaveProperty(
@@ -90,14 +107,16 @@ describe("ProjectFileActions", () => {
     );
 
     confirm.mockReturnValueOnce(false);
+    openProjectActions();
     fireEvent.click(screen.getByRole("button", { name: /Reset/ }));
-    fireEvent.click(screen.getByRole("button", { name: "Project settings" }));
+    openProjectSettings();
     expect(screen.getByRole("spinbutton", { name: "Budget" })).toHaveProperty(
       "value",
       "14000",
     );
 
     confirm.mockReturnValueOnce(true);
+    openProjectActions();
     fireEvent.click(screen.getByRole("button", { name: /Reset/ }));
     expect(screen.getByRole("spinbutton", { name: "Budget" })).toHaveProperty(
       "value",
@@ -123,6 +142,7 @@ describe("persistent reset edge cases", () => {
     render(<CreatorEditor persistence storage={adapter} />);
     await screen.findByText(/saved project is invalid/i);
 
+    openProjectActions();
     fireEvent.click(screen.getByRole("button", { name: /Reset/ }));
 
     expect(removeItem).toHaveBeenCalledOnce();
@@ -152,13 +172,14 @@ describe("persistent reset edge cases", () => {
     );
     await screen.findByText("Saved locally.");
 
+    openProjectActions();
     fireEvent.click(screen.getByRole("button", { name: /Reset/ }));
     expect(removeItem).not.toHaveBeenCalled();
     first.unmount();
 
     render(<CreatorEditor initialProject={fallback} persistence storage={adapter} />);
     await screen.findByText("Saved locally.");
-    fireEvent.click(screen.getByRole("button", { name: "Project settings" }));
+    openProjectSettings();
     expect(screen.getByRole("spinbutton", { name: "Budget" })).toHaveProperty(
       "value",
       "10000",
@@ -181,11 +202,12 @@ describe("persistent reset edge cases", () => {
     render(<CreatorEditor persistence storage={adapter} />);
     await screen.findByText("Saved locally.");
 
+    openProjectActions();
     fireEvent.click(screen.getByRole("button", { name: /Reset/ }));
 
     expect(removeItem).not.toHaveBeenCalled();
     expect(await screen.findByText(/latest project could not be saved/i)).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Project settings" }));
+    openProjectSettings();
     expect(screen.getByRole("spinbutton", { name: "Budget" })).toHaveProperty(
       "value",
       "10000",
@@ -213,7 +235,7 @@ describe("concurrent project file actions", () => {
     };
     const newerProject = { ...createDefaultProject(), budget: 19_000 };
     render(<CreatorEditor initialProject={createDefaultProject()} />);
-    const input = screen.getByLabelText("Choose project JSON to import");
+    const input = chooseImportInput();
 
     fireEvent.change(input, { target: { files: [older] } });
     fireEvent.change(input, {
@@ -222,7 +244,7 @@ describe("concurrent project file actions", () => {
     await screen.findByText("Project imported.");
     await act(async () => resolveOlder?.(projectJson({ ...createDefaultProject(), budget: 17_000 })));
 
-    fireEvent.click(screen.getByRole("button", { name: "Project settings" }));
+    openProjectSettings();
     expect(screen.getByRole("spinbutton", { name: "Budget" })).toHaveProperty(
       "value",
       "19000",
@@ -248,13 +270,13 @@ describe("concurrent project file actions", () => {
       />,
     );
 
-    fireEvent.change(screen.getByLabelText("Choose project JSON to import"), {
+    fireEvent.change(chooseImportInput(), {
       target: { files: [pending] },
     });
     fireEvent.click(screen.getByRole("button", { name: /Reset/ }));
     await act(async () => resolveImport?.(projectJson({ ...createDefaultProject(), budget: 20_000 })));
 
-    fireEvent.click(screen.getByRole("button", { name: "Project settings" }));
+    openProjectSettings();
     expect(screen.getByRole("spinbutton", { name: "Budget" })).toHaveProperty(
       "value",
       "10000",

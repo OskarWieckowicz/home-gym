@@ -9,6 +9,7 @@ import type { PlacementTool } from "../editor-types";
 import { createProjectStore, type ProjectStore } from "../store/project-store";
 import type { SceneProjectPointer } from "./scene-editor-types";
 import { ScenePreview } from "./scene-preview";
+import type { SceneCameraPreset } from "./scene-camera-controls";
 
 const scene = vi.hoisted(() => ({
   entityId: "obstacle_box" as string | null,
@@ -78,13 +79,17 @@ function Host({ store, onFallback, initialTool = null }: {
   const [productId, setProductId] = useState<string | null>(null);
   const [selection, setSelection] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [preset, setPreset] = useState<SceneCameraPreset>({ kind: "fit", sequence: 0 });
   const cancel = () => { setTool(null); setProductId(null); };
   return <>
+    <button onClick={() => setPreset((previous) => ({ kind: "fit", sequence: previous.sequence + 1 }))}>Fit view</button>
+    <button onClick={() => setPreset((previous) => ({ kind: "top", sequence: previous.sequence + 1 }))}>Top view</button>
     <button onClick={() => { cancel(); setTool("obstacle"); }}>Choose obstacle</button>
     <button onClick={() => { cancel(); setProductId("product_missing"); }}>Choose missing product</button>
     <label htmlFor="exact-field">Exact position</label><input id="exact-field" />
     <p data-testid="selected-id">{selection}</p>
     <ScenePreview project={state.project} store={store} selectedId={selection} issues={[]}
+      cameraPreset={preset}
       activeTool={tool} activeProductId={productId} activeProjectItemId={null} placementError={error}
       onSelect={setSelection} onCancelPlacement={cancel} onPlacementError={setError} onFallback={onFallback}
       onPlacementComplete={(id) => { setSelection(id); cancel(); }} />
@@ -289,7 +294,7 @@ describe("scene DOM event integration", () => {
     fireEvent.click(screen.getByRole("button", { name: "Top view" }));
     expect(release).toHaveBeenCalledOnce();
     expect(scene.camera).toMatchObject({ gestureActive: false, preset: { kind: "top", sequence: 1 } });
-    fireEvent.click(screen.getByRole("button", { name: "Reset view" }));
+    fireEvent.click(screen.getByRole("button", { name: "Fit view" }));
     expect(scene.camera.preset).toEqual({ kind: "fit", sequence: 2 });
     expect(store.getState().revision).toBe(0);
   });
@@ -319,7 +324,7 @@ describe("scene DOM event integration", () => {
     fireEvent.click(fallback);
     expect(onFallback).toHaveBeenCalledOnce();
     expect(capture).not.toHaveBeenCalled();
-    expect(screen.getByRole("button", { name: "Reset view" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Fit view" })).toBeTruthy();
   });
 
   it("whole-Canvas rendering failure releases an active capture and keeps recovery clickable", () => {

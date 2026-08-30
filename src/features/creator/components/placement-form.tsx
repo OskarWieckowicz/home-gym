@@ -13,6 +13,7 @@ import type { Placement } from "@/features/project/schemas/project";
 
 import { useProjectStore } from "../store/project-store-context";
 import { FormActions, NumberField, readInteger } from "./form-controls";
+import { EquipmentCatalogThumb } from "./equipment-catalog-thumb";
 
 export function PlacementForm({
   placement,
@@ -65,7 +66,10 @@ export function PlacementForm({
   return (
     <form className="creator-form" key={`${placement.id}-${revision}`} noValidate onSubmit={submit}>
       <h2>Selected equipment</h2>
-      <p className="creator-entity-type">{product.name}</p>
+      <div className="creator-selected-product">
+        <EquipmentCatalogThumb productId={product.id} />
+        <p className="creator-entity-type">{product.name}</p>
+      </div>
       <dl className="creator-product-facts">
         <div><dt>Price</dt><dd>{formatPricePln(product.price)}</dd></div>
         <div><dt>Dimensions</dt><dd>{formatDimensions(product.dimensions)}</dd></div>

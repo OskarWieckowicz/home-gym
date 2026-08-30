@@ -16,6 +16,8 @@ import {
 import { productForPlacement } from "../placement-product";
 import { ProjectStoreProvider, useProjectStore, useProjectStoreApi } from "../store/project-store-context";
 import { CreatorToolbar } from "./creator-toolbar";
+import { CreatorViewportToolbar } from "./creator-viewport-toolbar";
+import type { SceneCameraPreset } from "../scene/scene-camera-controls";
 import { ElementPanel } from "./element-panel";
 import { ObstacleForm } from "./obstacle-form";
 import { PlacementForm } from "./placement-form";
@@ -40,6 +42,7 @@ function EditorWorkspace() {
   const [activeProjectItemId, setActiveProjectItemId] = useState<string | null>(null);
   const [placementError, setPlacementError] = useState("");
   const [viewMode, setViewMode] = useState<"2d" | "3d">("3d");
+  const [cameraPreset, setCameraPreset] = useState<SceneCameraPreset>({ kind: "fit", sequence: 0 });
   const obstacles = useProjectStore((state) => state.project.obstacles);
   const placements = useProjectStore((state) => state.project.placements);
   const wallElements = useProjectStore((state) => state.project.wallElements);
@@ -58,6 +61,7 @@ function EditorWorkspace() {
     ? selectedId
     : null;
   const placing = Boolean(activeTool || activeProductId || activeProjectItemId);
+  const displayedPanel = activePanel === "selected" && !visibleSelectedId && !placing ? "room" : activePanel;
 
   function clearPlacementMode() {
     setActiveTool(null);
@@ -74,7 +78,7 @@ function EditorWorkspace() {
   function select(id: string | null) {
     clearPlacementMode();
     setSelectedId(id);
-    if (id) setActivePanel("selected");
+    setActivePanel(id ? "selected" : "room");
   }
 
   function changePanel(panel: EditorPanel) {
@@ -133,10 +137,11 @@ function EditorWorkspace() {
 
   return (
     <main className="creator-editor" id="creator-content" tabIndex={-1}>
-      <CreatorToolbar viewMode={viewMode} onViewModeChange={changeView} />
+      <CreatorToolbar />
       <div className="creator-layout">
         <ElementPanel
-          activePanel={activePanel}
+          onCancelPlacement={clearPlacementMode}
+          activePanel={displayedPanel}
           activeProductId={activeProductId}
           activeProjectItemId={activeProjectItemId}
           activeTool={activeTool}
@@ -148,6 +153,9 @@ function EditorWorkspace() {
           onToolChange={changeTool}
           selectedId={visibleSelectedId}
         />
+        <div className="creator-viewport">
+        <CreatorViewportToolbar viewMode={viewMode} onViewModeChange={changeView}
+          onCameraPreset={(kind) => setCameraPreset((previous) => ({ kind, sequence: previous.sequence + 1 }))} />
         {viewMode === "2d" ? <RoomPlan
           activeProductId={activeProductId}
           activeProjectItemId={activeProjectItemId}
@@ -159,18 +167,21 @@ function EditorWorkspace() {
           placementError={placementError}
           selectedId={visibleSelectedId}
         /> : <ScenePreview project={project} selectedId={visibleSelectedId} issues={issues} store={store}
+          cameraPreset={cameraPreset}
           activeTool={activeTool} activeProductId={activeProductId} activeProjectItemId={activeProjectItemId}
           placementError={placementError} onSelect={select} onPlacementComplete={finishPlacement}
           onPlacementError={setPlacementError} onCancelPlacement={clearPlacementMode} onFallback={() => changeView("2d")} />}
+        </div>
         <aside className="creator-side creator-properties" aria-label="Properties and validation">
-          {activePanel === "room" ? <RoomForm /> : null}
-          {activePanel === "settings" ? <ProjectSettingsForm /> : null}
-          {activePanel === "selected" && selectedObstacle ? <ObstacleForm obstacle={selectedObstacle} onRemoved={() => select(null)} /> : null}
-          {activePanel === "selected" && selectedWallElement ? <WallElementForm element={selectedWallElement} onRemoved={() => select(null)} /> : null}
-          {activePanel === "selected" && selectedPlacement && selectedProduct ? (
+          <h2 className="creator-properties-title">Properties</h2>
+          {displayedPanel === "room" ? <RoomForm /> : null}
+          {displayedPanel === "settings" ? <ProjectSettingsForm /> : null}
+          {displayedPanel === "selected" && selectedObstacle ? <ObstacleForm obstacle={selectedObstacle} onRemoved={() => select(null)} /> : null}
+          {displayedPanel === "selected" && selectedWallElement ? <WallElementForm element={selectedWallElement} onRemoved={() => select(null)} /> : null}
+          {displayedPanel === "selected" && selectedPlacement && selectedProduct ? (
             <PlacementForm placement={selectedPlacement} product={selectedProduct} onRemoved={() => select(null)} />
           ) : null}
-          {activePanel === "selected" && selectedItem && selectedItemProduct && !selectedPlacement ? (
+          {displayedPanel === "selected" && selectedItem && selectedItemProduct && !selectedPlacement ? (
             <ProjectItemForm
               item={selectedItem}
               onPlace={() => placeItem(selectedItem.id)}
@@ -178,7 +189,7 @@ function EditorWorkspace() {
               product={selectedItemProduct}
             />
           ) : null}
-          {activePanel === "selected" && !selectedObstacle && !selectedWallElement && !selectedPlacement && !selectedItem ? (
+          {displayedPanel === "selected" && !selectedObstacle && !selectedWallElement && !selectedPlacement && !selectedItem ? (
             <p className="creator-help">
               {placing
                 ? "Place the selected item in the room."

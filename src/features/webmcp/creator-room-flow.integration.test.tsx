@@ -71,6 +71,7 @@ describe("creator WebMCP shared editing flow", () => {
     }))];
     expect(await execute("evaluate_layout_changes", { changes })).toMatchObject({ ok: true, applies: true, revision: 0 });
     expect(await execute("get_project_state", {})).toEqual(before);
+    fireEvent.click(screen.getByRole("tab", { name: "Project items" }));
     expect(screen.getByText("No equipment in the project yet.")).toBeTruthy();
     expect(await execute("apply_layout_changes", { changes })).toMatchObject({ ok: true, changed: true, revision: 1 });
     expect(screen.getByRole("button", { name: "3D" }).getAttribute("aria-pressed")).toBe("true");
@@ -106,6 +107,7 @@ describe("existing creator WebMCP shared editing flow", () => {
     fireEvent.click(screen.getByRole("button", { name: "2D" }));
     await waitFor(() => expect(tools.size).toBe(20));
 
+    fireEvent.click(screen.getByRole("tab", { name: "Room" }));
     fireEvent.click(screen.getByRole("button", { name: "Project settings" }));
     setNumber("Budget", "12500");
     fireEvent.click(screen.getByRole("checkbox", { name: "Strength" }));
@@ -165,6 +167,10 @@ describe("existing creator WebMCP shared editing flow", () => {
       revision: 3,
       validation: { valid: false, issueCount: 2 },
     });
+    expect(screen.getByRole("button", { name: "Layout checks" }).getAttribute("aria-expanded")).toBe("false");
+    expect(screen.queryByRole("heading", { name: "Errors" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Layout checks" }));
+    expect(screen.getByRole("heading", { name: "Errors" })).toBeTruthy();
     expect(container.textContent).toContain("Agent rack is outside the room on x");
 
     const validation = await execute<{
@@ -271,6 +277,7 @@ describe("existing creator WebMCP shared editing flow", () => {
       },
     );
     expect(placed).toMatchObject({ placementId: "placement_agent-rack", revision: 1 });
+    fireEvent.click(screen.getByRole("tab", { name: "Project items" }));
     expect(screen.getByRole("button", { name: /Northstar Half RackPlaced · 0°/ }))
       .toBeTruthy();
 

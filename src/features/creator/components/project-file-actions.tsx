@@ -11,6 +11,7 @@ import {
 
 import { useProjectPersistence } from "../persistence/project-persistence-boundary";
 import { useProjectStore } from "../store/project-store-context";
+import { EditorPopover } from "./editor-popover";
 
 export const PROJECT_IMPORT_MAX_BYTES = 1024 * 1024;
 export const PROJECT_EXPORT_FILENAME = "home-gym-project-v4.json";
@@ -119,6 +120,7 @@ export function ProjectFileActions() {
 
   return (
     <div className="creator-file-actions">
+      <EditorPopover label="Project">
       <div aria-label="Project file actions" className="creator-file-action-buttons" role="group">
         <button onClick={exportProject} type="button">
           <Download aria-hidden="true" size={17} /> Export
@@ -139,6 +141,7 @@ export function ProjectFileActions() {
           <RotateCcw aria-hidden="true" size={17} /> Reset
         </button>
       </div>
+      </EditorPopover>
       {message ? (
         <p
           className={message.kind === "error" ? "creator-file-error" : "creator-file-message"}

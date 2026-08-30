@@ -476,7 +476,7 @@ Contextual pointer-down arbitration replaces the Edit/Navigate toggle. The contr
 placement and already-selected entity gestures; the DOM capture handler stops them before the
 native camera listener. Other gestures reach OrbitControls and retain only a click candidate:
 short click selects/clears, drag navigates without selection or project mutation. Ownership cannot
-change when a pointer crosses another entity; selection changes cancel pending gestures. Fit/reset/top
+change when a pointer crosses another entity; selection changes cancel pending gestures. Fit/top
 camera presets do not run on ordinary revisions. Camera-relative wall cutaway keeps both side
 walls near frontal views: hide the nearer side after 25° of horizontal rotation, restore below
 20° (hysteresis), symmetrically around all four axes. Top-down retains its separate thresholds;
@@ -493,6 +493,14 @@ project in 2D. Neither failure remounts persistence or the WebMCP bridge.
 
 See [Phase 27 verification](PHASE_27_3D_EDITOR_VERIFICATION.md) for observed browser coverage and
 remaining device/deployment acceptance; unit/controller tests are not claims of GPU validation.
+
+Phase 28 separates the compact project header from `CreatorViewportToolbar`, which owns the
+visible view/history/camera controls outside the lazy scene. Camera preset requests are transient
+parent state; the scene cancels any gesture before applying them. `fitSceneCamera` solves distance
+from the eight room corners projected against horizontal and vertical frustum slopes, leaving
+6% edge margins. It runs on mount or an explicit preset, not on project revisions. `SiteChrome`
+hides marketing chrome only at `/creator`; sidebar tabs and popover disclosure state are local UI
+state, with no domain/schema changes. See [Phase 28 verification](PHASE_28_WORKSPACE_VERIFICATION.md).
 
 The primary equipment visuals are reproducible, AI-generated procedural GLB assets produced
 offline and mapped by visual family. They remain simplified presentation assets rather than

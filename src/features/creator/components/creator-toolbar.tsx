@@ -1,22 +1,20 @@
 "use client";
 
-import { Redo2, Undo2 } from "lucide-react";
+import { CircleHelp } from "lucide-react";
+import { BrandMark } from "@/components/brand-mark";
 
 import { useProjectPersistence } from "../persistence/project-persistence-boundary";
-import { useProjectStore } from "../store/project-store-context";
 import { ProjectFileActions } from "./project-file-actions";
+import { EditorPopover } from "./editor-popover";
 
-export function CreatorToolbar({ viewMode, onViewModeChange }: { readonly viewMode: "2d" | "3d"; readonly onViewModeChange: (mode: "2d" | "3d") => void }) {
-  const canUndo = useProjectStore((state) => state.canUndo);
-  const canRedo = useProjectStore((state) => state.canRedo);
-  const undo = useProjectStore((state) => state.undo);
-  const redo = useProjectStore((state) => state.redo);
+export function CreatorToolbar() {
   const persistence = useProjectPersistence();
 
   return (
     <header className="creator-toolbar">
-      <div>
-        <p className="creator-eyebrow">Home Gym Creator</p>
+      <div className="creator-project-identity">
+        <BrandMark />
+        <div>
         <h1>Untitled room</h1>
         {persistence ? (
           <p
@@ -27,19 +25,16 @@ export function CreatorToolbar({ viewMode, onViewModeChange }: { readonly viewMo
             {persistence.status.message}
           </p>
         ) : null}
-      </div>
-      <div className="creator-toolbar-actions" aria-label="Editor controls" role="group">
-        <ProjectFileActions />
-        <div className="creator-view-switch" aria-label="Plan view" role="group">
-          <button aria-pressed={viewMode === "2d"} onClick={() => onViewModeChange("2d")} type="button">2D</button>
-          <button aria-pressed={viewMode === "3d"} onClick={() => onViewModeChange("3d")} type="button">3D</button>
         </div>
-        <button disabled={!canUndo} onClick={undo} type="button">
-          <Undo2 aria-hidden="true" size={17} /> Undo
-        </button>
-        <button disabled={!canRedo} onClick={redo} type="button">
-          <Redo2 aria-hidden="true" size={17} /> Redo
-        </button>
+      </div>
+      <div className="creator-toolbar-actions" aria-label="Project controls" role="group">
+        <ProjectFileActions />
+        <EditorPopover label="Editor help" icon={<CircleHelp aria-hidden="true" size={19} />}>
+          <strong>Make room for your training</strong>
+          <p>Choose equipment or a room tool, then click to place it. You can also use Place at centre.</p>
+          <p>Click an item to select it. Drag the selected item to move it; drag elsewhere to orbit. Scroll to zoom.</p>
+          <p>Use the lists and Properties for keyboard editing. Escape cancels placement. 2D is always available.</p>
+        </EditorPopover>
       </div>
     </header>
   );

@@ -37,6 +37,7 @@ describe("ProjectPersistenceBoundary", () => {
       "disabled",
       true,
     );
+    fireEvent.click(screen.getByRole("tab", { name: "Room" }));
     fireEvent.click(screen.getByRole("button", { name: "Project settings" }));
     expect(screen.getByRole("spinbutton", { name: "Budget" })).toHaveProperty(
       "value",
@@ -50,6 +51,7 @@ describe("ProjectPersistenceBoundary", () => {
     const first = render(<CreatorEditor persistence storage={memory.adapter} />);
     await screen.findByText("Local saving ready.");
 
+    fireEvent.click(screen.getByRole("tab", { name: "Room" }));
     fireEvent.click(screen.getByRole("button", { name: "Project settings" }));
     fireEvent.click(screen.getByRole("button", { name: "Apply settings" }));
     expect(memory.storage.setItem).not.toHaveBeenCalled();
@@ -64,6 +66,7 @@ describe("ProjectPersistenceBoundary", () => {
     first.unmount();
     render(<CreatorEditor persistence storage={memory.adapter} />);
     await screen.findByText("Saved locally.");
+    fireEvent.click(screen.getByRole("tab", { name: "Room" }));
     fireEvent.click(screen.getByRole("button", { name: "Project settings" }));
     expect(screen.getByRole("spinbutton", { name: "Budget" })).toHaveProperty(
       "value",
@@ -104,6 +107,7 @@ describe("ProjectPersistenceBoundary", () => {
     render(<CreatorEditor persistence storage={memory.adapter} />);
 
     expect(await screen.findByText(/saved project is invalid/i)).toBeTruthy();
+    fireEvent.click(screen.getByRole("tab", { name: "Project items" }));
     expect(screen.getByText("No equipment in the project yet.")).toBeTruthy();
     expect(memory.storage.setItem).not.toHaveBeenCalled();
   });

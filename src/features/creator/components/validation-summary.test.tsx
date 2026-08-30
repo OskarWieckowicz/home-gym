@@ -1,26 +1,61 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { createDefaultProject } from "@/features/project/defaults";
 import type { GymProject } from "@/features/project/schemas/project";
 import { toProjectItemsAndPlacements } from "@/features/project/validation/test-placed-equipment";
 
-import { ProjectStoreProvider } from "../store/project-store-context";
+import { ProjectStoreProvider, useProjectStore } from "../store/project-store-context";
 import { ValidationSummary } from "./validation-summary";
 
 afterEach(cleanup);
 
 function renderSummary(project: GymProject) {
-  return render(
+  const result = render(
     <ProjectStoreProvider initialProject={project}>
       <ValidationSummary />
     </ProjectStoreProvider>,
   );
+  fireEvent.click(screen.getByRole("button", { name: "Layout checks" }));
+  return result;
+}
+
+function ValidationCommands() {
+  const dispatch = useProjectStore((state) => state.dispatch);
+  const undo = useProjectStore((state) => state.undo);
+  return <>
+    <button type="button" onClick={() => dispatch({ type: "OBSTACLE_ADDED", payload: {
+      kind: "obstacle", name: "Outside cabinet", position: { xCm: 390, zCm: 0 },
+      dimensions: { widthCm: 100, depthCm: 40, heightCm: 100 }, rotation: 0, locked: false,
+    } })}>Add outside obstacle</button>
+    <button type="button" onClick={undo}>Undo test change</button>
+  </>;
 }
 
 describe("ValidationSummary", () => {
+  it("keeps live counts visible while collapsed across project changes and undo", () => {
+    render(<ProjectStoreProvider initialProject={createDefaultProject()}>
+      <ValidationSummary /><ValidationCommands />
+    </ProjectStoreProvider>);
+    const toggle = screen.getByRole("button", { name: "Layout checks" });
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    expect(screen.getByRole("status").textContent).toContain("Door needed for access check");
+    fireEvent.click(screen.getByRole("button", { name: "Add outside obstacle" }));
+    expect(screen.getByRole("status").textContent).toContain("1 error");
+    expect(screen.queryByRole("heading", { name: "Errors" })).toBeNull();
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(toggle);
+    expect(screen.getByRole("heading", { name: "Errors" })).toBeTruthy();
+    expect(screen.getByText(/Outside cabinet is outside the room/)).toBeTruthy();
+    fireEvent.click(toggle);
+    fireEvent.click(screen.getByRole("button", { name: "Undo test change" }));
+    expect(screen.getByRole("status").textContent).not.toContain("1 error");
+    expect(screen.getByRole("status").textContent).toContain("Door needed for access check");
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+  });
+
   it("reports a clean layout only when there are no issues", () => {
     renderSummary({
       ...createDefaultProject(),

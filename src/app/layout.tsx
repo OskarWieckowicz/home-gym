@@ -3,8 +3,10 @@ import { Inter } from "next/font/google";
 
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { SiteChrome } from "@/components/site-chrome";
 
 import "./globals.css";
+import "./editor-workspace.css";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -21,9 +23,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-canvas text-ink">
-        <SiteHeader />
+        <SiteChrome><SiteHeader /></SiteChrome>
         {children}
-        <SiteFooter />
+        <SiteChrome><SiteFooter /></SiteChrome>
       </body>
     </html>
   );

@@ -314,12 +314,11 @@ export function RoomPlan({
     <section className="creator-plan-shell" aria-labelledby="plan-title">
       <div className="creator-plan-heading">
         <div>
-          <h2 id="plan-title">2D room plan</h2>
+          <h2 id="plan-title" className="visually-hidden">2D room plan</h2>
           <p className={isPlacing() ? "creator-placement-help" : undefined}>
             {placementInstruction(activeTool, activeProductId, activeProjectItemId)}
           </p>
         </div>
-        <span>{project.room.widthCm} × {project.room.depthCm} cm</span>
       </div>
       {placementError ? <p className="creator-placement-error" role="alert">{placementError}</p> : null}
       <svg

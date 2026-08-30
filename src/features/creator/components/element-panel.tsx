@@ -1,11 +1,13 @@
 "use client";
 
 import { Ban, Box, DoorOpen, PanelTop, Ruler, Settings } from "lucide-react";
+import { useId, useState } from "react";
 
 import type { EditorPanel, PlacementTool } from "../editor-types";
 import { useProjectStore } from "../store/project-store-context";
 import { EquipmentCatalogPanel } from "./equipment-catalog-panel";
 import { ProjectItemsList } from "./project-items-list";
+import { SidebarTabs, type SidebarTab } from "./sidebar-tabs";
 
 type ElementPanelProps = {
   readonly activePanel: EditorPanel;
@@ -19,6 +21,7 @@ type ElementPanelProps = {
   readonly onToolChange: (tool: PlacementTool) => void;
   readonly selectedId: string | null;
   readonly onSelect: (id: string) => void;
+  readonly onCancelPlacement: () => void;
 };
 
 const TOOLS = [
@@ -40,12 +43,32 @@ export function ElementPanel({
   onToolChange,
   selectedId,
   onSelect,
+  onCancelPlacement,
 }: ElementPanelProps) {
+  const id = useId();
+  const [activeTab, setActiveTab] = useState<SidebarTab>("Equipment");
   const obstacles = useProjectStore((state) => state.project.obstacles);
   const wallElements = useProjectStore((state) => state.project.wallElements);
+
+  function changeTab(tab: SidebarTab) {
+    if (tab === activeTab) return;
+    onCancelPlacement();
+    setActiveTab(tab);
+  }
+
   return (
     <aside className="creator-side creator-elements" aria-label="Room elements">
-      <h2>Build the room</h2>
+      <h2 className="visually-hidden">Build the room</h2>
+      <SidebarTabs id={id} activeTab={activeTab} onChange={changeTab} />
+      <div className="creator-sidebar-panel" role="tabpanel" id={`${id}-panel-0`} aria-labelledby={`${id}-tab-0`} hidden={activeTab !== "Equipment"}>
+        <EquipmentCatalogPanel
+          activeProductId={activeProductId}
+          onActivate={onProductActivate}
+          onAdd={onProductAdd}
+        />
+      </div>
+
+      <div className="creator-sidebar-panel" role="tabpanel" id={`${id}-panel-1`} aria-labelledby={`${id}-tab-1`} hidden={activeTab !== "Room"}>
       <nav aria-label="Editor panels">
         <button aria-current={activePanel === "room" ? "page" : undefined} onClick={() => onPanelChange("room")} type="button">
           <Ruler aria-hidden="true" size={18} /> Room dimensions
@@ -73,13 +96,8 @@ export function ElementPanel({
           Physical obstacles block walking. Unavailable zones keep equipment off that floor, but a person can still walk through them.
         </p>
       </section>
-
-      <EquipmentCatalogPanel
-        activeProductId={activeProductId}
-        onActivate={onProductActivate}
-        onAdd={onProductAdd}
-      />
-
+      </div>
+      <div className="creator-sidebar-panel" role="tabpanel" id={`${id}-panel-2`} aria-labelledby={`${id}-tab-2`} hidden={activeTab !== "Project items"}>
       <ProjectItemsList
         activeProjectItemId={activeProjectItemId}
         onPlaceItem={onPlaceItem}
@@ -132,6 +150,7 @@ export function ElementPanel({
             ))}
           </ul>
         )}
+      </div>
       </div>
     </aside>
   );

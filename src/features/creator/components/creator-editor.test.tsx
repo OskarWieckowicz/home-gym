@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { ScenePreviewProps } from "../scene/scene-preview";
@@ -63,6 +63,7 @@ describe("CreatorEditor", () => {
     expect(sceneProps).toHaveBeenLastCalledWith(expect.objectContaining({ project, selectedId: "placement_rack", issues: expectedIssues }));
     expect(screen.getByLabelText("Scene store revision").textContent).toBe("0");
 
+    fireEvent.click(screen.getByRole("tab", { name: "Project items" }));
     fireEvent.click(screen.getByRole("button", { name: /Arc Adjustable Bench.*Placed/ }));
     expect(sceneProps).toHaveBeenLastCalledWith(expect.objectContaining({ project, selectedId: "placement_bench", issues: expectedIssues }));
     expect(screen.getByLabelText("Scene store revision").textContent).toBe("0");
@@ -93,6 +94,7 @@ describe("CreatorEditor", () => {
       x: 0, y: 0, toJSON: () => undefined,
     }) });
 
+    fireEvent.click(screen.getByRole("tab", { name: "Room" }));
     fireEvent.click(screen.getByRole("button", { name: "Project settings" }));
     change("Budget", "12500");
     fireEvent.click(screen.getByRole("checkbox", { name: "Strength" }));
@@ -117,6 +119,8 @@ describe("CreatorEditor", () => {
     expect(screen.getByRole("button", { name: /Physical obstacle, physical obstacle/ })).toHaveProperty("tabIndex", -1);
     fireEvent.pointerDown(plan, { button: 0, clientX: 330, clientY: 240 });
 
+    fireEvent.click(screen.getByRole("button", { name: "Layout checks" }));
+    expect(screen.getByRole("heading", { name: "Errors" })).toBeTruthy();
     expect(container.textContent).toContain("conflict with an unavailable zone");
     expect(screen.getByRole("button", { name: /Physical obstacle, physical obstacle/ })).toHaveProperty("tabIndex", 0);
     expect(screen.queryByRole("button", { name: "Add to room" })).toBeNull();
@@ -140,6 +144,7 @@ describe("CreatorEditor", () => {
       x: 0, y: 0, toJSON: () => undefined,
     }) });
 
+    fireEvent.click(screen.getByRole("tab", { name: "Room" }));
     fireEvent.click(screen.getByRole("button", { name: "Door" }));
     fireEvent.pointerDown(plan, { button: 0, clientX: 250, clientY: 48 });
     expect(screen.getByRole("button", { name: /Door, door, top wall/ })).toBeTruthy();
@@ -148,6 +153,7 @@ describe("CreatorEditor", () => {
     fireEvent.click(screen.getByRole("button", { name: "Window" }));
     fireEvent.pointerDown(plan, { button: 0, clientX: 500, clientY: 48 });
     expect(screen.getByRole("button", { name: /Window, window, top wall/ })).toBeTruthy();
+    fireEvent.click(screen.getByRole("tab", { name: "Project items" }));
     expect(screen.getByText("No obstacles or unavailable zones yet.")).toBeTruthy();
   });
 
@@ -190,6 +196,7 @@ describe("CreatorEditor", () => {
     expect(screen.getByRole("button", { name: "3D" }).getAttribute("aria-pressed")).toBe("true");
     expect(screen.queryByRole("group", { name: "Top-down editable room plan" })).toBeNull();
     expect(screen.getByLabelText("Scene store revision").textContent).toBe("0");
+    fireEvent.click(screen.getByRole("tab", { name: "Room" }));
     fireEvent.click(screen.getByRole("button", { name: "Physical obstacle" }));
     expect(sceneProps.mock.lastCall![0]).toMatchObject({ activeTool: "obstacle", activeProductId: null, activeProjectItemId: null });
     fireEvent.click(screen.getByRole("button", { name: "Scene place at centre" }));
@@ -206,6 +213,7 @@ describe("CreatorEditor", () => {
 
   it("cancels placement preview and errors on a view switch without changing revision", () => {
     render(<CreatorEditor initialProject={createDefaultProject()} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Room" }));
     fireEvent.click(screen.getByRole("button", { name: "Physical obstacle" }));
     fireEvent.click(screen.getByRole("button", { name: "Scene preview target" }));
     fireEvent.click(screen.getByRole("button", { name: "Scene report error" }));
@@ -223,6 +231,7 @@ describe("CreatorEditor", () => {
 
   it("recovers the same project and selection in 2D without replacing the store", () => {
     render(<CreatorEditor initialProject={createDefaultProject()} dependencies={{ generateObstacleId: () => "obstacle_scene" }} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Room" }));
     fireEvent.click(screen.getByRole("button", { name: "Physical obstacle" }));
     fireEvent.click(screen.getByRole("button", { name: "Scene place at centre" }));
     const store = (sceneProps.mock.lastCall![0] as ScenePreviewProps).store;
@@ -233,5 +242,47 @@ describe("CreatorEditor", () => {
     fireEvent.click(screen.getByRole("button", { name: "3D" }));
     expect((sceneProps.mock.lastCall![0] as ScenePreviewProps).store).toBe(store);
     expect(sceneProps.mock.lastCall![0]).toMatchObject({ selectedId: "obstacle_scene" });
+  });
+
+  it("cancels a draft on sidebar navigation but preserves an existing selection and history", () => {
+    render(<CreatorEditor initialProject={createDefaultProject()} dependencies={{ generateObstacleId: () => "obstacle_scene" }} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Room" }));
+    fireEvent.click(screen.getByRole("button", { name: "Physical obstacle" }));
+    fireEvent.click(screen.getByRole("button", { name: "Scene preview target" }));
+    expect(screen.getByLabelText("Scene draft").textContent).toBe("OBSTACLE_ADDED");
+    fireEvent.click(screen.getByRole("tab", { name: "Equipment" }));
+    expect(screen.getByLabelText("Scene draft").textContent).toBe("none");
+    expect(screen.getByLabelText("Scene store revision").textContent).toBe("0");
+    expect(screen.getByRole("button", { name: "Apply room" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("tab", { name: "Room" }));
+    fireEvent.click(screen.getByRole("button", { name: "Physical obstacle" }));
+    fireEvent.click(screen.getByRole("button", { name: "Scene place at centre" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Project items" }));
+    expect(sceneProps.mock.lastCall![0]).toMatchObject({ selectedId: "obstacle_scene" });
+    expect(screen.getByRole("button", { name: "Apply changes" })).toBeTruthy();
+    expect(screen.getByLabelText("Scene store revision").textContent).toBe("1");
+    fireEvent.click(screen.getByRole("button", { name: "Undo" }));
+    expect(sceneProps.mock.lastCall![0]).toMatchObject({ project: { obstacles: [] }, selectedId: null });
+    expect(screen.getByRole("button", { name: "Apply room" })).toBeTruthy();
+  });
+
+  it("groups view, history and camera controls with the viewport without editing the project", () => {
+    render(<CreatorEditor initialProject={createDefaultProject()} />);
+    const controls = screen.getByRole("group", { name: "View controls" });
+    for (const name of ["2D", "3D", "Undo", "Redo", "Fit view"]) {
+      expect(within(controls).getByRole("button", { name })).toBeTruthy();
+    }
+    expect(screen.queryByRole("button", { name: "Top view" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Reset view" })).toBeNull();
+    const store = (sceneProps.mock.lastCall![0] as ScenePreviewProps).store;
+    fireEvent.click(within(controls).getByRole("button", { name: "Fit view" }));
+    expect(sceneProps.mock.lastCall![0]).toMatchObject({ cameraPreset: { kind: "fit" } });
+    fireEvent.click(within(controls).getByRole("button", { name: "Camera views" }));
+    fireEvent.click(screen.getByRole("button", { name: "Top view" }));
+    expect(sceneProps.mock.lastCall![0]).toMatchObject({ cameraPreset: { kind: "top" } });
+    expect(store.getState()).toMatchObject({ revision: 0, canUndo: false });
+    fireEvent.click(within(controls).getByRole("button", { name: "2D" }));
+    expect(screen.queryByRole("button", { name: "Fit view" })).toBeNull();
+    expect(within(controls).getByRole("button", { name: "Undo" })).toBeTruthy();
   });
 });

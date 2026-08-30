@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import { ChevronDown } from "lucide-react";
+
 import type { ValidationIssue } from "@/features/project/validation/validation-issues";
 import { findProductById } from "@/features/catalog/queries/catalog";
 import { formatPricePln } from "@/features/catalog/components/catalog-formatters";
@@ -121,6 +124,7 @@ function countLabel(count: number, singular: string, plural: string) {
 }
 
 export function ValidationSummary() {
+  const [expanded, setExpanded] = useState(false);
   const validation = useProjectStore((state) => state.validation);
   const project = useProjectStore((state) => state.project);
   const names = new Map([
@@ -149,7 +153,17 @@ export function ValidationSummary() {
 
   return (
     <section className="creator-validation" aria-labelledby="validation-title">
-      <h2 id="validation-title">Layout checks</h2>
+      <h2 id="validation-title"><button className="creator-validation-toggle" type="button" aria-label="Layout checks"
+        aria-expanded={expanded} aria-controls="validation-details" onClick={() => setExpanded((value) => !value)}>
+        <span>Layout checks</span><ChevronDown aria-hidden="true" size={16} />
+      </button></h2>
+      <div className="creator-validation-badges" role="status" aria-live="polite">
+        {validation.errorCount > 0 ? <span className="is-error">{countLabel(validation.errorCount, "error", "errors")}</span> : null}
+        {warnings.length > 0 ? <span className="is-warning">{countLabel(warnings.length, "warning", "warnings")}</span> : null}
+        {accessNotEvaluated ? <span className="is-missing">Door needed for access check</span> : null}
+        {validation.issues.length === 0 ? <span className="is-clear">No conflicts</span> : null}
+      </div>
+      <div id="validation-details" hidden={!expanded}>
       {validation.issues.length === 0 ? (
         <p className="creator-valid"><span aria-hidden="true">✓</span> No layout conflicts found.</p>
       ) : (
@@ -176,6 +190,7 @@ export function ValidationSummary() {
           {issueList("Warnings", warnings, names, "creator-issue-warning")}
         </>
       )}
+      </div>
     </section>
   );
 }

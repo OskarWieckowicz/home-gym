@@ -6,6 +6,7 @@ import { MOUSE, PerspectiveCamera, TOUCH, Vector3 } from "three";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import type { Room } from "@/features/project/schemas/project";
 import { SceneCameraControls } from "./scene-camera-controls";
+import { fitSceneCamera } from "./scene-camera-fit";
 
 const state = vi.hoisted(() => ({
   camera: null as unknown as PerspectiveCamera,
@@ -44,6 +45,20 @@ it("fits on mount and explicit presets, not on ordinary room updates", () => {
   rerender(<SceneCameraControls room={room} placing={false} gestureActive={false} preset={{ kind: "fit", sequence: 1 }} />);
   expect(state.controls.update).toHaveBeenCalledTimes(2);
   expect(state.camera.position.z).toBeGreaterThan(0);
+});
+
+it("uses the latest aspect on explicit Fit without resetting navigation during resize", () => {
+  const { rerender } = render(<SceneCameraControls room={room} placing={false} gestureActive={false} preset={{ kind: "fit", sequence: 0 }} />);
+  const initial = fitSceneCamera(room, "fit", 45, 1.5);
+  expect(state.camera.position.toArray()).toEqual(initial.position.toArray());
+  expect(state.controls.target.toArray()).toEqual(initial.target.toArray());
+  state.camera.position.set(-4, 6, 8);
+  state.camera.aspect = 0.5;
+  rerender(<SceneCameraControls room={room} placing={false} gestureActive={false} preset={{ kind: "fit", sequence: 0 }} />);
+  expect(state.camera.position.toArray()).toEqual([-4, 6, 8]);
+  rerender(<SceneCameraControls room={room} placing={false} gestureActive={false} preset={{ kind: "fit", sequence: 1 }} />);
+  expect(state.camera.position.toArray()).toEqual(fitSceneCamera(room, "fit", 45, 0.5).position.toArray());
+  expect(state.controls.update).toHaveBeenCalledTimes(2);
 });
 
 it("fits portrait rooms further away and top view stays above the floor", () => {

@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState, type DragEvent } from "react";
+import { useId, useMemo, useState, type DragEvent } from "react";
 import { Search } from "lucide-react";
 
 import { catalogProducts } from "@/data/products";
 import { formatFootprint, formatPricePln } from "@/features/catalog/components/catalog-formatters";
 import { searchProducts } from "@/features/catalog/queries/catalog";
+import { PRODUCT_CATEGORIES } from "@/features/catalog/schemas";
 
 import { EquipmentCatalogThumb } from "./equipment-catalog-thumb";
 
@@ -22,7 +23,10 @@ export function EquipmentCatalogPanel({
   readonly onAdd: (productId: string) => void;
 }) {
   const [query, setQuery] = useState("");
-  const products = useMemo(() => searchProducts({ query }), [query]);
+  const [category, setCategory] = useState("");
+  const searchId = useId();
+  const categoryId = useId();
+  const products = useMemo(() => searchProducts({ query, category }), [query, category]);
   const visibleProducts = products.slice(0, RESULT_LIMIT);
 
   function startDrag(event: DragEvent<HTMLElement>, productId: string) {
@@ -33,15 +37,25 @@ export function EquipmentCatalogPanel({
   return (
     <section className="creator-equipment-catalog" aria-labelledby="equipment-catalog-title">
       <h3 id="equipment-catalog-title">Equipment catalog</h3>
-      <label className="creator-catalog-search">
+      <label className="creator-catalog-search" htmlFor={searchId}>
         <span className="visually-hidden">Search equipment</span>
         <Search aria-hidden="true" size={16} />
         <input
+          id={searchId}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search equipment"
           type="search"
           value={query}
         />
+      </label>
+      <label className="creator-catalog-category" htmlFor={categoryId}>
+        <span className="visually-hidden">Equipment category</span>
+        <select id={categoryId} value={category} onChange={(event) => setCategory(event.target.value)}>
+          <option value="">All equipment</option>
+          {PRODUCT_CATEGORIES.map((value) => (
+            <option key={value} value={value}>{value[0].toUpperCase() + value.slice(1)}</option>
+          ))}
+        </select>
       </label>
       <p className="creator-catalog-count">
         {products.length} of {catalogProducts.length} products

@@ -2,7 +2,7 @@
 
 import { Canvas } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
-import { useCallback, useEffect, useState, type PointerEvent } from "react";
+import { useCallback, useEffect, useLayoutEffect, useState, type PointerEvent } from "react";
 import { PCFShadowMap } from "three";
 import { EQUIPMENT_DRAG_TYPE } from "../components/equipment-catalog-panel";
 import { SceneBoundary, SceneContextLoss, SceneRecovery } from "./scene-boundary";
@@ -15,15 +15,17 @@ import { useSceneEditing } from "./use-scene-editing";
 import type { SceneEditorProps } from "./scene-editor-types";
 
 export type ScenePreviewProps = SceneEditorProps;
+const INITIAL_PRESET: SceneCameraPreset = { kind: "fit", sequence: 0 };
 
 export function ScenePreview(props: ScenePreviewProps) {
   const { project, selectedId, issues, store } = props;
-  const [preset, setPreset] = useState<SceneCameraPreset>({ kind: "fit", sequence: 0 });
+  const preset = props.cameraPreset ?? INITIAL_PRESET;
   const [contextLost, setContextLost] = useState(false);
   const placing = Boolean(props.activeTool || props.activeProductId || props.activeProjectItemId);
   const { controller, projectPointerRef, snapshot } = useSceneEditing(store, props);
   const getProject = useCallback(() => store.getState().project, [store]);
   const loseContext = useCallback(() => { controller.dispose(); setContextLost(true); }, [controller]);
+  useLayoutEffect(() => { controller.cancel(); }, [controller, preset.kind, preset.sequence]);
 
   useEffect(() => {
     for (const src of projectVisualAssetSources(project)) useGLTF.preload(src);
@@ -50,15 +52,12 @@ export function ScenePreview(props: ScenePreviewProps) {
   }
 
   return <section className="creator-scene-shell" aria-labelledby="scene-title">
-    <div className="creator-plan-heading"><div><h2 id="scene-title">3D room editor</h2>
-      <p id="scene-help">{placing ? "Choose a floor or highlighted wall-edge target. Enter places at the centre; Escape cancels."
-        : "Click an item to select it, then drag it to move. Drag elsewhere to orbit; scroll to zoom. Click empty space to deselect."}</p>
-    </div><span>{project.room.widthCm} × {project.room.depthCm} cm</span></div>
-    <div className="creator-scene-controls" role="group" aria-label="3D controls">
-      <button type="button" onClick={() => { controller.cancel(); setPreset({ kind: "fit", sequence: preset.sequence + 1 }); }}>Reset view</button>
-      <button type="button" onClick={() => { controller.cancel(); setPreset({ kind: "top", sequence: preset.sequence + 1 }); }}>Top view</button>
-      {placing ? <><button type="button" onClick={controller.placeCenter}>Place at centre</button><button type="button" onClick={controller.cancelPlacement}>Cancel placement</button></> : null}
-    </div>
+    <h2 id="scene-title" className="visually-hidden">3D room editor</h2>
+    {placing ? <div className="creator-scene-controls" role="group" aria-label="Placement controls">
+      <span>Choose a floor or highlighted wall edge.</span>
+      <button type="button" onClick={controller.placeCenter}>Place at centre</button>
+      <button type="button" onClick={controller.cancelPlacement}>Cancel placement</button>
+    </div> : null}
     {props.placementError ? <p className="creator-placement-error" role="alert">{props.placementError}</p> : null}
     <div className="creator-scene-canvas" role="group" aria-label="Editable 3D room" aria-describedby="scene-help" tabIndex={0}
       onPointerDownCapture={pointerDown}
@@ -82,6 +81,9 @@ export function ScenePreview(props: ScenePreviewProps) {
           </Canvas>}
       </SceneBoundary>
     </div>
+    <p id="scene-help" className="creator-scene-help">{placing
+      ? "Enter places at the centre · Escape cancels"
+      : "Click to select · Drag selected item to move · Drag elsewhere to orbit · Scroll to zoom"}</p>
     {snapshot.command ? <p className="creator-help">Preview only — not yet saved or validated.</p> : null}
     <p className="creator-scene-status" role="status">{snapshot.status}</p>
   </section>;

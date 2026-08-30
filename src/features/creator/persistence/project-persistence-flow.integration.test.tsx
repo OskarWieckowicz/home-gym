@@ -193,6 +193,8 @@ describe("persistent manual and agent editing flow", () => {
     let mounted = render(<CreatorEditor persistence storage={memory.adapter} />);
     await waitFor(() => expect(tools.size).toBe(20));
     fireEvent.click(screen.getByRole("button", { name: "2D" }));
+    fireEvent.click(screen.getByRole("button", { name: "Project" }));
+    fireEvent.click(screen.getByRole("button", { name: "Import" }));
     fireEvent.change(screen.getByLabelText("Choose project JSON to import"), {
       target: {
         files: [
@@ -214,6 +216,7 @@ describe("persistent manual and agent editing flow", () => {
       },
     });
     expect(screen.getByRole("button", { name: /Northstar Half Rack, equipment/ })).toBeTruthy();
+    fireEvent.click(screen.getByRole("tab", { name: "Project items" }));
     expect(screen.getByRole("button", { name: /Northstar Half RackPlaced/ })).toBeTruthy();
 
     mounted.unmount();
@@ -230,6 +233,7 @@ describe("persistent manual and agent editing flow", () => {
     });
 
     vi.spyOn(window, "confirm").mockReturnValue(true);
+    fireEvent.click(screen.getByRole("button", { name: "Project" }));
     fireEvent.click(screen.getByRole("button", { name: /Reset/ }));
     expect(memory.storage.setItem).toHaveBeenCalledTimes(2);
     expect(await executeTool(tools, "get_project_state", {})).toMatchObject({

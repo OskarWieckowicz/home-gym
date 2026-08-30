@@ -4,6 +4,8 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { EquipmentCatalogPanel } from "./equipment-catalog-panel";
+import { searchProducts } from "@/features/catalog/queries/catalog";
+import { catalogProducts } from "@/data/products";
 
 afterEach(cleanup);
 
@@ -14,6 +16,21 @@ function renderCatalog(onActivate = vi.fn(), onAdd = vi.fn()) {
 }
 
 describe("EquipmentCatalogPanel", () => {
+  it("filters by actual catalog categories together with search and restores All equipment", () => {
+    renderCatalog();
+    const category = screen.getByRole("combobox", { name: "Equipment category" });
+    fireEvent.change(category, { target: { value: "benches" } });
+    const benches = searchProducts({ category: "benches" });
+    expect(screen.getByText(`${benches.length} of ${catalogProducts.length} products`)).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Place Northstar Half Rack" })).toBeNull();
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "pivot" } });
+    expect(screen.getByRole("button", { name: "Place Pivot Flat Bench" })).toBeTruthy();
+    fireEvent.change(category, { target: { value: "racks" } });
+    expect(screen.getByText("No equipment matches this search.")).toBeTruthy();
+    fireEvent.change(category, { target: { value: "" } });
+    expect(screen.getByRole("button", { name: "Place Pivot Flat Bench" })).toBeTruthy();
+  });
+
   it.each([
     ["summit", "/assets/squat-rack-catalog.png"],
     ["northstar", "/assets/northstar-half-rack-catalog.png"],
