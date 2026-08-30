@@ -30,6 +30,7 @@ Treat time-sensitive external claims as candidates for verification rather than 
 - Prefer `rg` and targeted file reads over broad scans.
 - Make the smallest coherent change that satisfies the request.
 - Write concrete implementation plans as Markdown files in the repository-root `plans/` directory. Use chat for brief outlines only; once a plan is detailed enough to guide implementation, persist it there.
+- Keep plans limited to unfinished outcomes. On completion, transfer durable decisions into the relevant docs, move unresolved checks to an active plan, and remove the completed plan. Git preserves history; routine verification belongs in the task/PR/CI record, not a new per-phase report.
 - Add or update tests for changed behavior, especially domain commands, geometry, schemas, WebMCP contracts, and the main shared-editing flow.
 - Run the narrowest relevant checks first, then broader validation when proportionate to the change.
 - Do not invent package-manager, build, lint, or test commands before the repository defines them.

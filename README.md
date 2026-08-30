@@ -9,17 +9,20 @@ catalog are fictional.
 
 ## Status
 
-Early development. A validated starter catalog with URL filters and product pages is available;
-the planner and WebMCP tools are being built. The current plan is in
-[`plans/README.md`](./plans/README.md).
+Implemented locally: editable 3D/2D planning, a shared manual/WebMCP command path, local
+save/restore and JSON import/export, deterministic validation, and a read-only project summary.
+Public-build and target-agent acceptance remain in the [submission plan](plans/phase-24-submission.md).
+The [active queue](plans/README.md) tracks the remaining catalog, asset and submission work.
 
-| Route | Purpose | State |
-| --- | --- | --- |
-| `/` | Landing page | Hero shell |
-| `/catalog` | Equipment catalog | Browse and URL filters |
-| `/catalog/[slug]` | Product details | Static product pages |
-| `/creator?start=demo` | Creator with the sample project | Placeholder |
-| `/creator?start=new` | Creator with an empty project | Placeholder |
+| Route | Purpose |
+| --- | --- |
+| `/` | Landing and agent setup guide |
+| `/catalog` | Equipment catalog with filters |
+| `/catalog/[slug]` | Product details |
+| `/creator` | Resume the locally saved project |
+| `/creator?start=demo` | Replace the current project with the sample layout |
+| `/creator?start=new` | Replace the current project with an empty room |
+| `/summary` | Read-only summary of the locally saved project |
 
 ## Requirements
 
@@ -48,12 +51,13 @@ npm run agent:verify     # the full local gate, including tests
 
 ## Testing WebMCP
 
-Once the tools are registered on `/creator`, they can be exercised in either environment:
+Tools register after their route is ready: 21 in the creator, two in the catalog and three
+read-only tools in the summary. UI actions and tool mutations share domain commands and undo/redo.
+Manual planning remains available when WebMCP is unavailable.
 
-- **ChatGPT**: open the app in the ChatGPT desktop app's built-in browser with a model that has
-  site tools enabled, then let the agent discover the page's tools.
-- **Chrome**: use Chrome 149 or newer, enable `chrome://flags/#enable-webmcp-testing`, restart
-  the browser, and open `/creator`.
+Use the [dated source/setup guide](docs/WEBMCP_SOURCES.md) for browser and agent prerequisites.
+Exact supported versions, flags and end-to-end behavior must be checked on the submitted build
+in fresh Chrome and ChatGPT/Codex sessions; local tests do not establish that acceptance.
 
 ## Documentation
 

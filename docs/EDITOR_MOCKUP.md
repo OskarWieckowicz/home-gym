@@ -32,7 +32,7 @@ The Room tab exposes room dimensions, project settings and four explicit placeme
 - **Door**,
 - **Window**.
 
-Selecting a tool enters a temporary placement mode. The next valid plan interaction creates the element directly: obstacles and unavailable zones are placed on the floor, while doors and windows are placed on a wall. The created element becomes the current selection and the placement tool exits. The flow is **palette → plan → inspector**; the user does not confirm creation in a second panel. Training equipment remains available from the catalog as that part of the MVP is introduced.
+Selecting a tool enters a temporary placement mode. The next valid plan interaction creates the element directly: obstacles and unavailable zones are placed on the floor, while doors and windows are placed on a wall. The created element becomes the current selection and the placement tool exits. The flow is **palette → plan → inspector**; the user does not confirm creation in a second panel. Training equipment is available from the catalog tab.
 
 ### Workspace
 
@@ -121,8 +121,9 @@ The main interaction rule: **both views edit one room, through one command path 
 - The toolbar's 2D switch remains available during loading. Whole-scene errors and context loss
   expose Continue in 2D without remounting the project store or WebMCP bridge.
 
-Local observations and outstanding device/deployment acceptance are recorded in
-[Phase 27 verification](PHASE_27_3D_EDITOR_VERIFICATION.md).
+Outstanding device/deployment acceptance is tracked in the
+[submission plan](../plans/phase-24-submission.md). Local automated coverage does not establish
+physical-device, assistive-technology or public-build acceptance.
 
 ## Source of truth
 

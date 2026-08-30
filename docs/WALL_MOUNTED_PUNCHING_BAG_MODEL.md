@@ -1,60 +1,47 @@
-# Wall-Mounted Punching Bag
+# Wall-Mounted Punching Bag — model provenance
 
-## Product and behavior
+## Product and mounting assumptions
 
-Added after the user's explicit model/integration request on 30 August 2026. The accepted
-[photo](../public/assets/wall-mounted-punching-bag-catalog-concept-v1.png) establishes appearance,
-not engineering specifications. Original fictional Kiln Strength product, 899 PLN; no real
-manufacturer association or load rating.
+The accepted [photo](../public/assets/wall-mounted-punching-bag-catalog-concept-v1.png) establishes
+appearance, not engineering specifications. This is fictional equipment without real manufacturer
+association or load certification. The [accessory seed](../src/data/products/accessories.ts)
+owns the planning assumptions:
 
-- Catalog envelope: width 60 cm, depth 120 cm, physical height 190 cm.
-- Wall-mounted bottom at 30 cm; top at 220 cm. Minimum ceiling 230 cm.
-- Entire 60 × 120 cm footprint reserves floor space, including the gap between wall and bag.
-- Working margins: front 100 cm, sides 80 cm, rear zero. Static planning assumptions, not
-  certified swing clearances, installation advice or a dynamic boxing simulation.
-- Requires suitable structural wall, anchors and professional installation. Verify actual
+- Envelope 60 × 120 × 190 cm, mounted bottom 30 cm, top 220 cm and minimum ceiling 230 cm.
+- The entire 60 × 120 cm footprint reserves floor space, including the wall-to-bag gap.
+- Working margins are front 100 cm, sides 80 cm, rear zero; bag swing is not simulated.
+- Suitable structural wall, anchors and professional installation are required. Verify actual
   equipment, structure and manufacturer requirements before purchase or installation.
 
-`mounting: { kind: "wall", bottomHeightCm: 30, blocksFloor: true }` reuses existing wall snapping,
+`mounting: { kind: "wall", bottomHeightCm: 30, blocksFloor: true }` uses shared wall snapping,
 dragging and opening checks. `blocksFloor` makes walking access and collisions use the whole
-floor rectangle, even for items lower than the hanging bag. Existing Anchor Pull-Up Bar omits
-this flag and keeps its previous elevated behavior. Render height and ceiling checks still use
-the real mounting bottom. Suggestions and WebMCP go through the same shared validation/store;
-no separate agent placement rules or saved-project migration are introduced.
+floor rectangle, even for objects lower than the bag. Anchor Pull-Up Bar omits this flag and
+retains elevated behavior. Render height and ceiling checks use the actual mounting bottom;
+WebMCP and suggestions use the same domain rules.
 
-## Assets and generation
+## Assets and reproduction
 
 - [Generator](../scripts/generate-wall-mounted-punching-bag-glb.mjs)
 - [GLB](../public/assets/wall-mounted-punching-bag.glb)
 - [Derived top SVG](../public/assets/wall-mounted-punching-bag-top.svg)
-- [Front preview](asset-previews/wall-mounted-punching-bag-front.png)
-- [Rear preview](asset-previews/wall-mounted-punching-bag-rear.png)
 - [Photo prompt/provenance](../scripts/catalog-image-provenance/wall-mounted-punching-bag-concept-v1.json)
 
-Procedural Three.js geometry is merged by four materials. Rounded lathed body with reinforced
-tabs and raised seams, four chains of alternating individual links, attachment rings/swivel,
-steel boom, twin braces, three wall plates and exposed fasteners. All rear plate faces lie on
-the same wall plane. No wall mesh, support floor, animations, texture downloads or text.
+Procedural Three.js geometry is merged by four materials: rounded lathed bag with reinforced tabs
+and seams, four chains of alternating links, rings/swivel, boom, twin braces, three wall plates and
+fasteners. Rear plate faces share one wall plane. There is no wall mesh, support floor, animation,
+texture download or text. The display pose and braces are original approximations of the photo.
 
-Canonical model X ±0.30 m, Z ±0.60 m, Y 0..1.90 m. Front negative Z, rear positive Z.
-Shared scene orientation turns the rear toward the mounting wall and adds the 30 cm elevation;
-the GLB does not fake floor blockage using invisible geometry. The conservative domain rectangle
-is independent of the bag cylinder's smaller diameter. Display pose and brace arrangement are
-original approximations, not an exact copy of the concept photo.
+Local bounds are X ±0.30 m, Z ±0.60 m, Y 0..1.90 m, with front negative Z. The shared orientation
+adapter turns the rear toward the mounting wall and adds 30 cm elevation. Invisible geometry does
+not fake floor blockage; the conservative domain rectangle is independent of the bag diameter.
 
-Metrics: 357424 bytes, 15756 triangles, 10798 vertices, 96 source parts, four merged meshes and
-four materials. SHA-256: `e8b18db56e0a8e098a63e4767a5ce1c13565f66f7c7002cfdb911b989de6d27d`.
-Top SVG: 7242 projected triangles, 424622 bytes.
+```sh
+node scripts/generate-wall-mounted-punching-bag-glb.mjs
+npm run assets:top-views
+node scripts/inspect-glb.mjs public/assets/wall-mounted-punching-bag.glb
+node scripts/render-product-reference.mjs public/assets/wall-mounted-punching-bag.glb /tmp/wall-mounted-punching-bag-front.png front
+node scripts/render-product-reference.mjs public/assets/wall-mounted-punching-bag.glb /tmp/wall-mounted-punching-bag-rear.png rear
+```
 
-## Verification
-
-- Offline GLTFLoader front/rear renders inspected: legible chains, bag and complete bracket.
-- Reproducibility/bounds/normals/top-view tests passed (18 asset tests).
-- Domain/mounting/access/catalog focused checks passed (114 tests across eight files);
-  new model mapping and actual scene elevation check passed separately.
-- `quality:quick` passed. `lint:report`: zero errors, 36 existing warnings; no new warnings.
-- `agent:verify` passed: 997 tests across 110 files, typecheck, lint, duplicates and file-size guards.
-- `npm run build` passed; generated bag catalog HTML contains the product identity and accepted photo.
-- Independent read-only review found no actionable defects in mounting, floor blockage, shared
-  commands, suggestions or model orientation. `git diff --check` passed.
-- Browser/GPU review remains paused at user direction; no deployment performed.
+Follow the [visual strategy](PRODUCT_VISUALS_STRATEGY.md); remaining runtime/browser acceptance
+belongs to the paused [asset plan](../plans/phase-16-product-visual-assets.md).

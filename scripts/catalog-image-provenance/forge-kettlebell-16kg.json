@@ -19,5 +19,5 @@
   "geometrySha256": "d6176fdfce49f30afdadf915ba31db7314d82f0875dbd9850210138a24750299",
   "geometryMetrics": { "bytes": 164084, "triangles": 7752, "meshes": 4, "materials": 4 },
   "geometryReview": "Front and rear offline renders inspected; readable front marking and embedded handle roots. Bounds 21 × 18 × 28 cm, floor-centred. Seven geometry tests pass. Smooth simplified mesh without photographic microtexture, not a manufacturing mesh. Browser verification remains paused.",
-  "geometryReviewImages": ["docs/asset-reviews/forge-kettlebell-front.png", "docs/asset-reviews/forge-kettlebell-rear.png"]
+  "geometryReviewImagesNote": "Offline front/rear review renders were removed from the working tree at the user's request; they can be regenerated from the GLB with scripts/render-product-reference.mjs."
 }

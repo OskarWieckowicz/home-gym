@@ -359,7 +359,7 @@ Before public deployment, check the current origin-trial and HTTP-header require
 - [Product concept](./PRODUCT_CONCEPT.md)
 - [Hackathon requirements](./HACKATHON_REQUIREMENTS.md)
 
-## Phase 4 implementation contract
+## Local adapter contract
 
 The following decisions were checked on 28 August 2026 against the current
 [WebMCP specification](https://webmachinelearning.github.io/webmcp/),
@@ -377,20 +377,21 @@ The table separates facts from current sources from local Home Gym Creator decis
 | Result | A fulfilled callback value is serialized to JSON; a callback error or a non-serializable value causes an execution error. | Return only plain, stable application data envelopes; do not use backend MCP `{ content: ... }`. |
 | Annotations | The current contract exposes a boolean `readOnlyHint`, among others; it means no state modification. | Both catalog tools have `annotations: { readOnlyHint: true }`. The local, validated catalog does not require `untrustedContentHint`. |
 | Typing | The normative contract is described by Web IDL; found external TypeScript packages are not an official source and may lag the draft. | Keep narrow types only at the WebMCP adapter, without globally extending `Document`. |
-| Security | The API requires a secure context, an origin-keyed agent cluster, and the `tools` permission policy; the default allowlist is `'self'`. | Phase 4 does not add cross-origin exposure or special headers. Rejected registration yields a non-blocking UI fallback. |
-| Phase scope | The standard contract does not prove availability in a specific judge environment or a correctly configured public origin. | Phase 4 tests logic locally; phase 5 is a hard gate for public hosting, discovery, and a real agent call. |
+| Security | The API requires a secure context, an origin-keyed agent cluster, and the `tools` permission policy; the default allowlist is `'self'`. | The local adapter does not add cross-origin exposure or special headers. Rejected registration yields a non-blocking UI fallback. |
+| Release scope | The standard contract does not prove availability in a specific judge environment or a correctly configured public origin. | Verify hosting, discovery and real agent calls on the submitted build. |
 
-### Verification matrix and bounded unknowns
+### Runtime compatibility and release checks
 
-| Owner | Experiment | Pass criterion | Safe fallback |
-|---|---|---|---|
-| Phase 4 | Tests of schemas, handlers, serialization, atomic registration, cleanup, and the React bridge | Strict inputs and all planned envelopes are deterministic and serializable; an unsupported browser keeps the manual catalog | A tools-unavailable message with no effect on the catalog |
-| Phase 4 | Local Chrome with the current WebMCP flag: fresh load, direct detail route, navigation, remount, and calls | Exactly two tools, no duplicates, cleanup on exit, and correct results | Do not close the phase without recording a missing runtime attempt |
-| Phase 5 | Public secure origin and current origin-trial/header requirements | Tools register without `SecurityError`/`NotAllowedError` in the target environment | Correct hosting configuration; do not create backend MCP as a workaround |
-| Phase 5 | Fresh session of supported Codex/ChatGPT: discovery, search, and details | The agent discovers tools and correctly joins `productId` from a search result to details | Stop further WebMCP phases and adapt the contract to the verified runtime |
-| Phase 5 | Compare `execute` callback signatures and helper `executeTool()` in the specification, Chrome, and the agent environment | Calls work both in a runtime that passes `{ signal }` and in the locally observed runtime without a second argument | Keep an optional signal adapter and do not use `executeTool()` in product code; the helper is only for in-page diagnostics |
-| Phases 8–12 | Empty/invalid project states, the read → search → mutate → validate → fix sequence, and evals | The full shared scenario passes in the agent environment | Do not extend read-only catalog tools with premature mutations |
+The dated observations above are source/runtime evidence, not a guarantee about another host or
+browser version. The optional execution-signal adapter supports both the observed runtime that
+omits callback options and runtimes that pass `{ signal }`. Diagnostic `executeTool()` signatures
+are host-specific; production handlers and registration must not depend on that helper.
 
-Implementation status, Chrome version, available models, origin trial, and the judge
-environment must be refreshed again immediately before recording the video and submitting.
-These are time-sensitive claims, not durable architecture assumptions.
+The [submission plan](../plans/phase-24-submission.md) owns public secure-origin checks, fresh
+Chrome and ChatGPT/Codex discovery, navigation/cleanup, actual calls and the shared-editing loop.
+Keep local logic tests separate from those checks. Registration errors must preserve manual use;
+do not work around a host limitation by creating a second backend planning path.
+
+Refresh implementation status, browser versions, available models, origin-trial/header requirements
+and the judge environment immediately before recording and submitting. The dated source findings
+in this document were not revalidated during documentation cleanup.

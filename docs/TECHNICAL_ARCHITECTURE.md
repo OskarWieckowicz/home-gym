@@ -1,8 +1,7 @@
 # Home Gym Creator — technical architecture
 
-> Status: accepted baseline architecture.  
-> Decision date: 27 August 2026.  
-> This document will be updated during implementation if WebMCP tests or time constraints force a scope change.
+> Current implementation contracts, checked against local source on 30 August 2026.
+> Public-build and device acceptance belong to the [submission plan](../plans/phase-24-submission.md).
 
 ## 1. Architecture goals
 
@@ -25,18 +24,18 @@ The most important goals:
 |---|---|---|
 | Framework | Next.js App Router | Routing, pages, rendering, and deployment |
 | Language | TypeScript | Domain types, geometry, UI, and WebMCP |
-| UI | React, Tailwind CSS, shadcn/ui | Store and creator interface |
+| UI | React, Tailwind CSS, shared components | Catalog and creator interface |
 | 3D rendering | Three.js, React Three Fiber, Drei | Scene, cameras, and spatial interactions |
 | Client state | Zustand | Shared project and editor store |
 | Schemas | Zod | Runtime validation, types, and JSON Schema |
 | Unit tests | Vitest | Geometry, commands, and validation |
 | Component tests | React Testing Library | Forms and UI panels |
-| E2E tests | Playwright | Full user flows |
+| Browser acceptance | Separate local/public browser checks | Shared-editing and device flows; not part of Vitest |
 | Product data | Static JSON/TypeScript | Fictional MVP catalog |
 | MVP persistence | localStorage + JSON import/export | Saving without a backend |
 | Hosting | Vercel | Public demo environment |
 
-Exact dependency versions will be locked during project initialization. In particular, the major React version must stay compatible with React Three Fiber.
+Exact versions are recorded in `package.json` and `package-lock.json`. React and React Three Fiber must remain compatible.
 
 ## 3. Overall architecture model
 
@@ -66,9 +65,9 @@ The most important rule is that there is no separate project-mutation logic for 
 
 ## 4. Next.js and the server/client boundary
 
-The Next.js App Router will handle the store-like pages and the entry into the creator.
+The Next.js App Router handles catalog pages and the application entry points.
 
-Planned routes:
+Implemented routes:
 
 ```text
 /                  landing page
@@ -80,7 +79,7 @@ Planned routes:
 
 ### Server Components
 
-Server Components will be used for:
+Server Components handle:
 
 - the landing page,
 - the full catalog,
@@ -91,7 +90,7 @@ Server Components will be used for:
 
 ### Client Components
 
-Client Components will be used for:
+Client Components handle:
 
 - the entire interactive studio,
 - the WebGL scene,
@@ -102,215 +101,58 @@ Client Components will be used for:
 - JSON import and export,
 - `document.modelContext` registration.
 
-The React Three Fiber scene should be loaded dynamically on the client, because it uses WebGL and browser APIs.
+The React Three Fiber scene loads dynamically on the client because it uses WebGL and browser APIs.
 
-The catalog will have its own pages, but `/creator` will also include a product-search panel. The agent should not leave the creator during the main scenario, because WebMCP tools are bound to the currently open page.
+The catalog has its own pages; `/creator` includes a product-search panel. The agent should not leave the creator during the main scenario, because WebMCP tools are bound to the currently open page.
 
 ## 5. Module structure
 
-```text
-src/
-├── app/
-│   ├── layout.tsx
-│   ├── page.tsx
-│   ├── catalog/
-│   │   ├── page.tsx
-│   │   └── [slug]/page.tsx
-│   └── creator/
-│       └── page.tsx
-├── components/
-│   └── ui/
-├── data/
-│   └── products/
-│       ├── products.ts
-│       ├── racks.ts
-│       ├── benches.ts
-│       ├── barbells.ts
-│       ├── plates.ts
-│       ├── dumbbells.ts
-│       ├── cardio.ts
-│       └── accessories.ts
-├── features/
-│   ├── catalog/
-│   │   ├── components/
-│   │   ├── queries/
-│   │   └── schemas/
-│   ├── creator/
-│   │   ├── components/
-│   │   ├── scene/
-│   │   ├── store/
-│   │   └── persistence/
-│   ├── geometry/
-│   │   ├── collision.ts
-│   │   ├── clearance.ts
-│   │   ├── placement.ts
-│   │   └── scoring.ts
-│   ├── project/
-│   │   ├── commands/
-│   │   ├── schemas/
-│   │   ├── types/
-│   │   └── validation/
-│   └── webmcp/
-│       ├── register-tools.ts
-│       ├── tool-handlers.ts
-│       ├── tool-schemas.ts
-│       └── tool-results.ts
-└── lib/
-```
+| Source | Responsibility |
+|---|---|
+| [`src/app/`](../src/app/) | Landing, catalog, creator and summary routes |
+| [`src/data/products/`](../src/data/products/) | Active catalog and frozen retired records |
+| [`catalog/`](../src/features/catalog/) | Queries, schemas, cards and image mappings |
+| [`creator/store/`](../src/features/creator/store/) | Shared project store, history and catalog reconciliation |
+| [`creator/components/`](../src/features/creator/components/) | Manual editor, inspector and SVG plan |
+| [`creator/scene/`](../src/features/creator/scene/) | 3D adapter, input sessions and asset registry |
+| [`creator/persistence/`](../src/features/creator/persistence/) | Local restore/save, start actions and JSON export |
+| [`geometry/`](../src/features/geometry/) | Footprints, mounting, reachability and exact floor union |
+| [`project/`](../src/features/project/) | Schemas, commands, validation, suggestions, summary and serialization |
+| [`summary/`](../src/features/summary/) | Read-only summary UI |
+| [`webmcp/`](../src/features/webmcp/) | Route-specific registration, schemas, handlers and results |
+| [`shared/`](../src/shared/) | Shared formatting and schema primitives |
 
 The `geometry` layer and most of `project` must not import React, Zustand, or Three.js. They should remain pure TypeScript that can be tested without the DOM.
 
 ## 6. Domain model
 
-All domain dimensions will be stored as integer centimeters. Rendering may convert them into scene units.
+All domain dimensions and positions use integer centimeters; rotations are 0/90/180/270 degrees.
+The renderer converts them to centred scene units. The version-4 schema is defined in
+[`project.ts`](../src/features/project/schemas/project.ts), with geometry primitives in
+[`geometry.ts`](../src/features/project/schemas/geometry.ts).
 
-```ts
-type Dimensions3D = {
-  widthCm: number;
-  depthCm: number;
-  heightCm: number;
-};
-
-type Position2D = {
-  xCm: number;
-  zCm: number;
-};
-
-type Rotation = 0 | 90 | 180 | 270;
-
-type Room = {
-  widthCm: number;
-  depthCm: number;
-  heightCm: number;
-};
-
-type PhysicalObstacle = {
-  id: string;
-  kind: "obstacle";
-  name: string;
-  position: Position2D;
-  dimensions: Dimensions3D;
-  rotation: Rotation;
-  locked: boolean;
-};
-
-type UnavailableZone = {
-  id: string;
-  kind: "unavailable-zone";
-  name: string;
-  position: Position2D;
-  dimensions: {
-    widthCm: number;
-    depthCm: number;
-  };
-  rotation: Rotation;
-  locked: boolean;
-};
-
-type Obstacle = PhysicalObstacle | UnavailableZone;
-
-type Wall = "top" | "right" | "bottom" | "left";
-
-type WallElement = {
-  id: string;
-  kind: "door" | "window";
-  name: string;
-  wall: Wall;
-  offsetCm: number;
-  widthCm: number;
-};
-
-type ProductClearance = {
-  frontCm: number;
-  backCm: number;
-  leftCm: number;
-  rightCm: number;
-};
-
-type Product = {
-  id: string;
-  slug: string;
-  name: string;
-  category: string;
-  price: number;
-  placementMode: "floor" | "selection-only";
-  dimensions: Dimensions3D;
-  clearance: ProductClearance;
-  exercises: string[];
-  trainingGoals: string[];
-  requirements: {
-    minimumCeilingHeightCm?: number;
-    anchoring?: "recommended" | "required";
-  };
-};
-
-type ProjectItem = {
-  id: string;
-  productId: string;
-};
-
-type Placement = {
-  id: string;
-  projectItemId: string;
-  position: Position2D;
-  rotation: Rotation;
-};
-
-type GymProject = {
-  version: number;
-  room: Room;
-  obstacles: Obstacle[];
-  wallElements: WallElement[];
-  projectItems: ProjectItem[];
-  placements: Placement[];
-  budget: number;
-  trainingGoals: string[];
-};
-```
+A project contains a rectangular room, physical obstacles, unavailable zones, wall elements,
+shopping items, placements, budget and training goals. Shopping items carry product identity;
+placements refer to an item and add its pose. Unplacing preserves the purchase; removing an
+item removes its placement too. Physical obstacles have height and locking; unavailable zones
+have a 2D footprint. Product mounting and planning requirements come from the catalog.
 
 Domain coordinates start in one corner of the room. The renderer is responsible for converting them into the Three.js scene coordinate system, which is centered.
 
-The `version` field will allow later migration of saved projects.
+The versioned codec migrates supported saved formats before project/catalog validation.
 
 `offsetCm` is measured left-to-right on horizontal walls and top-to-bottom on vertical walls. Doors and windows deliberately have no hinge side, opening direction, swing arc, sill height, opening height, or derived unavailable zone in this MVP phase. They are validated against their wall and neighboring wall elements, but they do not participate in floor collision checks.
 
 ## 7. Store and domain commands
 
-Zustand holds the current project, selection, validation result, and change history.
+[`project-store.ts`](../src/features/creator/store/project-store.ts) holds the project,
+analysis, revision and bounded undo/redo history. Selection, active tools and camera state are
+transient editor UI state. The store exposes `dispatch`, `dispatchBatch`, read-only `previewBatch`
+and `suggestPlacements`, plus validated project replacement and undo/redo.
 
-```ts
-type ProjectStore = {
-  project: GymProject;
-  selectedEntityId: string | null;
-  validation: ValidationIssue[];
-  history: ProjectHistory;
-
-  dispatch: (command: ProjectCommand) => CommandResult;
-  undo: () => void;
-  redo: () => void;
-  resetDemo: () => void;
-};
-```
-
-Example commands:
-
-```ts
-type ProjectCommand =
-  | { type: "ROOM_CONFIGURED"; payload: Room }
-  | { type: "OBSTACLE_ADDED"; payload: Obstacle }
-  | { type: "OBSTACLE_UPDATED"; payload: UpdateObstacleInput }
-  | { type: "OBSTACLE_REMOVED"; payload: { obstacleId: string } }
-  | { type: "WALL_ELEMENT_ADDED"; payload: WallElement }
-  | { type: "WALL_ELEMENT_UPDATED"; payload: UpdateWallElementInput }
-  | { type: "WALL_ELEMENT_REMOVED"; payload: { wallElementId: string } }
-  | { type: "PROJECT_ITEM_ADDED"; payload: { productId: string } }
-  | { type: "PROJECT_ITEM_REMOVED"; payload: { projectItemId: string } }
-  | { type: "PROJECT_ITEM_PLACED"; payload: PlaceProjectItemInput }
-  | { type: "PRODUCT_PLACED"; payload: PlaceProductInput }
-  | { type: "PLACEMENT_UPDATED"; payload: UpdatePlacementInput }
-  | { type: "PLACEMENT_REMOVED"; payload: { placementId: string } }
-  | { type: "LAYOUT_CHANGES_APPLIED"; payload: LayoutChange[] };
-```
+The exact command union and runtime input contracts live in
+[`project-command.ts`](../src/features/project/schemas/project-command.ts). Do not maintain a
+second copied schema in documentation or give the agent a separate mutation path.
 
 Command flow:
 
@@ -328,11 +170,12 @@ The active palette tool is transient editor state, not project state. The manual
 
 ### Undo/redo
 
-History will allow undoing both manual changes and agent operations. For the MVP, a limited number of project snapshots can be stored, for example 30–50 states.
+History retains up to 50 project snapshots and covers both manual changes and agent operations.
+Rejected/no-op commands do not add history. Undo history is editor-session-local, not persisted.
 
 ## 8. Geometry engine
 
-The geometry engine will be pure TypeScript.
+The geometry engine is pure TypeScript.
 
 The MVP supports:
 
@@ -349,33 +192,20 @@ With these constraints, collisions can be checked as AABB rectangle intersection
 
 ### Validation
 
-```ts
-type ValidationIssueCode =
-  | "OUTSIDE_ROOM"
-  | "PHYSICAL_COLLISION"
-  | "CLEARANCE_COLLISION"
-  | "CEILING_TOO_LOW"
-  | "BUDGET_EXCEEDED";
+[`validation-issues.ts`](../src/features/project/validation/validation-issues.ts) defines the
+structured codes, severity, entity IDs and details; shared descriptions serve UI and tool results.
+Checks cover room/wall bounds, physical collisions, unavailable zones, use zones, height/mounting,
+openings, budget and deterministic access from doors. No door means access was not evaluated.
+Unavailable zones forbid equipment/use zones but remain walkable; they are not invented paths.
+Access thresholds are application conventions, not building regulations or exercise-safety claims.
 
-type ValidationIssue = {
-  code: ValidationIssueCode;
-  severity: "error" | "warning";
-  entityIds: string[];
-  message: string;
-};
-```
-
-We distinguish:
-
-- a physical collision — two objects actually intersect,
-- a working-zone conflict — the object fits, but may be hard to use,
-- a budget or height warning.
-
-The engine returns codes and data, and the presentation layer creates messages for the user and the agent.
+Single commands may commit a spatially invalid layout and return its errors/warnings so a user or
+agent can correct it. Batch application and suggestions use the stricter policy below. Physical,
+height and budget errors must not be described as harmless warnings.
 
 ## 9. Placement suggestions
 
-The agent should not guess all coordinates on its own. The application will expose a deterministic `suggestPlacements` function.
+The agent should not guess all coordinates on its own. The application exposes a deterministic `suggestPlacements` function.
 
 Implemented MVP algorithm (`src/features/project/suggestions/`):
 
@@ -399,17 +229,6 @@ Searches are bounded to 20,000 candidates. Rooms with doors also require at most
 cells and 30 million candidate-cell evaluations. Oversized requests fail explicitly with advice to
 narrow the region or rotations; they are never silently truncated. No door means access was not
 evaluated, not that the layout is known to be reachable.
-
-```ts
-type PlacementCandidate = {
-  position: Position2D;
-  rotation: Rotation;
-  score: number;
-  warnings: ValidationIssue[];
-  warningCounts: Record<string, number>;
-  command: ProjectCommand;
-};
-```
 
 We will not build a global solver that optimizes all products at once in the MVP. The agent will iteratively choose products, fetch candidates, place them, and re-validate the project.
 
@@ -454,7 +273,7 @@ Basic scene elements:
 - red collision marking,
 - labels and basic dimensions.
 
-Phase 27 replaces the read-only shell with editable 3D. `CreatorEditor` retains the store and
+`CreatorEditor` retains the store and
 bridge above both views and supplies callbacks plus its store API to the scene adapter.
 `create-room-element-command.ts` and existing equipment builders are shared by both renderers.
 
@@ -492,16 +311,16 @@ are preloaded; a failed model keeps its fallback, outline and use zone. `SceneBo
 whole Canvas and `SceneContextLoss` listens for context loss; both offer recovery to the same
 project in 2D. Neither failure remounts persistence or the WebMCP bridge.
 
-See [Phase 27 verification](PHASE_27_3D_EDITOR_VERIFICATION.md) for observed browser coverage and
-remaining device/deployment acceptance; unit/controller tests are not claims of GPU validation.
+Device/deployment acceptance is tracked in the [submission plan](../plans/phase-24-submission.md);
+unit/controller tests are not claims of GPU validation.
 
-Phase 28 separates the compact project header from `CreatorViewportToolbar`, which owns the
+The compact project header is separate from `CreatorViewportToolbar`, which owns the
 visible view/history/camera controls outside the lazy scene. Camera preset requests are transient
 parent state; the scene cancels any gesture before applying them. `fitSceneCamera` solves distance
 from the eight room corners projected against horizontal and vertical frustum slopes, leaving
 6% edge margins. It runs on mount or an explicit preset, not on project revisions. `SiteChrome`
-hides marketing chrome only at `/creator`; sidebar tabs and popover disclosure state are local UI
-state, with no domain/schema changes. See [Phase 28 verification](PHASE_28_WORKSPACE_VERIFICATION.md).
+hides marketing chrome at `/creator` and `/summary`; sidebar tabs and popover disclosure state
+are local UI state, with no domain/schema changes.
 
 The primary equipment visuals are reproducible, AI-generated procedural GLB assets produced
 offline and mapped by visual family. They remain simplified presentation assets rather than
@@ -548,7 +367,7 @@ Active MVP categories:
 Flooring is deferred. Treating floor products as placeable would require layered surfaces and
 overlap exceptions that are outside the current deterministic placement model.
 
-Each record will be validated by Zod during development or build.
+Catalog records are validated by Zod.
 
 The catalog must support filtering by:
 
@@ -565,7 +384,7 @@ We will not implement real stock, external prices, checkout, or an admin panel i
 
 ## 12. Zod and JSON Schema
 
-Zod will be the single source of truth for:
+Zod is the single source of truth for:
 
 - command input models,
 - WebMCP tool arguments,
@@ -574,55 +393,20 @@ Zod will be the single source of truth for:
 - TypeScript type inference,
 - JSON Schema generation via `z.toJSONSchema()`.
 
-```ts
-const PlaceProductInputSchema = z.object({
-  productId: z.string().min(1),
-  xCm: z.number().int().nonnegative(),
-  zCm: z.number().int().nonnegative(),
-  rotation: z.union([
-    z.literal(0),
-    z.literal(90),
-    z.literal(180),
-    z.literal(270)
-  ])
-});
-```
-
 Use Zod constructs that have an unambiguous JSON Schema equivalent. Tool arguments always also go through runtime validation; handing `inputSchema` to the agent does not replace application validation.
 
 ## 13. WebMCP integration
 
-WebMCP is registered only on the client after the creator is running.
-
-```text
-src/features/webmcp/
-├── register-tools.ts
-├── tool-handlers.ts
-├── tool-schemas.ts
-└── tool-results.ts
-```
-
-The adapter checks API availability and registers tools with cleanup handling.
-
-```ts
-useEffect(() => {
-  if (typeof document.modelContext?.registerTool !== "function") return;
-
-  const controller = new AbortController();
-
-  registerProjectTools({
-    signal: controller.signal,
-    getState: projectStore.getState,
-    dispatch: projectStore.getState().dispatch
-  });
-
-  return () => controller.abort();
-}, []);
-```
+WebMCP registers on the client after each route's required state is ready. The route bridges
+use [`register-tool-set.ts`](../src/features/webmcp/register-tool-set.ts) to await registration,
+abort partial failures and clean up on unmount. API absence/failure does not disable manual editing.
+The adapter detects `document.modelContext`, uses strict runtime schemas and treats execution
+cancellation separately from its registration-lifecycle AbortController. Runtime/source distinctions
+are recorded in [WebMCP sources](WEBMCP_SOURCES.md#local-adapter-contract).
 
 Handlers must read the current state at execution time. They must not work on a project copy closed over in a stale closure.
 
-### Implemented project summary (Phase 29)
+### Project summary
 
 `/summary` restores the single local project through `ProjectPersistenceBoundary` without a
 start action. It never dispatches or saves on entry. Its equipment, budget, coverage, validation
@@ -634,18 +418,36 @@ The creator also registers `get_project_summary` in its full tool set. The catal
 The default preview is a read-only SVG assembled from existing entity renderers. A lazily loaded
 Canvas reuses `SceneContents` and camera controls without picking or edit controllers. Graphics
 failure switches back to 2D. Export shares the creator's canonical JSON download helper.
-See [Phase 29 verification](PHASE_29_SUMMARY_VERIFICATION.md) for geometry definitions and evidence.
+Free floor is room area minus the exact union of floor-occupying equipment, physical obstacles
+and explicit unavailable zones, clipped to the room rectangle. The geometry helper sweeps X edges
+and integrates merged Z intervals; overlapping areas count once, with no sampling approximation.
+Rotated footprints use the existing deterministic rectangle adapter. Elevated mounted equipment
+is excluded unless `blocksFloor` is true. Doors/windows contribute no floor area. Exercise use
+zones are not subtracted; free floor does not replace clearance or reachability validation.
 
-### Read-only tool set
+Unknown placed-product geometry makes occupied/free area, ratio and percentage `null`, displayed
+as Unknown; room area remains known. Unknown prices are `null` and totals incomplete, never a
+known free product. Selected but unplaced and selection-only items still affect cost and goals.
+Summary navigation restores the last durable local project; storage failure can therefore leave
+unsaved editor changes unavailable on another route. No shared cross-route memory or persisted
+undo history is introduced. PDF/print export, cloud/share URLs and commerce remain out of scope.
+
+### Route-scoped tool sets
+
+Creator registers 21 tools: the six read tools below and fifteen mutations. Catalog registers
+`search_products` and `get_product_details`; the latter is not a creator tool. Summary registers
+only the three read tools described above. Registration files and their tests are authoritative.
+
+#### Creator read tools
 
 - `get_project_state`
 - `search_products`
-- `get_product_details`
 - `validate_layout`
 - `suggest_placements`
+- `evaluate_layout_changes`
 - `get_project_summary` — implemented; shared shopping list, budget, goals, checks and floor summary
 
-### Planned mutating tool set
+#### Creator mutations
 
 - `configure_room`
 - `update_project_settings`
@@ -663,14 +465,8 @@ See [Phase 29 verification](PHASE_29_SUMMARY_VERIFICATION.md) for geometry defin
 - `remove_product`
 - `apply_layout_changes`
 
-The tool set is delivered in route-scoped phases. Phase 8 registers the initial room tools on
-`/creator`: `get_project_state`, `validate_layout`, `configure_room`,
-`update_project_settings`, `add_obstacle`, `update_obstacle`, and `remove_obstacle`. Phase 10
-extends the same room-tool registration with `add_wall_element`, `update_wall_element`, and
-`remove_wall_element`.
-`configure_room` changes dimensions only; budget and training goals use the separate settings
-command so every successful tool mutation creates at most one shared undo step. Catalog tools
-remain scoped to `/catalog` until the complete creator tool set is composed in a later phase.
+`configure_room` changes dimensions only; budget and goals use `update_project_settings`.
+Every successful changed single mutation creates one shared undo step.
 
 Wall-element tool descriptions and results use the same canonical wall and offset convention as the project schema. They make explicit that doors and windows do not generate unavailable zones and do not participate in floor collision validation.
 
@@ -683,10 +479,6 @@ Each handler:
 5. reports warnings and possible next steps.
 
 Read tools receive `readOnlyHint`. Tool descriptions must clearly distinguish reading, proposing, and applying a change.
-
-Phase 21 extends the creator registration to 20 tools with read-only `suggest_placements` and
-`evaluate_layout_changes`, plus mutating `apply_layout_changes`. They reuse the room-tool error,
-validation, access-impact and mutation envelopes and the existing registration lifecycle.
 
 ## 14. Main scenario flow
 
@@ -756,8 +548,23 @@ Features:
 - one bundled validated demo and explicit new-project start actions,
 - one-shot URL initialization; generic creator links and reload restore the current saved project.
 
-See [Phase 26 behavior and verification](./PHASE_26_DEMO_VERIFICATION.md) for start,
-URL cleanup and storage-failure semantics.
+`/creator` and generic Creator links restore the saved project. Explicit `?start=demo` and
+`?start=new` replace it with the bundled demo or empty baseline, writing once to
+`home-gym-creator.project` before the editor/tools mount. A client entry under Suspense handles
+same-route query changes while retaining a prerendered loading shell.
+
+Start is consumed once using native `history.replaceState`: remove only `start`, retaining other
+parameters and fragments. URL cleanup preserves the mounted store/history. Reopening an explicit
+start URL deliberately starts again; repeated or invalid start values use ordinary restore.
+On save failure, the requested project stays editable in memory with a visible warning; the URL
+is still consumed. An older durable project may reappear on reload/navigation. New project uses
+one baseline write, not clear-then-write; there is no recovery copy or multi-project storage.
+
+The [demo fixture](../src/features/project/fixtures/demo-project.json) and
+[demo tests](../src/features/project/demo-project.test.ts) define its room, items and validated
+figures. The demo includes a retired product, resolved through the same legacy-aware project
+resolver as the editor. Fixture decoding checks schema/migration; persistence separately checks
+product resolution. Bundled fixture consistency remains a release invariant.
 
 We will not implement user accounts or cloud sync.
 
@@ -824,7 +631,7 @@ Do not add security headers based on guesses. Deployment configuration is decide
 - validation messages,
 - budget summary.
 
-### Playwright
+### Browser acceptance (separate from the automated gate)
 
 - entering the creator,
 - changing dimensions,
@@ -861,7 +668,8 @@ Deployment should have:
 - a readable fallback when WebMCP is unavailable,
 - no secrets or API keys.
 
-Launch the public deployment early so WebMCP can be tested before UI work is finished.
+Verify the actual deployed revision and target agent hosts using the submission plan. A local
+test/build pass does not certify the public build.
 
 ## 20. Out of MVP scope
 
@@ -881,26 +689,7 @@ Outside the accepted scope:
 - a global solver that optimizes the entire layout,
 - AR, LiDAR, and room scanning.
 
-## 21. Implementation order
-
-1. initialize Next.js, TypeScript, Tailwind, and tests,
-2. Zod models and a static catalog,
-3. a pure project domain and commands,
-4. basic geometry and validation,
-5. Zustand store and undo/redo,
-6. a minimal React Three Fiber scene,
-7. manual editing of the room, obstacles, and placements,
-8. catalog in the creator panel,
-9. persistence and demo reset,
-10. basic read-only WebMCP tools,
-11. mutating tools and batch changes,
-12. placement suggestions,
-13. the full agent–user scenario,
-14. E2E and WebMCP tests,
-15. deployment and verification in ChatGPT and Chrome,
-16. polish UX, video, and submission.
-
-## 22. Technical sources
+## 21. Technical sources
 
 - [Next.js App Router](https://nextjs.org/docs/app)
 - [Next.js Server and Client Components](https://nextjs.org/docs/app/getting-started/server-and-client-components)
@@ -913,7 +702,7 @@ Outside the accepted scope:
 - [Chrome WebMCP evals](https://developer.chrome.com/docs/ai/webmcp/evals)
 - [WebMCP specification](https://webmachinelearning.github.io/webmcp/)
 
-## 23. Related documents
+## 22. Related documents
 
 - [Product concept](./PRODUCT_CONCEPT.md)
 - [Hackathon requirements](./HACKATHON_REQUIREMENTS.md)

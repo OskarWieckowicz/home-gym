@@ -1,81 +1,48 @@
 # Phase 23B — Catalog polish
 
-> Order 1 in the [active queue](README.md). Uses Phase 16 catalog asset coverage decisions.
-> Blocks Phase 24. Independent of the completed Phase 23A landing; the queue order is
-> sequencing, not a technical dependency.
+> Order 1 in the [active queue](README.md). Final submission depends on this slice.
+> Updated: 30 August 2026. No photo-generation prerequisite remains.
 
-## Problem
+## Problem and scope
 
-The catalog page and product detail page are functionally complete — filters, cards, empty state,
-WebMCP bridge and mapped product-detail images. Unmapped products still render
-"Product image coming later", and the project summary sidebar remains a static placeholder.
-Catalog totals in documentation also need reconciliation against the current seed data.
+The [catalog sidebar](../src/features/catalog/components/catalog-project-summary.tsx) still shows
+static “Selected equipment” and “Build your room first” copy promising future room placement,
+although the creator already works. It never reflects the current project.
 
-## Scope
-
-In scope: catalog image coverage or an explicit fallback decision shared by cards and the existing
-detail-page image surface, removing or repurposing the static catalog sidebar, and correcting
-catalog totals in documentation.
-
-Out of scope: a broader catalog UX/UI redesign, new catalog products, changes to filters or catalog
-queries, a working sort control, a live project summary in the catalog sidebar, landing page polish
-(owned by Phase 23A), and any change to the creator, the domain layer or the WebMCP tools.
-
-## Decisions
-
-**D1 — every missing photo needs an explicit fallback decision.** Every current catalog product
-either has an image or is recorded as an intentional fallback with a reason. Replace remaining
-"Product image coming later" copy with a neutral category-shaped placeholder on cards and detail
-pages. Do not expand the approved generation queue to fill every gap.
-
-**D2 — the catalog sidebar placeholder is cut, not faked.** A static "Build your room first" panel
-that never updates is worse than no panel. Either remove it or turn it into a link into the creator.
-Wiring real project state into a server-rendered catalog page is out of scope.
-
-**D3 — no new dependency and no new layout system.** Use the existing Tailwind v4 setup, shared
-primitives and tokens already in `globals.css`.
+Replace this misleading presentation with a clear link to the creator, or remove the panel.
+Do not wire project state into the server-rendered catalog. No catalog redesign, new products,
+sort control, query/filter changes, creator/domain/WebMCP changes or asset generation are in scope.
+Use existing Tailwind styles, primitives and tokens without a new dependency or layout system.
 
 ## Implementation tasks
 
-1. **Missing-photo presentation.** The separate [photo queue](phase-16-catalog-images.md) contains
-   only Foundry Bumper Plates and resumes at the user's request. Current Fold Bike and Quarry
-   Power Bar already have mapped photos. Apply D1 to other unmapped products and record intentional
-   fallbacks; keep cards and the existing detail-page image block consistent. Update mappings and
-   regression tests together when coverage changes.
+1. **Resolve the sidebar.** Remove the static summary or reduce it to honest creator-entry copy.
+   If retained, Open creator must resume the existing project rather than replace it.
+2. **Verify existing image coverage without reopening production.** All 23 active products already
+   have mapped photos: 21 placeable products and two selection-only accessories. There is no
+   Foundry or other missing-photo queue. Keep card/detail images and the defensive missing-image
+   fallback coherent; an unmapped future product needs an explicit image/fallback decision.
+3. **Keep affected copy accurate.** Use the current seeds and mapping registry when a count is
+   needed; do not reintroduce historical catalog totals or placeholder implementation claims.
 
-2. **Sidebar decision.** Apply D2 to `catalog-project-summary.tsx`.
+## Acceptance and validation
 
-3. **Stale facts.** Reconcile catalog totals in documentation against the current seed data,
-   rather than retaining old hard-coded product counts.
+- The catalog no longer presents a static project selection as live or future functionality.
+- All current cards/details retain their images and provenance. Any future intentional fallback
+  has a recorded reason and consistent presentation on both surfaces.
+- Filters, empty state, product details and the two catalog WebMCP tools behave as before.
+- Phone, tablet and desktop layouts remain coherent, with stable image sizing and no horizontal
+  overflow. Check the retained creator link resumes the project.
 
-## Acceptance criteria
+Use existing [photo mapping tests](../src/features/catalog/product-assets.test.ts),
+[catalog retirement coverage](../src/data/products/catalog-retirement.test.ts) and detail-page
+image/fallback tests. Retirement coverage already asserts photo/top-view mappings for all 21
+placeable products; do not duplicate it. Add or update focused rendering assertions only for the
+changed sidebar behavior or an actual fallback change.
 
-- Every catalog card and every detail page either shows a product image or a deliberate placeholder,
-  and the intentional fallbacks are recorded with reasons.
-- No image is committed without recorded provenance and a clear license, per the repository rule on
-  visual assets.
-- The static project-summary placeholder is removed or replaced with a working link to the creator.
-- Catalog totals in the updated documentation match the current seed data.
-- The catalog filters, the empty state and the two catalog WebMCP tools behave exactly as before.
-- Catalog cards, product details and the sidebar decision render coherently at phone, tablet and
-  desktop widths without image-driven layout shifts.
+Run focused tests, `npm run quality:quick`, `npm run lint:report`, `npm run agent:verify` and
+`npm run build` for the catalog page-composition change. Verify the deployed catalog logged out
+at phone, tablet and desktop widths, including image loading, filters, empty state and creator
+entry. Record the revision tested; asset-model review remains separately paused.
 
-## Tests
-
-- `src/features/catalog/product-assets.test.ts` — extend to assert that every catalog product ID is
-  either mapped to an existing file or listed in an explicit fallback set, so a new product cannot
-  silently ship without a decision.
-- `src/app/catalog/[slug]/page.test.tsx` — update existing image/fallback assertions for D1.
-- Add or update focused catalog rendering tests for card fallbacks and the chosen sidebar behavior.
-
-## Manual checks
-
-Open the deployed catalog logged out at phone, tablet and desktop widths. Check products with
-mapped images and intentional fallbacks on both cards and detail pages. Confirm image loading does
-not shift layout, exercise filters and the empty state, and check the creator link if retained.
-
-## Exit gate
-
-All acceptance criteria hold, `npm run agent:verify` passes, and `npm run build` passes because
-catalog page composition changed. Delete this file and its index row afterwards, and delete
-`phase-16-catalog-images.md` if its queue is empty by then.
+Remove this plan and its index row when the acceptance criteria hold.

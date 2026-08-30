@@ -1,27 +1,28 @@
-# Groundwork Exercise Mat — deployed model
+# Groundwork Exercise Mat — unrolled model provenance
 
-Added on 30 August 2026 after the user requested the missing model. Existing product
-`product_groundwork_exercise_mat`, price, photograph, floor placement, dimensions 65 × 180 × 1 cm,
-zero use-zone margins and collision/access rules are unchanged. Mobility Kit remains separate.
-
-The model depicts one fully deployed charcoal foam mat with rounded corners, gently bevelled
-sidewalls, a matte top panel and a narrow inset orange perimeter stripe. It follows the approved
+The model depicts one fully unrolled charcoal foam mat with rounded corners, gently bevelled
+sidewalls, a matte top panel and a narrow inset orange perimeter stripe. It follows the accepted
 photo without modelling microscopic grain, a rolled end or additional accessories.
 
 - [Generator](../scripts/generate-groundwork-exercise-mat-glb.mjs)
 - [GLB](../public/assets/groundwork-exercise-mat.glb)
-- [Top SVG](../public/assets/groundwork-exercise-mat-top.svg)
-- [Offline front preview](asset-previews/groundwork-exercise-mat-front.png)
-- [Existing photo provenance](../scripts/catalog-image-provenance/groundwork-exercise-mat.json)
+- [Derived top SVG](../public/assets/groundwork-exercise-mat-top.svg)
+- [Photo provenance](../scripts/catalog-image-provenance/groundwork-exercise-mat.json)
 
-Bounds: X ±0.325 m, Z ±0.90 m, Y 0..0.01 m (float precision tolerance). Scale 1, origin floor
-pivot and negative-Z forward. Three material groups, 1594 triangles, 4276 vertices, 115104 bytes.
-SHA-256: `e17b96ac625dd45930948b96a2ba5b380e5493d171fe81367d8a5c6c192204b4`.
-Derived SVG: 838 projected triangles, 38400 bytes.
+`product_groundwork_exercise_mat` reserves its 65 × 180 × 1 cm floor footprint with zero use-zone
+margins. This covers the mat itself; exercises extending beyond it need additional clear space.
+Mobility Kit remains separate. Catalog dimensions and domain rules, not visual mesh data, control
+collision and walking access.
 
-Offline preview loaded through Three GLTFLoader and visually inspected. Reproducibility, bounds,
-normals and top-view checks plus mapping/seed regressions are included in the existing test suite.
-Focused checks passed: 23 tests. `quality:quick` and `agent:verify` passed (999 tests across
-110 files); `lint:report` has zero errors and 36 existing warnings. `git diff --check` passed.
-No application behavior or routing changes; browser/GPU review remains paused and no deployment
-is performed.
+The model uses three material groups, unit scale, centred X/Z, base Y=0 and negative-Z front.
+Its bounds are X ±0.325 m, Z ±0.90 m, Y 0..0.01 m within float precision tolerance.
+
+```sh
+node scripts/generate-groundwork-exercise-mat-glb.mjs
+npm run assets:top-views
+node scripts/inspect-glb.mjs public/assets/groundwork-exercise-mat.glb
+node scripts/render-product-reference.mjs public/assets/groundwork-exercise-mat.glb /tmp/groundwork-exercise-mat-front.png front
+```
+
+Follow the [visual strategy](PRODUCT_VISUALS_STRATEGY.md); remaining runtime/browser acceptance
+belongs to the paused [asset plan](../plans/phase-16-product-visual-assets.md).

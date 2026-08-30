@@ -20,7 +20,7 @@ The project’s most important element is human–agent collaboration on the sam
 
 ## Room model
 
-The planner is not intended to be a professional CAD program or a realistic interior simulator. Its source of truth will be a simple 2.5D geometric model:
+The planner is not intended to be a professional CAD program or a realistic interior simulator. Its source of truth is a simple 2.5D geometric model:
 
 - the floor outline,
 - room height,
@@ -54,7 +54,7 @@ The agent creates the model, and the user reviews and corrects the result before
 
 ## Product catalog
 
-For the hackathon, the app will have its own catalog of fictional products. Users can browse, filter, and use products in the planner as usual.
+The app has its own catalog of fictional products. Users can browse, filter, and use products in the planner as usual.
 
 Each product should include commercial, spatial, and training data:
 
@@ -69,7 +69,7 @@ Each product should include commercial, spatial, and training data:
 - assembly, anchoring, flooring, or ceiling-height requirements,
 - optional constraints and safety recommendations.
 
-Products in a design, whether placed on the floor or added only to the shopping list, affect the current budget use. Selection-only accessories such as wrist wraps cannot occupy floor space.
+Products in a design, whether placed on the floor or added only to the shopping list, affect the current budget use. Selection-only accessories such as Signal Resistance Bands and Groundwork Foam Roller cannot occupy floor space.
 
 ## Project editor
 
@@ -114,30 +114,16 @@ The agent is responsible for:
 
 The agent should not decide for itself whether the geometry is valid. A deterministic application engine should detect collisions and rule violations. The agent uses validation results to improve the design iteratively.
 
-## Initial WebMCP tool set
+## WebMCP capabilities
 
-- `get_project_state` — read the room, obstacles, settings, budget, and equipment,
-- `configure_room` — set room dimensions and parameters,
-- `add_obstacle` — add furniture, an obstacle, or an unavailable zone,
-- `update_obstacle` — change an obstacle’s dimensions or position,
-- `remove_obstacle` — remove an obstacle,
-- `add_wall_element` — add a minimal door or window to a wall,
-- `update_wall_element` — change a door or window’s name, wall, offset, or width,
-- `remove_wall_element` — remove a door or window,
-- `search_products` — search products by price, size, and use case,
-- `get_product_details` — retrieve complete product data,
-- `place_product` — add a catalog product and place it on the floor in one step,
-- `add_product_to_project` — add a catalog product to the shopping list without placing it,
-- `place_project_item` — place an existing unplaced project item,
-- `update_placement` — move or rotate equipment,
-- `unplace_product` — remove equipment from the floor while keeping it in the project,
-- `remove_product` — remove a project item and any floor placement,
-- `apply_layout_changes` — apply multiple layout changes in one call,
-- `validate_layout` — check collisions, clearance zones, height, and budget,
-- `get_project_summary` — implemented: retrieve the same shopping list, cost, training-goal coverage,
-  validation and floor-space figures shown on `/summary`.
+The creator exposes current state and summary reads, catalog search, room/settings changes,
+obstacle/opening operations, shopping-item and placement commands, layout validation,
+deterministic placement suggestions, batch evaluation and atomic application. Each changed
+mutation uses the same domain commands and history as manual editing.
 
-The tool set should be precise enough for the agent to perform multi-step work, but should not contain many overlapping operations.
+The [architecture tool contract](TECHNICAL_ARCHITECTURE.md#route-scoped-tool-sets) records the
+exact route split: 21 tools in the creator, two catalog reads and three summary reads. Keep tools
+precise and avoid overlapping operations or a separate backend-only planning path.
 
 ## Project summary
 
@@ -151,9 +137,9 @@ The page and `get_project_summary` share one deterministic derivation. Free floo
 minus the union of floor-occupying and reserved footprints, not the space available for every
 exercise. Use-zone and access checks remain separate. The summary is local to this browser, not a
 shareable cloud link or a checkout. It registers only three read-only tools: summary, state and
-validation. See [verification evidence](PHASE_29_SUMMARY_VERIFICATION.md).
+validation. See the [summary contract](TECHNICAL_ARCHITECTURE.md#project-summary).
 
-## Example demo
+## Example agent conversation
 
 The user sends a photo and says:
 
@@ -179,7 +165,7 @@ The agent reads the current state, chooses suitable equipment, and adjusts the r
 
 The MVP should focus on one complete, reliable flow:
 
-- a fictional catalog of several dozen products,
+- the curated fictional catalog, including placeable equipment and shopping-list-only accessories,
 - a rectangular room with editable dimensions,
 - simple obstacles and unavailable zones,
 - simple wall-bound doors and windows without automatic clearance or swing zones,
