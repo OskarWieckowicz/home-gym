@@ -32,6 +32,16 @@ describe("projectCommandSchema", () => {
     { type: "WALL_ELEMENT_UPDATED", payload: { wallElementId: "wall-element_door", patch: { offsetCm: 50 } } },
     { type: "WALL_ELEMENT_REMOVED", payload: { wallElementId: "wall-element_door" } },
     { type: "PRODUCT_PLACED", payload: { productId: "product_northstar_half_rack", position: { xCm: 10, zCm: 20 }, rotation: 0 } },
+    { type: "PROJECT_ITEM_ADDED", payload: { productId: "product_northstar_half_rack" } },
+    { type: "PROJECT_ITEM_REMOVED", payload: { projectItemId: "project-item_rack" } },
+    {
+      type: "PROJECT_ITEM_PLACED",
+      payload: {
+        projectItemId: "project-item_rack",
+        position: { xCm: 10, zCm: 20 },
+        rotation: 0,
+      },
+    },
     { type: "PLACEMENT_UPDATED", payload: { placementId: "placement_rack", patch: { rotation: 90 } } },
     { type: "PLACEMENT_REMOVED", payload: { placementId: "placement_rack" } },
   ] as const)("parses $type", (command) => {

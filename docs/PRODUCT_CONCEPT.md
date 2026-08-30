@@ -69,7 +69,7 @@ Each product should include commercial, spatial, and training data:
 - assembly, anchoring, flooring, or ceiling-height requirements,
 - optional constraints and safety recommendations.
 
-Products placed in a design create a shopping list and affect the current budget use.
+Products in a design, whether placed on the floor or added only to the shopping list, affect the current budget use. Selection-only accessories such as wrist wraps cannot occupy floor space.
 
 ## Project editor
 
@@ -79,8 +79,8 @@ The user should be able to:
 - select one of four placement tools: physical obstacle, unavailable zone, door, or window,
 - place the selected element directly on a valid floor or wall target,
 - edit the newly created or selected element in the properties inspector,
-- drag products from the catalog into the room,
-- move and rotate elements,
+- drag products from the catalog into the room, or add them to the project without placing them,
+- move, rotate, and unplace equipment without removing it from the shopping list,
 - remove equipment from the design,
 - display physical footprints and clearance zones,
 - switch between a 2D plan and a simple 3D view,
@@ -117,9 +117,12 @@ The agent should not decide for itself whether the geometry is valid. A determin
 - `remove_wall_element` — remove a door or window,
 - `search_products` — search products by price, size, and use case,
 - `get_product_details` — retrieve complete product data,
-- `place_product` — place a product in the room,
+- `place_product` — add a catalog product and place it on the floor in one step,
+- `add_product_to_project` — add a catalog product to the shopping list without placing it,
+- `place_project_item` — place an existing unplaced project item,
 - `update_placement` — move or rotate equipment,
-- `remove_product` — remove a product from the design,
+- `unplace_product` — remove equipment from the floor while keeping it in the project,
+- `remove_product` — remove a project item and any floor placement,
 - `apply_layout_changes` — apply multiple layout changes in one call,
 - `validate_layout` — check collisions, clearance zones, height, and budget,
 - `get_project_summary` — retrieve the shopping list, cost, and training-goal coverage.

@@ -1,6 +1,7 @@
 import { PROJECT_VERSION } from "../schemas/project";
+import { projectItemIdFromPlacementId } from "./project-item-ids";
 
-export const SUPPORTED_PROJECT_VERSIONS = [1, 2, PROJECT_VERSION] as const;
+export const SUPPORTED_PROJECT_VERSIONS = [1, 2, 3, PROJECT_VERSION] as const;
 export const CURRENT_PROJECT_VERSION = PROJECT_VERSION;
 
 export type ProjectMigrationError = {
@@ -17,6 +18,7 @@ type ProjectMigration = (project: unknown) => unknown;
 const migrations = new Map<number, ProjectMigration>([
   [1, migrateV1ToV2],
   [2, migrateV2ToV3],
+  [3, migrateV3ToV4],
 ]);
 
 function migrateV1ToV2(project: unknown): unknown {
@@ -43,6 +45,51 @@ function migrateV2ToV3(project: unknown): unknown {
   }
 
   return { ...project, version: 3, placements: [] };
+}
+
+function migrateV3ToV4(project: unknown): unknown {
+  if (typeof project !== "object" || project === null || Array.isArray(project)) {
+    throw new Error("Invalid version 3 project.");
+  }
+
+  const placements = Reflect.get(project, "placements");
+  if (!Array.isArray(placements)) {
+    throw new Error("Version 3 project must include placements.");
+  }
+
+  const seenItemIds = new Set<string>();
+  const projectItems: unknown[] = [];
+  const migratedPlacements: unknown[] = [];
+
+  for (const placement of placements) {
+    if (typeof placement !== "object" || placement === null || Array.isArray(placement)) {
+      throw new Error("Version 3 placements must be objects.");
+    }
+
+    const placementId = Reflect.get(placement, "id");
+    const productId = Reflect.get(placement, "productId");
+    if (typeof placementId !== "string" || typeof productId !== "string") {
+      throw new Error("Version 3 placements must include id and productId.");
+    }
+
+    const projectItemId = projectItemIdFromPlacementId(placementId);
+    if (seenItemIds.has(projectItemId)) {
+      throw new Error("Derived project item IDs must be unique.");
+    }
+    seenItemIds.add(projectItemId);
+
+    const placementRecord = { ...(placement as Record<string, unknown>) };
+    delete placementRecord.productId;
+    projectItems.push({ id: projectItemId, productId });
+    migratedPlacements.push({ ...placementRecord, projectItemId });
+  }
+
+  return {
+    ...project,
+    version: 4,
+    projectItems,
+    placements: migratedPlacements,
+  };
 }
 
 function migrateV1Obstacle(obstacle: unknown): unknown {

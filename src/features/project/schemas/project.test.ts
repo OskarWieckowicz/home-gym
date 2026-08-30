@@ -8,6 +8,7 @@ import {
   physicalObstacleSchema,
   placementSchema,
   PROJECT_NAME_MAX_LENGTH,
+  projectItemSchema,
   roomSchema,
   unavailableZoneSchema,
   wallElementSchema,
@@ -24,10 +25,11 @@ const validObstacle = {
 } as const;
 
 const validProject = {
-  version: 3,
+  version: 4,
   room: { widthCm: 400, depthCm: 320, heightCm: 240 },
   obstacles: [validObstacle],
   wallElements: [],
+  projectItems: [],
   placements: [],
   budget: 10_000,
   trainingGoals: ["strength", "mobility"],
@@ -122,20 +124,69 @@ describe("project schemas", () => {
   });
 
   it("parses placements and rejects duplicate placement IDs", () => {
+    const item = {
+      id: "project-item_rack",
+      productId: "product_northstar_half_rack",
+    } as const;
     const placement = {
       id: "placement_rack",
-      productId: "product_northstar_half_rack",
+      projectItemId: "project-item_rack",
       position: { xCm: 20, zCm: 30 },
       rotation: 270,
     } as const;
 
+    expect(projectItemSchema.parse(item)).toEqual(item);
     expect(placementSchema.parse(placement)).toEqual(placement);
     expect(
       gymProjectSchema.safeParse({
         ...validProject,
+        projectItems: [item],
         placements: [placement, placement],
       }).success,
     ).toBe(false);
+  });
+
+  it("rejects duplicate items, dangling placements, and a second placement for one item", () => {
+    const item = {
+      id: "project-item_rack",
+      productId: "product_northstar_half_rack",
+    } as const;
+    const placement = {
+      id: "placement_rack",
+      projectItemId: "project-item_rack",
+      position: { xCm: 20, zCm: 30 },
+      rotation: 0,
+    } as const;
+
+    expect(
+      gymProjectSchema.safeParse({
+        ...validProject,
+        projectItems: [item, item],
+      }).success,
+    ).toBe(false);
+    expect(
+      gymProjectSchema.safeParse({
+        ...validProject,
+        placements: [placement],
+      }).success,
+    ).toBe(false);
+    expect(
+      gymProjectSchema.safeParse({
+        ...validProject,
+        projectItems: [item],
+        placements: [
+          placement,
+          { ...placement, id: "placement_rack-b", projectItemId: item.id },
+        ],
+      }).success,
+    ).toBe(false);
+    expect(
+      gymProjectSchema.parse({
+        ...validProject,
+        projectItems: [item],
+        placements: [placement],
+      }).placements[0].projectItemId,
+    ).toBe(item.id);
   });
 
   it("rejects unknown keys at project and nested boundaries", () => {

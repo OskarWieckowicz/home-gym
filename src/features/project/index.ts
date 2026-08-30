@@ -14,6 +14,11 @@ export type {
 export type { ProjectAccess } from "@/features/geometry/access-facts";
 export { createDefaultProject } from "./defaults";
 export {
+  findPlacementForItem,
+  findProjectItem,
+  productIdForPlacement,
+} from "./project-lookups";
+export {
   centimetersSchema,
   dimensionsSchema,
   footprintDimensionsSchema,
@@ -33,8 +38,10 @@ export {
   PLACEMENT_ID_PATTERN,
   physicalObstacleSchema,
   PROJECT_ENTITY_ID_PATTERN,
+  PROJECT_ITEM_ID_PATTERN,
   PROJECT_NAME_MAX_LENGTH,
   PROJECT_VERSION,
+  projectItemSchema,
   projectSettingsSchema,
   roomSchema,
   unavailableZoneSchema,
@@ -47,6 +54,7 @@ export {
   type ObstacleKind,
   type Placement,
   type PhysicalObstacle,
+  type ProjectItem,
   type ProjectSettings,
   type Room,
   type UnavailableZone,
@@ -54,6 +62,18 @@ export {
   type WallElement,
   type WallElementKind,
 } from "./schemas/project";
+export {
+  obstacleInputSchema,
+  obstaclePatchSchema,
+  placementPatchSchema,
+  PROJECT_COMMAND_TYPES,
+  projectCommandSchema,
+  projectSettingsPatchSchema,
+  wallElementInputSchema,
+  wallElementPatchSchema,
+  type ProjectCommand,
+  type ProjectCommandType,
+} from "./schemas/project-command";
 export {
   decodeProject,
   decodeProjectJson,
@@ -71,23 +91,15 @@ export {
   type ProjectMigrationResult,
 } from "./serialization/project-migrations";
 export {
-  obstacleInputSchema,
-  obstaclePatchSchema,
-  placementPatchSchema,
-  PROJECT_COMMAND_TYPES,
-  projectCommandSchema,
-  projectSettingsPatchSchema,
-  wallElementInputSchema,
-  wallElementPatchSchema,
-  type ProjectCommand,
-  type ProjectCommandType,
-} from "./schemas/project-command";
-export {
   analyzeProject,
   createProjectAnalysis,
   validateProject,
   type ProjectAnalysis,
 } from "./validation/analyze-project";
+export type {
+  AnalyzedProjectItem,
+  TrainingGoalCoverage,
+} from "./validation/project-analysis";
 export type {
   ProductResolver,
   ProductValidationDescriptor,

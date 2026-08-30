@@ -10,14 +10,20 @@ import {
   getProjectStateInputSchema,
   getProjectStateJsonSchema,
   mapRoomToolInputIssues,
+  addProductToProjectInputSchema,
+  addProductToProjectJsonSchema,
   placeProductInputSchema,
   placeProductJsonSchema,
+  placeProjectItemInputSchema,
+  placeProjectItemJsonSchema,
   removeObstacleInputSchema,
   removeObstacleJsonSchema,
   removeWallElementInputSchema,
   removeWallElementJsonSchema,
   removeProductInputSchema,
   removeProductJsonSchema,
+  unplaceProductInputSchema,
+  unplaceProductJsonSchema,
   updateObstacleInputSchema,
   updateObstacleJsonSchema,
   updateWallElementInputSchema,
@@ -199,7 +205,10 @@ describe("room tool input schemas", () => {
       updateWallElementJsonSchema,
       removeWallElementJsonSchema,
       placeProductJsonSchema,
+      addProductToProjectJsonSchema,
+      placeProjectItemJsonSchema,
       updatePlacementJsonSchema,
+      unplaceProductJsonSchema,
       removeProductJsonSchema,
     ]) {
       const branches = "oneOf" in schema ? schema.oneOf : undefined;
@@ -279,8 +288,25 @@ describe("placement tool input schemas", () => {
       patch: { position: { xCm: 25, zCm: 30 }, rotation: 180 },
     });
     expect(
-      removeProductInputSchema.parse({ placementId: "placement_agent-rack" }),
+      addProductToProjectInputSchema.parse({ productId: placement.productId }),
+    ).toEqual({ productId: placement.productId });
+    expect(
+      placeProjectItemInputSchema.parse({
+        projectItemId: "project-item_agent-rack",
+        position: placement.position,
+        rotation: placement.rotation,
+      }),
+    ).toEqual({
+      projectItemId: "project-item_agent-rack",
+      position: placement.position,
+      rotation: placement.rotation,
+    });
+    expect(
+      unplaceProductInputSchema.parse({ placementId: "placement_agent-rack" }),
     ).toEqual({ placementId: "placement_agent-rack" });
+    expect(
+      removeProductInputSchema.parse({ projectItemId: "project-item_agent-rack" }),
+    ).toEqual({ projectItemId: "project-item_agent-rack" });
 
     for (const input of [
       { ...placement, id: "placement_caller" },
@@ -299,5 +325,15 @@ describe("placement tool input schemas", () => {
     ]) {
       expect(updatePlacementInputSchema.safeParse(input).success).toBe(false);
     }
+    expect(
+      removeProductInputSchema.safeParse({ placementId: "placement_agent-rack" }).success,
+    ).toBe(false);
+    expect(
+      placeProjectItemInputSchema.safeParse({
+        projectItemId: "placement_agent-rack",
+        position: placement.position,
+        rotation: placement.rotation,
+      }).success,
+    ).toBe(false);
   });
 });

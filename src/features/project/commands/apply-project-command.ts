@@ -17,6 +17,7 @@ import type {
   CommandFailure,
   CommandSuccess,
 } from "./command-results";
+import { applyItemCommand } from "./item-command-handlers";
 import { applyPlacementCommand } from "./placement-command-handlers";
 import {
   resolveProjectCommandDependencies,
@@ -104,6 +105,8 @@ function success(
       accessImpact: changed
         ? diffAccessImpact(previousAnalysis, currentAnalysis)
         : EMPTY_ACCESS_IMPACT,
+      items: currentAnalysis.items,
+      coverage: currentAnalysis.coverage,
     },
   };
 }
@@ -391,10 +394,11 @@ function executeParsedCommand(
       return applyUpdateWallElementCommand(project, command, dependencies);
     case "WALL_ELEMENT_REMOVED":
       return applyRemoveWallElementCommand(project, command, dependencies);
-    case "PRODUCT_PLACED":
-    case "PLACEMENT_UPDATED":
-    case "PLACEMENT_REMOVED": {
-      const mutation = applyPlacementCommand(project, command, dependencies);
+    case "PROJECT_ITEM_ADDED":
+    case "PROJECT_ITEM_REMOVED":
+    case "PROJECT_ITEM_PLACED":
+    case "PRODUCT_PLACED": {
+      const mutation = applyItemCommand(project, command, dependencies);
       return mutation.ok
         ? success(
             project,
@@ -403,7 +407,20 @@ function executeParsedCommand(
             mutation.affectedEntityIds,
             dependencies,
           )
-        : failure(project, mutation.code, command.type);
+        : failure(project, mutation.code, command.type, mutation.message);
+    }
+    case "PLACEMENT_UPDATED":
+    case "PLACEMENT_REMOVED": {
+      const mutation = applyPlacementCommand(project, command);
+      return mutation.ok
+        ? success(
+            project,
+            mutation.project,
+            command.type,
+            mutation.affectedEntityIds,
+            dependencies,
+          )
+        : failure(project, mutation.code, command.type, mutation.message);
     }
   }
 }

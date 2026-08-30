@@ -12,10 +12,11 @@ import {
   rotationSchema,
 } from "./geometry";
 
-export const PROJECT_VERSION = 3 as const;
+export const PROJECT_VERSION = 4 as const;
 export const PROJECT_ENTITY_ID_PATTERN = /^obstacle_[a-z0-9]+(?:[-_][a-z0-9]+)*$/;
 export const WALL_ELEMENT_ID_PATTERN = /^wall-element_[a-z0-9]+(?:[-_][a-z0-9]+)*$/;
 export const PLACEMENT_ID_PATTERN = /^placement_[a-z0-9]+(?:[-_][a-z0-9]+)*$/;
+export const PROJECT_ITEM_ID_PATTERN = /^project-item_[a-z0-9]+(?:[-_][a-z0-9]+)*$/;
 export const PROJECT_NAME_MAX_LENGTH = 80;
 
 export const roomSchema = z
@@ -78,14 +79,40 @@ export const projectSettingsSchema = z
   })
   .strict();
 
+export const projectItemSchema = z
+  .object({
+    id: z.string().regex(PROJECT_ITEM_ID_PATTERN),
+    productId: productIdSchema,
+  })
+  .strict();
+
 export const placementSchema = z
   .object({
     id: z.string().regex(PLACEMENT_ID_PATTERN),
-    productId: productIdSchema,
+    projectItemId: projectItemSchema.shape.id,
     position: positionSchema,
     rotation: rotationSchema,
   })
   .strict();
+
+function addUniqueIdIssues(
+  context: z.RefinementCtx,
+  ids: readonly string[],
+  path: string,
+  message: string,
+) {
+  const seen = new Set<string>();
+  ids.forEach((id, index) => {
+    if (seen.has(id)) {
+      context.addIssue({
+        code: "custom",
+        message,
+        path: [path, index, "id"],
+      });
+    }
+    seen.add(id);
+  });
+}
 
 export const gymProjectSchema = z
   .object({
@@ -93,47 +120,52 @@ export const gymProjectSchema = z
     room: roomSchema,
     obstacles: z.array(obstacleSchema),
     wallElements: z.array(wallElementSchema),
+    projectItems: z.array(projectItemSchema),
     placements: z.array(placementSchema),
     budget: projectSettingsSchema.shape.budget,
     trainingGoals: projectSettingsSchema.shape.trainingGoals,
   })
   .strict()
-  .superRefine(({ obstacles, wallElements, placements }, context) => {
-    const seenObstacleIds = new Set<string>();
+  .superRefine(({ obstacles, wallElements, projectItems, placements }, context) => {
+    addUniqueIdIssues(context, obstacles.map(({ id }) => id), "obstacles", "Obstacle IDs must be unique.");
+    addUniqueIdIssues(
+      context,
+      wallElements.map(({ id }) => id),
+      "wallElements",
+      "Wall element IDs must be unique.",
+    );
+    addUniqueIdIssues(
+      context,
+      projectItems.map(({ id }) => id),
+      "projectItems",
+      "Project item IDs must be unique.",
+    );
+    addUniqueIdIssues(
+      context,
+      placements.map(({ id }) => id),
+      "placements",
+      "Placement IDs must be unique.",
+    );
 
-    obstacles.forEach((obstacle, index) => {
-      if (seenObstacleIds.has(obstacle.id)) {
-        context.addIssue({
-          code: "custom",
-          message: "Obstacle IDs must be unique.",
-          path: ["obstacles", index, "id"],
-        });
-      }
-      seenObstacleIds.add(obstacle.id);
-    });
-
-    const seenWallElementIds = new Set<string>();
-    wallElements.forEach((wallElement, index) => {
-      if (seenWallElementIds.has(wallElement.id)) {
-        context.addIssue({
-          code: "custom",
-          message: "Wall element IDs must be unique.",
-          path: ["wallElements", index, "id"],
-        });
-      }
-      seenWallElementIds.add(wallElement.id);
-    });
-
-    const seenPlacementIds = new Set<string>();
+    const itemIds = new Set(projectItems.map(({ id }) => id));
+    const placedItemIds = new Set<string>();
     placements.forEach((placement, index) => {
-      if (seenPlacementIds.has(placement.id)) {
+      if (!itemIds.has(placement.projectItemId)) {
         context.addIssue({
           code: "custom",
-          message: "Placement IDs must be unique.",
-          path: ["placements", index, "id"],
+          message: "Placement must reference an existing project item.",
+          path: ["placements", index, "projectItemId"],
+        });
+        return;
+      }
+      if (placedItemIds.has(placement.projectItemId)) {
+        context.addIssue({
+          code: "custom",
+          message: "A project item may have at most one placement.",
+          path: ["placements", index, "projectItemId"],
         });
       }
-      seenPlacementIds.add(placement.id);
+      placedItemIds.add(placement.projectItemId);
     });
   });
 
@@ -146,5 +178,6 @@ export type Wall = z.infer<typeof wallSchema>;
 export type WallElementKind = z.infer<typeof wallElementKindSchema>;
 export type WallElement = z.infer<typeof wallElementSchema>;
 export type ProjectSettings = z.infer<typeof projectSettingsSchema>;
+export type ProjectItem = z.infer<typeof projectItemSchema>;
 export type Placement = z.infer<typeof placementSchema>;
 export type GymProject = z.infer<typeof gymProjectSchema>;

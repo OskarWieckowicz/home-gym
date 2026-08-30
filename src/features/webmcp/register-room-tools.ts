@@ -2,8 +2,11 @@ import type { ProjectStore } from "@/features/creator/store/project-store";
 
 import { searchProductsWebMcpTool } from "./register-catalog-tools";
 import {
+  createAddProductToProjectHandler,
   createPlaceProductHandler,
+  createPlaceProjectItemHandler,
   createRemoveProductHandler,
+  createUnplaceProductHandler,
   createUpdatePlacementHandler,
 } from "./placement-tool-handlers";
 import {
@@ -20,13 +23,16 @@ import {
 } from "./room-tool-handlers";
 import {
   addObstacleJsonSchema,
+  addProductToProjectJsonSchema,
   addWallElementJsonSchema,
   configureRoomJsonSchema,
   getProjectStateJsonSchema,
+  placeProjectItemJsonSchema,
   removeObstacleJsonSchema,
   removeWallElementJsonSchema,
   placeProductJsonSchema,
   removeProductJsonSchema,
+  unplaceProductJsonSchema,
   updatePlacementJsonSchema,
   updateObstacleJsonSchema,
   updateWallElementJsonSchema,
@@ -49,7 +55,7 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "get_project_state",
       title: "Get current room project state",
       description:
-        "Read the live version-3 room project, settings, floor obstacles, wall elements, catalog equipment placements, deterministic validation, revision, and manual undo/redo availability. Canonical room IDs from this result can be used by the currently registered update and remove tools. " + ACCESS_NOTE,
+        "Read the live version-4 room project, settings, floor obstacles, wall elements, project items, catalog equipment placements, deterministic validation, revision, and manual undo/redo availability. Canonical room IDs from this result can be used by the currently registered update and remove tools. Selection-only products appear as items without placements. " + ACCESS_NOTE,
       inputSchema: getProjectStateJsonSchema,
       annotations: { readOnlyHint: true },
       execute: createGetProjectStateHandler(store),
@@ -128,9 +134,24 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
     {
       name: "place_product",
       title: "Place catalog equipment in the room",
-      description: `Place one canonical catalog product in the live room. The project generates and returns a placement ID; callers must not supply one. Wall-mounted products must sit flush against the wall implied by rotation: 0 top, 90 right, 180 bottom, 270 left. They must not cross a door or window on that wall. The call does not snap or correct an off-wall position; read WALL_MOUNT_OFF_WALL and WALL_MOUNT_OVERLAPS_OPENING on the returned validation. ${SPATIAL_INPUT_NOTE} ${POST_MUTATION_VALIDATION_NOTE}`,
+      description: `Create one project item and place it on the floor in a single undo step. Use add_product_to_project for selection-only accessories or to add a floor product without placing it. The project generates and returns placement and item IDs; callers must not supply them. Wall-mounted products must sit flush against the wall implied by rotation: 0 top, 90 right, 180 bottom, 270 left. They must not cross a door or window on that wall. The call does not snap or correct an off-wall position; read WALL_MOUNT_OFF_WALL and WALL_MOUNT_OVERLAPS_OPENING on the returned validation. Selection-only products are rejected without mutation. ${SPATIAL_INPUT_NOTE} ${POST_MUTATION_VALIDATION_NOTE}`,
       inputSchema: placeProductJsonSchema,
       execute: createPlaceProductHandler(store),
+    },
+    {
+      name: "add_product_to_project",
+      title: "Add a catalog product to the project without placing it",
+      description:
+        "Add one canonical catalog product as an unplaced project item. It counts toward budget and training-goal coverage immediately. Use place_project_item later for floor-capable products. Selection-only products cannot be placed. The project generates and returns a project item ID.",
+      inputSchema: addProductToProjectJsonSchema,
+      execute: createAddProductToProjectHandler(store),
+    },
+    {
+      name: "place_project_item",
+      title: "Place an existing project item on the floor",
+      description: `Place one unplaced floor-capable project item. Selection-only items and already placed items are rejected without mutation. ${SPATIAL_INPUT_NOTE} ${POST_MUTATION_VALIDATION_NOTE}`,
+      inputSchema: placeProjectItemJsonSchema,
+      execute: createPlaceProjectItemHandler(store),
     },
     {
       name: "update_placement",
@@ -140,10 +161,18 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       execute: createUpdatePlacementHandler(store),
     },
     {
-      name: "remove_product",
-      title: "Remove placed equipment from the room",
+      name: "unplace_product",
+      title: "Remove equipment from the floor without deleting it",
       description:
-        "Remove one equipment instance using its canonical placement ID returned by get_project_state or place_product. This does not remove or modify the catalog product.",
+        "Remove one floor placement by canonical placement ID. The project item stays in the project, shopping list, and budget. Use remove_product to delete the item itself.",
+      inputSchema: unplaceProductJsonSchema,
+      execute: createUnplaceProductHandler(store),
+    },
+    {
+      name: "remove_product",
+      title: "Remove a project item and any floor placement",
+      description:
+        "Remove one project item using its canonical projectItemId returned by get_project_state, add_product_to_project, or place_product. If the item is placed, that placement is removed in the same command. The result enumerates the cascade. This does not remove or modify the catalog product.",
       inputSchema: removeProductJsonSchema,
       execute: createRemoveProductHandler(store),
     },

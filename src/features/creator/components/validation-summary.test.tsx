@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import { createDefaultProject } from "@/features/project/defaults";
 import type { GymProject } from "@/features/project/schemas/project";
+import { toProjectItemsAndPlacements } from "@/features/project/validation/test-placed-equipment";
 
 import { ProjectStoreProvider } from "../store/project-store-context";
 import { ValidationSummary } from "./validation-summary";
@@ -55,7 +56,7 @@ describe("ValidationSummary", () => {
         offsetCm: 250,
         widthCm: 90,
       }],
-      placements: [
+      ...toProjectItemsAndPlacements([
         {
           id: "placement_cage",
           productId: "product_summit_power_cage",
@@ -68,7 +69,7 @@ describe("ValidationSummary", () => {
           position: { xCm: 112, zCm: 206 },
           rotation: 0,
         },
-      ],
+      ]),
     });
 
     expect(screen.queryByText("No layout conflicts found.")).toBeNull();
@@ -109,12 +110,12 @@ describe("ValidationSummary", () => {
         offsetCm: 20,
         widthCm: 90,
       }],
-      placements: [{
+      ...toProjectItemsAndPlacements([{
         id: "placement_bar",
         productId: "product_anchor_pullup_bar",
         position: { xCm: 200, zCm: 80 },
         rotation: 90,
-      }],
+      }]),
     });
 
     expect(screen.getByText(
@@ -144,12 +145,12 @@ describe("ValidationSummary", () => {
           widthCm: 120,
         },
       ],
-      placements: [{
+      ...toProjectItemsAndPlacements([{
         id: "placement_bar",
         productId: "product_anchor_pullup_bar",
         position: { xCm: 246, zCm: 40 },
         rotation: 90,
-      }],
+      }]),
     });
 
     expect(screen.getByText(

@@ -5,16 +5,24 @@ import { createProjectStore } from "@/features/creator/store/project-store";
 import { createDefaultProject } from "@/features/project/defaults";
 
 import {
+  createAddProductToProjectHandler,
   createPlaceProductHandler,
+  createPlaceProjectItemHandler,
   createRemoveProductHandler,
+  createUnplaceProductHandler,
   createUpdatePlacementHandler,
 } from "./placement-tool-handlers";
 
 const productId = "product_northstar_half_rack";
+const itemId = "project-item_agent-rack";
+const placementId = "placement_agent-rack";
 
 function createStore() {
   return createProjectStore(createDefaultProject(), {
-    dependencies: { generatePlacementId: () => "placement_agent-rack" },
+    dependencies: {
+      generatePlacementId: () => placementId,
+      generateProjectItemId: () => itemId,
+    },
   });
 }
 
@@ -31,14 +39,15 @@ describe("placement WebMCP handlers", () => {
       tool: "place_product",
       changed: true,
       revision: 1,
-      placementId: "placement_agent-rack",
-      placement: { id: "placement_agent-rack", productId },
+      placementId,
+      projectItemId: itemId,
+      placement: { id: placementId, productId, projectItemId: itemId },
       validation: { issueCount: expect.any(Number) },
     });
     expect(store.getState().canUndo).toBe(true);
 
     const updated = createUpdatePlacementHandler(store)({
-      placementId: "placement_agent-rack",
+      placementId,
       patch: { position: { xCm: 240, zCm: 40 }, rotation: 90 },
     });
     expect(updated).toMatchObject({
@@ -50,25 +59,103 @@ describe("placement WebMCP handlers", () => {
     });
 
     const unchanged = createUpdatePlacementHandler(store)({
-      placementId: "placement_agent-rack",
+      placementId,
       patch: { rotation: 90 },
     });
     expect(unchanged).toMatchObject({ ok: true, changed: false, revision: 2 });
 
     const removed = createRemoveProductHandler(store)({
-      placementId: "placement_agent-rack",
+      projectItemId: itemId,
     });
     expect(removed).toMatchObject({
       ok: true,
       tool: "remove_product",
       changed: true,
       revision: 3,
-      removedPlacementId: "placement_agent-rack",
+      removedProjectItemId: itemId,
+      removedPlacementId: placementId,
       removedProductId: productId,
+      cascade: { projectItemId: itemId, placementIds: [placementId] },
     });
     expect(store.getState().project.placements).toEqual([]);
+    expect(store.getState().project.projectItems).toEqual([]);
     expect(store.getState().undo()).toBe(true);
     expect(store.getState().project.placements).toHaveLength(1);
+    expect(store.getState().project.projectItems).toHaveLength(1);
+  });
+
+  it("adds an unplaced item, places it later, and unplaces without deleting it", () => {
+    const store = createStore();
+    const added = createAddProductToProjectHandler(store)({ productId });
+    expect(added).toMatchObject({
+      ok: true,
+      tool: "add_product_to_project",
+      projectItemId: itemId,
+      item: { id: itemId, productId, placed: false },
+    });
+    expect(store.getState().project.placements).toEqual([]);
+
+    const placed = createPlaceProjectItemHandler(store)({
+      projectItemId: itemId,
+      position: { xCm: 40, zCm: 50 },
+      rotation: 90,
+    });
+    expect(placed).toMatchObject({
+      ok: true,
+      tool: "place_project_item",
+      placementId,
+      projectItemId: itemId,
+      item: { placed: true, placementId },
+    });
+
+    const unplaced = createUnplaceProductHandler(store)({ placementId });
+    expect(unplaced).toMatchObject({
+      ok: true,
+      tool: "unplace_product",
+      unplacedPlacementId: placementId,
+      projectItemId: itemId,
+      item: { placed: false, placementId: null },
+    });
+    expect(store.getState().project.placements).toEqual([]);
+    expect(store.getState().project.projectItems).toEqual([
+      { id: itemId, productId },
+    ]);
+  });
+
+  it("rejects selection-only floor placement without mutating", () => {
+    const store = createStore();
+    const rejected = createPlaceProductHandler(store)({
+      productId: "product_cove_wrist_wraps",
+      position: { xCm: 10, zCm: 20 },
+      rotation: 0,
+    });
+    expect(rejected).toMatchObject({
+      ok: false,
+      error: {
+        code: "INVALID_COMMAND",
+        message: "This product cannot be placed on the floor.",
+      },
+    });
+    expect(store.getState()).toMatchObject({ revision: 0, canUndo: false });
+
+    const added = createAddProductToProjectHandler(store)({
+      productId: "product_cove_wrist_wraps",
+    });
+    expect(added).toMatchObject({
+      ok: true,
+      item: { placementMode: "selection-only", placed: false },
+    });
+    expect(
+      createPlaceProjectItemHandler(store)({
+        projectItemId: itemId,
+        position: { xCm: 10, zCm: 20 },
+        rotation: 0,
+      }),
+    ).toMatchObject({
+      ok: false,
+      error: { code: "INVALID_COMMAND" },
+    });
+    expect(store.getState().project.placements).toEqual([]);
   });
 
   it("returns stable errors without mutating for invalid or unknown entities", () => {
@@ -84,7 +171,7 @@ describe("placement WebMCP handlers", () => {
     });
     expect(
       createUpdatePlacementHandler(store)({
-        placementId: "placement_agent-rack",
+        placementId,
         patch: null,
       }),
     ).toMatchObject({
@@ -106,10 +193,10 @@ describe("placement WebMCP handlers", () => {
       ok: false,
       error: { code: "ENTITY_NOT_FOUND" },
     });
-    const unknownPlacement = createRemoveProductHandler(store)({
-      placementId: "placement_unknown",
+    const unknownItem = createRemoveProductHandler(store)({
+      projectItemId: "project-item_unknown",
     });
-    expect(unknownPlacement).toMatchObject({
+    expect(unknownItem).toMatchObject({
       ok: false,
       error: { code: "ENTITY_NOT_FOUND" },
     });
@@ -137,6 +224,7 @@ describe("placement WebMCP handlers", () => {
     const store = createProjectStore(createDefaultProject(), {
       dependencies: {
         generatePlacementId: () => "placement_custom",
+        generateProjectItemId: () => "project-item_custom",
         resolveProduct: (id) => id === customProduct.id ? customProduct : undefined,
       },
     });
@@ -167,7 +255,10 @@ describe("placement WebMCP handlers", () => {
         widthCm: 90,
       }],
     }, {
-      dependencies: { generatePlacementId: () => "placement_agent-bar" },
+      dependencies: {
+        generatePlacementId: () => "placement_agent-bar",
+        generateProjectItemId: () => "project-item_agent-bar",
+      },
     });
 
     const placed = createPlaceProductHandler(store)({

@@ -2,10 +2,12 @@
 
 import { useId, useMemo, useRef, useState, type DragEvent, type KeyboardEvent, type PointerEvent } from "react";
 
-import { findProductById, getEffectiveMounting } from "@/features/catalog/queries/catalog";
-import { constrainMountedDrag, snapWallMountedPlacement } from "@/features/geometry/wall-mounting";
+import { getEffectiveMounting } from "@/features/catalog/queries/catalog";
+import { constrainMountedDrag } from "@/features/geometry/wall-mounting";
 import type { ProjectCommand } from "@/features/project/schemas/project-command";
 import type { GymProject, Obstacle, Placement, WallElement } from "@/features/project/schemas/project";
+
+import { productForPlacement } from "../placement-product";
 
 import type { DragDraft, PlacementTool } from "../editor-types";
 import {
@@ -14,12 +16,8 @@ import {
   getDragPosition,
   type DragSession,
 } from "../plan/drag-session";
-import {
-  centerFloorRectangle,
-  centerWallElement,
-  getPlacementTarget,
-  type PlacementTarget,
-} from "../plan/placement-target";
+import { centerFloorRectangle, centerWallElement, getPlacementTarget, type PlacementTarget } from "../plan/placement-target";
+import { createPlaceProductCommand, createPlaceProjectItemCommand } from "../plan/place-equipment";
 import {
   clientPointToPlanPoint,
   createPlanTransform,
@@ -42,6 +40,7 @@ const WALL_DEFAULTS = {
 type RoomPlanProps = {
   readonly activeTool: PlacementTool | null;
   readonly activeProductId: string | null;
+  readonly activeProjectItemId: string | null;
   readonly selectedId: string | null;
   readonly placementError: string;
   readonly onSelect: (id: string | null) => void;
@@ -56,10 +55,14 @@ function svgPoint(event: PointerEvent<SVGElement>) {
   return clientPointToPlanPoint(event, VIEWPORT, bounds);
 }
 
-function placementInstruction(tool: PlacementTool | null, productId: string | null): string {
+function placementInstruction(
+  tool: PlacementTool | null,
+  productId: string | null,
+  projectItemId: string | null,
+): string {
   if (tool === "door" || tool === "window") return "Click a room wall to place it. Press Escape to cancel.";
   if (tool) return "Click inside the room to place it. Press Escape to cancel.";
-  if (productId) return "Click inside the room to place the selected equipment. Press Escape to cancel.";
+  if (productId || projectItemId) return "Click inside the room to place the selected equipment. Press Escape to cancel.";
   return "Drag areas and equipment. Positions snap to 10 cm.";
 }
 
@@ -138,6 +141,7 @@ function createPlacementCommand(
 export function RoomPlan({
   activeTool,
   activeProductId,
+  activeProjectItemId,
   selectedId,
   placementError,
   onSelect,
@@ -191,7 +195,7 @@ export function RoomPlan({
   function mountedPlacementForDrag(placementId: string) {
     const placement = project.placements.find((item) => item.id === placementId);
     if (!placement) return null;
-    const product = findProductById(placement.productId);
+    const product = productForPlacement(project, placement);
     if (!product || getEffectiveMounting(product).kind !== "wall") return null;
     return { placement, product };
   }
@@ -279,45 +283,36 @@ export function RoomPlan({
     finishCommand(dispatch(result.command));
   }
 
-  function placeProduct(productId: string, target: PlacementTarget) {
-    if (target.kind !== "floor") {
-      onPlacementError("Place equipment inside the room.");
-      return;
-    }
-    const product = findProductById(productId);
-    if (!product) {
-      onPlacementError("This catalog product is unavailable.");
-      return;
-    }
-    if (getEffectiveMounting(product).kind === "wall") {
-      const snapped = snapWallMountedPlacement(target.position, product.dimensions, project.room);
-      if (!snapped) {
-        onPlacementError("This equipment footprint does not fit on a wall in the room.");
+  function placeEquipment(target: PlacementTarget) {
+    if (activeProjectItemId) {
+      const item = project.projectItems.find((candidate) => candidate.id === activeProjectItemId);
+      if (!item) {
+        onPlacementError("This project item is unavailable.");
         return;
       }
-      finishCommand(dispatch({
-        type: "PRODUCT_PLACED",
-        payload: { productId, position: snapped.position, rotation: snapped.rotation },
-      }));
+      const result = createPlaceProjectItemCommand(item.id, item.productId, target, project);
+      if (!result.ok) {
+        onPlacementError(result.error);
+        return;
+      }
+      finishCommand(dispatch(result.command));
       return;
     }
-    const position = centerFloorRectangle(
-      target.position,
-      product.dimensions,
-      project.room,
-    );
-    if (!position) {
-      onPlacementError("This equipment footprint does not fit in the room.");
+    if (!activeProductId) return;
+    const result = createPlaceProductCommand(activeProductId, target, project);
+    if (!result.ok) {
+      onPlacementError(result.error);
       return;
     }
-    finishCommand(dispatch({
-      type: "PRODUCT_PLACED",
-      payload: { productId, position, rotation: 0 },
-    }));
+    finishCommand(dispatch(result.command));
+  }
+
+  function isPlacing() {
+    return Boolean(activeTool || activeProductId || activeProjectItemId);
   }
 
   function handlePlanPointerDown(event: PointerEvent<SVGSVGElement>) {
-    if (!activeTool && !activeProductId) {
+    if (!isPlacing()) {
       onSelect(null);
       return;
     }
@@ -330,12 +325,12 @@ export function RoomPlan({
         : "Click inside the room boundary.");
       return;
     }
-    if (activeProductId) placeProduct(activeProductId, target);
+    if (activeProductId || activeProjectItemId) placeEquipment(target);
     else place(target);
   }
 
   function handlePlanKeyDown(event: KeyboardEvent<SVGSVGElement>) {
-    if (!activeTool && !activeProductId) return;
+    if (!isPlacing()) return;
     if (event.key === "Escape") {
       event.preventDefault();
       onCancelPlacement();
@@ -344,8 +339,8 @@ export function RoomPlan({
     }
     if (event.key !== "Enter") return;
     event.preventDefault();
-    if (activeProductId) {
-      placeProduct(activeProductId, {
+    if (activeProductId || activeProjectItemId) {
+      placeEquipment({
         kind: "floor",
         position: { xCm: project.room.widthCm / 2, zCm: project.room.depthCm / 2 },
       });
@@ -382,7 +377,12 @@ export function RoomPlan({
       onPlacementError("Drop equipment inside the room boundary.");
       return;
     }
-    placeProduct(productId, target);
+    const result = createPlaceProductCommand(productId, target, project);
+    if (!result.ok) {
+      onPlacementError(result.error);
+      return;
+    }
+    finishCommand(dispatch(result.command));
   }
 
   function selectWallElement(event: PointerEvent<SVGGElement>, element: WallElement) {
@@ -395,8 +395,8 @@ export function RoomPlan({
       <div className="creator-plan-heading">
         <div>
           <h2 id="plan-title">2D room plan</h2>
-          <p className={activeTool || activeProductId ? "creator-placement-help" : undefined}>
-            {placementInstruction(activeTool, activeProductId)}
+          <p className={isPlacing() ? "creator-placement-help" : undefined}>
+            {placementInstruction(activeTool, activeProductId, activeProjectItemId)}
           </p>
         </div>
         <span>{project.room.widthCm} × {project.room.depthCm} cm</span>
@@ -405,7 +405,7 @@ export function RoomPlan({
       <svg
         aria-label="Top-down editable room plan"
         aria-describedby="plan-help"
-        className={`creator-plan${activeTool || activeProductId ? " is-placing" : ""}`}
+        className={`creator-plan${isPlacing() ? " is-placing" : ""}`}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         onKeyDown={handlePlanKeyDown}
@@ -424,11 +424,11 @@ export function RoomPlan({
         <rect className="creator-room-shadow" height={transform.roomHeight} width={transform.roomWidth} x={transform.offsetX} y={transform.offsetY} />
         <rect className="creator-room" fill={`url(#${gridId})`} height={transform.roomHeight} width={transform.roomWidth} x={transform.offsetX} y={transform.offsetY} />
         {project.placements.map((placement) => {
-          const product = findProductById(placement.productId);
+          const product = productForPlacement(project, placement);
           if (!product) return null;
           return (
             <EquipmentEntity
-              interactive={!activeTool && !activeProductId}
+              interactive={!isPlacing()}
               issues={issues}
               key={placement.id}
               onBeginDrag={beginPlacementDrag}
@@ -446,7 +446,7 @@ export function RoomPlan({
         })}
         {project.obstacles.map((obstacle) => (
           <ObstacleEntity
-            interactive={!activeTool && !activeProductId}
+            interactive={!isPlacing()}
             issues={issues}
             key={obstacle.id}
             obstacle={obstacle}
@@ -463,7 +463,7 @@ export function RoomPlan({
         {project.wallElements.map((element) => (
           <WallElementEntity
             element={element}
-            interactive={!activeTool && !activeProductId}
+            interactive={!isPlacing()}
             issues={issues}
             key={element.id}
             onKeySelect={selectWithKeyboard}

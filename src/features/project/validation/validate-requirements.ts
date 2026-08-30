@@ -1,17 +1,22 @@
 import type { GymProject } from "@/features/project/schemas/project";
+import type { TrainingGoal } from "@/shared/schemas/training-goal";
 
 import type { ValidationIssue } from "./validation-issues";
-import type { ResolvedPlacement } from "./validation-model";
+import type { ResolvedPlacement, ResolvedProjectItem } from "./validation-model";
 
 export function validatePlacementRequirements(
   project: GymProject,
   placements: readonly ResolvedPlacement[],
+  items: readonly ResolvedProjectItem[],
 ): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
   let totalPrice = 0;
 
-  for (const { placement, product, mounting } of placements) {
+  for (const { product } of items) {
     totalPrice += product.price;
+  }
+
+  for (const { placement, product, mounting } of placements) {
     const storedRequiredCm = product.minimumCeilingHeightCm ?? product.dimensions.heightCm;
     const mountedTopCm = mounting.kind === "wall"
       ? mounting.bottomHeightCm + product.dimensions.heightCm
@@ -38,7 +43,7 @@ export function validatePlacementRequirements(
     issues.push({
       code: "BUDGET_EXCEEDED",
       severity: "error",
-      entityIds: placements.map(({ placement }) => placement.id).sort(),
+      entityIds: items.map(({ item }) => item.id).sort(),
       details: {
         budget: project.budget,
         totalPrice,
@@ -48,4 +53,27 @@ export function validatePlacementRequirements(
   }
 
   return issues;
+}
+
+export function trainingGoalCoverage(
+  requested: readonly TrainingGoal[],
+  items: readonly ResolvedProjectItem[],
+): {
+  readonly requested: readonly TrainingGoal[];
+  readonly covered: readonly TrainingGoal[];
+  readonly uncovered: readonly TrainingGoal[];
+} {
+  const coveredSet = new Set<TrainingGoal>();
+  for (const { product } of items) {
+    for (const goal of product.trainingGoals ?? []) {
+      if (requested.includes(goal)) coveredSet.add(goal);
+    }
+  }
+
+  const covered = requested.filter((goal) => coveredSet.has(goal));
+  return {
+    requested: [...requested],
+    covered,
+    uncovered: requested.filter((goal) => !coveredSet.has(goal)),
+  };
 }

@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { productIdSchema } from "@/shared/schemas/product-id";
+
 import {
   dimensionsSchema,
   footprintDimensionsSchema,
@@ -9,6 +11,7 @@ import {
 import {
   physicalObstacleSchema,
   placementSchema,
+  projectItemSchema,
   projectSettingsSchema,
   roomSchema,
   unavailableZoneSchema,
@@ -25,6 +28,9 @@ export const PROJECT_COMMAND_TYPES = [
   "WALL_ELEMENT_ADDED",
   "WALL_ELEMENT_UPDATED",
   "WALL_ELEMENT_REMOVED",
+  "PROJECT_ITEM_ADDED",
+  "PROJECT_ITEM_REMOVED",
+  "PROJECT_ITEM_PLACED",
   "PRODUCT_PLACED",
   "PLACEMENT_UPDATED",
   "PLACEMENT_REMOVED",
@@ -163,10 +169,43 @@ const wallElementRemovedCommandSchema = z
   })
   .strict();
 
+const projectItemAddedCommandSchema = z
+  .object({
+    type: z.literal("PROJECT_ITEM_ADDED"),
+    payload: z.object({ productId: productIdSchema }).strict(),
+  })
+  .strict();
+
+const projectItemRemovedCommandSchema = z
+  .object({
+    type: z.literal("PROJECT_ITEM_REMOVED"),
+    payload: z.object({ projectItemId: projectItemSchema.shape.id }).strict(),
+  })
+  .strict();
+
+const projectItemPlacedCommandSchema = z
+  .object({
+    type: z.literal("PROJECT_ITEM_PLACED"),
+    payload: z
+      .object({
+        projectItemId: projectItemSchema.shape.id,
+        position: positionSchema,
+        rotation: rotationSchema,
+      })
+      .strict(),
+  })
+  .strict();
+
 const productPlacedCommandSchema = z
   .object({
     type: z.literal("PRODUCT_PLACED"),
-    payload: placementSchema.omit({ id: true }),
+    payload: z
+      .object({
+        productId: productIdSchema,
+        position: positionSchema,
+        rotation: rotationSchema,
+      })
+      .strict(),
   })
   .strict();
 
@@ -198,6 +237,9 @@ export const projectCommandSchema = z.discriminatedUnion("type", [
   wallElementAddedCommandSchema,
   wallElementUpdatedCommandSchema,
   wallElementRemovedCommandSchema,
+  projectItemAddedCommandSchema,
+  projectItemRemovedCommandSchema,
+  projectItemPlacedCommandSchema,
   productPlacedCommandSchema,
   placementUpdatedCommandSchema,
   placementRemovedCommandSchema,

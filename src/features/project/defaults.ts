@@ -1,10 +1,11 @@
 import { gymProjectSchema, type GymProject } from "./schemas/project";
 
 const DEFAULT_PROJECT_INPUT = {
-  version: 3,
+  version: 4,
   room: { widthCm: 400, depthCm: 320, heightCm: 240 },
   obstacles: [],
   wallElements: [],
+  projectItems: [],
   placements: [],
   budget: 10_000,
   trainingGoals: [],

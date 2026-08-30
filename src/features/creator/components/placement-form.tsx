@@ -94,7 +94,25 @@ export function PlacementForm({
         <button onClick={() => update({ rotation: ((placement.rotation + 90) % 360) as Rotation })} type="button">
           <RotateCw aria-hidden="true" size={16} /> Rotate 90°
         </button>
-        <button className="creator-danger" onClick={() => {
+        <button
+          className="creator-danger"
+          onClick={() => {
+            const confirmed = globalThis.confirm(
+              `Removing ${product.name} will also remove it from the floor plan.`,
+            );
+            if (!confirmed) return;
+            const result = dispatch({
+              type: "PROJECT_ITEM_REMOVED",
+              payload: { projectItemId: placement.projectItemId },
+            });
+            if (result.ok) onRemoved();
+            else setError(result.error.message);
+          }}
+          type="button"
+        >
+          <Trash2 aria-hidden="true" size={16} /> Remove from project
+        </button>
+        <button onClick={() => {
           const result = dispatch({
             type: "PLACEMENT_REMOVED",
             payload: { placementId: placement.id },
@@ -102,7 +120,7 @@ export function PlacementForm({
           if (result.ok) onRemoved();
           else setError(result.error.message);
         }} type="button">
-          <Trash2 aria-hidden="true" size={16} /> Remove
+          Unplace
         </button>
       </FormActions>
       <fieldset className="creator-nudge">

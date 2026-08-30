@@ -28,6 +28,7 @@ function dependencies(id = "obstacle_generated"): ProjectCommandDependencies {
   return {
     generateObstacleId: () => id,
     generateWallElementId: () => "wall-element_generated",
+    generateProjectItemId: () => "project-item_generated",
     generatePlacementId: () => "placement_generated",
     resolveProduct: (productId) =>
       productId === "product_rack"
@@ -37,8 +38,19 @@ function dependencies(id = "obstacle_generated"): ProjectCommandDependencies {
             dimensions: { widthCm: 100, depthCm: 80, heightCm: 220 },
             useZone: { frontCm: 50, backCm: 10, leftCm: 20, rightCm: 20 },
             minimumCeilingHeightCm: 230,
+            placementMode: "floor",
+            trainingGoals: ["strength"],
           }
-        : undefined,
+        : productId === "product_bands"
+          ? {
+              id: productId,
+              price: 80,
+              dimensions: { widthCm: 10, depthCm: 10, heightCm: 4 },
+              useZone: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
+              placementMode: "selection-only",
+              trainingGoals: ["mobility"],
+            }
+          : undefined,
   };
 }
 
@@ -61,12 +73,15 @@ describe("applyProjectCommand", () => {
     expect(placed.result).toMatchObject({
       ok: true,
       changed: true,
-      affectedEntityIds: ["placement_generated"],
+      affectedEntityIds: ["placement_generated", "project-item_generated"],
     });
+    expect(placed.project.projectItems).toEqual([
+      { id: "project-item_generated", productId: "product_rack" },
+    ]);
     expect(placed.project.placements).toEqual([
       {
         id: "placement_generated",
-        productId: "product_rack",
+        projectItemId: "project-item_generated",
         position: { xCm: 10, zCm: 20 },
         rotation: 0,
       },
@@ -110,6 +125,9 @@ describe("applyProjectCommand", () => {
       dependencies(),
     );
     expect(removed.project.placements).toEqual([]);
+    expect(removed.project.projectItems).toEqual([
+      { id: "project-item_generated", productId: "product_rack" },
+    ]);
   });
 
   it("rejects unknown products, placement ID conflicts, and missing placements", () => {
@@ -131,9 +149,10 @@ describe("applyProjectCommand", () => {
 
     const withPlacement = {
       ...project,
+      projectItems: [{ id: "project-item_generated", productId: "product_rack" }],
       placements: [{
         id: "placement_generated",
-        productId: "product_rack",
+        projectItemId: "project-item_generated",
         position: { xCm: 0, zCm: 0 },
         rotation: 0 as const,
       }],
@@ -161,6 +180,108 @@ describe("applyProjectCommand", () => {
       dependencies(),
     );
     expect(missing.result).toMatchObject({ ok: false, error: { code: "ENTITY_NOT_FOUND" } });
+  });
+
+  it("adds an unplaced item, places it later, and removes it with a cascade", () => {
+    const project = createDefaultProject();
+    const added = applyProjectCommand(
+      project,
+      { type: "PROJECT_ITEM_ADDED", payload: { productId: "product_rack" } },
+      dependencies(),
+    );
+    expect(added.project.projectItems).toEqual([
+      { id: "project-item_generated", productId: "product_rack" },
+    ]);
+    expect(added.project.placements).toEqual([]);
+    expect(added.result).toMatchObject({
+      ok: true,
+      affectedEntityIds: ["project-item_generated"],
+    });
+
+    const placed = applyProjectCommand(
+      added.project,
+      {
+        type: "PROJECT_ITEM_PLACED",
+        payload: {
+          projectItemId: "project-item_generated",
+          position: { xCm: 40, zCm: 50 },
+          rotation: 90,
+        },
+      },
+      dependencies(),
+    );
+    expect(placed.project.placements).toEqual([
+      {
+        id: "placement_generated",
+        projectItemId: "project-item_generated",
+        position: { xCm: 40, zCm: 50 },
+        rotation: 90,
+      },
+    ]);
+
+    const removed = applyProjectCommand(
+      placed.project,
+      {
+        type: "PROJECT_ITEM_REMOVED",
+        payload: { projectItemId: "project-item_generated" },
+      },
+      dependencies(),
+    );
+    expect(removed.project.projectItems).toEqual([]);
+    expect(removed.project.placements).toEqual([]);
+    expect(removed.result).toMatchObject({
+      ok: true,
+      affectedEntityIds: ["project-item_generated", "placement_generated"],
+    });
+  });
+
+  it("rejects placing a selection-only product without mutating state", () => {
+    const project = createDefaultProject();
+    const placed = applyProjectCommand(
+      project,
+      {
+        type: "PRODUCT_PLACED",
+        payload: {
+          productId: "product_bands",
+          position: { xCm: 0, zCm: 0 },
+          rotation: 0,
+        },
+      },
+      dependencies(),
+    );
+    expect(placed.result).toMatchObject({
+      ok: false,
+      error: {
+        code: "INVALID_COMMAND",
+        message: "This product cannot be placed on the floor.",
+      },
+    });
+    expect(placed.project).toBe(project);
+
+    const added = applyProjectCommand(
+      project,
+      { type: "PROJECT_ITEM_ADDED", payload: { productId: "product_bands" } },
+      dependencies(),
+    );
+    expect(added.result.ok).toBe(true);
+    if (!added.result.ok) throw new Error("Expected add to succeed.");
+    const itemPlaced = applyProjectCommand(
+      added.project,
+      {
+        type: "PROJECT_ITEM_PLACED",
+        payload: {
+          projectItemId: "project-item_generated",
+          position: { xCm: 0, zCm: 0 },
+          rotation: 0,
+        },
+      },
+      dependencies(),
+    );
+    expect(itemPlaced.result).toMatchObject({
+      ok: false,
+      error: { code: "INVALID_COMMAND" },
+    });
+    expect(itemPlaced.project).toBe(added.project);
   });
 
   it("configures a room and applies spatially invalid shrinkage with issues", () => {

@@ -4,14 +4,15 @@ import { createDefaultProject } from "./defaults";
 import { gymProjectSchema } from "./schemas/project";
 
 describe("createDefaultProject", () => {
-  it("returns a valid version 3 empty project", () => {
+  it("returns a valid version 4 empty project", () => {
     const project = createDefaultProject();
 
     expect(gymProjectSchema.parse(project)).toEqual(project);
     expect(project).toMatchObject({
-      version: 3,
+      version: 4,
       obstacles: [],
       wallElements: [],
+      projectItems: [],
       placements: [],
       trainingGoals: [],
     });
@@ -25,6 +26,7 @@ describe("createDefaultProject", () => {
     expect(first.room).not.toBe(second.room);
     expect(first.obstacles).not.toBe(second.obstacles);
     expect(first.wallElements).not.toBe(second.wallElements);
+    expect(first.projectItems).not.toBe(second.projectItems);
     expect(first.placements).not.toBe(second.placements);
     expect(first.trainingGoals).not.toBe(second.trainingGoals);
 

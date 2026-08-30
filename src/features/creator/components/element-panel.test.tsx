@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { createDefaultProject } from "@/features/project/defaults";
 import type { GymProject } from "@/features/project/schemas/project";
+import { toProjectItemsAndPlacements } from "@/features/project/validation/test-placed-equipment";
 
 import { ProjectStoreProvider } from "../store/project-store-context";
 import { ElementPanel } from "./element-panel";
@@ -14,9 +15,12 @@ afterEach(cleanup);
 const panelProps = {
   activePanel: "room" as const,
   activeProductId: null,
+  activeProjectItemId: null,
   activeTool: null,
   onPanelChange: vi.fn(),
+  onPlaceItem: vi.fn(),
   onProductActivate: vi.fn(),
+  onProductAdd: vi.fn(),
   onToolChange: vi.fn(),
   selectedId: null,
   onSelect: vi.fn(),
@@ -33,20 +37,20 @@ function renderPanel(project: GymProject) {
 function projectWithPlacement(productId: string): GymProject {
   return {
     ...createDefaultProject(),
-    placements: [{
+    ...toProjectItemsAndPlacements([{
       id: "placement_item",
       productId,
       position: { xCm: 100, zCm: 100 },
       rotation: 90,
-    }],
+    }]),
   };
 }
 
 function placedEquipmentButton(name: string) {
-  return screen.getByRole("button", { name: new RegExp(`${name}Equipment`) });
+  return screen.getByRole("button", { name: new RegExp(`${name}Placed`) });
 }
 
-describe("ElementPanel placed equipment", () => {
+describe("ElementPanel project equipment", () => {
   it("shows the catalog photo for mapped products", () => {
     renderPanel(projectWithPlacement("product_harbor_squat_stands"));
 

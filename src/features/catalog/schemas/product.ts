@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { PLACEMENT_MODES } from "@/shared/schemas/placement-mode";
+import { PRODUCT_ID_PATTERN } from "@/shared/schemas/product-id";
 import {
   TRAINING_GOALS,
   trainingGoalSchema,
@@ -32,7 +34,7 @@ export const ASSEMBLY_REQUIREMENTS = [
   "professional",
 ] as const;
 
-export const PRODUCT_ID_PATTERN = /^product_[a-z0-9]+(?:_[a-z0-9]+)*$/;
+export { PRODUCT_ID_PATTERN, PLACEMENT_MODES };
 
 const positiveInteger = z.number().int().positive();
 const nonNegativeInteger = z.number().int().nonnegative();
@@ -77,6 +79,7 @@ export const productSchema = z
     name: z.string().trim().min(1),
     brand: z.string().trim().min(1),
     category: z.enum(PRODUCT_CATEGORIES),
+    placementMode: z.enum(PLACEMENT_MODES),
     description: z.string().trim().min(1).max(240),
     price: positiveInteger,
     dimensions: dimensionsSchema,
@@ -113,6 +116,7 @@ export const productSchema = z
   );
 
 export type ProductCategory = (typeof PRODUCT_CATEGORIES)[number];
+export type { PlacementMode } from "@/shared/schemas/placement-mode";
 export type AnchoringFilter = (typeof ANCHORING_FILTER_VALUES)[number];
 export type ProductMounting = z.infer<typeof productMountingSchema>;
 export type EffectiveMounting = ProductMounting | { readonly kind: "floor" };

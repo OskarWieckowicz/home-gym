@@ -11,9 +11,12 @@ import {
 import {
   physicalObstacleSchema,
   placementSchema,
+  projectItemSchema,
   roomSchema,
   wallElementSchema,
 } from "@/features/project/schemas/project";
+import { productIdSchema } from "@/shared/schemas/product-id";
+import { positionSchema, rotationSchema } from "@/features/project/schemas/geometry";
 
 export const getProjectStateInputSchema = z.object({}).strict();
 export const validateLayoutInputSchema = z.object({}).strict();
@@ -39,15 +42,34 @@ export const updateWallElementInputSchema = z
 export const removeWallElementInputSchema = z
   .object({ wallElementId: wallElementSchema.shape.id })
   .strict();
-export const placeProductInputSchema = placementSchema.omit({ id: true });
+export const placeProductInputSchema = z
+  .object({
+    productId: productIdSchema,
+    position: positionSchema,
+    rotation: rotationSchema,
+  })
+  .strict();
+export const addProductToProjectInputSchema = z
+  .object({ productId: productIdSchema })
+  .strict();
+export const placeProjectItemInputSchema = z
+  .object({
+    projectItemId: projectItemSchema.shape.id,
+    position: positionSchema,
+    rotation: rotationSchema,
+  })
+  .strict();
 export const updatePlacementInputSchema = z
   .object({
     placementId: placementSchema.shape.id,
     patch: placementPatchSchema,
   })
   .strict();
-export const removeProductInputSchema = z
+export const unplaceProductInputSchema = z
   .object({ placementId: placementSchema.shape.id })
+  .strict();
+export const removeProductInputSchema = z
+  .object({ projectItemId: projectItemSchema.shape.id })
   .strict();
 
 export const getProjectStateJsonSchema = z.toJSONSchema(getProjectStateInputSchema);
@@ -67,7 +89,10 @@ export const removeWallElementJsonSchema = z.toJSONSchema(
   removeWallElementInputSchema,
 );
 export const placeProductJsonSchema = z.toJSONSchema(placeProductInputSchema);
+export const addProductToProjectJsonSchema = z.toJSONSchema(addProductToProjectInputSchema);
+export const placeProjectItemJsonSchema = z.toJSONSchema(placeProjectItemInputSchema);
 export const updatePlacementJsonSchema = z.toJSONSchema(updatePlacementInputSchema);
+export const unplaceProductJsonSchema = z.toJSONSchema(unplaceProductInputSchema);
 export const removeProductJsonSchema = z.toJSONSchema(removeProductInputSchema);
 
 export type ConfigureRoomInput = z.infer<typeof configureRoomInputSchema>;
@@ -81,7 +106,10 @@ export type AddWallElementInput = z.infer<typeof addWallElementInputSchema>;
 export type UpdateWallElementInput = z.infer<typeof updateWallElementInputSchema>;
 export type RemoveWallElementInput = z.infer<typeof removeWallElementInputSchema>;
 export type PlaceProductInput = z.infer<typeof placeProductInputSchema>;
+export type AddProductToProjectInput = z.infer<typeof addProductToProjectInputSchema>;
+export type PlaceProjectItemInput = z.infer<typeof placeProjectItemInputSchema>;
 export type UpdatePlacementInput = z.infer<typeof updatePlacementInputSchema>;
+export type UnplaceProductInput = z.infer<typeof unplaceProductInputSchema>;
 export type RemoveProductInput = z.infer<typeof removeProductInputSchema>;
 
 export type InputIssue = {
@@ -98,6 +126,7 @@ const ISSUE_MESSAGES: Readonly<Record<string, string>> = {
   obstacleId: "Obstacle ID must use the canonical obstacle ID format.",
   wallElementId: "Wall element ID must use the canonical wall-element ID format.",
   productId: "Product ID must use the canonical catalog product ID format.",
+  projectItemId: "Project item ID must use the canonical project-item ID format.",
   placementId: "Placement ID must use the canonical placement ID format.",
   kind: "Kind must be obstacle or unavailable-zone.",
   name: "Name must be non-empty text up to 80 characters.",

@@ -10,6 +10,7 @@ import {
   collectObstacles,
   compareIssues,
   resolvePlacements,
+  resolveProjectItems,
 } from "./validation-model";
 import {
   validateObstacleBounds,
@@ -20,7 +21,7 @@ import {
   validatePlacementCollisions,
 } from "./validate-collisions";
 import { validateMounting } from "./validate-mounting";
-import { validatePlacementRequirements } from "./validate-requirements";
+import { validatePlacementRequirements, trainingGoalCoverage } from "./validate-requirements";
 import { validateUseZones } from "./validate-use-zones";
 import { validateWallElements } from "./validate-wall-elements";
 import { validateAccess } from "./validate-access";
@@ -34,6 +35,7 @@ export function analyzeProject(
 ): ProjectAnalysis {
   const items = collectObstacles(project);
   const placements = resolvePlacements(project, dependencies);
+  const projectItems = resolveProjectItems(project, dependencies);
   const access = validateAccess(project, items, placements);
   const issues = [
     ...validateObstacleBounds(project, items),
@@ -42,12 +44,24 @@ export function analyzeProject(
     ...validatePlacementCollisions(items, placements),
     ...validateUseZones(items, placements),
     ...validateMounting(project, placements),
-    ...validatePlacementRequirements(project, placements),
+    ...validatePlacementRequirements(project, placements, projectItems),
     ...validateWallElements(project),
     ...access.issues,
   ].sort(compareIssues);
 
-  return createProjectAnalysis(issues, access.access);
+  return createProjectAnalysis(
+    issues,
+    access.access,
+    projectItems.map(({ item, product, placement }) => ({
+      id: item.id,
+      productId: item.productId,
+      placementId: placement?.id ?? null,
+      placed: placement !== undefined,
+      placementMode: product.placementMode ?? "floor",
+      price: product.price,
+    })),
+    trainingGoalCoverage(project.trainingGoals, projectItems),
+  );
 }
 
 export function validateProject(

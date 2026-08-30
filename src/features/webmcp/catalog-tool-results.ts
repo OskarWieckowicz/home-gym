@@ -49,6 +49,7 @@ export function createProductSummary(product: Product) {
     requiredHeightCm: getEffectiveRequiredHeightCm(product),
     anchoring: getEffectiveAnchoring(product),
     mounting: getEffectiveMounting(product),
+    placementMode: product.placementMode,
     trainingGoals: [...product.trainingGoals],
     exercises: [...product.exercises],
   };

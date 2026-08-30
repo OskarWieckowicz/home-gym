@@ -94,11 +94,9 @@ describe("ProjectPersistenceBoundary", () => {
   it("rejects a saved project that references an unavailable catalog product", async () => {
     const unavailableProductProject = {
       ...createDefaultProject(),
-      placements: [{
-        id: "placement_missing",
+      projectItems: [{
+        id: "project-item_missing",
         productId: "product_missing",
-        position: { xCm: 0, zCm: 0 },
-        rotation: 0 as const,
       }],
     };
     const memory = createMemoryStorage(projectJson(unavailableProductProject));
@@ -106,7 +104,7 @@ describe("ProjectPersistenceBoundary", () => {
     render(<CreatorEditor persistence storage={memory.adapter} />);
 
     expect(await screen.findByText(/saved project is invalid/i)).toBeTruthy();
-    expect(screen.getByText("No equipment placed yet.")).toBeTruthy();
+    expect(screen.getByText("No equipment in the project yet.")).toBeTruthy();
     expect(memory.storage.setItem).not.toHaveBeenCalled();
   });
 

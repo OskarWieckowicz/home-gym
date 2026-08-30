@@ -21,6 +21,7 @@ const validProduct = {
   exercises: ["back squat"],
   trainingGoals: ["strength"],
   muscleGroups: ["legs"],
+  placementMode: "floor",
   weightKg: 80.5,
   maximumLoadKg: 250,
   requirements: {
@@ -67,6 +68,8 @@ describe("productSchema", () => {
     ["bad slug", { slug: "Bad slug" }],
     ["fractional price", { price: 10.5 }],
     ["invalid category", { category: "machines" }],
+    ["missing placement mode", { placementMode: undefined }],
+    ["invalid placement mode", { placementMode: "wall" }],
   ])("rejects %s", (_label, replacement) => {
     expect(() => productSchema.parse({ ...validProduct, ...replacement })).toThrow();
   });
@@ -157,6 +160,9 @@ describe("productSchema", () => {
 
     expect(jsonSchema).toMatchObject({ type: "object", additionalProperties: false });
     expect(jsonSchema.properties?.category).toMatchObject({ enum: PRODUCT_CATEGORIES });
+    expect(jsonSchema.properties?.placementMode).toMatchObject({
+      enum: ["floor", "selection-only"],
+    });
     expect(jsonSchema.properties?.requirements).toMatchObject({
       properties: {
         anchoring: { enum: ANCHORING_REQUIREMENTS },

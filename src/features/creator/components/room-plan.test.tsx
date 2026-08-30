@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createDefaultProject } from "@/features/project/defaults";
 import type { GymProject } from "@/features/project/schemas/project";
+import { toProjectItemsAndPlacements } from "@/features/project/validation/test-placed-equipment";
 
 import { ProjectStoreProvider, useProjectStore } from "../store/project-store-context";
 import type { PlacementTool } from "../editor-types";
@@ -54,6 +55,7 @@ function renderPlan(locked = false, name: string = obstacle.name) {
       <StoreProbe />
       <RoomPlan
         activeProductId={null}
+        activeProjectItemId={null}
         activeTool={null}
         onCancelPlacement={vi.fn()}
         onPlacementComplete={vi.fn()}
@@ -108,6 +110,7 @@ function renderPlacement(tool: PlacementTool, bounds = {
       <PlacementProbe />
       <RoomPlan
         activeProductId={null}
+        activeProjectItemId={null}
         activeTool={tool}
         onCancelPlacement={vi.fn()}
         onPlacementComplete={onPlacementComplete}
@@ -171,6 +174,7 @@ describe("RoomPlan dragging", () => {
       <ProjectStoreProvider initialProject={project}>
         <RoomPlan
           activeProductId={null}
+          activeProjectItemId={null}
           activeTool={null}
           onCancelPlacement={vi.fn()}
           onPlacementComplete={vi.fn()}
@@ -224,18 +228,19 @@ describe("RoomPlan dragging", () => {
   it("renders equipment use zones and commits equipment drag once", () => {
     const project: GymProject = {
       ...createDefaultProject(),
-      placements: [{
+      ...toProjectItemsAndPlacements([{
         id: "placement_rack",
         productId: "product_northstar_half_rack",
         position: { xCm: 20, zCm: 30 },
         rotation: 0,
-      }],
+      }]),
     };
     render(
       <ProjectStoreProvider initialProject={project}>
         <EquipmentStoreProbe />
         <RoomPlan
           activeProductId={null}
+          activeProjectItemId={null}
           activeTool={null}
           onCancelPlacement={vi.fn()}
           onPlacementComplete={vi.fn()}
@@ -317,6 +322,7 @@ describe("RoomPlan placement", () => {
         <PlacementProbe />
         <RoomPlan
           activeProductId={null}
+          activeProjectItemId={null}
           activeTool={null}
           onCancelPlacement={vi.fn()}
           onPlacementComplete={onPlacementComplete}
@@ -360,6 +366,7 @@ describe("RoomPlan placement", () => {
         <EquipmentStoreProbe />
         <RoomPlan
           activeProductId={null}
+          activeProjectItemId={null}
           activeTool={null}
           onCancelPlacement={vi.fn()}
           onPlacementComplete={onPlacementComplete}
@@ -399,16 +406,17 @@ describe("RoomPlan placement", () => {
       <ProjectStoreProvider initialProject={{
         ...createDefaultProject(),
         room: { widthCm: 300, depthCm: 400, heightCm: 250 },
-        placements: [{
+        ...toProjectItemsAndPlacements([{
           id: "placement_bar",
           productId: "product_anchor_pullup_bar",
           position: { xCm: 246, zCm: 80 },
           rotation: 90,
-        }],
+        }]),
       }}>
         <EquipmentStoreProbe />
         <RoomPlan
           activeProductId={null}
+          activeProjectItemId={null}
           activeTool={null}
           onCancelPlacement={vi.fn()}
           onPlacementComplete={vi.fn()}

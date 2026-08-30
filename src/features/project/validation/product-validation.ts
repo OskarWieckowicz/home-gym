@@ -1,4 +1,6 @@
 import type { ProductGeometryDescriptor } from "@/features/geometry/equipment-footprints";
+import type { PlacementMode } from "@/shared/schemas/placement-mode";
+import type { TrainingGoal } from "@/shared/schemas/training-goal";
 
 export type ProductMountingFact = {
   readonly kind: "wall";
@@ -15,6 +17,8 @@ export type ProductValidationDescriptor = ProductGeometryDescriptor & {
   };
   readonly minimumCeilingHeightCm?: number;
   readonly mounting?: ProductMountingFact;
+  readonly placementMode?: PlacementMode;
+  readonly trainingGoals?: readonly TrainingGoal[];
 };
 
 export type ProductResolver = (

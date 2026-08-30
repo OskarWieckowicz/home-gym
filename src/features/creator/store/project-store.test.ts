@@ -26,7 +26,10 @@ function createStoreWithIds(initialProject: GymProject, ids: string[]) {
 describe("createProjectStore", () => {
   it("uses catalog product resolution while preserving partial custom dependencies", () => {
     const store = createProjectStore(createDefaultProject(), {
-      dependencies: { generatePlacementId: () => "placement_rack" },
+      dependencies: {
+        generatePlacementId: () => "placement_rack",
+        generateProjectItemId: () => "project-item_rack",
+      },
     });
 
     const result = store.getState().dispatch({
@@ -42,13 +45,13 @@ describe("createProjectStore", () => {
       ok: true,
       changed: true,
       revision: 1,
-      affectedEntityIds: ["placement_rack"],
+      affectedEntityIds: ["placement_rack", "project-item_rack"],
     });
     expect(store.getState().project.placements).toHaveLength(1);
     expect(store.getState().undo()).toBe(true);
     expect(store.getState().project.placements).toEqual([]);
     expect(store.getState().redo()).toBe(true);
-    expect(store.getState().project.placements[0]?.productId).toBe(
+    expect(store.getState().project.projectItems[0]?.productId).toBe(
       "product_northstar_half_rack",
     );
   });
@@ -279,11 +282,9 @@ describe("project replacement", () => {
     });
     expect(store.getState().replaceProject({
       ...createDefaultProject(),
-      placements: [{
-        id: "placement_missing",
+      projectItems: [{
+        id: "project-item_missing",
         productId: "product_missing",
-        position: { xCm: 0, zCm: 0 },
-        rotation: 0,
       }],
     })).toMatchObject({
       ok: false,

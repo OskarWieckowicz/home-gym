@@ -6,6 +6,7 @@ import type { GymProject } from "../schemas/project";
 export type ProjectCommandDependencies = {
   readonly generateObstacleId?: () => string;
   readonly generateWallElementId?: () => string;
+  readonly generateProjectItemId?: () => string;
   readonly generatePlacementId?: () => string;
   readonly resolveProduct?: ProductResolver;
   readonly analyzeProject?: (project: GymProject) => ProjectAnalysis;
@@ -20,6 +21,7 @@ const missingProductResolver: ProductResolver = () => undefined;
 export const defaultProjectCommandDependencies: ResolvedProjectCommandDependencies = {
   generateObstacleId: () => `obstacle_${globalThis.crypto.randomUUID()}`,
   generateWallElementId: () => `wall-element_${globalThis.crypto.randomUUID()}`,
+  generateProjectItemId: () => `project-item_${globalThis.crypto.randomUUID()}`,
   generatePlacementId: () => `placement_${globalThis.crypto.randomUUID()}`,
   resolveProduct: missingProductResolver,
   analyzeProject: (project) => analyzeProject(project),

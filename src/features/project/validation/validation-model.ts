@@ -6,7 +6,7 @@ import {
   createRectangleFootprint,
   type RectangleFootprint,
 } from "@/features/geometry/rectangles";
-import type { GymProject, Obstacle, Placement } from "@/features/project/schemas/project";
+import type { GymProject, Obstacle, Placement, ProjectItem } from "@/features/project/schemas/project";
 
 import type { ValidationIssue } from "./validation-issues";
 import type {
@@ -55,8 +55,11 @@ export function resolvePlacements(
     return [];
   }
 
+  const itemsById = new Map(project.projectItems.map((item) => [item.id, item] as const));
+
   return project.placements.flatMap((placement) => {
-    const product = dependencies.resolveProduct?.(placement.productId);
+    const item = itemsById.get(placement.projectItemId);
+    const product = item ? dependencies.resolveProduct?.(item.productId) : undefined;
     return product
       ? [{
           placement,
@@ -64,6 +67,32 @@ export function resolvePlacements(
           footprints: createEquipmentFootprints(placement, product),
           mounting: product.mounting ?? { kind: "floor" },
         }]
+      : [];
+  });
+}
+
+export type ResolvedProjectItem = {
+  readonly item: ProjectItem;
+  readonly product: ProductValidationDescriptor;
+  readonly placement: Placement | undefined;
+};
+
+export function resolveProjectItems(
+  project: GymProject,
+  dependencies: ProjectValidationDependencies,
+): ResolvedProjectItem[] {
+  if (!dependencies.resolveProduct) {
+    return [];
+  }
+
+  const placementByItemId = new Map(
+    project.placements.map((placement) => [placement.projectItemId, placement] as const),
+  );
+
+  return project.projectItems.flatMap((item) => {
+    const product = dependencies.resolveProduct?.(item.productId);
+    return product
+      ? [{ item, product, placement: placementByItemId.get(item.id) }]
       : [];
   });
 }

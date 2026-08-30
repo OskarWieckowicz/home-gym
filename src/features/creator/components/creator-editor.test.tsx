@@ -1,13 +1,16 @@
 // @vitest-environment jsdom
 
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { createDefaultProject } from "@/features/project/defaults";
 
 import { CreatorEditor } from "./creator-editor";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+});
 
 function change(name: string, value: string) {
   fireEvent.change(screen.getByRole("spinbutton", { name }), { target: { value } });
@@ -115,7 +118,8 @@ describe("CreatorEditor", () => {
     fireEvent.click(screen.getByRole("button", { name: "Rotate 90°" }));
     expect(screen.getByRole("button", { name: /Northstar Half Rack, equipment, 90 degrees/ })).toBeTruthy();
 
-    fireEvent.click(screen.getByRole("button", { name: "Remove" }));
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    fireEvent.click(screen.getByRole("button", { name: "Remove from project" }));
     expect(screen.queryByRole("button", { name: /Northstar Half Rack, equipment/ })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: /Undo/ }));
     expect(screen.getByRole("button", { name: /Northstar Half Rack, equipment, 90 degrees/ })).toBeTruthy();

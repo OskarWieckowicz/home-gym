@@ -13,7 +13,7 @@ import { useProjectPersistence } from "../persistence/project-persistence-bounda
 import { useProjectStore } from "../store/project-store-context";
 
 export const PROJECT_IMPORT_MAX_BYTES = 1024 * 1024;
-export const PROJECT_EXPORT_FILENAME = "home-gym-project-v3.json";
+export const PROJECT_EXPORT_FILENAME = "home-gym-project-v4.json";
 
 export function ProjectFileActions() {
   const inputRef = useRef<HTMLInputElement>(null);

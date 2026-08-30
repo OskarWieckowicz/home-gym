@@ -44,6 +44,7 @@ describe("search_products handler", () => {
         catalogProducts[0].dimensions.heightCm,
       anchoring: catalogProducts[0].requirements.anchoring ?? "none",
       mounting: { kind: "floor" },
+      placementMode: catalogProducts[0].placementMode,
       trainingGoals: catalogProducts[0].trainingGoals,
       exercises: catalogProducts[0].exercises,
     });

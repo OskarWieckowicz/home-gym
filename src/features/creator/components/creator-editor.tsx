@@ -3,9 +3,9 @@
 import dynamic from "next/dynamic";
 import { useState } from "react";
 
+import { findProductById } from "@/features/catalog/queries/catalog";
 import type { ProjectCommandDependencies } from "@/features/project/commands/apply-project-command";
 import type { GymProject } from "@/features/project/schemas/project";
-import { findProductById } from "@/features/catalog/queries/catalog";
 import { CreatorWebMcpBridge } from "@/features/webmcp/components/creator-webmcp-bridge";
 
 import type { EditorPanel, PlacementTool } from "../editor-types";
@@ -13,11 +13,13 @@ import {
   ProjectPersistenceBoundary,
   type ProjectPersistenceBoundaryProps,
 } from "../persistence/project-persistence-boundary";
+import { productForPlacement } from "../placement-product";
 import { ProjectStoreProvider, useProjectStore } from "../store/project-store-context";
 import { CreatorToolbar } from "./creator-toolbar";
 import { ElementPanel } from "./element-panel";
 import { ObstacleForm } from "./obstacle-form";
 import { PlacementForm } from "./placement-form";
+import { ProjectItemForm } from "./project-item-form";
 import { ProjectSettingsForm } from "./project-settings-form";
 import { RoomForm } from "./room-form";
 import { RoomPlan } from "./room-plan";
@@ -34,40 +36,49 @@ function EditorWorkspace() {
   const [activePanel, setActivePanel] = useState<EditorPanel>("room");
   const [activeTool, setActiveTool] = useState<PlacementTool | null>(null);
   const [activeProductId, setActiveProductId] = useState<string | null>(null);
+  const [activeProjectItemId, setActiveProjectItemId] = useState<string | null>(null);
   const [placementError, setPlacementError] = useState("");
   const [viewMode, setViewMode] = useState<"2d" | "3d">("2d");
   const obstacles = useProjectStore((state) => state.project.obstacles);
   const placements = useProjectStore((state) => state.project.placements);
   const wallElements = useProjectStore((state) => state.project.wallElements);
   const project = useProjectStore((state) => state.project);
+  const dispatch = useProjectStore((state) => state.dispatch);
   const selectedObstacle = obstacles.find((obstacle) => obstacle.id === selectedId);
   const selectedPlacement = placements.find((placement) => placement.id === selectedId);
   const selectedProduct = selectedPlacement
-    ? findProductById(selectedPlacement.productId)
+    ? productForPlacement(project, selectedPlacement)
     : undefined;
+  const selectedItem = project.projectItems.find((item) => item.id === selectedId);
+  const selectedItemProduct = selectedItem ? findProductById(selectedItem.productId) : undefined;
   const selectedWallElement = wallElements.find((element) => element.id === selectedId);
-  const visibleSelectedId = selectedObstacle || selectedWallElement || selectedPlacement
+  const visibleSelectedId = selectedObstacle || selectedWallElement || selectedPlacement || selectedItem
     ? selectedId
     : null;
+  const placing = Boolean(activeTool || activeProductId || activeProjectItemId);
 
-  function select(id: string | null) {
+  function clearPlacementMode() {
     setActiveTool(null);
     setActiveProductId(null);
+    setActiveProjectItemId(null);
     setPlacementError("");
+  }
+
+  function select(id: string | null) {
+    clearPlacementMode();
     setSelectedId(id);
     if (id) setActivePanel("selected");
   }
 
   function changePanel(panel: EditorPanel) {
-    setActiveTool(null);
-    setActiveProductId(null);
-    setPlacementError("");
+    clearPlacementMode();
     setSelectedId(null);
     setActivePanel(panel);
   }
 
   function changeTool(tool: PlacementTool) {
     setActiveProductId(null);
+    setActiveProjectItemId(null);
     setSelectedId(null);
     setActivePanel("selected");
     setPlacementError("");
@@ -76,16 +87,39 @@ function EditorWorkspace() {
 
   function changeProduct(productId: string) {
     setActiveTool(null);
+    setActiveProjectItemId(null);
     setSelectedId(null);
     setActivePanel("selected");
     setPlacementError("");
     setActiveProductId((current) => current === productId ? null : productId);
   }
 
-  function finishPlacement(id: string) {
+  function addProduct(productId: string) {
+    const result = dispatch({
+      type: "PROJECT_ITEM_ADDED",
+      payload: { productId },
+    });
+    if (!result.ok) {
+      setPlacementError(result.error.message);
+      return;
+    }
+    const itemId = result.affectedEntityIds[0];
+    clearPlacementMode();
+    setSelectedId(itemId ?? null);
+    setActivePanel("selected");
+  }
+
+  function placeItem(projectItemId: string) {
     setActiveTool(null);
     setActiveProductId(null);
+    setSelectedId(null);
+    setActivePanel("selected");
     setPlacementError("");
+    setActiveProjectItemId((current) => current === projectItemId ? null : projectItemId);
+  }
+
+  function finishPlacement(id: string) {
+    clearPlacementMode();
     setSelectedId(id);
     setActivePanel("selected");
   }
@@ -97,20 +131,21 @@ function EditorWorkspace() {
         <ElementPanel
           activePanel={activePanel}
           activeProductId={activeProductId}
+          activeProjectItemId={activeProjectItemId}
           activeTool={activeTool}
           onPanelChange={changePanel}
+          onPlaceItem={placeItem}
           onProductActivate={changeProduct}
+          onProductAdd={addProduct}
           onSelect={select}
           onToolChange={changeTool}
           selectedId={visibleSelectedId}
         />
         {viewMode === "2d" ? <RoomPlan
           activeProductId={activeProductId}
+          activeProjectItemId={activeProjectItemId}
           activeTool={activeTool}
-          onCancelPlacement={() => {
-            setActiveTool(null);
-            setActiveProductId(null);
-          }}
+          onCancelPlacement={clearPlacementMode}
           onPlacementComplete={finishPlacement}
           onPlacementError={setPlacementError}
           onSelect={select}
@@ -125,9 +160,17 @@ function EditorWorkspace() {
           {activePanel === "selected" && selectedPlacement && selectedProduct ? (
             <PlacementForm placement={selectedPlacement} product={selectedProduct} onRemoved={() => select(null)} />
           ) : null}
-          {activePanel === "selected" && !selectedObstacle && !selectedWallElement && !selectedPlacement ? (
+          {activePanel === "selected" && selectedItem && selectedItemProduct && !selectedPlacement ? (
+            <ProjectItemForm
+              item={selectedItem}
+              onPlace={() => placeItem(selectedItem.id)}
+              onRemoved={() => select(null)}
+              product={selectedItemProduct}
+            />
+          ) : null}
+          {activePanel === "selected" && !selectedObstacle && !selectedWallElement && !selectedPlacement && !selectedItem ? (
             <p className="creator-help">
-              {activeTool || activeProductId
+              {placing
                 ? "Place the selected item on the plan."
                 : "Select an element on the plan or in the list."}
             </p>

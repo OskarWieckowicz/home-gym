@@ -102,6 +102,8 @@ export function createProjectStore(
         validation: createProjectAnalysis(
           execution.result.issues,
           execution.result.access,
+          execution.result.items,
+          execution.result.coverage,
         ),
         revision,
         canUndo: true,

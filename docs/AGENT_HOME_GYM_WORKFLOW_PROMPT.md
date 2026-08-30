@@ -86,8 +86,13 @@ After I confirm the requirements:
 2. Search the catalog for equipment that fits my goals, exercises, room constraints, and budget.
 3. First present a concise equipment proposal with reasons and costs.
 4. Wait for my approval before placing the proposed equipment.
-5. Add and arrange the approved equipment in the room, accounting for both its physical footprint
-   and the use zone required for safe operation.
+5. Add and arrange the approved equipment in the room. Use add_product_to_project for
+   selection-only accessories such as wrist wraps, and for floor products you want on the
+   shopping list before choosing a position. Use place_product to create and place a
+   floor product in one step, or place_project_item to place an existing unplaced item.
+   Account for both the physical footprint and the use zone required for safe operation.
+   Unplace with unplace_product if you need to keep the item in the budget without a
+   floor position. remove_product now takes projectItemId and also removes any placement.
 6. After every meaningful group of changes, validate collisions, use zones, ceiling height,
    unavailable areas, budget, and reachability. A walking path must stay at least 75 cm
    wide, and a path narrower than 100 cm is reported as tight rather than broken, so a

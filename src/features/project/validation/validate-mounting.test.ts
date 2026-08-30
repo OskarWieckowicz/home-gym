@@ -6,11 +6,11 @@ import type {
   GymProject,
   Obstacle,
   PhysicalObstacle,
-  Placement,
   UnavailableZone,
   WallElement,
 } from "../schemas/project";
 import type { ProductValidationDescriptor } from "./product-validation";
+import { toProjectItemsAndPlacements, type TestPlacementInput } from "./test-placed-equipment";
 import { analyzeProject, validateProject } from "./validate-project";
 
 const mountedBar: ProductValidationDescriptor = {
@@ -96,7 +96,7 @@ function zone(
 }
 
 function project(
-  placements: Placement[],
+  placements: TestPlacementInput[],
   extras: {
     readonly obstacles?: Obstacle[];
     readonly wallElements?: WallElement[];
@@ -106,7 +106,7 @@ function project(
   } = {},
 ): GymProject {
   return {
-    version: 3,
+    version: 4,
     room: {
       widthCm: extras.widthCm ?? 300,
       depthCm: extras.depthCm ?? 400,
@@ -114,7 +114,7 @@ function project(
     },
     obstacles: extras.obstacles ?? [],
     wallElements: extras.wallElements ?? [door()],
-    placements,
+    ...toProjectItemsAndPlacements(placements),
     budget: 10_000,
     trainingGoals: [],
   };
@@ -224,11 +224,11 @@ describe("validateMounting", () => {
 });
 
 describe("mounted collision filter", () => {
-  const barPlacement: Placement = {
+  const barPlacement = {
     id: "placement_bar",
     productId: mountedBar.id,
     position: { xCm: 246, zCm: 80 },
-    rotation: 90,
+    rotation: 90 as const,
   };
 
   it("reports a taller placement and a taller obstacle under the mount", () => {
@@ -412,19 +412,19 @@ describe("mounted use zones and ceiling", () => {
   });
 });
 
-describe("supplied v3 project", () => {
+describe("supplied mounted-bar project", () => {
   it("loads, validates clean, and reports the catalog bar as mounted", () => {
     const supplied: GymProject = {
-      version: 3,
+      version: 4,
       room: { widthCm: 300, depthCm: 400, heightCm: 250 },
       obstacles: [],
       wallElements: [door("bottom", 100)],
-      placements: [{
+      ...toProjectItemsAndPlacements([{
         id: "placement_anchor_bar",
         productId: "product_anchor_pullup_bar",
         position: { xCm: 246, zCm: 80 },
         rotation: 90,
-      }],
+      }]),
       budget: 10_000,
       trainingGoals: [],
     };

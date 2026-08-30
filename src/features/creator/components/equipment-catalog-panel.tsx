@@ -15,9 +15,11 @@ const RESULT_LIMIT = 8;
 export function EquipmentCatalogPanel({
   activeProductId,
   onActivate,
+  onAdd,
 }: {
   readonly activeProductId: string | null;
   readonly onActivate: (productId: string) => void;
+  readonly onAdd: (productId: string) => void;
 }) {
   const [query, setQuery] = useState("");
   const products = useMemo(() => searchProducts({ query }), [query]);
@@ -46,29 +48,48 @@ export function EquipmentCatalogPanel({
       </p>
       {visibleProducts.length ? (
         <ul>
-          {visibleProducts.map((product) => (
-            <li
-              draggable
-              key={product.id}
-              onDragStart={(event) => startDrag(event, product.id)}
-            >
-              <div>
-                <EquipmentCatalogThumb productId={product.id} />
-                <span>
-                  <strong>{product.name}</strong>
-                  <small>{formatFootprint(product.dimensions)} · {formatPricePln(product.price)}</small>
-                </span>
-              </div>
-              <button
-                aria-label={`${activeProductId === product.id ? "Cancel placing" : "Place"} ${product.name}`}
-                aria-pressed={activeProductId === product.id}
-                onClick={() => onActivate(product.id)}
-                type="button"
+          {visibleProducts.map((product) => {
+            const canPlace = product.placementMode === "floor";
+            return (
+              <li
+                className={canPlace ? undefined : "is-selection-only"}
+                draggable={canPlace}
+                key={product.id}
+                onDragStart={canPlace ? (event) => startDrag(event, product.id) : undefined}
               >
-                {activeProductId === product.id ? "Cancel" : "Place"}
-              </button>
-            </li>
-          ))}
+                <div className="creator-catalog-product">
+                  <EquipmentCatalogThumb productId={product.id} />
+                  <span>
+                    <strong>{product.name}</strong>
+                    <small>
+                      {canPlace ? formatFootprint(product.dimensions) : "Not placed on the floor"}
+                      {" · "}
+                      {formatPricePln(product.price)}
+                    </small>
+                  </span>
+                </div>
+                <div className="creator-catalog-actions">
+                  {canPlace ? (
+                    <button
+                      aria-label={`${activeProductId === product.id ? "Cancel placing" : "Place"} ${product.name}`}
+                      aria-pressed={activeProductId === product.id}
+                      onClick={() => onActivate(product.id)}
+                      type="button"
+                    >
+                      {activeProductId === product.id ? "Cancel" : "Place"}
+                    </button>
+                  ) : null}
+                  <button
+                    aria-label={`Add ${product.name} to project`}
+                    onClick={() => onAdd(product.id)}
+                    type="button"
+                  >
+                    Add
+                  </button>
+                </div>
+              </li>
+            );
+          })}
         </ul>
       ) : <p>No equipment matches this search.</p>}
       {products.length > RESULT_LIMIT ? (

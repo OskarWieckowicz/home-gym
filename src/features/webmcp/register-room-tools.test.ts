@@ -26,7 +26,7 @@ function expectStrictObjectSchema(schema: Readonly<Record<string, unknown>>) {
 }
 
 describe("room WebMCP tool definitions", () => {
-  it("defines exactly fourteen unique, strict and correctly annotated tools", () => {
+  it("defines exactly seventeen unique, strict and correctly annotated tools", () => {
     const tools = createRoomWebMcpTools(createProjectStore(createDefaultProject()));
 
     expect(tools.map(({ name }) => name)).toEqual([
@@ -42,10 +42,13 @@ describe("room WebMCP tool definitions", () => {
       "validate_layout",
       "search_products",
       "place_product",
+      "add_product_to_project",
+      "place_project_item",
       "update_placement",
+      "unplace_product",
       "remove_product",
     ]);
-    expect(new Set(tools.map(({ name }) => name))).toHaveLength(14);
+    expect(new Set(tools.map(({ name }) => name))).toHaveLength(17);
     for (const tool of tools) {
       expect(tool.description.length).toBeGreaterThan(40);
       expectStrictObjectSchema(tool.inputSchema);
@@ -66,7 +69,7 @@ describe("room WebMCP tool definitions", () => {
       );
     }
     expect(tools.find(({ name }) => name === "get_project_state")?.description)
-      .toContain("version-3");
+      .toContain("version-4");
     expect(tools.find(({ name }) => name === "get_project_state")?.description)
       .toContain("equipment placements");
     expect(tools.find(({ name }) => name === "validate_layout")?.description)
@@ -80,7 +83,7 @@ describe("room WebMCP tool definitions", () => {
     expect(tools.find(({ name }) => name === "place_product")?.description)
       .toContain("flush");
     expect(tools.find(({ name }) => name === "remove_product")?.description)
-      .toContain("placement ID");
+      .toContain("projectItemId");
   });
 });
 
@@ -102,7 +105,7 @@ describe("registerRoomTools", () => {
         createProjectStore(createDefaultProject()),
       ),
     ).resolves.toEqual({ status: "ready" });
-    expect(registered).toHaveLength(14);
+    expect(registered).toHaveLength(17);
   });
 
   it("preserves unsupported and all-or-unavailable lifecycle behavior", async () => {

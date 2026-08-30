@@ -1,15 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import type {
-  GymProject,
-  Obstacle,
-  PhysicalObstacle,
-  Placement,
-  UnavailableZone,
-  WallElement,
-} from "../schemas/project";
-import { analyzeProject, validateProject } from "./validate-project";
+import type { GymProject, Obstacle, PhysicalObstacle, UnavailableZone, WallElement } from "../schemas/project";
 import type { ProductValidationDescriptor } from "./product-validation";
+import { toProjectItemsAndPlacements, type TestPlacementInput } from "./test-placed-equipment";
+import { analyzeProject, validateProject } from "./validate-project";
 
 const product: ProductValidationDescriptor = {
   id: "product_test",
@@ -26,8 +20,8 @@ const validationDependencies = {
 
 function placement(
   id: string,
-  overrides: Partial<Placement> = {},
-): Placement {
+  overrides: Partial<TestPlacementInput> = {},
+): TestPlacementInput {
   return {
     id,
     productId: product.id,
@@ -83,14 +77,14 @@ function entrance(): WallElement {
 function project(
   obstacles: Obstacle[],
   wallElements: WallElement[] = [entrance()],
-  placements: Placement[] = [],
+  placements: TestPlacementInput[] = [],
 ): GymProject {
   return {
-    version: 3,
+    version: 4,
     room: { widthCm: 300, depthCm: 250, heightCm: 220 },
     obstacles,
     wallElements,
-    placements,
+    ...toProjectItemsAndPlacements(placements),
     budget: 10_000,
     trainingGoals: [],
   };
@@ -198,7 +192,7 @@ describe("validateProject", () => {
       {
         code: "BUDGET_EXCEEDED",
         severity: "error",
-        entityIds: ["placement_a", "placement_b"],
+        entityIds: ["project-item_a", "project-item_b"],
         details: { budget: 10_000, totalPrice: 12_000, excess: 2_000 },
       },
       expect.objectContaining({
@@ -515,6 +509,64 @@ describe("analyzeProject", () => {
     expect(first.valid).toBe(false);
     expect(first.errorCount).toBeGreaterThan(0);
     expect(first.issues.every((issue) => issue.severity === "error" || issue.severity === "warning")).toBe(true);
+  });
+
+  it("counts unplaced and selection-only items once for budget and coverage", () => {
+    const bands: ProductValidationDescriptor = {
+      id: "product_bands",
+      price: 250,
+      dimensions: { widthCm: 10, depthCm: 10, heightCm: 4 },
+      useZone: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
+      placementMode: "selection-only",
+      trainingGoals: ["mobility", "strength"],
+    };
+    const analysis = analyzeProject(
+      {
+        ...project([], [entrance()], [placement("placement_a")]),
+        projectItems: [
+          { id: "project-item_a", productId: product.id },
+          { id: "project-item_bands", productId: bands.id },
+        ],
+        budget: 6_000,
+        trainingGoals: ["strength", "mobility", "conditioning"],
+      },
+      {
+        resolveProduct: (productId) =>
+          productId === product.id ? product : productId === bands.id ? bands : undefined,
+      },
+    );
+
+    expect(analysis.items).toEqual([
+      {
+        id: "project-item_a",
+        productId: product.id,
+        placementId: "placement_a",
+        placed: true,
+        placementMode: "floor",
+        price: 6_000,
+      },
+      {
+        id: "project-item_bands",
+        productId: bands.id,
+        placementId: null,
+        placed: false,
+        placementMode: "selection-only",
+        price: 250,
+      },
+    ]);
+    expect(analysis.coverage).toEqual({
+      requested: ["strength", "mobility", "conditioning"],
+      covered: ["strength", "mobility"],
+      uncovered: ["conditioning"],
+    });
+    expect(analysis.issues).toEqual(expect.arrayContaining([
+      {
+        code: "BUDGET_EXCEEDED",
+        severity: "error",
+        entityIds: ["project-item_a", "project-item_bands"],
+        details: { budget: 6_000, totalPrice: 6_250, excess: 250 },
+      },
+    ]));
   });
 });
 

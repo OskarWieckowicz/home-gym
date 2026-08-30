@@ -2,10 +2,15 @@ import { findProductById, getEffectiveMounting } from "@/features/catalog/querie
 import type { CommandErrorCode, DispatchResult } from "@/features/project/commands/command-results";
 import type { AccessImpact } from "@/features/project/validation/access-impact";
 import type { ProjectAccess } from "@/features/geometry/access-facts";
+import {
+  findPlacementForItem,
+  productIdForPlacement,
+} from "@/features/project/project-lookups";
 import type {
   GymProject,
   Obstacle,
   Placement,
+  ProjectItem,
   ProjectSettings,
   Room,
   WallElement,
@@ -27,7 +32,10 @@ export type RoomToolName =
   | "update_wall_element"
   | "remove_wall_element"
   | "place_product"
+  | "add_product_to_project"
+  | "place_project_item"
   | "update_placement"
+  | "unplace_product"
   | "remove_product";
 
 export type RoomToolErrorCode = "INVALID_INPUT" | CommandErrorCode;
@@ -68,11 +76,29 @@ export function serializeWallElement(wallElement: WallElement) {
   return { ...wallElement };
 }
 
-export function serializePlacement(placement: Placement) {
-  const product = findProductById(placement.productId);
+export function serializeProjectItem(item: ProjectItem, project: GymProject) {
+  const product = findProductById(item.productId);
+  const placement = findPlacementForItem(project, item.id);
   return {
-    ...placement,
+    id: item.id,
+    productId: item.productId,
+    placementId: placement?.id ?? null,
+    placed: placement !== undefined,
+    placementMode: product?.placementMode ?? "floor",
+    name: product?.name,
+    price: product?.price,
+  };
+}
+
+export function serializePlacement(placement: Placement, project: GymProject) {
+  const productId = productIdForPlacement(project, placement);
+  const product = productId ? findProductById(productId) : undefined;
+  return {
+    id: placement.id,
+    projectItemId: placement.projectItemId,
+    productId,
     position: { ...placement.position },
+    rotation: placement.rotation,
     mounting: product ? getEffectiveMounting(product) : { kind: "floor" as const },
   };
 }
@@ -83,7 +109,8 @@ export function serializeProject(project: GymProject) {
     room: serializeRoom(project.room),
     obstacles: project.obstacles.map(serializeObstacle),
     wallElements: project.wallElements.map(serializeWallElement),
-    placements: project.placements.map(serializePlacement),
+    projectItems: project.projectItems.map((item) => serializeProjectItem(item, project)),
+    placements: project.placements.map((placement) => serializePlacement(placement, project)),
     budget: project.budget,
     trainingGoals: [...project.trainingGoals],
   };
@@ -308,6 +335,12 @@ export function serializeValidation(analysis: ProjectAnalysis) {
       ).length,
     },
     access: serializeAccess(analysis.access),
+    items: analysis.items.map((item) => ({ ...item })),
+    coverage: {
+      requested: [...analysis.coverage.requested],
+      covered: [...analysis.coverage.covered],
+      uncovered: [...analysis.coverage.uncovered],
+    },
     issues: clonedIssues,
   };
 }

@@ -6,6 +6,7 @@ import {
 } from "@/features/creator/store/project-store";
 import { createDefaultProject } from "@/features/project/defaults";
 import type { GymProject } from "@/features/project/schemas/project";
+import { toProjectItemsAndPlacements } from "@/features/project/validation/test-placed-equipment";
 
 import {
   createAddObstacleHandler,
@@ -34,6 +35,7 @@ function createStore(initialProject: GymProject = createDefaultProject()) {
     dependencies: {
       generateObstacleId: () => "obstacle_generated",
       generatePlacementId: () => "placement_generated",
+      generateProjectItemId: () => "project-item_generated",
       generateWallElementId: () => "wall-element_generated",
     },
   });
@@ -56,7 +58,7 @@ describe("room read handlers", () => {
       canUndo: true,
       canRedo: false,
       project: {
-        version: 3,
+        version: 4,
         placements: [],
         wallElements: [],
         budget: 12_500,
@@ -128,12 +130,12 @@ describe("room read handlers", () => {
         offsetCm: 20,
         widthCm: 90,
       }],
-      placements: [{
+      ...toProjectItemsAndPlacements([{
         id: "placement_cage",
         productId: "product_summit_power_cage",
         position: { xCm: 100, zCm: 100 },
         rotation: 0,
-      }],
+      }]),
     });
 
     const result = createValidateLayoutHandler(store)({});
@@ -150,8 +152,8 @@ describe("room read handlers", () => {
     if (!result.ok) throw new Error("Expected successful validation read.");
     expect(result.issues.map(({ code }) => code)).toEqual([
       "USE_ZONE_OVERLAP",
-      "BUDGET_EXCEEDED",
       "CEILING_TOO_LOW",
+      "BUDGET_EXCEEDED",
     ]);
     expect(() => JSON.stringify(result)).not.toThrow();
   });
@@ -169,7 +171,7 @@ describe("room read handlers", () => {
         offsetCm: 250,
         widthCm: 90,
       }],
-      placements: [
+      ...toProjectItemsAndPlacements([
         {
           id: "placement_cage",
           productId: "product_summit_power_cage",
@@ -182,7 +184,7 @@ describe("room read handlers", () => {
           position: { xCm: 112, zCm: 206 },
           rotation: 0,
         },
-      ],
+      ]),
     });
 
     const result = createValidateLayoutHandler(store)({});

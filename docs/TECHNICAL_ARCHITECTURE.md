@@ -232,6 +232,7 @@ type Product = {
   name: string;
   category: string;
   price: number;
+  placementMode: "floor" | "selection-only";
   dimensions: Dimensions3D;
   clearance: ProductClearance;
   exercises: string[];
@@ -242,9 +243,14 @@ type Product = {
   };
 };
 
-type Placement = {
+type ProjectItem = {
   id: string;
   productId: string;
+};
+
+type Placement = {
+  id: string;
+  projectItemId: string;
   position: Position2D;
   rotation: Rotation;
 };
@@ -254,6 +260,7 @@ type GymProject = {
   room: Room;
   obstacles: Obstacle[];
   wallElements: WallElement[];
+  projectItems: ProjectItem[];
   placements: Placement[];
   budget: number;
   trainingGoals: string[];
@@ -295,8 +302,11 @@ type ProjectCommand =
   | { type: "WALL_ELEMENT_ADDED"; payload: WallElement }
   | { type: "WALL_ELEMENT_UPDATED"; payload: UpdateWallElementInput }
   | { type: "WALL_ELEMENT_REMOVED"; payload: { wallElementId: string } }
-  | { type: "PRODUCT_PLACED"; payload: Placement }
-  | { type: "PLACEMENT_MOVED"; payload: MovePlacementInput }
+  | { type: "PROJECT_ITEM_ADDED"; payload: { productId: string } }
+  | { type: "PROJECT_ITEM_REMOVED"; payload: { projectItemId: string } }
+  | { type: "PROJECT_ITEM_PLACED"; payload: PlaceProjectItemInput }
+  | { type: "PRODUCT_PLACED"; payload: PlaceProductInput }
+  | { type: "PLACEMENT_UPDATED"; payload: UpdatePlacementInput }
   | { type: "PLACEMENT_REMOVED"; payload: { placementId: string } }
   | { type: "LAYOUT_CHANGES_APPLIED"; payload: LayoutChange[] };
 ```
@@ -540,7 +550,10 @@ Handlers must read the current state at execution time. They must not work on a 
 - `update_wall_element`
 - `remove_wall_element`
 - `place_product`
+- `add_product_to_project`
+- `place_project_item`
 - `update_placement`
+- `unplace_product`
 - `remove_product`
 - `apply_layout_changes`
 

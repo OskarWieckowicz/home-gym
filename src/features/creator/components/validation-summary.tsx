@@ -4,6 +4,8 @@ import type { ValidationIssue } from "@/features/project/validation/validation-i
 import { findProductById } from "@/features/catalog/queries/catalog";
 import { formatPricePln } from "@/features/catalog/components/catalog-formatters";
 
+import { productForPlacement } from "../placement-product";
+
 import { useProjectStore } from "../store/project-store-context";
 
 const ACCESS_ISSUE_CODES = [
@@ -68,7 +70,7 @@ export function describeValidationIssue(
     return `${label(issue.entityIds[0])} overlaps ${label(issue.entityIds[1])} on the ${issue.details.wall} wall.`;
   }
   if (issue.code === "BUDGET_EXCEEDED") {
-    return `Placed equipment costs ${formatPricePln(issue.details.totalPrice)}, exceeding the ${formatPricePln(issue.details.budget)} budget by ${formatPricePln(issue.details.excess)}.`;
+    return `Project equipment costs ${formatPricePln(issue.details.totalPrice)}, exceeding the ${formatPricePln(issue.details.budget)} budget by ${formatPricePln(issue.details.excess)}.`;
   }
   if (isAccessIssue(issue)) {
     return describeAccessIssue(issue, label);
@@ -120,15 +122,17 @@ function countLabel(count: number, singular: string, plural: string) {
 
 export function ValidationSummary() {
   const validation = useProjectStore((state) => state.validation);
-  const obstacles = useProjectStore((state) => state.project.obstacles);
-  const wallElements = useProjectStore((state) => state.project.wallElements);
-  const placements = useProjectStore((state) => state.project.placements);
+  const project = useProjectStore((state) => state.project);
   const names = new Map([
-    ...obstacles.map((obstacle) => [obstacle.id, obstacle.name] as const),
-    ...wallElements.map((element) => [element.id, element.name] as const),
-    ...placements.map((placement) => [
+    ...project.obstacles.map((obstacle) => [obstacle.id, obstacle.name] as const),
+    ...project.wallElements.map((element) => [element.id, element.name] as const),
+    ...project.projectItems.map((item) => [
+      item.id,
+      findProductById(item.productId)?.name ?? "Unavailable product",
+    ] as const),
+    ...project.placements.map((placement) => [
       placement.id,
-      findProductById(placement.productId)?.name ?? "Unavailable product",
+      productForPlacement(project, placement)?.name ?? "Unavailable product",
     ] as const),
   ]);
   const errors = validation.issues.filter((issue) => issue.severity === "error");

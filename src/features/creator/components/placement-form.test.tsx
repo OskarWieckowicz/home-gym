@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { findProductById } from "@/features/catalog/queries";
 import { createDefaultProject } from "@/features/project/defaults";
+import { toProjectItemsAndPlacements } from "@/features/project/validation/test-placed-equipment";
 
 import { ProjectStoreProvider } from "../store/project-store-context";
 import { PlacementForm } from "./placement-form";
@@ -16,17 +17,18 @@ describe("PlacementForm", () => {
     const product = findProductById("product_anchor_pullup_bar");
     expect(product).toBeDefined();
     if (!product) return;
-    const placement = {
+    const placed = toProjectItemsAndPlacements([{
       id: "placement_bar",
       productId: product.id,
       position: { xCm: 246, zCm: 80 },
-      rotation: 90 as const,
-    };
+      rotation: 90,
+    }]);
+    const placement = placed.placements[0];
 
     render(
       <ProjectStoreProvider initialProject={{
         ...createDefaultProject(),
-        placements: [placement],
+        ...placed,
       }}>
         <PlacementForm onRemoved={vi.fn()} placement={placement} product={product} />
       </ProjectStoreProvider>,

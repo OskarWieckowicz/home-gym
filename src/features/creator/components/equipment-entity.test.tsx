@@ -18,7 +18,12 @@ afterEach(cleanup);
 function renderEquipment(productId: string, rotation: Placement["rotation"] = 0) {
   const product = findProductById(productId);
   if (!product) throw new Error(`Missing test product: ${productId}`);
-  const placement: Placement = { id: "placement_test", productId, position: { xCm: 20, zCm: 30 }, rotation };
+  const placement: Placement = {
+    id: "placement_test",
+    projectItemId: "project-item_test",
+    position: { xCm: 20, zCm: 30 },
+    rotation,
+  };
   return render(
     <svg>
       <EquipmentEntity
@@ -71,7 +76,7 @@ describe("EquipmentEntity top views", () => {
     if (!product) throw new Error("Missing test product");
     const placement: Placement = {
       id: "placement_test",
-      productId: product.id,
+      projectItemId: "project-item_test",
       position: { xCm: 20, zCm: 30 },
       rotation: 0,
     };

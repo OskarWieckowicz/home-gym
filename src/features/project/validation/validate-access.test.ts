@@ -4,11 +4,11 @@ import type {
   GymProject,
   Obstacle,
   PhysicalObstacle,
-  Placement,
   UnavailableZone,
   WallElement,
 } from "../schemas/project";
 import type { ProductValidationDescriptor } from "./product-validation";
+import { toProjectItemsAndPlacements, type TestPlacementInput } from "./test-placed-equipment";
 import { analyzeProject, validateProject } from "./validate-project";
 
 const rack: ProductValidationDescriptor = {
@@ -103,14 +103,14 @@ function zone(
 function project(
   walls: WallElement[],
   obstacles: Obstacle[] = [],
-  placements: Placement[] = [],
+  placements: TestPlacementInput[] = [],
 ): GymProject {
   return {
-    version: 3,
+    version: 4,
     room: { widthCm: 400, depthCm: 400, heightCm: 250 },
     obstacles,
     wallElements: walls,
-    placements,
+    ...toProjectItemsAndPlacements(placements),
     budget: 50_000,
     trainingGoals: [],
   };
@@ -419,18 +419,18 @@ describe("validateAccess", () => {
       ...project(corridorDoors),
       room: { widthCm: 200, depthCm: 400, heightCm: 250 },
     };
-    const placement = {
+    const placed = toProjectItemsAndPlacements([{
       id: "placement_bar",
       productId: mountedBar.id,
       position: { xCm: 44, zCm: 174 },
-      rotation: 0 as const,
-    };
+      rotation: 0,
+    }]);
     const mounted = validateProject(
-      { ...corridor, placements: [placement] },
+      { ...corridor, ...placed },
       dependencies,
     );
     const asFloor = validateProject(
-      { ...corridor, placements: [placement] },
+      { ...corridor, ...placed },
       {
         resolveProduct: (productId) => {
           if (productId !== mountedBar.id) return productsById.get(productId);

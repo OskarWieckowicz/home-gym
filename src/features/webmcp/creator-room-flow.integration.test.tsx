@@ -46,7 +46,7 @@ describe("creator WebMCP shared editing flow", () => {
         initialProject={createDefaultProject()}
       />,
     );
-    await waitFor(() => expect(tools.size).toBe(14));
+    await waitFor(() => expect(tools.size).toBe(17));
 
     fireEvent.click(screen.getByRole("button", { name: "Project settings" }));
     setNumber("Budget", "12500");
@@ -176,11 +176,14 @@ describe("creator WebMCP shared editing flow", () => {
 
     render(
       <CreatorEditor
-        dependencies={{ generatePlacementId: () => "placement_agent-rack" }}
+        dependencies={{
+          generatePlacementId: () => "placement_agent-rack",
+          generateProjectItemId: () => "project-item_agent-rack",
+        }}
         initialProject={createDefaultProject()}
       />,
     );
-    await waitFor(() => expect(tools.size).toBe(14));
+    await waitFor(() => expect(tools.size).toBe(17));
 
     const execute = async <T,>(name: string, input: unknown): Promise<T> => {
       const tool = tools.get(name);
@@ -210,7 +213,7 @@ describe("creator WebMCP shared editing flow", () => {
       },
     );
     expect(placed).toMatchObject({ placementId: "placement_agent-rack", revision: 1 });
-    expect(screen.getByRole("button", { name: /Northstar Half RackEquipment · 0°/ }))
+    expect(screen.getByRole("button", { name: /Northstar Half RackPlaced · 0°/ }))
       .toBeTruthy();
 
     const updated = await execute<{
@@ -224,21 +227,22 @@ describe("creator WebMCP shared editing flow", () => {
       revision: 2,
       placement: { position: { xCm: 150, zCm: 80 }, rotation: 90 },
     });
-    expect(screen.getByRole("button", { name: /Northstar Half RackEquipment · 90°/ }))
+    expect(screen.getByRole("button", { name: /Northstar Half RackPlaced · 90°/ }))
       .toBeTruthy();
 
     expect(
-      await execute("remove_product", { placementId: placed.placementId }),
+      await execute("remove_product", { projectItemId: "project-item_agent-rack" }),
     ).toMatchObject({
       changed: true,
       revision: 3,
+      removedProjectItemId: "project-item_agent-rack",
       removedPlacementId: placed.placementId,
       removedProductId: search.products[0].productId,
     });
-    expect(screen.getByText("No equipment placed yet.")).toBeTruthy();
+    expect(screen.getByText("No equipment in the project yet.")).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: /Undo/ }));
-    expect(screen.getByRole("button", { name: /Northstar Half RackEquipment · 90°/ }))
+    expect(screen.getByRole("button", { name: /Northstar Half RackPlaced · 90°/ }))
       .toBeTruthy();
   });
 });
