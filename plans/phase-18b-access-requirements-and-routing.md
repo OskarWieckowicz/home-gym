@@ -1,5 +1,9 @@
 # Phase 18b — Access requirements and deterministic routing
 
+> Status: deferred. This phase is not next. Phase 19 owns the upcoming schema bump. Return here
+> after Phase 19, or after Phase 20 if the 3D preview is the tighter deadline item. Do not start
+> this work while 16 or 19 is in progress.
+
 ## Objective
 
 Let the user and the agent state that a usable path of a chosen width must exist between two
@@ -23,7 +27,9 @@ then breaks it.
 - Existing rectangular-room, integer-centimetre, and 90-degree-rotation geometry invariants.
 - Existing wall elements, which already model doors and windows with a wall, offset, and width.
 
-This phase does not depend on Phase 19. It reads placements as they exist today.
+This phase does not depend on Phase 19's item split. It reads placements as they exist when the
+phase starts. If Phase 19 has already shipped, this phase still only appends
+`accessRequirements: []`; it does not revisit items, budget, or `remove_product`.
 
 ## Scope boundary
 
@@ -36,7 +42,8 @@ This phase does not depend on Phase 19. It reads placements as they exist today.
 - run a two-pass search that first avoids reserved areas and then allows them as traversable;
 - report `clear`, `crosses-reserved-area`, or `blocked` with a derived polyline and the narrowest
   width along the route;
-- add project version 4 with a migration that only adds an empty `accessRequirements` array;
+- bump the then-current project version with a migration that only adds an empty
+  `accessRequirements` array;
 - extend `ProjectAnalysis` with resolved routes next to the Phase 18a access facts;
 - add editor creation, inspection, and overlay for requirements and their current routes;
 - add WebMCP capabilities for creating, updating, removing, and reading access requirements, plus
@@ -123,30 +130,34 @@ interrogate the geometry without creating anything, without touching history, an
 project growing state that only the agent understands. It persists nothing and is not required for
 correctness: Phase 18a already pushes access facts into every result whether or not the agent asks.
 
-### 5. Project version 4 is deliberately trivial
+### 5. The version bump is deliberately trivial
 
-The v3 → v4 migration adds `accessRequirements: []` and changes nothing else, matching the shape of
-the existing `migrateV2ToV3`. Keeping it separate from the Phase 19 item split means each migration
-stays small, independently testable, and independently revertible. Phase 18a introduced no schema
-change at all, so this is the first version bump in the access work.
+The migration adds `accessRequirements: []` and changes nothing else, matching the shape of the
+existing `migrateV2ToV3`. Phase 19 is expected to own v3 → v4 for the item split, so this phase
+bumps whatever `PROJECT_VERSION` is current when it starts — v4 → v5 if 19 has shipped, v3 → v4
+only if this phase is pulled forward first. Keeping the bump separate from the item split means
+each migration stays small, independently testable, and independently revertible. Phase 18a
+introduced no schema change at all.
 
 ## Implementation tasks
 
-### 1. Add the schema and project version 4
+### 1. Add the schema and the next project version
 
 1. Add `accessRequirementSchema`, `accessEndpointSchema`, and an `ACCESS_REQUIREMENT_ID_PATTERN`
    following the existing pattern conventions in `schemas/project.ts`.
-2. Bump `PROJECT_VERSION` to 4 and add `accessRequirements` to `gymProjectSchema`.
+2. Bump `PROJECT_VERSION` by one from whatever is current and add `accessRequirements` to
+   `gymProjectSchema`.
 3. Extend `superRefine` with unique requirement IDs and reject a requirement whose two endpoints are
    identical.
-4. Register `migrateV3ToV4` in the `migrations` map and extend `SUPPORTED_PROJECT_VERSIONS`.
+4. Register the new migration in the `migrations` map and extend `SUPPORTED_PROJECT_VERSIONS`.
 5. Update defaults, reset state, import and export, and localStorage hydration.
 
 Referential integrity that depends on wall-element kind belongs in the resolver-backed boundary,
 not in the pure schema, following the existing separation.
 
-Checkpoint: v1, v2, and v3 projects all migrate to v4 without touching rooms, obstacles, wall
-elements, placements, budget, or training goals; canonical v4 JSON round-trips.
+Checkpoint: every older supported version migrates to the new current version without touching
+rooms, obstacles, wall elements, placements, budget, items, or training goals, and without
+inventing requirements; canonical JSON round-trips.
 
 ### 2. Implement route search on the existing grid
 
@@ -225,7 +236,8 @@ restored route through structured results while the same change is visible in th
 - Repeated analysis of an unchanged project returns equivalent structured route data.
 - `check_access` changes no state, no revision, and no history.
 - Removing a referenced door produces an explicit enumerated consequence.
-- v1, v2, and v3 projects migrate to v4 without data loss and without inventing requirements.
+- older supported versions migrate to the new current version without data loss and without
+  inventing requirements.
 - UI and WebMCP share commands, revision, undo and redo, persistence, and analysis.
 - Route search reuses the Phase 18a grid rather than introducing a second occupancy model.
 - No source or configuration file exceeds 500 physical lines.
@@ -235,7 +247,8 @@ restored route through structured results while the same change is visible in th
 ### Narrow automated checks
 
 1. Schema tests for requirement IDs, endpoint validity, width bounds, and identical endpoints.
-2. Migration and codec tests for v1→v4, v2→v4, v3→v4, and v4 round-trip serialization.
+2. Migration and codec tests from every older supported version to the new current version, and
+   canonical round-trip serialization.
 3. Routing tests for narrow doors, blocked endpoints, exact-width corridors, alternative paths,
    complete blockage, all four rotations, narrowest-width measurement, and deterministic
    tie-breaking.
@@ -277,15 +290,17 @@ restored route through structured results while the same change is visible in th
 
 Phase 18b is complete when access requirements persist as intent, routes derive deterministically
 from the Phase 18a grid and never serialize, reserved areas stay soft rather than solid, the two-pass
-search and its status values are proven by tests, v3 → v4 migration and v4 round-trip pass, the
+search and its status values are proven by tests, the additive `accessRequirements` migration and
+round-trip pass, the
 editor shows rerouting and failure live, WebMCP
 exposes the same capabilities through shared commands plus a stateless `check_access`, and the
 canonical validation ladder passes.
 
 ## Cut line
 
-If the deadline forces a cut, this phase is the one to drop, and Phase 18a is not. Phase 18a already
-prevents an agent from making the room unwalkable, which is the load-bearing behaviour; this phase
-adds the named intent, the visible route, and the demo. Within the phase, the overlay and
-`check_access` are the last items to add and the first to drop. Do not ship a partially persisted
-access entity or a UI-only pathfinder.
+This phase is already deferred. If the deadline still forces a cut later, drop it rather than
+pulling it ahead of Phase 16 or 19, and do not drop Phase 18a. Phase 18a already prevents an agent
+from making the room unwalkable, which is the load-bearing behaviour; this phase adds the named
+intent, the visible route, and the demo. Within the phase, the overlay and `check_access` are
+the last items to add and the first to drop. Do not ship a partially persisted access entity or a
+UI-only pathfinder.

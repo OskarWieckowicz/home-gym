@@ -58,30 +58,30 @@ Phases 17 to 19 were originally drafted as one spatial-semantics phase, and Phas
 again into 18a and 18b once it became clear that automatic reachability and named access
 requirements answer different questions and carry very different risk. They are split because they
 have independent dependencies and very different cost and risk, and because splitting them means an
-interrupted queue still leaves a coherent deployable boundary. They are ordered cheapest first, and
-the closed rack/bench station template from the original draft is rejected rather than deferred:
-demoting the physical-into-use-zone relationship to a warning achieves the same result for every
-product pair, and products that ship as one physical unit stay catalog bundles.
+interrupted queue still leaves a coherent deployable boundary. The closed rack/bench station
+template from the original draft is rejected rather than deferred: demoting the
+physical-into-use-zone relationship to a warning achieves the same result for every product pair,
+and products that ship as one physical unit stay catalog bundles. Phase 18b was then deferred
+behind 19: the named-route layer is cheaper than the item split, but it is not load-bearing.
+
+Phase 17 is complete: `clearance` is `useZone`, validation splits errors from warnings so a bench
+in a rack's working area no longer blocks the project, and `analyzeProject` is the shared read
+model later phases extend. No schema change. Git history holds the detailed plan.
 
 Phase 18a is complete: every analysis derives whether doors still reach each other and whether
 equipment can still be stood in front of, unreachable entities are errors, and mutations name what
 they broke or restored. The walking path is 100 cm. Git history holds the detailed plan.
 
-[Phase 17 — Use-zone semantics and issue severity](phase-17-use-zone-semantics-and-severity.md)
-is ready to execute after Phase 16. It renames `clearance` to `useZone`, splits validation results
-into errors and warnings so a bench in a rack's working area stops blocking the project, and
-introduces `analyzeProject` as the shared read model the later phases extend. No schema change.
+Phase 18b is deferred to the later queue. Named access requirements, the visible route, and
+`check_access` remain valuable demo behaviour, but they sit above the 18a walkability guarantee
+and are not load-bearing. The detailed plan stays in this directory until the phase is either
+executed or cut.
 
-[Phase 18b — Access requirements and deterministic routing](phase-18b-access-requirements-and-routing.md)
-is next. It reuses the Phase 18a occupancy grid, persists an access requirement as intent, derives the
-route deterministically after every mutation, shows it in the plan, adds a stateless `check_access`
-question tool, and adds project version 4 through a migration that only appends an empty array. This
-is the designated cut line if the deadline tightens.
-
-[Phase 19 — Project items, placement modes, and project v5](phase-19-project-items-and-placement-modes.md)
-comes last because it is the heaviest and the only irreversibly risky one. It separates selected
-products from floor placements, adds selection-only products, moves budget and coverage onto project
-items, and makes one breaking change to `remove_product`.
+[Phase 19 — Project items, placement modes, and project v4](phase-19-project-items-and-placement-modes.md)
+is next. It is the heaviest remaining domain phase and the only irreversibly risky one. It
+separates selected products from floor placements, adds selection-only products, moves budget
+and coverage onto project items, and makes one breaking change to `remove_product`. Because 18b
+has not shipped, this phase owns the v3 → v4 migration.
 
 Phase 25 is complete: wall mounting is a catalog fact, the project schema stays at version 3, and a
 mounted item never obstructs a walking path. Git history holds the detailed plan. Phase 20 can now
@@ -95,10 +95,11 @@ plans should use the evidence and decisions produced by earlier work rather than
 | Order | Phase | Depends on | Exit gate |
 |---|---|---|---|
 | 1 | Phase 20 — 3D room preview completion | Phases 15–17 | The scene shell integrates the completed asset families, placement state, validation presentation, selection, and representative complete-room performance without becoming the editing or validation source of truth. It must degrade cleanly if Phase 18b or 19 was cut. |
-| 2 | Phase 21 — WebMCP placement suggestions and batch changes | Phases 17 and 18a | The agent can evaluate hypothetical placements without mutating state, generate deterministic candidates, reject error-producing layouts, score warnings, treat an unreachable entity or a blocked required route as a hard failure, and apply a validated group of layout changes with structured results. |
-| 3 | Phase 22 — Shared-editing demo and activity feed | Phases 20 and 21 | The public demo proves the complete human-change → agent-read → agent-change → validation → correction loop in the finished editor and makes tool activity visible. |
-| 4 | Phase 23 — Landing page and catalog polish | Phases 16 and 22 | The landing page and catalog match their specifications and use final product assets plus real screenshots and figures from the finished shared-editing demo. |
-| 5 | Phase 24 — Submission | Phase 23 | The public URL, repository, English description, sub-three-minute video, and Devpost checklist are complete and verified while logged out. |
+| 2 | Phase 18b — Access requirements and deterministic routing | Phase 18a; Phase 19 if 19 already shipped | A persisted access requirement is intent only; the route is derived on the 18a grid after every mutation, shown in the plan, and never serialized. `check_access` persists nothing. The migration only appends `accessRequirements: []` on top of whatever `PROJECT_VERSION` is current. |
+| 3 | Phase 21 — WebMCP placement suggestions and batch changes | Phases 17 and 18a | The agent can evaluate hypothetical placements without mutating state, generate deterministic candidates, reject error-producing layouts, score warnings, treat an unreachable entity as a hard failure, treat a blocked required route as a hard failure only if 18b has shipped, and apply a validated group of layout changes with structured results. |
+| 4 | Phase 22 — Shared-editing demo and activity feed | Phases 20 and 21 | The public demo proves the complete human-change → agent-read → agent-change → validation → correction loop in the finished editor and makes tool activity visible. |
+| 5 | Phase 23 — Landing page and catalog polish | Phases 16 and 22 | The landing page and catalog match their specifications and use final product assets plus real screenshots and figures from the finished shared-editing demo. |
+| 6 | Phase 24 — Submission | Phase 23 | The public URL, repository, English description, sub-three-minute video, and Devpost checklist are complete and verified while logged out. |
 
 ## Global exit gate
 

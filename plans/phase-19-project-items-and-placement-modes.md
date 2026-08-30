@@ -1,4 +1,4 @@
-# Phase 19 — Project items, placement modes, and project v5
+# Phase 19 — Project items, placement modes, and project v4
 
 ## Objective
 
@@ -13,13 +13,14 @@ placements rather than over everything the user intends to buy.
 ## Dependencies
 
 - Phase 17 use-zone semantics, severity, and the `ProjectAnalysis` shared read model.
-- Phase 18b access requirements and project version 4, if that phase shipped. Phase 18a changes no
-  schema, so it has no effect on this migration either way.
+- Phase 18a access facts. Phase 18a changes no schema, so it has no effect on this migration.
+- Phase 18b is deferred and has not shipped, so this phase must not assume `accessRequirements` or
+  project version 4.
 
-This phase is the heaviest and the most breaking of the three, and it is deliberately last. It
-carries the only irreversible risk in the group, because a bad migration destroys saved work.
-
-If Phase 18b was cut, this phase migrates v3 → v4 instead of v4 → v5. Everything else is unchanged.
+This phase is the heaviest remaining domain phase and the only irreversibly risky one, because a
+bad migration destroys saved work. It therefore owns the v3 → v4 migration. If 18b is later
+pulled forward first, retarget this bump to v4 → v5 and leave `accessRequirements` untouched.
+Everything else is unchanged.
 
 ## Scope boundary
 
