@@ -75,6 +75,7 @@ Planned routes:
 /catalog           product catalog
 /catalog/[slug]    product details
 /creator           gym creator
+/summary           read-only, browser-local project summary
 ```
 
 ### Server Components
@@ -621,14 +622,28 @@ useEffect(() => {
 
 Handlers must read the current state at execution time. They must not work on a project copy closed over in a stale closure.
 
-### Planned read-only tool set
+### Implemented project summary (Phase 29)
+
+`/summary` restores the single local project through `ProjectPersistenceBoundary` without a
+start action. It never dispatches or saves on entry. Its equipment, budget, coverage, validation
+and floor figures come from the pure `buildProjectSummary(project, analysis, resolveProduct)`;
+`get_project_summary` returns exactly that payload (plus tool name and store revision).
+The summary registers only `get_project_summary`, `get_project_state` and `validate_layout`.
+The creator also registers `get_project_summary` in its full tool set. The catalog remains unchanged.
+
+The default preview is a read-only SVG assembled from existing entity renderers. A lazily loaded
+Canvas reuses `SceneContents` and camera controls without picking or edit controllers. Graphics
+failure switches back to 2D. Export shares the creator's canonical JSON download helper.
+See [Phase 29 verification](PHASE_29_SUMMARY_VERIFICATION.md) for geometry definitions and evidence.
+
+### Read-only tool set
 
 - `get_project_state`
 - `search_products`
 - `get_product_details`
 - `validate_layout`
 - `suggest_placements`
-- `get_project_summary`
+- `get_project_summary` — implemented; shared shopping list, budget, goals, checks and floor summary
 
 ### Planned mutating tool set
 

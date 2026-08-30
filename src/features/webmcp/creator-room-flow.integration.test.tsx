@@ -52,7 +52,7 @@ describe("creator WebMCP shared editing flow", () => {
       generatePlacementId: () => `placement_batch_${++nextId}`,
       generateProjectItemId: () => `project-item_batch_${++nextId}`,
     }} />);
-    await waitFor(() => expect(tools.size).toBe(20));
+    await waitFor(() => expect(tools.size).toBe(21));
     const execute = async (name: string, input: unknown) => {
       let result: unknown;
       await act(async () => { result = await tools.get(name)!.execute(input); });
@@ -105,7 +105,7 @@ describe("existing creator WebMCP shared editing flow", () => {
       />,
     );
     fireEvent.click(screen.getByRole("button", { name: "2D" }));
-    await waitFor(() => expect(tools.size).toBe(20));
+    await waitFor(() => expect(tools.size).toBe(21));
 
     fireEvent.click(screen.getByRole("tab", { name: "Room" }));
     fireEvent.click(screen.getByRole("button", { name: "Project settings" }));
@@ -247,7 +247,7 @@ describe("existing creator WebMCP shared editing flow", () => {
         initialProject={createDefaultProject()}
       />,
     );
-    await waitFor(() => expect(tools.size).toBe(20));
+    await waitFor(() => expect(tools.size).toBe(21));
 
     const execute = async <T,>(name: string, input: unknown): Promise<T> => {
       const tool = tools.get(name);

@@ -15,6 +15,7 @@ export const routes = {
   home: "/",
   catalog: "/catalog",
   creator: "/creator",
+  summary: "/summary",
 } as const;
 
 /**
@@ -34,6 +35,8 @@ export const siteLinks = {
   logo: { label: "Home Gym Creator", href: routes.home },
   catalog: { label: "Catalog", href: routes.catalog },
   openCreator: { label: "Open creator", href: routes.creator },
+  viewSummary: { label: "View summary", href: routes.summary },
+  backToEditing: { label: "Back to editing", href: routes.creator },
   runDemo: { label: "Explore sample project", href: creatorRoute("demo") },
   startEmpty: { label: "Start planning", href: creatorRoute("new") },
   openSampleProject: {

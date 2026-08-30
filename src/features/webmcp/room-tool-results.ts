@@ -19,11 +19,13 @@ import type {
 } from "@/features/project/schemas/project";
 import type { ProjectAnalysis } from "@/features/project/validation/analyze-project";
 import type { ValidationIssue } from "@/features/project/validation/validation-issues";
+import { buildProjectSummary } from "@/features/project/summary/project-summary";
 
 import type { InputIssue } from "./room-tool-schemas";
 
 export type RoomToolName =
   | "get_project_state"
+  | "get_project_summary"
   | "validate_layout"
   | "configure_room"
   | "update_project_settings"
@@ -60,6 +62,10 @@ export function createRoomToolError(
 
 export function serializeRoom(room: Room) {
   return { ...room };
+}
+
+export function serializeProjectSummary(project: GymProject, analysis: ProjectAnalysis) {
+  return structuredClone(buildProjectSummary(project, analysis, findProjectProductById));
 }
 
 export function serializeSettings(settings: ProjectSettings) {

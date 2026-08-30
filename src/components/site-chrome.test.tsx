@@ -7,11 +7,14 @@ vi.mock("next/navigation", () => ({ usePathname: () => route.pathname }));
 afterEach(cleanup);
 
 describe("SiteChrome", () => {
-  it("removes marketing chrome only in the creator, including client route transitions", () => {
+  it("removes marketing chrome in application routes, including client route transitions", () => {
     route.pathname = "/";
     const { rerender } = render(<SiteChrome><nav>Site navigation</nav></SiteChrome>);
     expect(screen.getByRole("navigation")).toBeTruthy();
     route.pathname = "/creator";
+    rerender(<SiteChrome><nav>Site navigation</nav></SiteChrome>);
+    expect(screen.queryByRole("navigation")).toBeNull();
+    route.pathname = "/summary";
     rerender(<SiteChrome><nav>Site navigation</nav></SiteChrome>);
     expect(screen.queryByRole("navigation")).toBeNull();
     route.pathname = "/catalog";

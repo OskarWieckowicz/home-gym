@@ -79,14 +79,14 @@ describe("creator start navigation", () => {
     });
     Object.defineProperty(document, "modelContext", { configurable: true, value: { registerTool } });
     render(<StrictMode><CreatorEntry /></StrictMode>);
-    await waitFor(() => expect(registerTool).toHaveBeenCalledTimes(20));
+    await waitFor(() => expect(registerTool).toHaveBeenCalledTimes(21));
     for (const [index, mode] of ["demo", "new", "demo"].entries()) {
-      const previousSignals = registerTool.mock.calls.slice(-20).map(([, options]) => options?.signal);
+      const previousSignals = registerTool.mock.calls.slice(-21).map(([, options]) => options?.signal);
       navigate(`/creator?start=${mode}`);
       await waitFor(() => expect(window.location.search).toBe(""));
-      await waitFor(() => expect(registerTool).toHaveBeenCalledTimes((index + 2) * 20));
+      await waitFor(() => expect(registerTool).toHaveBeenCalledTimes((index + 2) * 21));
       expect(previousSignals.every((signal) => signal?.aborted)).toBe(true);
-      expect(active.size).toBe(20);
+      expect(active.size).toBe(21);
       expect(await active.get("get_project_state")!.execute({})).toMatchObject({
         revision: 0, canUndo: false,
         project: { projectItems: mode === "demo" ? createDemoProject().projectItems : [] },
@@ -95,7 +95,7 @@ describe("creator start navigation", () => {
       expect(await active.get("get_project_state")!.execute({})).toMatchObject({
         revision: 1, project: { room: { widthCm: 450 } },
       });
-      expect(registerTool).toHaveBeenCalledTimes((index + 2) * 20);
+      expect(registerTool).toHaveBeenCalledTimes((index + 2) * 21);
     }
   });
 

@@ -1,6 +1,6 @@
 # Phase 24 — Submission
 
-> Order 3 in the [active queue](README.md). Depends on Phase 23B for final submission;
+> Order 2 in the [active queue](README.md). Depends on Phase 23B for final submission;
 > shared-editing verification and script preparation can start as soon as Phase 26 is deployed.
 > Hard deadline: 3 September 2026, 22:00 CEST. Start the video no later than 2 September.
 
@@ -44,6 +44,16 @@ agent host alongside their visible effects in the editor; do not build a duplica
 **D4 — record early, polish once.** A finished sub-three-minute video with plain narration submitted
 on 2 September is worth more than a better one that misses the deadline. Reserve the last day for the
 form, not for editing.
+
+## Phase 29 summary handoff
+
+The implemented `/summary` surface must appear in the README tool list and the demo script.
+Show **View summary** from the creator, the shopping list/budget/goal/check results, and
+`get_project_summary` returning the same values. The summary registers exactly three read-only
+tools (`get_project_summary`, `get_project_state`, `validate_layout`); the creator now registers 21.
+See `docs/PHASE_29_SUMMARY_VERIFICATION.md` for local evidence and remaining live-browser acceptance.
+Do not promise PDF/print export or a shareable summary URL. Verify this surface on the submitted
+deployment and in both target agent hosts before recording the closing shot.
 
 ## Implementation tasks
 

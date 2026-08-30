@@ -19,6 +19,7 @@ import { productIdSchema } from "@/shared/schemas/product-id";
 import { positionSchema, rotationSchema } from "@/features/project/schemas/geometry";
 
 export const getProjectStateInputSchema = z.object({}).strict();
+export const getProjectSummaryInputSchema = z.object({}).strict();
 export const validateLayoutInputSchema = z.object({}).strict();
 export const configureRoomInputSchema = roomSchema;
 export const updateProjectSettingsInputSchema = projectSettingsPatchSchema;
@@ -73,6 +74,7 @@ export const removeProductInputSchema = z
   .strict();
 
 export const getProjectStateJsonSchema = z.toJSONSchema(getProjectStateInputSchema);
+export const getProjectSummaryJsonSchema = z.toJSONSchema(getProjectSummaryInputSchema);
 export const validateLayoutJsonSchema = z.toJSONSchema(validateLayoutInputSchema);
 export const configureRoomJsonSchema = z.toJSONSchema(configureRoomInputSchema);
 export const updateProjectSettingsJsonSchema = z.toJSONSchema(

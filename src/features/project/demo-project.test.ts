@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import { catalogProductResolver } from "@/features/creator/store/catalog-product-resolver";
-import { catalogProducts } from "@/data/products";
+import { findProjectProductById } from "@/features/catalog/queries/project-products";
 
 import { createDemoProject } from "./demo-project";
 import { decodeProjectJson, serializeProject } from "./serialization/project-codec";
 import { analyzeProject } from "./validation/analyze-project";
+import { buildProjectSummary } from "./summary/project-summary";
 
 describe("bundled demo project", () => {
   it("provides the v4 strength room with four placed catalog products", () => {
@@ -64,9 +65,14 @@ describe("bundled demo project", () => {
     expect(analysis.items).toHaveLength(4);
     expect(analysis.items.every(({ placed }) => placed)).toBe(true);
     const expectedCost = createDemoProject().projectItems.reduce((sum, item) =>
-      sum + catalogProducts.find((product) => product.id === item.productId)!.price, 0);
+      sum + findProjectProductById(item.productId)!.price, 0);
     expect(analysis.items.reduce((cost, { price }) => cost + price, 0)).toBe(expectedCost);
     expect(expectedCost).toBeLessThanOrEqual(createDemoProject().budget);
     expect(analysis.coverage.uncovered).toEqual([]);
+    const summary = buildProjectSummary(createDemoProject(), analysis, findProjectProductById);
+    expect(summary.totals.totalPrice).toBe(8596);
+    expect(summary.totals.remainingBudget).toBe(1404);
+    expect(summary.coverage.countLabel).toBe("2/2");
+    expect(summary.floor.freePercent).toBe(68);
   });
 });

@@ -3,6 +3,10 @@ import { describe, expect, it } from "vitest";
 import { creatorRoute, headerLinks, parseCreatorStartMode, productRoute, routes, siteLinks } from "./navigation";
 
 describe("navigation", () => {
+  it("links summary and editing without starting a new project", () => {
+    expect(siteLinks.viewSummary.href).toBe(routes.summary);
+    expect(siteLinks.backToEditing.href).toBe("/creator");
+  });
   it("keeps the destinations defined by the landing page specification", () => {
     expect({
       logo: siteLinks.logo.href,

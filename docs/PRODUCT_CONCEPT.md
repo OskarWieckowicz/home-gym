@@ -134,9 +134,24 @@ The agent should not decide for itself whether the geometry is valid. A determin
 - `remove_product` — remove a project item and any floor placement,
 - `apply_layout_changes` — apply multiple layout changes in one call,
 - `validate_layout` — check collisions, clearance zones, height, and budget,
-- `get_project_summary` — retrieve the shopping list, cost, and training-goal coverage.
+- `get_project_summary` — implemented: retrieve the same shopping list, cost, training-goal coverage,
+  validation and floor-space figures shown on `/summary`.
 
 The tool set should be precise enough for the agent to perform multi-step work, but should not contain many overlapping operations.
+
+## Project summary
+
+The creator's **View summary** action opens a read-only destination for the current locally saved
+project. It brings together every selected item and its placement status, total cost against budget,
+training goals, layout checks and recommendations. The finished layout has a default 2D plan and an
+optional 3D view. **Back to editing** resumes the locally saved layout; **Export project** downloads
+the existing JSON format. A project without equipment gets an empty state instead of empty metrics.
+
+The page and `get_project_summary` share one deterministic derivation. Free floor measures the room
+minus the union of floor-occupying and reserved footprints, not the space available for every
+exercise. Use-zone and access checks remain separate. The summary is local to this browser, not a
+shareable cloud link or a checkout. It registers only three read-only tools: summary, state and
+validation. See [verification evidence](PHASE_29_SUMMARY_VERIFICATION.md).
 
 ## Example demo
 

@@ -5,6 +5,9 @@ import {
   type ProjectStore,
 } from "@/features/creator/store/project-store";
 import { createDefaultProject } from "@/features/project/defaults";
+import { createDemoProject } from "@/features/project/demo-project";
+import { findProjectProductById } from "@/features/catalog/queries/project-products";
+import { buildProjectSummary } from "@/features/project/summary/project-summary";
 import type { GymProject } from "@/features/project/schemas/project";
 import { toProjectItemsAndPlacements } from "@/features/project/validation/test-placed-equipment";
 
@@ -13,6 +16,7 @@ import {
   createAddWallElementHandler,
   createConfigureRoomHandler,
   createGetProjectStateHandler,
+  createGetProjectSummaryHandler,
   createRemoveObstacleHandler,
   createRemoveWallElementHandler,
   createUpdateObstacleHandler,
@@ -42,6 +46,49 @@ function createStore(initialProject: GymProject = createDefaultProject()) {
 }
 
 describe("room read handlers", () => {
+  it("returns the same demo summary as the UI without mutating state or history", () => {
+    const store = createStore(createDemoProject());
+    const handler = createGetProjectSummaryHandler(store);
+    store.getState().dispatch({
+      type: "PROJECT_SETTINGS_UPDATED", payload: { budget: 1 },
+    });
+    const before = store.getState();
+    const subscriber = vi.fn();
+    const unsubscribe = store.subscribe(subscriber);
+    const result = handler({});
+
+    expect(result).toEqual({
+      ok: true,
+      tool: "get_project_summary",
+      revision: before.revision,
+      summary: buildProjectSummary(before.project, before.validation, findProjectProductById),
+    });
+    expect(JSON.parse(JSON.stringify(result))).toEqual(result);
+    if (!result.ok) throw new Error("Expected successful summary read.");
+    Object.assign(result.summary.room, { widthCm: 1 });
+    expect(store.getState().project.room.widthCm).toBe(before.project.room.widthCm);
+    expect(store.getState().project.room.widthCm).not.toBe(1);
+    expect(store.getState()).toBe(before);
+    expect(subscriber).not.toHaveBeenCalled();
+    unsubscribe();
+  });
+
+  it("validates and cancels summary reads before accessing the store", () => {
+    const getState = vi.fn(() => { throw new Error("private store details"); });
+    const handler = createGetProjectSummaryHandler({ getState } as unknown as ProjectStore);
+    expect(handler({ budget: 1 })).toMatchObject({
+      ok: false, tool: "get_project_summary", error: { code: "INVALID_INPUT" },
+    });
+    expect(handler({}, { signal: AbortSignal.abort() })).toMatchObject({
+      ok: false, error: { code: "EXECUTION_FAILED", message: "Tool execution was cancelled." },
+    });
+    expect(getState).not.toHaveBeenCalled();
+    expect(handler({})).toEqual({
+      ok: false, tool: "get_project_summary",
+      error: { code: "EXECUTION_FAILED", message: "Project summary could not be retrieved." },
+    });
+  });
+
   it("reads live state after handler creation and returns detached plain data", () => {
     const store = createStore();
     const handler = createGetProjectStateHandler(store);

@@ -33,10 +33,11 @@ describe("room WebMCP tool definitions", () => {
       expect(branch.properties?.limit).toMatchObject({ default: 3, minimum: 1, maximum: 10 });
     }
   });
-  it("defines exactly twenty unique, strict and correctly annotated tools", () => {
+  it("defines exactly twenty-one unique, strict and correctly annotated tools", () => {
     const tools = createRoomWebMcpTools(createProjectStore(createDefaultProject()));
 
     expect(tools.map(({ name }) => name)).toEqual([
+      "get_project_summary",
       "get_project_state",
       "configure_room",
       "update_project_settings",
@@ -58,13 +59,13 @@ describe("room WebMCP tool definitions", () => {
       "evaluate_layout_changes",
       "apply_layout_changes",
     ]);
-    expect(new Set(tools.map(({ name }) => name))).toHaveLength(20);
+    expect(new Set(tools.map(({ name }) => name))).toHaveLength(21);
     for (const tool of tools) {
       expect(tool.description.length).toBeGreaterThan(40);
       expectStrictObjectSchema(tool.inputSchema);
       expect(tool.execute).toBeTypeOf("function");
       expect(tool.annotations).toEqual(
-        ["get_project_state", "validate_layout", "search_products", "suggest_placements", "evaluate_layout_changes"].includes(tool.name)
+        ["get_project_summary", "get_project_state", "validate_layout", "search_products", "suggest_placements", "evaluate_layout_changes"].includes(tool.name)
           ? { readOnlyHint: true }
           : undefined,
       );
@@ -115,7 +116,7 @@ describe("registerRoomTools", () => {
         createProjectStore(createDefaultProject()),
       ),
     ).resolves.toEqual({ status: "ready" });
-    expect(registered).toHaveLength(20);
+    expect(registered).toHaveLength(21);
   });
 
   it("preserves unsupported and all-or-unavailable lifecycle behavior", async () => {

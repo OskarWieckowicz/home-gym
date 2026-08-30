@@ -2,7 +2,8 @@
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
-/** The creator supplies its own compact application header. */
+/** Application destinations supply their own compact header. */
 export function SiteChrome({ children }: { readonly children: ReactNode }) {
-  return usePathname() === "/creator" ? null : children;
+  const pathname = usePathname();
+  return pathname === "/creator" || pathname === "/summary" ? null : children;
 }

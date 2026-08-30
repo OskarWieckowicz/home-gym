@@ -12,8 +12,7 @@ Git history preserves them. Implementation evidence belongs in `docs/`.
 | Order | Phase | Remaining outcome |
 |---|---|---|
 | 1 | [Phase 23B — Catalog polish](phase-23b-catalog-polish.md) | Resolve missing-photo presentation and the static catalog sidebar; reconcile documented catalog totals. |
-| 2 | [Phase 29 — Project summary](phase-29-project-summary.md) | Ship the read-only summary route, its entry points and a shared `get_project_summary` derivation. |
-| 3 | [Phase 24 — Submission](phase-24-submission.md) | Verify the deployed shared-editing loop, update README, prepare the English description and video, submit. |
+| 2 | [Phase 24 — Submission](phase-24-submission.md) | Verify the deployed shared-editing loop, update README, prepare the English description and video, submit. |
 
 Phase 26 is implemented and locally verified; see [demo evidence](../docs/PHASE_26_DEMO_VERIFICATION.md).
 Phase 23A landing is implemented and locally verified; see
@@ -21,10 +20,11 @@ Phase 23A landing is implemented and locally verified; see
 Its remaining footer-link and public-build/agent/device acceptance is tracked in
 [Phase 24's landing release checklist](phase-24-submission.md#landing-release-acceptance).
 The demo remains a secondary entry and possible capture source. Phase 23B uses the catalog asset
-coverage decisions below. Phase 29 closes the planning loop with a summary surface and carries its
-own cut list because it is late scope. Phase 24 script preparation can begin once the demo is
-deployed; final submission depends on Phase 23B, and its README tool list and demo script depend on
-whatever Phase 29 actually ships.
+coverage decisions below. Phase 29 is implemented and locally verified; see
+[summary evidence](../docs/PHASE_29_SUMMARY_VERIFICATION.md). It ships the read-only route, 2D/3D,
+exact floor metric, JSON export and the three-tool read-only bridge; optional print export is cut.
+Phase 24 script preparation can begin once the demo is deployed; final submission depends on
+Phase 23B, and its README tool list and demo script must include the shipped summary surface.
 
 ## Separate asset work
 

@@ -6,6 +6,7 @@ import {
   addWallElementInputSchema,
   configureRoomInputSchema,
   getProjectStateInputSchema,
+  getProjectSummaryInputSchema,
   mapRoomToolInputIssues,
   removeObstacleInputSchema,
   removeWallElementInputSchema,
@@ -26,6 +27,7 @@ import {
   createRoomToolError,
   serializeObstacle,
   serializeProject,
+  serializeProjectSummary,
   serializeRoom,
   serializeSettings,
   serializeMutationBase,
@@ -43,6 +45,7 @@ type ToolSchema = {
 
 const FAILURE_MESSAGES: Readonly<Record<RoomToolName, string>> = {
   get_project_state: "Project state could not be retrieved.",
+  get_project_summary: "Project summary could not be retrieved.",
   validate_layout: "Layout validation could not be retrieved.",
   configure_room: "Room configuration could not be applied.",
   update_project_settings: "Project settings could not be updated.",
@@ -127,6 +130,27 @@ export function createGetProjectStateHandler(store: ProjectStore) {
       };
     } catch {
       return unexpected("get_project_state");
+    }
+  };
+}
+
+export function createGetProjectSummaryHandler(store: ProjectStore) {
+  return (input: unknown, options?: WebMcpExecuteOptions) => {
+    const parsed = readInput<Record<string, never>>(
+      "get_project_summary", getProjectSummaryInputSchema, input, options,
+    );
+    if (isToolError(parsed)) return parsed;
+
+    try {
+      const state = store.getState();
+      return {
+        ok: true as const,
+        tool: "get_project_summary" as const,
+        revision: state.revision,
+        summary: serializeProjectSummary(state.project, state.validation),
+      };
+    } catch {
+      return unexpected("get_project_summary");
     }
   };
 }

@@ -20,6 +20,7 @@ import {
   createAddWallElementHandler,
   createConfigureRoomHandler,
   createGetProjectStateHandler,
+  createGetProjectSummaryHandler,
   createRemoveObstacleHandler,
   createRemoveWallElementHandler,
   createUpdateObstacleHandler,
@@ -33,6 +34,7 @@ import {
   addWallElementJsonSchema,
   configureRoomJsonSchema,
   getProjectStateJsonSchema,
+  getProjectSummaryJsonSchema,
   placeProjectItemJsonSchema,
   removeObstacleJsonSchema,
   removeWallElementJsonSchema,
@@ -61,6 +63,15 @@ const POST_MUTATION_VALIDATION_NOTE =
 
 export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[] {
   return [
+    {
+      name: "get_project_summary",
+      title: "Get the project summary",
+      description:
+        "Read the same deterministic summary shown on the project summary page: room dimensions, equipment and placement status, prices and budget, training-goal coverage, layout checks, recommendations, and free floor area. Reads the live project without changing it or its undo history. Prices use PLN and dimensions use centimeters. Invalid layouts are summarized with errors and warnings; inspect summary.valid, summary.errorCount, and summary.warningCount.",
+      inputSchema: getProjectSummaryJsonSchema,
+      annotations: { readOnlyHint: true },
+      execute: createGetProjectSummaryHandler(store),
+    },
     {
       name: "get_project_state",
       title: "Get current room project state",

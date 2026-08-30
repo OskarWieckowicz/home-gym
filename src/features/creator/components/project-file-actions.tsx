@@ -6,16 +6,17 @@ import { useRef, useState, type ChangeEvent } from "react";
 import { createDefaultProject } from "@/features/project/defaults";
 import {
   decodeProjectJson,
-  serializeProject,
 } from "@/features/project/serialization/project-codec";
 
 import { useProjectPersistence } from "../persistence/project-persistence-boundary";
 import { useProjectStore } from "../store/project-store-context";
 import { SIGNAL_BANDS_RECONCILIATION_NOTICE } from "../store/reconcile-catalog-project";
 import { EditorPopover } from "./editor-popover";
+import { downloadProject } from "../persistence/export-project";
+
+export { PROJECT_EXPORT_FILENAME } from "../persistence/export-project";
 
 export const PROJECT_IMPORT_MAX_BYTES = 1024 * 1024;
-export const PROJECT_EXPORT_FILENAME = "home-gym-project-v4.json";
 
 export function ProjectFileActions() {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -29,24 +30,7 @@ export function ProjectFileActions() {
   const persistence = useProjectPersistence();
 
   function exportProject() {
-    const serialized = serializeProject(project);
-    if (!serialized.success) {
-      setMessage({ kind: "error", text: serialized.error.message });
-      return;
-    }
-
-    const objectUrl = URL.createObjectURL(
-      new Blob([serialized.json], { type: "application/json;charset=utf-8" }),
-    );
-    try {
-      const link = document.createElement("a");
-      link.href = objectUrl;
-      link.download = PROJECT_EXPORT_FILENAME;
-      link.click();
-      setMessage({ kind: "success", text: "Project exported." });
-    } finally {
-      URL.revokeObjectURL(objectUrl);
-    }
+    setMessage(downloadProject(project));
   }
 
   async function importProject(event: ChangeEvent<HTMLInputElement>) {
