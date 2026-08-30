@@ -3,6 +3,14 @@ import { getVisualAsset, visualAssetRegistry } from "./visual-assets";
 
 describe("visual asset registry", () => {
   it("maps accepted product models explicitly", () => {
+    expect(getVisualAsset("product_pivot_flat_bench")).toMatchObject({
+      src: "/assets/pivot-flat-bench.glb",
+      topViewSrc: "/assets/pivot-flat-bench-top.svg",
+      envelopeCm: { widthCm: 58, depthCm: 124, heightCm: 44 },
+      forward: "negative-z",
+      floorPivot: "origin",
+      scale: [1, 1, 1],
+    });
     expect(getVisualAsset("product_anchor_pullup_bar")).toMatchObject({
       src: "/assets/anchor-pullup-bar.glb",
       topViewSrc: "/assets/anchor-pullup-bar-top.svg",

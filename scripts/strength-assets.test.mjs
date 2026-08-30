@@ -34,33 +34,45 @@ async function generateTwice(scriptName, directory) {
   return [await readFile(first), await readFile(second)];
 }
 
-describe("Tier 0 asset generators", () => {
-  it("ships a reproducible Northstar model and top view within production budgets", async () => {
-    temporaryDirectory = await mkdtemp(join(tmpdir(), "home-gym-northstar-"));
-    const [first, second] = await generateTwice("generate-northstar-half-rack-glb.mjs", temporaryDirectory);
+describe("Product asset generators", () => {
+  it.each([
+    { slug: "northstar-half-rack", groups: 4, minimum: [-0.61, 0, -0.65], dimensions: [1.22, 2.15, 1.3], viewBox: "-0.61 -0.65 1.22 1.3" },
+    { slug: "pivot-flat-bench", groups: 5, minimum: [-0.29, 0, -0.62], dimensions: [0.58, 0.44, 1.24], viewBox: "-0.29 -0.62 0.58 1.24" },
+  ])("ships a reproducible $slug model and top view within production budgets", async ({ slug, groups, minimum, dimensions, viewBox }) => {
+    temporaryDirectory = await mkdtemp(join(tmpdir(), `home-gym-${slug}-`));
+    const [first, second] = await generateTwice(`generate-${slug}-glb.mjs`, temporaryDirectory);
     const parsed = parseGlb(first);
     const assetDirectory = join(repositoryRoot, "public/assets");
 
     expect(first).toEqual(second);
-    expect(first).toEqual(await readFile(join(assetDirectory, "northstar-half-rack.glb")));
+    expect(first).toEqual(await readFile(join(assetDirectory, `${slug}.glb`)));
     expect(first.byteLength).toBeLessThanOrEqual(1_000_000);
-    expect(parsed.gltf.nodes).toHaveLength(4);
-    expect(parsed.gltf.materials).toHaveLength(4);
-    expect(parsed.primitives).toHaveLength(4);
+    expect(parsed.gltf.nodes).toHaveLength(groups);
+    expect(parsed.gltf.materials).toHaveLength(groups);
+    expect(parsed.primitives).toHaveLength(groups);
     expect(parsed.primitives.every((primitive) => primitive.attributes.NORMAL !== undefined)).toBe(true);
-    [-0.61, 0, -0.65].forEach((value, axis) => expect(parsed.min[axis]).toBeCloseTo(value, 6));
-    [1.22, 2.15, 1.3].forEach((value, axis) => expect(parsed.dimensions[axis]).toBeCloseTo(value, 6));
+    minimum.forEach((value, axis) => expect(parsed.min[axis]).toBeCloseTo(value, 6));
+    dimensions.forEach((value, axis) => expect(parsed.dimensions[axis]).toBeCloseTo(value, 6));
 
     const output = join(temporaryDirectory, "top.svg");
-    const namedSource = join(temporaryDirectory, "northstar-half-rack.glb");
+    const namedSource = join(temporaryDirectory, `${slug}.glb`);
     await copyFile(join(temporaryDirectory, "first.glb"), namedSource);
     await generateGlbTopViewSvg(namedSource, output);
     const svg = await readFile(output, "utf8");
-    expect(svg).toBe(await readFile(join(assetDirectory, "northstar-half-rack-top.svg"), "utf8"));
-    expect(svg).toContain('viewBox="-0.61 -0.65 1.22 1.3"');
+    expect(svg).toBe(await readFile(join(assetDirectory, `${slug}-top.svg`), "utf8"));
+    expect(svg).toContain(`viewBox="${viewBox}"`);
     expect(svg).toContain("<path");
     expect(svg).not.toContain("<script");
     expect(svg).not.toContain("<image");
+  });
+
+  it("keeps Pivot upholstery flat at the catalog height", async () => {
+    const { gltf } = parseGlb(await readFile(join(repositoryRoot, "public/assets/pivot-flat-bench.glb")));
+    const padMesh = gltf.meshes.find((mesh) => mesh.name === "Charcoal flat pad");
+    expect(padMesh.primitives).toHaveLength(1);
+    const pad = gltf.accessors[padMesh.primitives[0].attributes.POSITION];
+    [-0.155, 0.37, -0.55].forEach((value, axis) => expect(pad.min[axis]).toBeCloseTo(value, 6));
+    [0.155, 0.44, 0.55].forEach((value, axis) => expect(pad.max[axis]).toBeCloseTo(value, 6));
   });
 
   it.each([

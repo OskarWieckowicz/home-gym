@@ -45,6 +45,24 @@ function renderEquipment(productId: string, rotation: Placement["rotation"] = 0)
 }
 
 describe("EquipmentEntity top views", () => {
+  it.each([
+    [0, "translate(78 154) rotate(-180)", ["-20", "10", "138", "164"]],
+    [90, "translate(20 88) rotate(-90)", ["0", "-10", "164", "138"]],
+    [180, "translate(20 30)", ["-20", "10", "138", "164"]],
+    [270, "translate(144 30) rotate(-270)", ["0", "-10", "164", "138"]],
+  ] as const)("renders Pivot within its footprint and use zone at %s degrees", (rotation, pose, bounds) => {
+    const view = renderEquipment("product_pivot_flat_bench", rotation);
+    const image = view.container.querySelector(".creator-equipment-top-view");
+    const zone = view.container.querySelector(".creator-equipment-use-zone");
+    expect(image?.getAttribute("href")).toBe("/assets/pivot-flat-bench-top.svg");
+    expect(image?.getAttribute("width")).toBe("58");
+    expect(image?.getAttribute("height")).toBe("124");
+    expect(image?.getAttribute("pointer-events")).toBe("none");
+    expect(image?.parentElement?.getAttribute("transform")).toBe(pose);
+    expect(view.container.querySelector(".creator-equipment-outline")).toBeTruthy();
+    expect(["x", "y", "width", "height"].map((attribute) => zone?.getAttribute(attribute))).toEqual(bounds);
+  });
+
   it.each([0, 90, 180, 270] as const)("rotates the canonical Arc view for %s degrees", (rotation) => {
     const view = renderEquipment("product_arc_adjustable_bench", rotation);
     const image = view.container.querySelector(".creator-equipment-top-view");
