@@ -1,6 +1,6 @@
 # Phase 24 — Submission
 
-> Order 2 in the [active queue](README.md). Depends on Phase 23 for final submission;
+> Order 3 in the [active queue](README.md). Depends on Phase 23A and Phase 23B for final submission;
 > shared-editing verification and script preparation can start as soon as Phase 26 is deployed.
 > Hard deadline: 3 September 2026, 22:00 CEST. Start the video no later than 2 September.
 
@@ -120,7 +120,7 @@ checks passed. Record their results or retain explicit limitations in submission
 
 The two schedule risks are recording the video too late and discovering a WebMCP registration
 difference on the deployed build that does not reproduce locally. Task 2 exists to surface the second
-one early; do it as soon as Phase 26 is deployed rather than waiting for Phase 23.
+one early; do it as soon as Phase 26 is deployed rather than waiting for Phase 23A and Phase 23B.
 
 ## Exit gate
 

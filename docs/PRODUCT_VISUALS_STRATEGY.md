@@ -239,10 +239,17 @@ must be checked again during Phase 16 before any paid generation or acquisition.
 - Runtime performance and spatial-readability acceptance remain in Phase 16 tasks 4–5;
   see [performance notes](PERFORMANCE_NOTES.md) for measured data and outstanding checks.
 
-### Phase 23 — Landing page and catalog polish
+### Phase 23A — Landing page polish
 
-- Use accepted final assets and real screenshots from the completed shared-editing demo.
+- Follow the [process-first landing specification](LANDING_PAGE.md) and its accepted v2 reference.
+- Use real editor captures to show the same room from empty geometry through goals/budget to a
+  furnished layout. The completed demo may supply imagery but is not the page's narrative.
 - Do not reopen the model-production scope unless a visible presentation defect blocks the surface.
+
+### Phase 23B — Catalog polish
+
+- Keep product images and intentional fallbacks consistent across catalog cards and detail pages.
+- Use Phase 16 asset coverage decisions without expanding the approved photo-generation queue.
 
 ## Acceptance principles
 

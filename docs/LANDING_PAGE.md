@@ -1,115 +1,155 @@
 # Home Gym Creator — landing page
 
-## Mockup
+> Accepted direction: 30 August 2026. Process-first hackathon introduction, not a sales page or
+> a walkthrough of the bundled demo. Implementation: [Phase 23A](../plans/phase-23a-landing-polish.md).
 
-![Home Gym Creator landing page mockup](./mockups/home-gym-landing-page-v1.png)
+## Visual reference
+
+![Accepted process-first landing reference](./mockups/home-gym-landing-page-v2.png)
+
+[Reference provenance and generation brief](./mockups/home-gym-landing-page-v2.md).
+The reference establishes layout, hierarchy and style; this specification governs behavior and copy.
+Generated editor views, controls and status labels are illustrative, not implementation evidence.
+The earlier v1 reference is historical and is not the implementation target.
 
 ## Page goal
 
-The landing page should primarily lead the user into the creator, not the product catalog.
+Explain the real problem: choosing equipment for a user's exercises, arranging it in their available
+room with obstacles and exercise clearance, and keeping the complete set within budget.
+Explain the process from scratch, then show why shared editing with an agent improves it.
+The prepared demo is an optional shortcut to a result, not the narrative of the page.
 
-Main product promise:
+Use English throughout. Keep the existing light slate/white surfaces, navy text, blue actions,
+green budget indicators and amber warnings. Avoid sales sections, pricing plans, testimonials,
+fake endorsements and a dominant catalog presentation.
 
-> Design a home gym that will actually fit in your room.
-
-The page should quickly show the project's differentiator: a user and an agent working together on a layout that accounts for room dimensions, obstacles, clearance zones, training goals, and budget.
-
-## Page structure
+## Page structure and copy
 
 ### 1. Hero
 
 Headline:
 
-> Design a home gym that will actually fit in your room.
+> What equipment should you buy — and where will it fit?
 
 Description:
 
-> Enter dimensions, budget, and training goals. Together with an agent, choose equipment, place it, and check collisions and clearance zones.
+> Create your room, describe how you train, and set a budget. An AI agent helps you choose equipment
+> and arrange it to fit.
 
-Primary actions:
+Primary CTA: **Start planning**. Secondary CTA: **Explore sample project**.
+Supporting line: **Build it yourself or let your agent guide you.**
 
-- **Launch sample project** — the main CTA, sending the user into a ready-made demo scenario.
-- **Start from an empty room** — a secondary CTA for a user who wants to create their own project.
-
-Beside the copy, show a creator mockup, ideally a 2D plan with visible clearance zones and a spatial-constraint warning.
+Use a real primary-3D editor capture as the result preview. Retain visible, truthful warnings rather
+than depicting a universally valid or safety-certified plan. No separate sample statistics strip,
+prescribed room dimensions, equipment count, fixed budget or demo scenario section.
 
 ### 2. How it works
 
-Present the process in three steps:
+Anchor: `how-it-works`. Heading: **From an empty room to your home gym.**
+Subline: **Start with your space. Build the plan together.**
 
-1. **Describe the space** — enter dimensions, obstacles, doors, and ceiling height.
-2. **Set goals and budget** — specify planned exercises, preferences, and a maximum cost.
-3. **Design together with an agent** — the agent selects and places equipment, and the user can correct the design by hand.
+1. **Create your room** — Draw it yourself, or ask your agent to build it from a description or photo.
+   Note: For photos, provide reference measurements and review the model.
+2. **Set your goals and budget** — Tell the agent what you want to train, your preferred exercises,
+   and how much you can spend.
+3. **Choose and arrange equipment** — The agent selects equipment, plans the layout, and checks
+   space and cost with the app.
 
-### 3. Key differentiator
+Illustrate the same room and fixed obstacle across all three steps: empty geometry, goals/budget,
+then furnished layout with clearance visualization. Use captures/crops of real product states;
+editorial labels may explain them, but must not invent controls. Do not copy the mockup's dollar
+symbol into the PLN-based product. This is a conceptual sequence, not a new mandatory wizard.
 
-The landing page should explain that the project analyzes all of the following at once:
+A photo goes to the external agent; do not imply built-in photo upload or accurate automatic
+reconstruction. The agent can gather several inputs in one exchange or ask for missing ones.
 
-- whether the equipment physically fits in the room,
-- whether enough space remains for safe exercise,
-- whether the selected set stays within budget.
+### 3. Agent guide
 
-This section matters more than an expanded catalog presentation.
+Anchor: `agent-guide`. Heading: **Let your agent guide you.**
 
-### 4. Sample scenario
+> You don't need all the answers upfront. Start a conversation and let the agent ask for what's missing.
 
-Show a concrete case on the page:
+Always-visible, selectable starter prompt with a **Copy prompt** button:
 
-> A 4 × 3.2 m room, a fixed wardrobe, and a PLN 10,000 budget. Goals: squats, bench press, and pull-ups.
+> Help me plan a home gym from scratch. Guide me through defining my room, training goals, and budget.
+> Ask for any missing information before choosing and placing equipment.
 
-Implemented Phase 26 result (derive future figures from the bundled demo):
+Instructions:
 
-- 4 selected products,
-- cost PLN 8,596,
-- all training goals covered,
-- no validation errors or physical collisions,
-- five warnings: four overlapping use zones and tight access to plates.
+> Open the creator in a WebMCP-capable environment and paste this into your agent's chat.
 
-Section CTA: **Open this project**.
+Provide a short inline **Agent setup guide** disclosure here (no separate route). Describe copying
+the prompt, opening **Start planning**, and using the external agent on that same creator page/session.
+Include concise, freshly verified environment setup guidance with official source links. Do not
+hard-code unverified browser/model versions or imply tools register on `/`.
+There is no in-app chatbot or automatic agent launch.
 
-### 5. Creator capabilities
+Manual alternative: **Prefer to work manually? The editor works without an agent.**
+Copying must not navigate or start a project. Announce success accessibly only when copying succeeds;
+on failure or an unavailable Clipboard API, keep the prompt selectable and explain manual copying.
 
-A short presentation of the most important features:
+### 4. Shared editing
 
-- room and obstacle editing,
-- dragging and rotating equipment,
-- automatic layout validation,
-- clearance-zone visualization,
-- 2D and 3D views,
-- user and agent collaborating on the same project.
+Heading: **You edit. The agent continues.**
 
-### 6. Closing CTA
+- Move equipment yourself.
+- Ask the agent to adapt the plan.
+- Review or undo the changes.
 
-Message:
+Example follow-up: **Keep the rack here. Adjust the rest of the layout.**
+Caption: **One shared room model, whether you or the agent makes the change.**
+Use a real editor capture with a selected item; any added directional cue is explanatory artwork,
+not a claim that an activity feed or path visualization exists in the product.
 
-> You already have a room. Now see what gym will actually fit in it.
+### 5. WebMCP explanation
 
-Button: **Design my gym**.
+Eyebrow: **Powered by WebMCP**. Heading: **AI plans. The application checks.**
+
+**Read the room → Edit through WebMCP → Check geometry and budget**
+
+> The agent works with the current project. The app checks collisions, exercise clearance, and cost.
+
+Agent tools apply changes to the same model as manual editing, with shared undo/redo. Do not copy
+the generated mockup's inaccurate claim that a separate user must apply proposed agent changes.
+The deterministic engine checks geometry; the agent interprets results and trade-offs.
+
+### 6. Closing actions and footer
+
+Heading: **Ready to plan your space?**
+Primary **Start planning**; secondary **Explore sample project**.
+Reuse the shared footer with prototype identification and a verified public **Repository** link.
+Note: **Fictional equipment catalog. Simplified geometry. Not a professional safety assessment.**
+No fabricated demo-video link or extra promotional section.
 
 ## Navigation and destinations
 
 | Element | Destination |
 | --- | --- |
-| Launch sample project | `/creator?start=demo` |
-| Start from an empty room | `/creator?start=new` |
-| Open this project | `/creator?start=demo` |
-| Design my gym | `/creator?start=new` |
+| Start planning | `/creator?start=new` |
+| Explore sample project | `/creator?start=demo` |
 | Open creator | `/creator` |
-| Browse equipment | `/catalog` |
-| Specific product card | `/catalog/[slug]` |
+| How it works | `/#how-it-works` |
+| Agent guide | `/#agent-guide` |
+| Catalog | `/catalog` |
 | Logo | `/` |
 
-Start parameters are one-shot actions; the editor saves the baseline and removes `start`
-without resetting the session. Refresh then restores saved edits. Generic Creator/Open creator
-links resume `/creator`; only explicit start actions replace it:
+Header order: How it works, Agent guide, Catalog, then the existing Open creator action.
+The inline Agent setup guide opens its local disclosure; it is not another empty anchor.
+Anchor targets must stay visible below the sticky header. At narrow widths keep in-page paths to
+both guidance sections available even if the shared desktop navigation is hidden.
 
-- `demo` loads a ready-made room and sample layout so the app's capabilities are visible immediately,
-- `new` opens an empty project with a short configuration panel: dimensions, goals, and budget.
+Start parameters retain their existing one-shot semantics. Explicit `new` and `demo` actions replace
+the current project; generic `/creator` resumes it. Refresh restores edits after the start parameter
+has been consumed. Do not silently change persistence or introduce a new onboarding route.
+Before implementing entry copy, verify the existing new-project configuration panel and guide the
+user honestly; do not imply the agent bypasses setup if it cannot.
 
-## Flow rules
+## Responsive and implementation principles
 
-- The primary navigation CTA should read **Open creator**.
-- The catalog is a secondary path and should not dominate the main scenario.
-- New-project configuration happens in a panel inside `/creator`, not on separate onboarding pages.
-- The user should reach shared work with the agent in one click from the hero.
-- The landing page sells the end result and collaboration with an agent; the catalog only supplies elements for the design.
+- Hero text then preview on phones; two columns on desktop.
+- Process steps stack in 01–02–03 order on phones and form one row on desktop.
+- Prompt and instructions remain readable and selectable without horizontal scrolling.
+- Keep static content server-rendered; isolate copying as a small client interaction.
+- Use existing primitives/tokens; no new layout library, WebGL scene or agent runtime on the landing.
+- Production images need dimensions, responsive sizing, descriptive alt text and provenance.
+- The approved full-page mockup is documentation, never the shipped page or hero image.
