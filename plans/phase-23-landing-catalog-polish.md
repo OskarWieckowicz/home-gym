@@ -1,23 +1,23 @@
 # Phase 23 — Landing page and catalog polish
 
-> Order 3 in the [active queue](README.md). Depends on Phase 16 for final product assets,
-> Phase 27 for the primary 3D editor and Phase 26 for its reproducible demo project. Blocks Phase 24.
+> Order 2 in the [active queue](README.md). Depends on Phase 16 for final product assets
+> and Phase 26 for its reproducible demo project; Phase 27's primary 3D editor is complete. Blocks Phase 24.
 
 ## Problem
 
-`src/app/page.tsx` is 41 lines and implements one of the six sections in
+`src/app/page.tsx` implements only the hero section from
 [the landing specification](../docs/LANDING_PAGE.md). The hero exists with both start-mode CTAs and a
 procedural `HeroPlanSketch`; "How it works", the differentiator, the sample scenario, the capability
 list and the closing CTA are all missing, and the header's "How it works" link points at `/` with no
 anchor to land on. The catalog page and product detail page are functionally complete — filters,
-cards, empty state, WebMCP bridge — but 22 of 34 products render "Product image coming later", the
-detail page shows no image at all, and the project summary sidebar is a static placeholder.
+cards, empty state, WebMCP bridge and mapped product-detail images. Unmapped products still render
+"Product image coming later", and the project summary sidebar remains a static placeholder.
 
 ## Scope
 
 In scope: the five missing landing sections, replacing the placeholder hero visual with real demo
 imagery, aligning copy with the specification, catalog image coverage or an explicit fallback
-decision, and product imagery on the detail page.
+decision shared by cards and the existing detail-page image surface.
 
 Out of scope: new catalog products, changes to filters or catalog queries, a working sort control, a
 live project summary in the catalog sidebar, and any change to the creator, the domain layer or the
@@ -35,10 +35,10 @@ captures of the Phase 26 demo project in the Phase 27 primary 3D editor, showing
 warning. An in-editor activity feed is not required. `HeroPlanSketch` stays in the repository as the
 fallback only if a real capture cannot be produced; it is not the shipped hero when a capture is available.
 
-**D3 — a missing catalog photo is a decision, not a gap.** Every one of the 34 products either gets
-an image or is recorded as an intentional fallback with a reason. The current
-"Product image coming later" copy is honest but reads as unfinished on 22 of 34 cards; if the batch
-is not completed, replace it with a neutral category-shaped placeholder that looks deliberate.
+**D3 — every missing photo needs an explicit fallback decision.** Every current catalog product
+either has an image or is recorded as an intentional fallback with a reason. Replace remaining
+"Product image coming later" copy with a neutral category-shaped placeholder on cards and detail
+pages. Do not expand the approved generation queue to fill every gap.
 
 **D4 — the catalog sidebar placeholder is cut, not faked.** A static "Build your room first" panel
 that never updates is worse than no panel. Either remove it or turn it into a link into the creator.
@@ -76,20 +76,16 @@ the `Card` and `LinkButton` primitives, and the tokens already in `globals.css`.
    explicit dimensions, meaningful alt text and appropriate priority on the hero image so the largest
    contentful paint does not regress.
 
-5. **Catalog images.** Work the remaining queue in
-   [the catalog image plan](phase-16-catalog-images.md) — Current Fold Bike and Foundry Bumper
-   Plates both have a GLB and a top view but no catalog photo, and the Quarry Power Bar entry appears
-   already satisfied and should be verified and removed. For every product still without a photo,
-   apply the D3 decision and record it. Update `src/features/catalog/product-assets.ts` and its
-   regression test together.
+5. **Missing-photo presentation.** The separate [photo queue](phase-16-catalog-images.md) contains
+   only Foundry Bumper Plates and resumes at the user's request. Current Fold Bike and Quarry
+   Power Bar already have mapped photos. Apply D3 to other unmapped products and record intentional
+   fallbacks; keep cards and the existing detail-page image block consistent. Update mappings and
+   regression tests together when coverage changes.
 
-6. **Detail page imagery.** Render the mapped catalog image on `src/app/catalog/[slug]/page.tsx`
-   above or beside the specification block, with the same fallback treatment as the card.
+6. **Sidebar decision.** Apply D4 to `catalog-project-summary.tsx`.
 
-7. **Sidebar decision.** Apply D4 to `catalog-project-summary.tsx`.
-
-8. **Stale facts.** The architecture document says 32 products and the code has 34. Fix the number
-   while touching catalog surfaces so Phase 24 does not inherit it.
+7. **Stale facts.** Reconcile catalog totals in documentation against the current seed data,
+   rather than retaining old hard-coded product counts.
 
 ## Acceptance criteria
 
@@ -114,7 +110,7 @@ the `Card` and `LinkButton` primitives, and the tokens already in `globals.css`.
 - `src/features/catalog/product-assets.test.ts` — extend to assert that every catalog product ID is
   either mapped to an existing file or listed in an explicit fallback set, so a new product cannot
   silently ship without a decision.
-- `src/app/catalog/[slug]/page.test.tsx` — extend for the image and its fallback.
+- `src/app/catalog/[slug]/page.test.tsx` — update existing image/fallback assertions for D3.
 - New landing section components get focused rendering tests only where they contain logic; static
   copy blocks do not need one each.
 

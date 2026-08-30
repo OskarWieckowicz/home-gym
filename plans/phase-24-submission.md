@@ -1,6 +1,6 @@
 # Phase 24 — Submission
 
-> Order 4 in the [active queue](README.md). Depends on Phase 23 for final submission;
+> Order 3 in the [active queue](README.md). Depends on Phase 23 for final submission;
 > shared-editing verification and script preparation can start as soon as Phase 26 is deployed.
 > Hard deadline: 3 September 2026, 22:00 CEST. Start the video no later than 2 September.
 
@@ -8,8 +8,8 @@
 
 Hosting is already done: <https://home-gym-coral.vercel.app/> is live and the MIT `LICENSE` is in
 place, so this phase is documentation, verification and media rather than infrastructure. What is
-missing is everything a judge reads before they open the app. The root `README.md` is 66 lines, its
-status table still calls the creator a placeholder, it links only to `localhost:3000`, and it carries
+missing is the judge-facing documentation. The root `README.md` has a stale
+status table that still calls the creator a placeholder, links only to `localhost:3000`, and carries
 none of the four things the exit gate names: the demo URL, the tool list, sample prompts and the
 architecture. The WebMCP testing section is written conditionally, as if the tools might not exist
 yet. Sample prompts exist only in `docs/AGENT_HOME_GYM_WORKFLOW_PROMPT.md`.
@@ -109,6 +109,11 @@ deployed and submitted, and confirm the deployed commit matches the repository d
 
 The pre-submission checklist in [the hackathon requirements](../docs/HACKATHON_REQUIREMENTS.md), run
 once in a private window on the final commit, with each link opened rather than assumed.
+
+Also review the outstanding device, GPU-failure and deployed shared-editing checks recorded in
+[Phase 27 verification](../docs/PHASE_27_3D_EDITOR_VERIFICATION.md#remaining-acceptance-checks--limitations).
+Phase 27 was closed by user acceptance on 30 August 2026; closure is not evidence that these
+checks passed. Record their results or retain explicit limitations in submission claims.
 
 ## Risks
 

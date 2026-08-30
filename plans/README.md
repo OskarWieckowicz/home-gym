@@ -1,109 +1,53 @@
-# Home Gym Creator — implementation plan index
+# Home Gym Creator — remaining work
 
-> Status: active queue.
 > Updated: 30 August 2026.
 > Submission deadline: 3 September 2026, 22:00 CEST.
-> Live deployment: <https://home-gym-coral.vercel.app/>
+> Deployment URL: <https://home-gym-coral.vercel.app/> — verify the submitted build in Phase 24.
 
-This document is the entry point for implementation work. It keeps the remaining phases in
-dependency order and links to executable plans in this directory. Completed phases and their
-detailed plan files are intentionally removed; Git history remains the record of completed work.
-
-Product scope and architecture live in the [product concept](../docs/PRODUCT_CONCEPT.md) and
-[technical architecture](../docs/TECHNICAL_ARCHITECTURE.md). This index should not duplicate them.
-
-## How to use this index
-
-1. Work from the top of the active queue and keep only one implementation phase in progress.
-2. Before starting a phase, create its detailed plan in `plans/phase-NN-short-name.md` if it does
-   not already exist.
-3. A detailed plan must name its dependencies, scope boundary, implementation tasks, acceptance
-   criteria, tests, manual checks, and exit gate.
-4. Remove a phase from this index and delete its detailed plan once its exit gate passes or the
-   phase is cut. Git history keeps the record; do not turn this file into a completion log.
-5. If evidence changes the order or scope, update this index and the affected detailed plans in
-   the same change.
-
-## Sequencing rules
-
-- Route manual edits and agent edits through the same domain commands and project store.
-- Keep geometry, placement validation, collision detection, and rule checking deterministic.
-- The application is already deployed, so order the remaining work by what the judged submission
-  needs rather than by internal completeness. Anything a judge touches in a fresh session takes
-  precedence over depth hidden behind it.
-- Every phase boundary must be deployable on its own so that stopping early leaves a coherent
-  product. Keep the live URL working at every boundary.
-- Routing, Server/Client Component boundaries, and deployment-sensitive changes require a
-  production build in addition to the canonical local gate.
-- Treat catalog imagery, top-down editor imagery, and 3D equipment visuals as three distinct
-  representations of one catalog product. None of them may become the source of truth for product
-  dimensions, placement, clearance, or validation.
-- Do not scale a visual pipeline from code or prompts alone. Approve one real mesh benchmark and
-  its orthographic top-down render before producing a batch.
-- Treat generated, purchased, and downloaded visual assets as licensed inputs with recorded
-  provenance. An unclear license is a rejection, not a later cleanup task.
-- Phase 27 makes 3D the primary editor before demo bootstrap and presentation work. Keep 2D
-  available and retain the same deterministic model, commands, history and WebMCP path.
-- Landing screenshots use the Phase 27 editor with the reproducible Phase 26 demo project. No in-editor
-  activity feed is required; shared-editing verification and the video script belong to Phase 24.
-
-## Parallel work
-
-[Phase 16 — remaining visual-asset work](phase-16-product-visual-assets.md) runs separately from
-the sequential queue below. Model generation is complete for the selected set; manifest coverage,
-bounds decisions, failure coverage and runtime acceptance remain open. Browser checks are paused
-at the user's request. Every phase below must work with the permanent geometric fallback.
-
-[Catalog image queue](phase-16-catalog-images.md) contains only Current Fold Bike, Quarry Power
-Bar and Foundry Bumper Plates. Resume one product at a time at the user's request.
+This directory contains unfinished work only. Remove completed or explicitly cut plans;
+Git history preserves them. Implementation evidence belongs in `docs/`.
 
 ## Active queue
 
-| Order | Phase | Depends on | Exit gate |
-|---|---|---|---|
-| 1 | [Phase 27 — 3D as the primary project editor](phase-27-primary-3d-editor.md) | Existing editor and scene; no queued phase | Fresh sessions default to 3D and the complete add/select/edit/move/rotate/unplace/remove flow works without switching to 2D. Manual edits and WebMCP share validation and undo/redo; camera gestures never edit; 2D remains a working fallback. |
-| 2 | [Phase 26 — Demo bootstrap and creator start modes](phase-26-demo-bootstrap.md) | After Phase 27 in the queue | `/creator?start=demo` loads a checked-in demo project in a fresh session with no prior local storage, and `?start=new` opens an empty room instead of restoring a previous session. Both survive a reload and a direct visit. The fixture is built and validated through the same schema and commands as any other project, and it is not a second persistence path. |
-| 3 | [Phase 23 — Landing page and catalog polish](phase-23-landing-catalog-polish.md) | Phases 16, 27 and 26 | The landing page and catalog match their specifications and use final product assets plus real screenshots of the primary 3D editor and figures from the reproducible demo project. |
-| 4 | [Phase 24 — Submission](phase-24-submission.md) | Phase 23 | The live URL and complete shared-editing loop are verified logged out and in a fresh WebMCP session, the repository README carries the demo URL, tool list, sample prompts, WebMCP testing instructions, and architecture, and the English description and sub-three-minute video complete the Devpost checklist. |
+| Order | Phase | Remaining outcome |
+|---|---|---|
+| 1 | [Phase 26 — Demo bootstrap](phase-26-demo-bootstrap.md) | Implement `?start=demo` and `?start=new` through existing persistence; add a reproducible, validated demo project. |
+| 2 | [Phase 23 — Landing and catalog polish](phase-23-landing-catalog-polish.md) | Complete landing sections and links; use the Phase 26 demo for screenshots and figures; resolve missing-photo presentation and the static catalog sidebar. |
+| 3 | [Phase 24 — Submission](phase-24-submission.md) | Verify the deployed shared-editing loop, update README, prepare the English description and video, submit. |
 
-The live URL already satisfies the hosting part of Phase 24, so that phase is now documentation,
-description, and video rather than infrastructure. Verify tool registration against the deployed
-build in a fresh WebMCP session before relying on it in the video.
+Phase 23 depends on the Phase 26 demo and asset coverage decisions below. Phase 24 script
+preparation can begin once the demo is deployed; final submission depends on Phase 23.
 
-## Global exit gate
+## Separate asset work
 
-Every implementation phase must satisfy the repository validation ladder:
+- [Phase 16 — asset integration and acceptance](phase-16-product-visual-assets.md):
+  manifest coverage, bounds decisions, failure handling and room-performance checks remain.
+  Browser checks are paused at the user's request; cleanup does not resume them.
+- [Remaining catalog photo](phase-16-catalog-images.md): Foundry Bumper Plates only.
+  Resume generation at the user's request.
+- [Optional catalog proposals](catalog-coverage-priorities.md): unresolved cable-machine,
+  dip-bar and other coverage ideas. Not an approved production queue or submission dependency.
 
-- changed behavior has proportionate tests,
-- `npm run quality:quick` passes during the phase,
-- `npm run agent:verify` passes before the phase is complete,
-- `npm run build` also passes for routing, Server/Client Component boundaries, Next.js
-  configuration, build behavior, or deployment-sensitive changes,
-- no non-test source or configuration file exceeds 500 physical lines,
-- the public demo remains openable.
+## Working rules
 
-## Scope boundary
+- Follow [repository guidance](../AGENTS.md) and its validation ladder: focused tests,
+  `quality:quick`, `lint:report`, `agent:verify`, and `build` where required.
+- Keep one sequential phase in progress; write its scope, decisions, tasks and exit gate before
+  implementation. Update this index when dependencies or scope change.
+- Manual editing and WebMCP share one model, command path, validation and undo history.
+  3D is primary; 2D and geometric asset fallbacks remain available.
+- Use the implemented demo for screenshots and stated figures. Keep unverified device and
+  deployment behavior explicit; local tests are not public-build acceptance.
+- Keep product dimensions and validation independent of visuals; record asset provenance.
+- Do not reopen cut scope: activity feed, named access requirements, visible derived paths,
+  `check_access`, or special rack/bench collision exemptions.
 
-The MVP does not include accounts, a database, checkout, real prices, in-app model calls,
-server-side photo analysis, irregular room outlines, arbitrary rotation angles, photorealistic 3D
-models for every product, or a global layout solver. Reopen this boundary only through an explicit
-product decision.
+## Reference documents
 
-Named access requirements, the visible derived route, and a `check_access` tool are **cut**, not
-deferred. They were drafted as Phase 18b. The Phase 18a walkability guarantee already makes an
-unreachable entity an error, so the named-route layer adds a schema migration and a routing
-presentation layer without changing any judged outcome. The closed rack/bench station template
-from the same original draft stays rejected: demoting the physical-into-use-zone relationship to a
-warning achieves the same result for every product pair, and products that ship as one physical
-unit stay catalog bundles. Reopening either requires an explicit product decision and a new plan.
-
-## Related documents
-
-- [Product concept](../docs/PRODUCT_CONCEPT.md)
-- [Technical architecture](../docs/TECHNICAL_ARCHITECTURE.md)
-- [Hackathon requirements](../docs/HACKATHON_REQUIREMENTS.md)
+- [Product scope](../docs/PRODUCT_CONCEPT.md)
+- [Architecture](../docs/TECHNICAL_ARCHITECTURE.md)
+- [Submission requirements](../docs/HACKATHON_REQUIREMENTS.md)
 - [WebMCP sources](../docs/WEBMCP_SOURCES.md)
-- [Landing page specification](../docs/LANDING_PAGE.md)
-- [Editor mockup specification](../docs/EDITOR_MOCKUP.md)
-- [Product visuals strategy](../docs/PRODUCT_VISUALS_STRATEGY.md)
-- [Visual mockups](../docs/mockups)
+- [Landing specification](../docs/LANDING_PAGE.md)
+- [Editor specification](../docs/EDITOR_MOCKUP.md)
+- [Visual asset strategy](../docs/PRODUCT_VISUALS_STRATEGY.md)

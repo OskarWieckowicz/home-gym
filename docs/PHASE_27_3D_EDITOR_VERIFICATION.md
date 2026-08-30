@@ -4,9 +4,11 @@ Date: 30 August 2026. Base commit: `15bb7a8`, plus the uncommitted Phase 27 impl
 
 ## Status
 
-Implemented locally: 3D is the default editor; 2D remains a precise alternative and recovery path.
-The complete public/device acceptance gate is **not yet closed**. Keep the Phase 27 plan and queue
-row until the outstanding checks below are completed. No deployment was made in this task.
+**Completed — closed at the user's request on 30 August 2026.** 3D is the default editor;
+2D remains a precise alternative and recovery path. The phase and its contextual-gesture follow-up
+have been removed from the active queue; their plans remain available in Git history.
+Outstanding public/device checks below remain release-verification items for Phase 24, not claimed
+passes. No deployment was made as part of this closure.
 
 No project schema, storage key, validation rule, equipment lock field or WebMCP tool was added.
 Pre-existing working-tree changes to plans and WebMCP descriptions were preserved.
@@ -146,4 +148,5 @@ Focused cutaway tests passed (19 cases); `quality:quick` and `agent:verify` pass
 - The synthetic browser layout intentionally retained validation conflicts created during tests.
   Those errors demonstrate committed-layout validation, not a claim that the test gym is usable.
 
-These limitations are the reason the plan remains active despite completed local implementation.
+These limitations remain documented after user acceptance and closure; Phase 24 tracks their
+pre-submission review. Closing the implementation phase does not establish device or public-build coverage.

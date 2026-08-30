@@ -1,6 +1,6 @@
 # Phase 26 — Demo bootstrap and creator start modes
 
-> Order 2 in the [active queue](README.md), after Phase 27's primary 3D editor.
+> Order 1 in the [active queue](README.md), using the completed Phase 27 primary 3D editor.
 > No technical dependency on 3D interactions; this is the agreed execution order.
 > Blocks Phase 23 (landing CTAs, screenshots and figures need a reproducible demo project).
 > Phase 24 also uses that project for shared-editing verification and the video.
@@ -80,9 +80,6 @@ on first paint.
 4. **Thread the prop.** Add `startMode` to `CreatorEditorProps`, forward it to the boundary, and make
    `src/app/creator/page.tsx` read `searchParams`, parse it and pass it. Leave the existing
    `initialProject` / `persistence` props alone — tests depend on them.
-
-5. **Fix the stale "How it works" link only if it is free.** `headerLinks` points it at `/`; that
-   belongs to Phase 23 and must not grow this change.
 
 ## Acceptance criteria
 
