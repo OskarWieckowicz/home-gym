@@ -8,6 +8,7 @@ import type { GymProject, Placement } from "@/features/project/schemas/project";
 import { productForPlacement } from "../placement-product";
 import { getEffectiveMounting } from "@/features/catalog/queries/catalog";
 import { getVisualAsset } from "./visual-assets";
+import { equipmentVisualRotation } from "./visual-orientation";
 import {
   equipmentBoxToScene,
   equipmentUseZoneToScene,
@@ -66,8 +67,8 @@ function EquipmentAsset({ placement, project }: { readonly placement: Placement;
     project.room,
     mountBottomHeightCm(project, placement),
   );
-  // The GLB is authored with a floor pivot at the envelope center and negative-Z forward.
-  return <primitive object={cloned} position={[position.x, position.y, position.z]} rotation={[0, (placement.rotation * Math.PI) / 180, 0]} scale={asset.scale} />;
+  // Keep the asset's -Z front aligned with the domain front and its use zone.
+  return <primitive object={cloned} position={[position.x, position.y, position.z]} rotation={[0, (equipmentVisualRotation(placement.rotation) * Math.PI) / 180, 0]} scale={asset.scale} />;
 }
 
 function PlacementModel({ placement, project }: { readonly placement: Placement; readonly project: GymProject }) {

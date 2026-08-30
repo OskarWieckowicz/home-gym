@@ -439,6 +439,11 @@ offline and mapped by visual family. They remain simplified presentation assets 
 photorealistic product twins. Missing assets fall back to deterministic solids, and validation
 always uses the catalog footprint rather than rendered mesh geometry.
 
+Visual assets face negative Z in their source GLB and raw top-view SVG. Domain `frontCm` points
+toward positive Z at rotation 0, then negative X, negative Z, and positive X at 90/180/270.
+The shared presentation adapter converts domain rotation to GLB yaw `180 - rotation` (modulo 360);
+SVG applies the inverse angle. Asset orientation must not change catalog clearances or stored poses.
+
 ## 11. Product catalog
 
 The MVP catalog is static and contains 32 fictional products.

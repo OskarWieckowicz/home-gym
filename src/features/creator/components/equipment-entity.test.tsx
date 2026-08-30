@@ -7,9 +7,9 @@ import type { Placement } from "@/features/project/schemas/project";
 import { EquipmentEntity } from "./equipment-entity";
 
 const transforms = {
-  0: "translate(20 30)",
+  0: "translate(86 172) rotate(-180)",
   90: "translate(20 96) rotate(-90)",
-  180: "translate(86 172) rotate(-180)",
+  180: "translate(20 30)",
   270: "translate(162 30) rotate(-270)",
 } as const;
 
@@ -56,10 +56,34 @@ describe("EquipmentEntity top views", () => {
   });
 
   it("keeps the labeled rectangle fallback for an unmapped product", () => {
-    const view = renderEquipment("product_northstar_half_rack");
+    const view = renderEquipment("product_foundry_wall_rack");
     expect(view.container.querySelector(".creator-equipment-top-view")).toBeNull();
     expect(view.container.querySelector(".creator-equipment-footprint")).toBeTruthy();
-    expect(view.container.querySelector(".creator-equipment-label")?.textContent).toBe("Northstar Half Rack");
+    expect(view.container.querySelector(".creator-equipment-label")?.textContent).toBe("Foundry Folding Wall Rack");
+  });
+
+  it("renders the Northstar top view inside its catalog footprint", () => {
+    const view = renderEquipment("product_northstar_half_rack");
+    const image = view.container.querySelector(".creator-equipment-top-view");
+    expect(image?.getAttribute("href")).toBe("/assets/northstar-half-rack-top.svg");
+    expect(image?.getAttribute("width")).toBe("122");
+    expect(image?.getAttribute("height")).toBe("130");
+    expect(image?.getAttribute("pointer-events")).toBe("none");
+    expect(view.container.querySelector(".creator-equipment-outline")).toBeTruthy();
+  });
+
+  it.each([
+    [0, "translate(142 160) rotate(-180)", ["-15", "25", "192", "205"]],
+    [90, "translate(20 152) rotate(-90)", ["-50", "-5", "205", "192"]],
+    [180, "translate(20 30)", ["-15", "-40", "192", "205"]],
+    [270, "translate(150 30) rotate(-270)", ["15", "-5", "205", "192"]],
+  ] as const)("aligns the Northstar SVG and 70 cm front zone at %s degrees", (rotation, pose, bounds) => {
+    const view = renderEquipment("product_northstar_half_rack", rotation);
+    const image = view.container.querySelector(".creator-equipment-top-view");
+    const zone = view.container.querySelector(".creator-equipment-use-zone");
+    expect(image?.parentElement?.getAttribute("transform")).toBe(pose);
+    expect(["x", "y", "width", "height"].map((attribute) => zone?.getAttribute(attribute)))
+      .toEqual(bounds);
   });
 
   it("uses the accepted Current Fold Bike top view", () => {

@@ -6,6 +6,7 @@ export const VISUAL_ASSET_IDS = [
   "product_delta_change_plates",
   "product_foundry_bumper_plates",
   "product_harbor_squat_stands",
+  "product_northstar_half_rack",
   "product_quarry_power_bar",
   "product_summit_power_cage",
   "product_summit_strength_station",
@@ -23,6 +24,15 @@ export type VisualAssetDefinition = {
 };
 
 export const visualAssetRegistry: Readonly<Record<VisualAssetProductId, VisualAssetDefinition>> = {
+  product_northstar_half_rack: {
+    productId: "product_northstar_half_rack",
+    src: "/assets/northstar-half-rack.glb",
+    topViewSrc: "/assets/northstar-half-rack-top.svg",
+    envelopeCm: { widthCm: 122, depthCm: 130, heightCm: 215 },
+    forward: "negative-z",
+    floorPivot: "origin",
+    scale: [1, 1, 1],
+  },
   product_anchor_pullup_bar: {
     productId: "product_anchor_pullup_bar",
     src: "/assets/anchor-pullup-bar.glb",

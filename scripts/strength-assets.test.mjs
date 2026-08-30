@@ -1,10 +1,11 @@
 import { execFile } from "node:child_process";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { copyFile, mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { afterEach, describe, expect, it } from "vitest";
+import { generateGlbTopViewSvg } from "./lib/glb-top-view.mjs";
 
 const execFileAsync = promisify(execFile);
 const repositoryRoot = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -34,6 +35,34 @@ async function generateTwice(scriptName, directory) {
 }
 
 describe("Tier 0 asset generators", () => {
+  it("ships a reproducible Northstar model and top view within production budgets", async () => {
+    temporaryDirectory = await mkdtemp(join(tmpdir(), "home-gym-northstar-"));
+    const [first, second] = await generateTwice("generate-northstar-half-rack-glb.mjs", temporaryDirectory);
+    const parsed = parseGlb(first);
+    const assetDirectory = join(repositoryRoot, "public/assets");
+
+    expect(first).toEqual(second);
+    expect(first).toEqual(await readFile(join(assetDirectory, "northstar-half-rack.glb")));
+    expect(first.byteLength).toBeLessThanOrEqual(1_000_000);
+    expect(parsed.gltf.nodes).toHaveLength(4);
+    expect(parsed.gltf.materials).toHaveLength(4);
+    expect(parsed.primitives).toHaveLength(4);
+    expect(parsed.primitives.every((primitive) => primitive.attributes.NORMAL !== undefined)).toBe(true);
+    [-0.61, 0, -0.65].forEach((value, axis) => expect(parsed.min[axis]).toBeCloseTo(value, 6));
+    [1.22, 2.15, 1.3].forEach((value, axis) => expect(parsed.dimensions[axis]).toBeCloseTo(value, 6));
+
+    const output = join(temporaryDirectory, "top.svg");
+    const namedSource = join(temporaryDirectory, "northstar-half-rack.glb");
+    await copyFile(join(temporaryDirectory, "first.glb"), namedSource);
+    await generateGlbTopViewSvg(namedSource, output);
+    const svg = await readFile(output, "utf8");
+    expect(svg).toBe(await readFile(join(assetDirectory, "northstar-half-rack-top.svg"), "utf8"));
+    expect(svg).toContain('viewBox="-0.61 -0.65 1.22 1.3"');
+    expect(svg).toContain("<path");
+    expect(svg).not.toContain("<script");
+    expect(svg).not.toContain("<image");
+  });
+
   it.each([
     ["generate-quarry-power-bar-glb.mjs", 4, [2.2, 0.054, 0.054]],
     ["generate-foundry-bumper-plates-glb.mjs", 3, [0.45, 0.45, 0.364]],

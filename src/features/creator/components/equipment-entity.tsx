@@ -8,6 +8,7 @@ import { createEquipmentFootprints } from "@/features/geometry/equipment-footpri
 import type { RectangleFootprint } from "@/features/geometry/rectangles";
 import type { Placement } from "@/features/project/schemas/project";
 import { getVisualAsset } from "@/features/creator/scene/visual-assets";
+import { equipmentVisualRotation } from "@/features/creator/scene/visual-orientation";
 
 import type { PlanTransform } from "../plan/plan-transform";
 import {
@@ -27,7 +28,7 @@ function toPlanRectangle(footprint: RectangleFootprint, transform: PlanTransform
 }
 
 function topViewTransform(rotation: Placement["rotation"], physical: ReturnType<typeof toPlanRectangle>) {
-  switch (rotation) {
+  switch (equipmentVisualRotation(rotation)) {
     case 0: return `translate(${physical.x} ${physical.y})`;
     case 90: return `translate(${physical.x} ${physical.y + physical.height}) rotate(-90)`;
     case 180: return `translate(${physical.x + physical.width} ${physical.y + physical.height}) rotate(-180)`;

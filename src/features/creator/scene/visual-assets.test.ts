@@ -57,7 +57,15 @@ describe("visual asset registry", () => {
       envelopeCm: { widthCm: 228, depthCm: 174, heightCm: 227 },
       scale: [1, 1, 1],
     });
-    expect(getVisualAsset("product_northstar_half_rack")).toBeUndefined();
+    expect(getVisualAsset("product_northstar_half_rack")).toMatchObject({
+      src: "/assets/northstar-half-rack.glb",
+      topViewSrc: "/assets/northstar-half-rack-top.svg",
+      envelopeCm: { widthCm: 122, depthCm: 130, heightCm: 215 },
+      forward: "negative-z",
+      floorPivot: "origin",
+      scale: [1, 1, 1],
+    });
+    expect(getVisualAsset("product_foundry_wall_rack")).toBeUndefined();
     expect(visualAssetRegistry.product_summit_power_cage.envelopeCm).toEqual({ widthCm: 130, depthCm: 165, heightCm: 225 });
   });
 });

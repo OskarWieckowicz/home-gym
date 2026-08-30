@@ -1,6 +1,7 @@
 import { generateGlbTopViewSvg } from "./lib/glb-top-view.mjs";
 
 const assets = [
+  ["public/assets/northstar-half-rack.glb", "public/assets/northstar-half-rack-top.svg"],
   ["public/assets/squat-rack.glb", "public/assets/squat-rack-top.svg"],
   ["public/assets/arc-adjustable-bench.glb", "public/assets/arc-adjustable-bench-top.svg"],
   ["public/assets/current-fold-bike.glb", "public/assets/current-fold-bike-top.svg"],
