@@ -2,6 +2,32 @@ import type { Product } from "@/features/catalog/schemas";
 
 export const accessorySeeds = [
   {
+    id: "product_compact_dual_pulley_station",
+    slug: "compact-dual-pulley-station",
+    name: "Compact Dual-Pulley Station",
+    brand: "Kiln Strength",
+    category: "accessories",
+    placementMode: "floor",
+    description: "A floor-standing station with two adjustable cable carriages, independent weight stacks, and a multi-grip pull-up bar for compact strength training.",
+    price: 6999,
+    dimensions: { widthCm: 160, depthCm: 100, heightCm: 220 },
+    useZone: { frontCm: 180, backCm: 20, leftCm: 60, rightCm: 60 },
+    exercises: ["cable row", "cable chest fly", "triceps pressdown", "face pull", "pull-up"],
+    trainingGoals: ["strength", "muscle-gain"],
+    muscleGroups: ["back", "chest", "arms", "shoulders", "core"],
+    requirements: {
+      minimumCeilingHeightCm: 245,
+      anchoring: "required",
+      flooring: "level-hard-surface",
+      assembly: "professional",
+    },
+    constraints: [
+      "Fictional planning dimensions and exercise clearances; verify actual equipment and installation requirements before use.",
+      "Requires suitable floor anchoring; not a wall-mounted station or rack attachment.",
+      "No dedicated seated lat-pulldown restraint is included.",
+    ],
+  },
+  {
     id: "product_groundwork_foam_roller",
     slug: "groundwork-foam-roller",
     name: "Groundwork Foam Roller",

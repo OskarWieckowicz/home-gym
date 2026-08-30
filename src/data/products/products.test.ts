@@ -17,7 +17,7 @@ const EXPECTED_CATEGORY_COUNTS: Record<ProductCategory, number> = {
   plates: 4,
   dumbbells: 4,
   cardio: 6,
-  accessories: 10,
+  accessories: 11,
 };
 
 const ORIGINAL_IDENTITIES = [
@@ -38,8 +38,8 @@ function normalized(values: string[]): string[] {
 }
 
 describe("catalogProducts", () => {
-  it("contains 37 schema-valid fictional products in the agreed distribution", () => {
-    expect(catalogProducts).toHaveLength(37);
+  it("contains 38 schema-valid fictional products in the agreed distribution", () => {
+    expect(catalogProducts).toHaveLength(38);
     expect(() => productSchema.array().parse(catalogProducts)).not.toThrow();
     expect(catalogProducts.every(({ brand }) => !/nike|adidas|rogue/i.test(brand))).toBe(true);
 
@@ -106,7 +106,7 @@ describe("catalogProducts", () => {
         placementMode: "selection-only",
       }),
     ]);
-    expect(catalogProducts.filter(({ placementMode }) => placementMode === "floor")).toHaveLength(35);
+    expect(catalogProducts.filter(({ placementMode }) => placementMode === "floor")).toHaveLength(36);
   });
 
   it("covers every training goal across multiple equipment categories", () => {

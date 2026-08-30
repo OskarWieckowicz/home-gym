@@ -1,6 +1,7 @@
 import { generateGlbTopViewSvg } from "./lib/glb-top-view.mjs";
 
 const assets = [
+  ["public/assets/compact-dual-pulley-station.glb", "public/assets/compact-dual-pulley-station-top.svg"],
   ["public/assets/forge-kettlebell-16kg.glb", "public/assets/forge-kettlebell-16kg-top.svg"],
   ["public/assets/surge-compact-treadmill.glb", "public/assets/surge-compact-treadmill-top.svg"],
   ["public/assets/range-adjustable-dumbbells.glb", "public/assets/range-adjustable-dumbbells-top.svg"],

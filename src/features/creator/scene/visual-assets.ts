@@ -1,4 +1,5 @@
 export const VISUAL_ASSET_IDS = [
+  "product_compact_dual_pulley_station",
   "product_forge_kettlebell_16kg",
   "product_anchor_pullup_bar",
   "product_arc_adjustable_bench",
@@ -28,6 +29,15 @@ export type VisualAssetDefinition = {
 };
 
 export const visualAssetRegistry: Readonly<Record<VisualAssetProductId, VisualAssetDefinition>> = {
+  product_compact_dual_pulley_station: {
+    productId: "product_compact_dual_pulley_station",
+    src: "/assets/compact-dual-pulley-station.glb",
+    topViewSrc: "/assets/compact-dual-pulley-station-top.svg",
+    envelopeCm: { widthCm: 160, depthCm: 100, heightCm: 220 },
+    forward: "negative-z",
+    floorPivot: "origin",
+    scale: [1, 1, 1],
+  },
   product_forge_kettlebell_16kg: {
     productId: "product_forge_kettlebell_16kg",
     src: "/assets/forge-kettlebell-16kg.glb",

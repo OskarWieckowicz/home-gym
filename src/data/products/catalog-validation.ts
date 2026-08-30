@@ -13,7 +13,7 @@ const EXPECTED_CATEGORY_COUNTS: Record<ProductCategory, number> = {
   plates: 4,
   dumbbells: 4,
   cardio: 6,
-  accessories: 10,
+  accessories: 11,
 };
 
 function normalizedKey(value: string): string {
@@ -31,7 +31,7 @@ function assertProductValuesAreUnique(product: Product): void {
 }
 
 function assertCatalogInvariants(products: Product[]): void {
-  if (products.length !== 37) throw new Error("Catalog must contain exactly 37 products.");
+  if (products.length !== 38) throw new Error("Catalog must contain exactly 38 products.");
 
   assertUniqueValues(products.map(({ id }) => id), "Catalog product IDs must be unique.");
   assertUniqueValues(products.map(({ slug }) => slug), "Catalog product slugs must be unique.");

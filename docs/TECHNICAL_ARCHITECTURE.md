@@ -514,7 +514,7 @@ SVG applies the inverse angle. Asset orientation must not change catalog clearan
 
 ## 11. Product catalog
 
-The MVP catalog is static and contains 32 fictional products.
+The MVP catalog is static and contains 38 fictional products.
 
 Active MVP categories:
 

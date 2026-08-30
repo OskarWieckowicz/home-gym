@@ -8,7 +8,7 @@
 
 | Candidate | Remaining decision / work |
 |---|---|
-| Compact dual-pulley station | The user selected the equipment form; define the fictional product specification, identity, mounting and working clearances before approving photo, GLB and derived top view. |
+| Compact dual-pulley station | Completed after explicit photo, model and integration requests on 30 August. Separate `product_compact_dual_pulley_station` catalog entry with [catalog concept v1](../public/assets/compact-dual-pulley-station-catalog-concept-v1.png), [GLB](../public/assets/compact-dual-pulley-station.glb) and [derived top view](../public/assets/compact-dual-pulley-station-top.svg) mapped. [Provenance and fictional planning assumptions](../docs/COMPACT_DUAL_PULLEY_MODEL.md). Loop unchanged; browser review remains paused. |
 | Separate single-column cable machine | The user also selected a narrow alternative. Evaluate the existing Loop Wall Cable Trainer identity and saved-project compatibility; define mounting and exercise configuration before approving assets. |
 | Freestanding dip bars | Proposed pair represented as one product and one footprint; no rack-attachment dependency. Product specification and production approval remain pending. |
 | Groundwork Exercise Mat | Optional deployed-mat GLB and derived top view only. Keep existing floor placement and domain dimensions. |

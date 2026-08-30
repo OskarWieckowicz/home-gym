@@ -1,4 +1,5 @@
 const PRODUCT_IMAGE_BY_ID = {
+  product_compact_dual_pulley_station: "/assets/compact-dual-pulley-station-catalog-concept-v1.png",
   product_anchor_pullup_bar: "/assets/anchor-pullup-bar-catalog.png",
   product_arc_adjustable_bench: "/assets/arc-adjustable-bench-catalog-concept-v1.png",
   product_cairn_iron_plates: "/assets/cairn-iron-plates-catalog.png",
