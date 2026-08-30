@@ -36,10 +36,16 @@ describe("navigation", () => {
 
   it("provides the mockup navigation destinations", () => {
     expect(headerLinks).toEqual([
-      { label: "How it works", href: "/" },
-      { label: "Creator", href: "/creator" },
+      { label: "How it works", href: "/#how-it-works" },
+      { label: "Agent guide", href: "/#agent-guide" },
       { label: "Catalog", href: "/catalog" },
     ]);
+  });
+
+  it("makes fresh planning primary without changing start semantics", () => {
+    expect(siteLinks.startEmpty).toEqual({ label: "Start planning", href: "/creator?start=new" });
+    expect(siteLinks.runDemo).toEqual({ label: "Explore sample project", href: "/creator?start=demo" });
+    expect(siteLinks.openCreator.href).toBe("/creator");
   });
 
   it.each(["demo", "new"])("parses the explicit %s start action", (mode) => {

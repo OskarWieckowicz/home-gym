@@ -1,7 +1,8 @@
 # Home Gym Creator — landing page
 
 > Accepted direction: 30 August 2026. Process-first hackathon introduction, not a sales page or
-> a walkthrough of the bundled demo. Implementation: [Phase 23A](../plans/phase-23a-landing-polish.md).
+> a walkthrough of the bundled demo. [Implemented and locally verified](PHASE_23A_LANDING_VERIFICATION.md).
+> Remaining release acceptance: [Phase 23A](../plans/phase-23a-landing-polish.md).
 
 ## Visual reference
 
@@ -118,6 +119,8 @@ The deterministic engine checks geometry; the agent interprets results and trade
 Heading: **Ready to plan your space?**
 Primary **Start planning**; secondary **Explore sample project**.
 Reuse the shared footer with prototype identification and a verified public **Repository** link.
+The implementation omits that link while the configured URL returns logged-out HTTP 404;
+confirm public access before adding it. This remains a release gate, not a placeholder link.
 Note: **Fictional equipment catalog. Simplified geometry. Not a professional safety assessment.**
 No fabricated demo-video link or extra promotional section.
 

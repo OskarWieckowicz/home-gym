@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { headerLinks } from "@/lib/navigation";
 
 function linkPath(href: string) {
-  return href.split("?")[0];
+  return href.split(/[?#]/)[0];
 }
 
 export function SiteHeaderNav() {
@@ -16,8 +16,10 @@ export function SiteHeaderNav() {
     <div className="hidden items-stretch justify-center self-stretch md:flex">
       {headerLinks.map((link) => {
         const activePath = linkPath(link.href);
-        const isActive =
-          activePath === "/" ? pathname === "/" : pathname.startsWith(activePath);
+        const isActive = !link.href.includes("#") && (
+          activePath === "/" ? pathname === "/" :
+            pathname === activePath || pathname.startsWith(`${activePath}/`)
+        );
 
         return (
           <Link

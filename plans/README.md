@@ -11,7 +11,7 @@ Git history preserves them. Implementation evidence belongs in `docs/`.
 
 | Order | Phase | Remaining outcome |
 |---|---|---|
-| 1 | [Phase 23A — Process-first landing page](phase-23a-landing-polish.md) | Implement approved v2: room → goals/budget → equipment/layout; agent starter prompt, real captures, secondary demo entry. |
+| 1 | [Phase 23A — Landing release acceptance](phase-23a-landing-polish.md) | Implemented locally; confirm public repository link and verify authorized deployment/external-agent flow. |
 | 2 | [Phase 23B — Catalog polish](phase-23b-catalog-polish.md) | Resolve missing-photo presentation and the static catalog sidebar; reconcile documented catalog totals. |
 | 3 | [Phase 24 — Submission](phase-24-submission.md) | Verify the deployed shared-editing loop, update README, prepare the English description and video, submit. |
 

@@ -34,8 +34,8 @@ export const siteLinks = {
   logo: { label: "Home Gym Creator", href: routes.home },
   catalog: { label: "Catalog", href: routes.catalog },
   openCreator: { label: "Open creator", href: routes.creator },
-  runDemo: { label: "Run the sample project", href: creatorRoute("demo") },
-  startEmpty: { label: "Start from an empty room", href: creatorRoute("new") },
+  runDemo: { label: "Explore sample project", href: creatorRoute("demo") },
+  startEmpty: { label: "Start planning", href: creatorRoute("new") },
   openSampleProject: {
     label: "Open this project",
     href: creatorRoute("demo"),
@@ -44,8 +44,8 @@ export const siteLinks = {
 } as const satisfies Record<string, SiteLink>;
 
 export const headerLinks = [
-  { label: "How it works", href: routes.home },
-  { label: "Creator", href: routes.creator },
+  { label: "How it works", href: "/#how-it-works" },
+  { label: "Agent guide", href: "/#agent-guide" },
   siteLinks.catalog,
 ] as const satisfies readonly SiteLink[];
 
