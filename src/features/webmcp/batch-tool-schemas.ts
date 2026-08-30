@@ -9,5 +9,7 @@ export const layoutChangesInputSchema = z.object({
 }).strict();
 
 export const suggestPlacementsInputSchema = placementSuggestionRequestSchema;
-export const layoutChangesJsonSchema = z.toJSONSchema(layoutChangesInputSchema);
+// Both batch tools advertise this schema. Keep repeated command fields in $defs
+// so the complete tool set stays within the browser's descriptor byte budget.
+export const layoutChangesJsonSchema = z.toJSONSchema(layoutChangesInputSchema, { reused: "ref" });
 export const suggestPlacementsJsonSchema = z.toJSONSchema(suggestPlacementsInputSchema, { io: "input" });
