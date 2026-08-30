@@ -29,6 +29,7 @@ import {
   catalogProductResolver,
   projectUsesKnownProducts,
 } from "./catalog-product-resolver";
+import { reconcileCatalogProject } from "./reconcile-catalog-project";
 
 const HISTORY_LIMIT = 50;
 export type ProjectStoreState = {
@@ -52,6 +53,7 @@ export type ReplaceProjectResult =
       readonly changed: boolean;
       readonly revision: number;
       readonly issues: readonly ValidationIssue[];
+      readonly reconciledSignalBands?: boolean;
     }
   | {
       readonly ok: false;
@@ -84,11 +86,13 @@ export function createProjectStore(
   initialProject: GymProject,
   options: CreateProjectStoreOptions = {},
 ): ProjectStore {
-  const parsedInitialProject = gymProjectSchema.parse(initialProject);
   const dependencies = resolveProjectCommandDependencies({
     resolveProduct: catalogProductResolver,
     ...options.dependencies,
   });
+  const parsedInitialProject = reconcileCatalogProject(
+    gymProjectSchema.parse(initialProject), dependencies.resolveProduct,
+  );
   if (!projectUsesKnownProducts(parsedInitialProject, dependencies.resolveProduct)) {
     throw new Error("The initial project references an unavailable catalog product.");
   }
@@ -171,9 +175,12 @@ export function createProjectStore(
     replaceProject: (project) => {
       const current = get();
       const parsed = gymProjectSchema.safeParse(project);
+      const reconciled = parsed.success
+        ? reconcileCatalogProject(parsed.data, dependencies.resolveProduct)
+        : undefined;
       if (
-        !parsed.success ||
-        !projectUsesKnownProducts(parsed.data, dependencies.resolveProduct)
+        !reconciled ||
+        !projectUsesKnownProducts(reconciled, dependencies.resolveProduct)
       ) {
         return {
           ok: false,
@@ -186,8 +193,12 @@ export function createProjectStore(
         };
       }
 
-      if (projectsEqual(current.project, parsed.data)) {
+      const compatibility = parsed.success && reconciled !== parsed.data
+        ? { reconciledSignalBands: true as const }
+        : {};
+      if (projectsEqual(current.project, reconciled)) {
         return {
+          ...compatibility,
           ok: true,
           changed: false,
           revision: current.revision,
@@ -198,15 +209,15 @@ export function createProjectStore(
       past = [...past, cloneProjectSnapshot(current.project)].slice(-HISTORY_LIMIT);
       future = [];
       const revision = current.revision + 1;
-      const validation = dependencies.analyzeProject(parsed.data);
+      const validation = dependencies.analyzeProject(reconciled);
       set({
-        project: parsed.data,
+        project: reconciled,
         validation,
         revision,
         canUndo: true,
         canRedo: false,
       });
-      return { ok: true, changed: true, revision, issues: validation.issues };
+      return { ok: true, changed: true, revision, issues: validation.issues, ...compatibility };
     },
     undo: () => {
       const previous = past.at(-1);

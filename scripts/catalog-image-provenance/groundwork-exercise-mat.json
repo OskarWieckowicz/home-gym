@@ -13,5 +13,5 @@
   "sha256": {
     "public/assets/groundwork-exercise-mat-catalog.png": "80237bbee0921a03ff3b72f47771b2f91e2bdbff228b6f11066fb2b05d5d2c12"
   },
-  "integrationStatus": "Mapped to product_groundwork_exercise_mat, a standalone floor-placeable product with deployed 65 × 180 × 1 cm planning dimensions. Existing Mobility Kit preserved. No GLB or top view generated; existing geometric fallback used."
+  "integrationStatus": "Photo, deployed GLB and derived top SVG mapped to product_groundwork_exercise_mat at unchanged 65 × 180 × 1 cm dimensions. Model added after explicit user request. Existing Mobility Kit preserved."
 }

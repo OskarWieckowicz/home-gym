@@ -69,6 +69,8 @@ export const productMountingSchema = z
   .object({
     kind: z.literal("wall"),
     bottomHeightCm: positiveInteger,
+    // Reserve the complete footprint for walking and collisions despite elevation.
+    blocksFloor: z.boolean().optional(),
   })
   .strict();
 

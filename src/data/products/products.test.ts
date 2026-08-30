@@ -17,7 +17,7 @@ const EXPECTED_CATEGORY_COUNTS: Record<ProductCategory, number> = {
   plates: 4,
   dumbbells: 4,
   cardio: 6,
-  accessories: 11,
+  accessories: 13,
 };
 
 const ORIGINAL_IDENTITIES = [
@@ -38,8 +38,8 @@ function normalized(values: string[]): string[] {
 }
 
 describe("catalogProducts", () => {
-  it("contains 38 schema-valid fictional products in the agreed distribution", () => {
-    expect(catalogProducts).toHaveLength(38);
+  it("contains 40 schema-valid fictional products in the agreed distribution", () => {
+    expect(catalogProducts).toHaveLength(40);
     expect(() => productSchema.array().parse(catalogProducts)).not.toThrow();
     expect(catalogProducts.every(({ brand }) => !/nike|adidas|rogue/i.test(brand))).toBe(true);
 
@@ -93,7 +93,7 @@ describe("catalogProducts", () => {
     expect(() => parseCatalogSeeds(invalidSeeds)).toThrow(/Exercises must be unique/);
   });
 
-  it("declares explicit placement modes and two selection-only accessories", () => {
+  it("declares explicit placement modes and three selection-only accessories", () => {
     expect(catalogProducts.every((product) => product.placementMode === "floor" || product.placementMode === "selection-only")).toBe(true);
     const selectionOnly = catalogProducts.filter(({ placementMode }) => placementMode === "selection-only");
     expect(selectionOnly).toEqual([
@@ -102,11 +102,15 @@ describe("catalogProducts", () => {
         placementMode: "selection-only",
       }),
       expect.objectContaining({
+        id: "product_signal_resistance_bands",
+        placementMode: "selection-only",
+      }),
+      expect.objectContaining({
         id: "product_cove_wrist_wraps",
         placementMode: "selection-only",
       }),
     ]);
-    expect(catalogProducts.filter(({ placementMode }) => placementMode === "floor")).toHaveLength(36);
+    expect(catalogProducts.filter(({ placementMode }) => placementMode === "floor")).toHaveLength(37);
   });
 
   it("covers every training goal across multiple equipment categories", () => {

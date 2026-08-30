@@ -1,4 +1,8 @@
 const PRODUCT_IMAGE_BY_ID = {
+  product_foundry_bumper_plates: "/assets/foundry-bumper-plates-catalog-concept-v1.png",
+  product_wall_mounted_punching_bag: "/assets/wall-mounted-punching-bag-catalog-concept-v1.png",
+  product_flex_studio_dumbbells: "/assets/flex-studio-dumbbells-catalog-concept-v1.png",
+  product_freestanding_dip_bars: "/assets/freestanding-dip-bars-catalog-concept-v2.png",
   product_compact_dual_pulley_station: "/assets/compact-dual-pulley-station-catalog-concept-v1.png",
   product_anchor_pullup_bar: "/assets/anchor-pullup-bar-catalog.png",
   product_arc_adjustable_bench: "/assets/arc-adjustable-bench-catalog-concept-v1.png",

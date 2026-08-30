@@ -5,6 +5,8 @@ import type { TrainingGoal } from "@/shared/schemas/training-goal";
 export type ProductMountingFact = {
   readonly kind: "wall";
   readonly bottomHeightCm: number;
+  /** Reserve floor space beneath this mount; omitted keeps overhead behavior. */
+  readonly blocksFloor?: boolean;
 };
 
 export type EffectiveMounting = ProductMountingFact | { readonly kind: "floor" };
@@ -28,4 +30,3 @@ export type ProductResolver = (
 export type ProjectValidationDependencies = {
   readonly resolveProduct?: ProductResolver;
 };
-

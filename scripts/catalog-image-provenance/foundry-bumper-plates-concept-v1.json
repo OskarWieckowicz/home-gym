@@ -1,0 +1,12 @@
+{
+  "candidate": "Foundry Bumper Plates",
+  "productId": "product_foundry_bumper_plates",
+  "date": "2026-08-30",
+  "output": "public/assets/foundry-bumper-plates-catalog-concept-v1.png",
+  "method": "Built-in image_gen",
+  "authorization": "User requested generation of the missing catalog photograph. Photo concept only; existing seed, model and mapping unchanged.",
+  "prompt": "Use case: product-mockup.\nAsset type: square realistic ecommerce catalog photograph for Foundry Bumper Plates, a fictional 100 kg gym plate set.\nSubject: exactly SIX round solid rubber weight plates in three matching pairs. Largest thick pair in muted burnt orange rubber; remaining four plates in matte charcoal black rubber, two medium-thickness and two thinner. Diameters fairly close, slightly smaller for thinner pairs, matching an existing simplified catalog model. Each plate has a genuine open round central bore lined with a brushed silver steel insert, never a solid center cap. Solid circular bumper plate faces, shallow concentric molded recess and rounded outer rim, subtle rubber grain. No handles or grip cutouts.\nComposition: premium realistic studio product photo, three-quarter view slightly above, all six upright on their edges in a compact overlapping staggered group, orange pair front-left, black pairs behind and to right; clearly readable six separate rims and differing thicknesses. Some central bores may naturally be occluded by overlapping plates. No rack, barbell or stand. Entire set centered with comfortable margins, on a warm off-white seamless studio floor and background. Soft contact shadows physically ground every plate.\nLighting: broad softbox, natural restrained rubber highlights and brushed metal detail, realistic product photography, not simplified CGI. No text, numbers, logos, brand names, watermarks or props. No floating or fused objects, no extra plates. Single image.",
+  "review": "Six plates in three pairs, two burnt orange and four charcoal, visible steel-lined center holes, studio background. Coloring follows existing procedural model. Perspective/display arrangement is illustrative, not a source of dimensions or per-plate mass.",
+  "status": "Accepted image mapped to existing product_foundry_bumper_plates; GLB, top SVG and product specifications unchanged.",
+  "integrationAuthorization": "User accepted the photo and explicitly requested catalog integration."
+}

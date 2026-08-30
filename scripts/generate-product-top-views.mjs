@@ -1,6 +1,10 @@
 import { generateGlbTopViewSvg } from "./lib/glb-top-view.mjs";
 
 const assets = [
+  ["public/assets/groundwork-exercise-mat.glb", "public/assets/groundwork-exercise-mat-top.svg"],
+  ["public/assets/wall-mounted-punching-bag.glb", "public/assets/wall-mounted-punching-bag-top.svg"],
+  ["public/assets/flex-studio-dumbbells.glb", "public/assets/flex-studio-dumbbells-top.svg"],
+  ["public/assets/freestanding-dip-bars.glb", "public/assets/freestanding-dip-bars-top.svg"],
   ["public/assets/loop-cable-trainer.glb", "public/assets/loop-cable-trainer-top.svg"],
   ["public/assets/compact-dual-pulley-station.glb", "public/assets/compact-dual-pulley-station-top.svg"],
   ["public/assets/forge-kettlebell-16kg.glb", "public/assets/forge-kettlebell-16kg-top.svg"],

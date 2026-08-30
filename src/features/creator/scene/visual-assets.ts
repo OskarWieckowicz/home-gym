@@ -1,4 +1,8 @@
 export const VISUAL_ASSET_IDS = [
+  "product_groundwork_exercise_mat",
+  "product_wall_mounted_punching_bag",
+  "product_flex_studio_dumbbells",
+  "product_freestanding_dip_bars",
   "product_compact_dual_pulley_station",
   "product_forge_kettlebell_16kg",
   "product_anchor_pullup_bar",
@@ -30,6 +34,42 @@ export type VisualAssetDefinition = {
 };
 
 export const visualAssetRegistry: Readonly<Record<VisualAssetProductId, VisualAssetDefinition>> = {
+  product_groundwork_exercise_mat: {
+    productId: "product_groundwork_exercise_mat",
+    src: "/assets/groundwork-exercise-mat.glb",
+    topViewSrc: "/assets/groundwork-exercise-mat-top.svg",
+    envelopeCm: { widthCm: 65, depthCm: 180, heightCm: 1 },
+    forward: "negative-z",
+    floorPivot: "origin",
+    scale: [1, 1, 1],
+  },
+  product_wall_mounted_punching_bag: {
+    productId: "product_wall_mounted_punching_bag",
+    src: "/assets/wall-mounted-punching-bag.glb",
+    topViewSrc: "/assets/wall-mounted-punching-bag-top.svg",
+    envelopeCm: { widthCm: 60, depthCm: 120, heightCm: 190 },
+    forward: "negative-z",
+    floorPivot: "origin",
+    scale: [1, 1, 1],
+  },
+  product_flex_studio_dumbbells: {
+    productId: "product_flex_studio_dumbbells",
+    src: "/assets/flex-studio-dumbbells.glb",
+    topViewSrc: "/assets/flex-studio-dumbbells-top.svg",
+    envelopeCm: { widthCm: 46, depthCm: 24, heightCm: 18 },
+    forward: "negative-z",
+    floorPivot: "origin",
+    scale: [1, 1, 1],
+  },
+  product_freestanding_dip_bars: {
+    productId: "product_freestanding_dip_bars",
+    src: "/assets/freestanding-dip-bars.glb",
+    topViewSrc: "/assets/freestanding-dip-bars-top.svg",
+    envelopeCm: { widthCm: 120, depthCm: 80, heightCm: 110 },
+    forward: "negative-z",
+    floorPivot: "origin",
+    scale: [1, 1, 1],
+  },
   product_loop_cable_trainer: {
     productId: "product_loop_cable_trainer",
     src: "/assets/loop-cable-trainer.glb",

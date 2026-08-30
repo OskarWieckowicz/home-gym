@@ -36,6 +36,10 @@ async function generateTwice(scriptName, directory) {
 
 describe("Product asset generators", () => {
   it.each([
+    { slug: "groundwork-exercise-mat", groups: 3, minimum: [-0.325, 0, -0.9], dimensions: [0.65, 0.01, 1.8], viewBox: "-0.325 -0.9 0.65 1.8" },
+    { slug: "wall-mounted-punching-bag", groups: 4, minimum: [-0.3, 0, -0.6], dimensions: [0.6, 1.9, 1.2], viewBox: "-0.3 -0.6 0.6 1.2" },
+    { slug: "flex-studio-dumbbells", groups: 3, minimum: [-0.23, 0, -0.12], dimensions: [0.46, 0.18, 0.24], viewBox: "-0.23 -0.12 0.46 0.24" },
+    { slug: "freestanding-dip-bars", groups: 4, minimum: [-0.6, 0, -0.4], dimensions: [1.2, 1.1, 0.8], viewBox: "-0.6 -0.4 1.2 0.8" },
     { slug: "loop-cable-trainer", groups: 5, minimum: [-0.31, 0, -0.14], dimensions: [0.62, 2.05, 0.28], viewBox: "-0.31 -0.14 0.62 0.28" },
     { slug: "compact-dual-pulley-station", groups: 5, minimum: [-0.8, 0, -0.5], dimensions: [1.6, 2.2, 1], viewBox: "-0.8 -0.5 1.6 1" },
     { slug: "northstar-half-rack", groups: 4, minimum: [-0.61, 0, -0.65], dimensions: [1.22, 2.15, 1.3], viewBox: "-0.61 -0.65 1.22 1.3" },

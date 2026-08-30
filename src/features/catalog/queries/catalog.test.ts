@@ -208,7 +208,7 @@ describe("getEffectiveMounting", () => {
     expect(getEffectiveMounting(bar)).toEqual({ kind: "wall", bottomHeightCm: 195 });
     expect(
       catalogProducts.filter((product) => getEffectiveMounting(product).kind === "wall"),
-    ).toEqual([bar]);
+    ).toEqual([bar, findProductById("product_wall_mounted_punching_bag")]);
     expect(getEffectiveRequiredHeightCm(bar)).toBe(233);
   });
 });

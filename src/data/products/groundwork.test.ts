@@ -6,8 +6,23 @@ import { getProductImage } from "@/features/catalog/product-assets";
 import { findProductBySlug, searchProducts } from "@/features/catalog/queries/catalog";
 import { createProjectStore } from "@/features/creator/store/project-store";
 import { createDefaultProject } from "@/features/project/defaults";
+import { getVisualAsset } from "@/features/creator/scene/visual-assets";
 
 describe("standalone Groundwork products", () => {
+  it("maps the deployed mat model and top view without changing its floor footprint", () => {
+    const product = findProductBySlug("groundwork-exercise-mat")!;
+    const visual = getVisualAsset(product.id)!;
+    expect(visual.envelopeCm).toEqual(product.dimensions);
+    expect(visual.scale).toEqual([1, 1, 1]);
+    expect(visual.src).toBe("/assets/groundwork-exercise-mat.glb");
+    expect(visual.topViewSrc).toBe("/assets/groundwork-exercise-mat-top.svg");
+    expect(product.mounting).toBeUndefined();
+    expect(product.useZone).toEqual({ frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 });
+    for (const path of [visual.src, visual.topViewSrc!]) {
+      expect(existsSync(join(process.cwd(), "public", path)), path).toBe(true);
+    }
+  });
+
   it.each([
     ["groundwork-foam-roller", "selection-only", 89, { widthCm: 33, depthCm: 14, heightCm: 14 }],
     ["groundwork-exercise-mat", "floor", 129, { widthCm: 65, depthCm: 180, heightCm: 1 }],
