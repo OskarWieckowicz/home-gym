@@ -11,15 +11,18 @@ Git history preserves them. Implementation evidence belongs in `docs/`.
 
 | Order | Phase | Remaining outcome |
 |---|---|---|
-| 1 | [Phase 23A — Landing release acceptance](phase-23a-landing-polish.md) | Implemented locally; confirm public repository link and verify authorized deployment/external-agent flow. |
-| 2 | [Phase 23B — Catalog polish](phase-23b-catalog-polish.md) | Resolve missing-photo presentation and the static catalog sidebar; reconcile documented catalog totals. |
+| 1 | [Phase 23B — Catalog polish](phase-23b-catalog-polish.md) | Resolve missing-photo presentation and the static catalog sidebar; reconcile documented catalog totals. |
+| 2 | [Phase 29 — Project summary](phase-29-project-summary.md) | Ship the read-only summary route, its entry points and a shared `get_project_summary` derivation. |
 | 3 | [Phase 24 — Submission](phase-24-submission.md) | Verify the deployed shared-editing loop, update README, prepare the English description and video, submit. |
 
 Phase 26 is implemented and locally verified; see [demo evidence](../docs/PHASE_26_DEMO_VERIFICATION.md).
-Phase 23A explains planning from scratch; the demo remains a secondary entry and possible capture
-source. Phase 23B uses the catalog asset coverage decisions below.
-The two polish plans are technically independent and queued sequentially. Phase 24 script preparation
-can begin once the demo is deployed; final submission depends on both Phase 23A and Phase 23B.
+Phase 23A landing is implemented and locally verified; see
+[landing evidence](../docs/PHASE_23A_LANDING_VERIFICATION.md).
+The demo remains a secondary entry and possible capture source. Phase 23B uses the catalog asset
+coverage decisions below. Phase 29 closes the planning loop with a summary surface and carries its
+own cut list because it is late scope. Phase 24 script preparation can begin once the demo is
+deployed; final submission depends on Phase 23B, and its README tool list and demo script depend on
+whatever Phase 29 actually ships.
 
 ## Separate asset work
 
