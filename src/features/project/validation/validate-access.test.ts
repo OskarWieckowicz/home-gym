@@ -26,6 +26,14 @@ const plates: ProductValidationDescriptor = {
   useZone: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
 };
 
+/** A compact plate set: small footprint with use-zone margins under a walking width. */
+const compactPlates: ProductValidationDescriptor = {
+  id: "product_compact_plates",
+  price: 1_200,
+  dimensions: { widthCm: 45, depthCm: 24, heightCm: 45 },
+  useZone: { frontCm: 25, backCm: 10, leftCm: 25, rightCm: 25 },
+};
+
 const bar: ProductValidationDescriptor = {
   id: "product_bar",
   price: 1_500,
@@ -42,7 +50,9 @@ const mountedBar: ProductValidationDescriptor = {
 };
 
 const productsById = new Map(
-  [rack, plates, bar, mountedBar].map((product) => [product.id, product] as const),
+  [rack, plates, compactPlates, bar, mountedBar].map(
+    (product) => [product.id, product] as const,
+  ),
 );
 
 const dependencies = {
@@ -219,6 +229,100 @@ describe("validateAccess", () => {
       dependencies,
     );
     expect(issues.some(({ code }) => code === "USE_ZONE_UNREACHABLE")).toBe(false);
+  });
+
+  it("reaches a compact item whose use-zone margins are narrower than a walking path", () => {
+    const analysis = analyzeProject(
+      project(
+        [door("wall-element_front", "top", 150)],
+        [],
+        [{
+          id: "placement_compact",
+          productId: compactPlates.id,
+          position: { xCm: 330, zCm: 300 },
+          rotation: 0,
+        }],
+      ),
+      dependencies,
+    );
+    expect(analysis.access.facts).toEqual(expect.arrayContaining([
+      { entityId: "placement_compact", kind: "use-zone", state: "comfortable" },
+    ]));
+    expect(analysis.valid).toBe(true);
+  });
+
+  it("reports ACCESS_TIGHT when the only approach is passable but not comfortable", () => {
+    const analysis = analyzeProject(
+      project(
+        [door("wall-element_front", "top", 150)],
+        [
+          obstacle("obstacle_left", {
+            position: { xCm: 0, zCm: 160 },
+            dimensions: { widthCm: 160, depthCm: 80, heightCm: 200 },
+          }),
+          obstacle("obstacle_right", {
+            position: { xCm: 240, zCm: 160 },
+            dimensions: { widthCm: 160, depthCm: 80, heightCm: 200 },
+          }),
+        ],
+        [{
+          id: "placement_rack",
+          productId: rack.id,
+          position: { xCm: 40, zCm: 250 },
+          rotation: 0,
+        }],
+      ),
+      dependencies,
+    );
+    expect(analysis.issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        code: "ACCESS_TIGHT",
+        severity: "warning",
+        entityIds: ["placement_rack"],
+        details: { kind: "use-zone" },
+      }),
+    ]));
+    expect(analysis.issues.some(({ code }) => code === "USE_ZONE_UNREACHABLE")).toBe(false);
+    expect(analysis.valid).toBe(true);
+  });
+
+  it("does not let reach travel through a gap narrower than a walking path", () => {
+    const narrowSlot: Obstacle[] = [
+      obstacle("obstacle_left", {
+        position: { xCm: 0, zCm: 160 },
+        dimensions: { widthCm: 170, depthCm: 80, heightCm: 200 },
+      }),
+      obstacle("obstacle_right", {
+        position: { xCm: 230, zCm: 160 },
+        dimensions: { widthCm: 170, depthCm: 80, heightCm: 200 },
+      }),
+    ];
+    const behindTheSlot = validateProject(
+      project(
+        [door("wall-element_front", "top", 150)],
+        narrowSlot,
+        [{
+          id: "placement_rack",
+          productId: rack.id,
+          position: { xCm: 40, zCm: 250 },
+          rotation: 0,
+        }],
+      ),
+      dependencies,
+    );
+    expect(behindTheSlot).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        code: "USE_ZONE_UNREACHABLE",
+        severity: "error",
+        entityIds: ["placement_rack"],
+      }),
+    ]));
+
+    const doorsAcrossTheSlot = validateProject(
+      project(twoDoors, narrowSlot),
+      dependencies,
+    );
+    expect(doorsAcrossTheSlot.some(({ code }) => code === "DOOR_UNREACHABLE")).toBe(true);
   });
 
   it("warns for an unapproachable obstacle and leaves the project valid", () => {

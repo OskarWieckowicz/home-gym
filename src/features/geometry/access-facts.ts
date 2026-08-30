@@ -1,4 +1,9 @@
-import { COMFORT_WIDTH_CM, PASSABLE_WIDTH_CM } from "./access-constants";
+import {
+  COMFORT_WIDTH_CM,
+  GRID_CELL_CM,
+  PASSABLE_WIDTH_CM,
+  REACH_CM,
+} from "./access-constants";
 import { createClearanceMap } from "./clearance-map";
 import {
   collectAccessTargets,
@@ -8,10 +13,11 @@ import {
   type AccessPlacementInput,
   type AccessTarget,
 } from "./access-targets";
-import { createOccupancyGrid } from "./occupancy-grid";
+import { createOccupancyGrid, type OccupancyGrid } from "./occupancy-grid";
 import {
   componentAt,
   expandDoorSeeds,
+  expandThroughFreeCells,
   labelReachableCells,
   type ReachabilityLabels,
 } from "./reachability";
@@ -67,29 +73,43 @@ function doorSeedComponents(seeds: readonly number[]): Set<number> {
   return new Set(seeds);
 }
 
-function inDoorComponent(
+/** The last step off a walking path. Reach approaches a target; it does not travel. */
+const REACH_CELLS = Math.ceil(REACH_CM / GRID_CELL_CM);
+
+/**
+ * Cells someone standing on a door-connected walking path can occupy or touch.
+ * Walking width decides where the path runs; reach only extends the final step
+ * through free space, so a nook the path cannot enter never links two areas.
+ */
+function reachableFromDoors(
+  grid: OccupancyGrid,
   labels: ReachabilityLabels,
-  index: number,
   doorComponents: ReadonlySet<number>,
-): boolean {
-  const component = componentAt(labels, index);
-  return component > 0 && doorComponents.has(component);
+): Set<number> {
+  const path: number[] = [];
+  for (let index = 0; index < labels.labels.length; index += 1) {
+    const component = componentAt(labels, index);
+    if (component > 0 && doorComponents.has(component)) {
+      path.push(index);
+    }
+  }
+  return new Set(expandThroughFreeCells(grid, path, REACH_CELLS));
 }
 
-function touchesDoorComponent(
-  labels: ReachabilityLabels,
+function touchesReachable(
+  grid: OccupancyGrid,
   cells: readonly number[],
-  doorComponents: ReadonlySet<number>,
+  reachable: ReadonlySet<number>,
 ): boolean {
-  const offsets = [0, 1, -1, labels.cols, -labels.cols];
+  const offsets = [0, 1, -1, grid.cols, -grid.cols];
   for (const cell of cells) {
-    const ix = cell % labels.cols;
+    const ix = cell % grid.cols;
     for (const offset of offsets) {
       const neighbor = cell + offset;
-      if (offset === 1 && ix + 1 >= labels.cols) continue;
+      if (offset === 1 && ix + 1 >= grid.cols) continue;
       if (offset === -1 && ix === 0) continue;
-      if (neighbor < 0 || neighbor >= labels.labels.length) continue;
-      if (inDoorComponent(labels, neighbor, doorComponents)) {
+      if (neighbor < 0 || neighbor >= grid.blocked.length) continue;
+      if (reachable.has(neighbor)) {
         return true;
       }
     }
@@ -98,23 +118,22 @@ function touchesDoorComponent(
 }
 
 function targetState(
+  grid: OccupancyGrid,
   target: AccessTarget,
-  passable: ReachabilityLabels,
-  comfort: ReachabilityLabels,
-  doorComponents: ReadonlySet<number>,
-  comfortDoorComponents: ReadonlySet<number>,
+  passableReach: ReadonlySet<number>,
+  comfortReach: ReadonlySet<number>,
 ): AccessFactState {
-  if (!touchesDoorComponent(passable, target.cells, doorComponents)) {
+  if (!touchesReachable(grid, target.cells, passableReach)) {
     return "unreachable";
   }
-  if (!touchesDoorComponent(comfort, target.cells, comfortDoorComponents)) {
+  if (!touchesReachable(grid, target.cells, comfortReach)) {
     return "tight";
   }
   return "comfortable";
 }
 
 function collectDoorRecords(
-  grid: ReturnType<typeof createOccupancyGrid>,
+  grid: OccupancyGrid,
   doors: readonly AccessDoorInput[],
   passable: ReachabilityLabels,
   comfort: ReachabilityLabels,
@@ -169,6 +188,8 @@ export function evaluateAccess(
   const blockedDoorIds = new Set(
     doorRecords.filter((door) => door.blocked).map((door) => door.id),
   );
+  const passableReach = reachableFromDoors(grid, passable, passableDoorComponents);
+  const comfortReach = reachableFromDoors(grid, comfort, comfortDoorComponents);
   const targets = collectAccessTargets(grid, doors, placements, obstacles);
   const facts = targets.map((target) => ({
     entityId: target.entityId,
@@ -176,13 +197,7 @@ export function evaluateAccess(
     state:
       target.kind === "door" && blockedDoorIds.has(target.entityId)
         ? "unreachable"
-        : targetState(
-            target,
-            passable,
-            comfort,
-            passableDoorComponents,
-            comfortDoorComponents,
-          ),
+        : targetState(grid, target, passableReach, comfortReach),
   }));
 
   return {

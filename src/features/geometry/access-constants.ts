@@ -1,6 +1,8 @@
 /** Application conventions for walking checks. Not legal or accessibility standards. */
 export const GRID_CELL_CM = 10;
-export const PASSABLE_WIDTH_CM = 100;
+/** Narrowest path still treated as walkable. Anything narrower makes a target unreachable. */
+export const PASSABLE_WIDTH_CM = 75;
+/** Path width treated as unconstrained. Between the two widths, access is reported as tight. */
 export const COMFORT_WIDTH_CM = 100;
 export const REACH_CM = 50;
 /** Roughly one stair riser. Lower geometry is crossed on foot, not walked around. */

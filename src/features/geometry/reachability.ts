@@ -1,4 +1,4 @@
-import { PASSABLE_WIDTH_CM, GRID_CELL_CM } from "./access-constants";
+import { COMFORT_WIDTH_CM, GRID_CELL_CM } from "./access-constants";
 import { meetsWidthClearance } from "./clearance-map";
 import type { ClearanceMap } from "./clearance-map";
 import type { OccupancyGrid } from "./occupancy-grid";
@@ -21,7 +21,8 @@ function cellIndex(ix: number, iz: number, cols: number): number {
   return iz * cols + ix;
 }
 
-const DOOR_ENTRY_CELLS = Math.ceil(PASSABLE_WIDTH_CM / 2 / GRID_CELL_CM);
+/** Derived from the widest evaluated width so seeds join every clearance layer. */
+const DOOR_ENTRY_CELLS = Math.ceil(COMFORT_WIDTH_CM / 2 / GRID_CELL_CM);
 
 function neighbors4(index: number, grid: OccupancyGrid): number[] {
   const ix = index % grid.cols;
@@ -39,14 +40,14 @@ function neighbors4(index: number, grid: OccupancyGrid): number[] {
 }
 
 /**
- * Grow door seeds inward through unblocked cells so they join the 1 m
- * walkable interior. Without this, wall-adjacent seeds never meet the
- * clearance threshold and form isolated components.
+ * Grow a seed set outward through unblocked cells, one orthogonal step at a
+ * time. Used to join a wall-adjacent door threshold to the walkable interior,
+ * and to model the last step someone takes off a walking path.
  */
-export function expandDoorSeeds(
+export function expandThroughFreeCells(
   grid: OccupancyGrid,
   seedIndices: readonly number[],
-  steps = DOOR_ENTRY_CELLS,
+  steps: number,
 ): number[] {
   const expanded = new Set(seedIndices.filter((index) => !grid.blocked[index]));
   let frontier = [...expanded];
@@ -64,6 +65,15 @@ export function expandDoorSeeds(
     frontier = next;
   }
   return [...expanded];
+}
+
+/** A door threshold sits against a wall, so it needs enough steps to reach the interior. */
+export function expandDoorSeeds(
+  grid: OccupancyGrid,
+  seedIndices: readonly number[],
+  steps = DOOR_ENTRY_CELLS,
+): number[] {
+  return expandThroughFreeCells(grid, seedIndices, steps);
 }
 
 function isPassable(

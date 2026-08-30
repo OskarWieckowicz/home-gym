@@ -89,9 +89,11 @@ After I confirm the requirements:
 5. Add and arrange the approved equipment in the room, accounting for both its physical footprint
    and the use zone required for safe operation.
 6. After every meaningful group of changes, validate collisions, use zones, ceiling height,
-   unavailable areas, budget, and reachability. A walking path must stay at least 100 cm
-   wide so a person does not have to squeeze; that is an application convention, not a
-   building code.
+   unavailable areas, budget, and reachability. A walking path must stay at least 75 cm
+   wide, and a path narrower than 100 cm is reported as tight rather than broken, so a
+   person does not have to squeeze. Those widths are application conventions, not a
+   building code. Reaching the last 50 cm off a path counts as access; reach never
+   substitutes for a path.
 7. If validation reports errors, try to improve the arrangement. Warnings mean a legitimate
    trade-off, such as a bench standing in a rack's working area, except when they describe
    missing input or unreachable entities. Unreachable doors and equipment are errors, not

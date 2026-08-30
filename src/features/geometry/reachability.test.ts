@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { PASSABLE_WIDTH_CM } from "./access-constants";
+import { COMFORT_WIDTH_CM, PASSABLE_WIDTH_CM } from "./access-constants";
 import { createClearanceMap } from "./clearance-map";
 import { createOccupancyGrid } from "./occupancy-grid";
 import { labelReachableCells } from "./reachability";
@@ -34,10 +34,10 @@ describe("reachability labels", () => {
     expect(labels.labels[seeds[0]]).not.toBe(labels.labels[seeds[1]]);
   });
 
-  it("does not treat a gap under 100 cm as passable away from door seeds", () => {
+  it("does not treat a gap under the passable width as passable away from door seeds", () => {
     const grid = createOccupancyGrid(400, 200, [
-      { minX: 0, minZ: 0, maxX: 155, maxZ: 200 },
-      { minX: 245, minZ: 0, maxX: 400, maxZ: 200 },
+      { minX: 0, minZ: 0, maxX: 170, maxZ: 200 },
+      { minX: 230, minZ: 0, maxX: 400, maxZ: 200 },
     ]);
     const labels = labelReachableCells(
       grid,
@@ -48,5 +48,21 @@ describe("reachability labels", () => {
     const corridor = 10 * grid.cols + 20;
     expect(grid.blocked[corridor]).toBe(false);
     expect(labels.labels[corridor]).toBe(0);
+  });
+
+  it("labels a gap between the passable and comfort widths only as passable", () => {
+    const grid = createOccupancyGrid(400, 200, [
+      { minX: 0, minZ: 0, maxX: 160, maxZ: 200 },
+      { minX: 240, minZ: 0, maxX: 400, maxZ: 200 },
+    ]);
+    const clearance = createClearanceMap(grid);
+    const corridor = 10 * grid.cols + 20;
+    expect(grid.blocked[corridor]).toBe(false);
+    expect(
+      labelReachableCells(grid, clearance, PASSABLE_WIDTH_CM, [20]).labels[corridor],
+    ).not.toBe(0);
+    expect(
+      labelReachableCells(grid, clearance, COMFORT_WIDTH_CM, [20]).labels[corridor],
+    ).toBe(0);
   });
 });
