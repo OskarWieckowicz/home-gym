@@ -14,13 +14,12 @@
 | Groundwork Exercise Mat | Completed after explicit model request: deployed [GLB](../public/assets/groundwork-exercise-mat.glb) and [top SVG](../public/assets/groundwork-exercise-mat-top.svg) mapped alongside existing photo. Charcoal rounded mat with orange border; unchanged 65 × 180 × 1 cm floor footprint. [Model details](../docs/GROUNDWORK_EXERCISE_MAT_MODEL.md). |
 | Wall-mounted punching bag | [Photo v1](../public/assets/wall-mounted-punching-bag-catalog-concept-v1.png), [GLB](../public/assets/wall-mounted-punching-bag.glb) and [top SVG](../public/assets/wall-mounted-punching-bag-top.svg) mapped to new `product_wall_mounted_punching_bag` after explicit user request. Wall mounting with `blocksFloor: true` reserves the full floor footprint; Anchor behavior unchanged. [Fictional specifications, behavior and verification](../docs/WALL_MOUNTED_PUNCHING_BAG_MODEL.md). Browser review remains paused. |
 | Signal Resistance Bands | Photo mapped; selection-only per explicit user clarification. No model needed. Legacy placements retained as shopping items; [compatibility plan](signal-bands-selection-only.md). |
-| Orbit suspension trainer, Pulse jump rope | Proposed selection-only conversion needs an explicit compatibility decision for existing placed items. Suspension/rope catalog imagery remains optional. |
-| Rill Compact Rower | Optional next cardio family, with its own validated footprint and exercise clearances. |
+| Orbit suspension trainer, Pulse jump rope, Rill Compact Rower | Removed from the active catalog with the other 13 incomplete products at the user's explicit request. No generation pending; retired records are only for legacy projects. [Removal and compatibility](remove-incomplete-catalog-products.md). |
 | Flex Studio Dumbbells | Accepted [photo v1](../public/assets/flex-studio-dumbbells-catalog-concept-v1.png), [GLB](../public/assets/flex-studio-dumbbells.glb) and [top SVG](../public/assets/flex-studio-dumbbells-top.svg) mapped to existing `product_flex_studio_dumbbells`. Three colorful pairs; compact static display within unchanged catalog dimensions. [Model and verification](../docs/FLEX_STUDIO_DUMBBELLS_MODEL.md). Browser review remains paused. |
 
 Do not restart the completed bands photo, kettlebell product/photo/model/top-view work, or mat/roller
 product/photo integration. The user stopped kettlebell refinement; browser asset review remains
-paused. Existing Mobility Kit identity stays intact. Roller and bands are selection-only; the mat
+paused. Mobility Kit is retired from the catalog; its identity is retained only for old projects. Roller and bands are selection-only; the mat
 remains floor-placeable. Durable implementation facts live in seeds, asset registries,
 provenance and tests, not in this proposal.
 

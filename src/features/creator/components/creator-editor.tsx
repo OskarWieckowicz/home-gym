@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { useState } from "react";
 
-import { findProductById } from "@/features/catalog/queries/catalog";
+import { findProjectProductById } from "@/features/catalog/queries/project-products";
 import type { ProjectCommandDependencies } from "@/features/project/commands/apply-project-command";
 import type { GymProject } from "@/features/project/schemas/project";
 import { CreatorWebMcpBridge } from "@/features/webmcp/components/creator-webmcp-bridge";
@@ -55,7 +55,7 @@ function EditorWorkspace() {
     ? productForPlacement(project, selectedPlacement)
     : undefined;
   const selectedItem = project.projectItems.find((item) => item.id === selectedId);
-  const selectedItemProduct = selectedItem ? findProductById(selectedItem.productId) : undefined;
+  const selectedItemProduct = selectedItem ? findProjectProductById(selectedItem.productId) : undefined;
   const selectedWallElement = wallElements.find((element) => element.id === selectedId);
   const visibleSelectedId = selectedObstacle || selectedWallElement || selectedPlacement || selectedItem
     ? selectedId

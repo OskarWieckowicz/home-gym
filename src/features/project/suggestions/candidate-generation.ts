@@ -63,6 +63,9 @@ function validateReference(project: GymProject, request: PlacementSuggestionRequ
     : project.projectItems.find((item) => item.id === request.projectItemId)?.productId;
   const product = productId ? dependencies.resolveProduct?.(productId) : undefined;
   if (!product) throw new PlacementSuggestionError("ENTITY_NOT_FOUND", "The requested product or project item does not exist.");
+  if ("productId" in request && product.retired) {
+    throw new PlacementSuggestionError("INVALID_COMMAND", "This product has been retired from the catalog.");
+  }
   if (product.placementMode === "selection-only") {
     throw new PlacementSuggestionError("INVALID_COMMAND", "This product cannot be placed on the floor.");
   }

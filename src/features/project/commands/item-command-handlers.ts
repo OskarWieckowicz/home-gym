@@ -84,8 +84,12 @@ function applyAddItem(
   productId: string,
   dependencies: ResolvedProjectCommandDependencies,
 ): ItemMutation {
-  if (!dependencies.resolveProduct(productId)) {
+  const product = dependencies.resolveProduct(productId);
+  if (!product) {
     return { ok: false, code: "ENTITY_NOT_FOUND" };
+  }
+  if (product.retired) {
+    return { ok: false, code: "INVALID_COMMAND", message: "This product has been retired from the catalog." };
   }
   const id = dependencies.generateProjectItemId();
   if (project.projectItems.some((item) => item.id === id)) {
@@ -133,6 +137,9 @@ function applyPlaceProduct(
   payload: Extract<ItemCommand, { type: "PRODUCT_PLACED" }>["payload"],
   dependencies: ResolvedProjectCommandDependencies,
 ): ItemMutation {
+  if (dependencies.resolveProduct(payload.productId)?.retired) {
+    return { ok: false, code: "INVALID_COMMAND", message: "This product has been retired from the catalog." };
+  }
   const rejected = rejectSelectionOnly(dependencies, payload.productId);
   if (rejected) return rejected;
 

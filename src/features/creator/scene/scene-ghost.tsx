@@ -1,4 +1,5 @@
-import { findProductById, getEffectiveMounting } from "@/features/catalog/queries/catalog";
+import { getEffectiveMounting } from "@/features/catalog/queries/catalog";
+import { findProjectProductById } from "@/features/catalog/queries/project-products";
 import type { Product } from "@/features/catalog/schemas/product";
 import type { GymProject, WallElement } from "@/features/project/schemas/project";
 import type { ProjectCommand } from "@/features/project/schemas/project-command";
@@ -38,7 +39,7 @@ function equipmentGhost(product: Product | null | undefined, pose: PlacementPose
 
 function projectItemGhost(command: CommandOf<"PROJECT_ITEM_PLACED">, project: GymProject): SceneBox[] {
   const item = project.projectItems.find((item) => item.id === command.payload.projectItemId);
-  return equipmentGhost(findProductById(item?.productId ?? ""), command.payload, project);
+  return equipmentGhost(findProjectProductById(item?.productId ?? ""), command.payload, project);
 }
 
 function placementUpdateGhost(command: CommandOf<"PLACEMENT_UPDATED">, project: GymProject): SceneBox[] {
@@ -54,7 +55,7 @@ export function sceneCommandGhost(command: ProjectCommand, project: GymProject):
     case "OBSTACLE_UPDATED": return obstacleUpdateGhost(command, project);
     case "WALL_ELEMENT_ADDED": return wallGhost({ ...command.payload, id: "preview" }, project);
     case "WALL_ELEMENT_UPDATED": return wallUpdateGhost(command, project);
-    case "PRODUCT_PLACED": return equipmentGhost(findProductById(command.payload.productId), command.payload, project);
+    case "PRODUCT_PLACED": return equipmentGhost(findProjectProductById(command.payload.productId), command.payload, project);
     case "PROJECT_ITEM_PLACED": return projectItemGhost(command, project);
     case "PLACEMENT_UPDATED": return placementUpdateGhost(command, project);
     default: return [];

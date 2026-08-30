@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { catalogProducts } from "@/data/products";
+import { findProjectProductById } from "@/features/catalog/queries/project-products";
 import { createDefaultProject } from "../defaults";
 import { decodeProject } from "./project-codec";
 import v3FourProductRoom from "./fixtures/v3-four-product-room.json";
@@ -12,7 +12,7 @@ import {
 } from "./project-migrations";
 
 function catalogPrice(productId: string): number {
-  const product = catalogProducts.find((candidate) => candidate.id === productId);
+  const product = findProjectProductById(productId);
   if (!product) throw new Error(`Missing catalog product ${productId}.`);
   return product.price;
 }

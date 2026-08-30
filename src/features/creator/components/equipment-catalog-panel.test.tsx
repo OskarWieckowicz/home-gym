@@ -55,10 +55,10 @@ describe("EquipmentCatalogPanel", () => {
     const { container } = renderCatalog();
 
     fireEvent.change(screen.getByRole("searchbox", { name: "Search equipment" }), {
-      target: { value: "cove folding bench" },
+      target: { value: "cove wrist wraps" },
     });
     expect(container.querySelector("img")).toBeNull();
-    expect(screen.getByText("Cove Folding Bench")).toBeTruthy();
+    expect(screen.getByText("Cove Wrist Wraps")).toBeTruthy();
   });
 
   it("still activates placement from the list", () => {

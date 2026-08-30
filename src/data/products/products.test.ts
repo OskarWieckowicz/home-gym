@@ -11,26 +11,22 @@ import { catalogProducts } from "./products";
 import { parseCatalogSeeds } from "./catalog-validation";
 
 const EXPECTED_CATEGORY_COUNTS: Record<ProductCategory, number> = {
-  racks: 5,
-  benches: 4,
-  barbells: 4,
-  plates: 4,
-  dumbbells: 4,
-  cardio: 6,
-  accessories: 13,
+  racks: 4,
+  benches: 2,
+  barbells: 1,
+  plates: 3,
+  dumbbells: 2,
+  cardio: 2,
+  accessories: 10,
 };
 
 const ORIGINAL_IDENTITIES = [
   ["product_northstar_half_rack", "northstar-half-rack"],
-  ["product_foundry_wall_rack", "foundry-wall-rack"],
   ["product_arc_adjustable_bench", "arc-adjustable-bench"],
   ["product_pivot_flat_bench", "pivot-flat-bench"],
   ["product_current_fold_bike", "current-fold-bike"],
-  ["product_rill_compact_rower", "rill-compact-rower"],
-  ["product_ironvale_barbell_set", "ironvale-barbell-set"],
   ["product_range_adjustable_dumbbells", "range-adjustable-dumbbells"],
   ["product_loop_cable_trainer", "loop-cable-trainer"],
-  ["product_groundwork_mobility_kit", "groundwork-mobility-kit"],
 ] as const;
 
 function normalized(values: string[]): string[] {
@@ -38,8 +34,8 @@ function normalized(values: string[]): string[] {
 }
 
 describe("catalogProducts", () => {
-  it("contains 40 schema-valid fictional products in the agreed distribution", () => {
-    expect(catalogProducts).toHaveLength(40);
+  it("contains 24 schema-valid fictional products in the agreed distribution", () => {
+    expect(catalogProducts).toHaveLength(24);
     expect(() => productSchema.array().parse(catalogProducts)).not.toThrow();
     expect(catalogProducts.every(({ brand }) => !/nike|adidas|rogue/i.test(brand))).toBe(true);
 
@@ -52,7 +48,7 @@ describe("catalogProducts", () => {
     expect(counts).toEqual(EXPECTED_CATEGORY_COUNTS);
   });
 
-  it("preserves all original IDs and slugs while retiring weights", () => {
+  it("preserves the remaining original IDs and slugs while retiring weights", () => {
     for (const [id, slug] of ORIGINAL_IDENTITIES) {
       expect(catalogProducts.find((product) => product.id === id)?.slug).toBe(slug);
     }
@@ -110,7 +106,7 @@ describe("catalogProducts", () => {
         placementMode: "selection-only",
       }),
     ]);
-    expect(catalogProducts.filter(({ placementMode }) => placementMode === "floor")).toHaveLength(37);
+    expect(catalogProducts.filter(({ placementMode }) => placementMode === "floor")).toHaveLength(21);
   });
 
   it("covers every training goal across multiple equipment categories", () => {
@@ -128,7 +124,7 @@ describe("catalogProducts", () => {
     const bundleIds = [
       "product_northstar_half_rack",
       "product_arc_adjustable_bench",
-      "product_axis_training_bar",
+      "product_quarry_power_bar",
       "product_cairn_iron_plates",
       "product_current_fold_bike",
     ];

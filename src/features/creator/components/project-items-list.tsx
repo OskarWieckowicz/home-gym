@@ -1,6 +1,7 @@
 "use client";
 
-import { findProductById } from "@/features/catalog/queries/catalog";
+import { findProjectProductById } from "@/features/catalog/queries/project-products";
+import { isRetiredProductId } from "@/data/products/retired-products";
 import { findPlacementForItem } from "@/features/project/project-lookups";
 import type { ProjectItem } from "@/features/project/schemas/project";
 
@@ -38,7 +39,7 @@ export function ProjectItemsList({
       {project.projectItems.length === 0 ? <p>No equipment in the project yet.</p> : (
         <ul>
           {project.projectItems.map((item) => {
-            const product = findProductById(item.productId);
+            const product = findProjectProductById(item.productId);
             const placement = findPlacementForItem(project, item.id);
             const name = product?.name ?? "Unavailable product";
             const selected = selectedId === item.id || selectedId === placement?.id;
@@ -54,6 +55,7 @@ export function ProjectItemsList({
                   <span>
                     <strong>{name}</strong>
                     <small>{placement ? `Placed · ${placement.rotation}°` : "Unplaced"}</small>
+                    {isRetiredProductId(item.productId) ? <small>Retired from catalog</small> : null}
                   </span>
                 </button>
                 <div className="creator-item-actions">

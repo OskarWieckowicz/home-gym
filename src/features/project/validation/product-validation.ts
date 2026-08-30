@@ -20,6 +20,8 @@ export type ProductValidationDescriptor = ProductGeometryDescriptor & {
   readonly minimumCeilingHeightCm?: number;
   readonly mounting?: ProductMountingFact;
   readonly placementMode?: PlacementMode;
+  /** Legacy project records remain valid, but no new purchases may be added. */
+  readonly retired?: boolean;
   readonly trainingGoals?: readonly TrainingGoal[];
 };
 

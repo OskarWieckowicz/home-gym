@@ -2,7 +2,7 @@
 
 import { cleanup, render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { findProductById } from "@/features/catalog/queries/catalog";
+import { findProjectProductById as findProductById } from "@/features/catalog/queries/project-products";
 import type { Placement } from "@/features/project/schemas/project";
 import { EquipmentEntity } from "./equipment-entity";
 
