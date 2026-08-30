@@ -9,7 +9,11 @@ describe("catalog product assets", () => {
     expect(getProductImage("product_delta_change_plates")).toBe("/assets/delta-change-plates-catalog.png");
     expect(getProductImage("product_harbor_squat_stands")).toBe("/assets/harbor-squat-stands-catalog.png");
     expect(getProductImage("product_summit_power_cage")).toBe("/assets/squat-rack-catalog.png");
-    expect(getProductImage("product_summit_strength_station")).toBe("/assets/strength-station-composition-top.svg");
-    expect(getProductImage("product_northstar_half_rack")).toBeUndefined();
+    expect(getProductImage("product_summit_strength_station")).toBe("/assets/summit-strength-station-catalog.png");
+    expect(getProductImage("product_northstar_half_rack")).toBe("/assets/northstar-half-rack-catalog.png");
+    expect(getProductImage("product_pivot_flat_bench")).toBe("/assets/pivot-flat-bench-catalog.png");
+    expect(getProductImage("product_range_adjustable_dumbbells")).toBe("/assets/range-adjustable-dumbbells-catalog.png");
+    expect(getProductImage("product_surge_compact_treadmill")).toBe("/assets/surge-compact-treadmill-catalog.png");
+    expect(getProductImage("product_foundry_wall_rack")).toBeUndefined();
   });
 });

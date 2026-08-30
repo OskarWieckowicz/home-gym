@@ -1,0 +1,28 @@
+{
+  "productId": "product_surge_compact_treadmill",
+  "output": "public/assets/surge-compact-treadmill-catalog.png",
+  "date": "2026-08-30",
+  "method": "Built-in image_gen; photographic material and lighting refinement of a deterministic depth-tested GLB reference",
+  "geometrySource": "public/assets/surge-compact-treadmill.glb",
+  "geometryGenerator": "scripts/generate-surge-compact-treadmill-glb.mjs",
+  "referenceRenderer": "scripts/render-product-reference.mjs",
+  "referenceRasterizer": "scripts/lib/rasterize-reference.mjs",
+  "referenceCommand": "node scripts/render-product-reference.mjs public/assets/surge-compact-treadmill.glb /tmp/surge-catalog-reference.png rear",
+  "styleReference": "public/assets/pivot-flat-bench-catalog.png",
+  "prompt": "Use case: product-mockup.\nAsset type: square e-commerce catalog photograph for Surge Compact Treadmill.\nInput image 1 is the STRUCTURAL SOURCE: a deterministic render of the actual Surge GLB, viewed from the rear belt-entry side so the console face is visible. Input image 2 is STYLE ONLY: the accepted Pivot catalog photo; do not include or copy the bench.\nProduce a photorealistic studio product image of exactly the treadmill in image 1. Preserve its exact silhouette, part arrangement and proportions: a compact unfolded horizontal running deck, a long flat dark running belt, two raised textured side steps with thin orange inner-edge strips, a low charcoal vented motor hood at the far/front end, exactly two slim graphite console uprights, a tilted rectangular console with one centered blank teal display, two dark recessed side panels, one small central orange stop button and two small silver controls, two short black handrails extending back toward the user, orange circular pivot covers beside the motor hood, and four low rubber floor feet. Keep the belt unobstructed and the rear exit open. Overall proportions: 78 cm wide, 162 cm deep, 138 cm high. Do not fold or incline the deck.\nPreserve the source three-quarter viewpoint: open belt-entry end nearest camera at lower-left, motor hood and console farther away toward upper-right; show the console front and full belt. Entire product visible, centered square composition, comfortable margins, no cropping. Improve only materials, lighting and photographic polish: fine graphite powder-coated steel, restrained matte charcoal moulded plastic with clean manufactured edges, subtly textured rubber running belt and footrails, black rubber grips, restrained orange trim, brushed steel fittings and softly reflective teal screen. Use the warm off-white seamless studio backdrop, soft diffuse illumination and gentle contact shadow of image 2. The display is blank; no invented interface or numbers. No people, bench, weights, accessories, oversized touchscreen, extra bars, curved running surface, branding, logos, text, labels, measurements or watermark. One treadmill only. Output one high-resolution square photo.",
+  "review": "Compared to the GLB reference: unfolded flat belt, textured side steps, thin orange strips, motor hood, two uprights, short handrails and blank teal console retained. Camera is on the rear belt-entry side to show the console face. Full object visible on an off-white studio background. AI-generated catalog illustration, not a dimensional source or photograph of a real manufactured product.",
+  "browserVerification": "Skipped per user preference",
+  "model": "Built-in tool default; no explicit model override",
+  "sha256": {
+    "public/assets/surge-compact-treadmill.glb": "e0588cfae4c1178d0f72843db3023a78e058594cbbf7145a409ab491220f21e3",
+    "scripts/render-product-reference.mjs": "8c8d2716f3b2646f6a646328a55ecf86551eada74ba2be6eecc86f5b437694bc",
+    "scripts/lib/rasterize-reference.mjs": "2409e0fa0d0c64de7ef814c903fcb3de254fe8f425c5c0480e3ecbe2b4ca67a5",
+    "public/assets/pivot-flat-bench-catalog.png": "5f7a32be05c8a3492caa9f5de5fc4bbe6099995b97d9b31a84107051e2c55241",
+    "public/assets/surge-compact-treadmill-catalog.png": "b69a2345f21772c7ff5547e963df60416e9d66f9c9eccba44c97ad28f888c8f1"
+  },
+  "outputDimensions": {
+    "width": 1254,
+    "height": 1254
+  },
+  "outputBytes": 1566862
+}

@@ -1,0 +1,28 @@
+{
+  "productId": "product_range_adjustable_dumbbells",
+  "output": "public/assets/range-adjustable-dumbbells-catalog.png",
+  "date": "2026-08-30",
+  "method": "Built-in image_gen; photographic material and lighting refinement of a deterministic depth-tested GLB reference",
+  "geometrySource": "public/assets/range-adjustable-dumbbells.glb",
+  "geometryGenerator": "scripts/generate-range-adjustable-dumbbells-glb.mjs",
+  "referenceRenderer": "scripts/render-product-reference.mjs",
+  "referenceRasterizer": "scripts/lib/rasterize-reference.mjs",
+  "referenceCommand": "node scripts/render-product-reference.mjs public/assets/range-adjustable-dumbbells.glb /tmp/range-catalog-reference.png",
+  "styleReference": "public/assets/pivot-flat-bench-catalog.png",
+  "prompt": "Use case: product-mockup.\nAsset type: square e-commerce catalog photo for Range Adjustable Dumbbells.\nInput image 1 is the STRUCTURAL SOURCE: a deterministic render of the actual Range GLB. Input image 2 is STYLE ONLY: the accepted Pivot catalog photo; do not include or copy the bench.\nCreate a photorealistic studio product photo of exactly the dumbbell pair and low stand in image 1. Preserve the silhouette, layout, proportions, viewing angle and part count. Exactly TWO parallel adjustable dumbbells, side by side, each with a exposed steel central handgrip between two separate layered circular weight packs. Each of the four weight packs has five closely spaced discs. Keep the open grip spaces; do not merge the ends into a solid drum. Two orange circular selector dials with black central caps and a small silver indicator on the near/front ends; black caps on the far ends. Both dumbbells rest horizontally in individual fitted black cradle trays on one graphite low stand. Preserve the two rear uprights, two forward diagonal support struts, rear crossmembers, two long floor rails and four broad rubber foot pads. The whole assembly is 48 cm wide, 54 cm deep, 62 cm tall.\nKeep the same front three-quarter view with both orange dials visible, both dumbbells recognizable, stand fully visible, centered square frame and comfortable margins. Improve surface realism only: finely textured dark iron discs, graphite powder-coated steel frame, matte rubber cradles/feet, restrained orange dial finish and brushed steel grips/fasteners. Use the warm off-white seamless studio backdrop, soft diffused lighting, subtle realistic floor contact shadow and clean premium catalog finish of image 2. Keep the compact utilitarian design; no manufacturer-specific design substitutions. No extra dumbbells, loose weights, rack, bench, people, text, numbers, logos, watermark, measurement overlays or cropping. Output one high-resolution square image.",
+  "review": "Compared to the GLB reference: two dumbbells with four separate layered weight packs, partly visible steel grips, two front orange selector dials, separate cradles, braced low stand and four rubber feet retained. Full object visible on an off-white studio background. AI-generated catalog illustration, not a dimensional source or photograph of a real manufactured product.",
+  "browserVerification": "Skipped per user preference",
+  "model": "Built-in tool default; no explicit model override",
+  "sha256": {
+    "public/assets/range-adjustable-dumbbells.glb": "41bc91442fe67442e98b83b817a1d366e30de1bcf9cdfee7ab0f9208438487e1",
+    "scripts/render-product-reference.mjs": "0a73fb8519ed2876ccbc3313ce2cefbcadd12455b6967c5fb55d0298d2e6d922",
+    "scripts/lib/rasterize-reference.mjs": "2409e0fa0d0c64de7ef814c903fcb3de254fe8f425c5c0480e3ecbe2b4ca67a5",
+    "public/assets/pivot-flat-bench-catalog.png": "5f7a32be05c8a3492caa9f5de5fc4bbe6099995b97d9b31a84107051e2c55241",
+    "public/assets/range-adjustable-dumbbells-catalog.png": "d50e6a10dcea55157771e2e3e64c0fd0ba7fa4c6b6bb9fdcef43a9c190aa3b28"
+  },
+  "outputDimensions": {
+    "width": 1254,
+    "height": 1254
+  },
+  "outputBytes": 1933013
+}

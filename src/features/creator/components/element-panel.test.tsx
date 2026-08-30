@@ -51,17 +51,24 @@ function placedEquipmentButton(name: string) {
 }
 
 describe("ElementPanel project equipment", () => {
-  it("shows the catalog photo for mapped products", () => {
-    renderPanel(projectWithPlacement("product_harbor_squat_stands"));
+  it.each([
+    ["product_harbor_squat_stands", "Harbor Squat Stands", "/assets/harbor-squat-stands-catalog.png"],
+    ["product_northstar_half_rack", "Northstar Half Rack", "/assets/northstar-half-rack-catalog.png"],
+    ["product_pivot_flat_bench", "Pivot Flat Bench", "/assets/pivot-flat-bench-catalog.png"],
+    ["product_range_adjustable_dumbbells", "Range Adjustable Dumbbells", "/assets/range-adjustable-dumbbells-catalog.png"],
+    ["product_surge_compact_treadmill", "Surge Compact Treadmill", "/assets/surge-compact-treadmill-catalog.png"],
+    ["product_summit_strength_station", "Summit Complete Strength Station", "/assets/summit-strength-station-catalog.png"],
+  ])("shows the catalog photo for %s", (productId, name, imagePath) => {
+    renderPanel(projectWithPlacement(productId));
 
     expect(
-      decodeURIComponent(placedEquipmentButton("Harbor Squat Stands").querySelector("img")?.getAttribute("src") ?? ""),
-    ).toContain("/assets/harbor-squat-stands-catalog.png");
+      decodeURIComponent(placedEquipmentButton(name).querySelector("img")?.getAttribute("src") ?? ""),
+    ).toContain(imagePath);
   });
 
   it("keeps the icon fallback when a product has no thumbnail", () => {
-    renderPanel(projectWithPlacement("product_northstar_half_rack"));
+    renderPanel(projectWithPlacement("product_cove_folding_bench"));
 
-    expect(placedEquipmentButton("Northstar Half Rack").querySelector("img")).toBeNull();
+    expect(placedEquipmentButton("Cove Folding Bench").querySelector("img")).toBeNull();
   });
 });

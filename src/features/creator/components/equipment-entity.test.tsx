@@ -44,6 +44,25 @@ function renderEquipment(productId: string, rotation: Placement["rotation"] = 0)
   );
 }
 
+describe("Surge treadmill top view", () => {
+  it.each([
+    [0, "translate(98 192) rotate(-180)", ["-10", "-50", "138", "267"]],
+    [90, "translate(20 108) rotate(-90)", ["-5", "0", "267", "138"]],
+    [180, "translate(20 30)", ["-10", "5", "138", "267"]],
+    [270, "translate(182 30) rotate(-270)", ["-60", "0", "267", "138"]],
+  ] as const)("preserves the 80 cm rear clearance at %s degrees", (rotation, pose, bounds) => {
+    const view = renderEquipment("product_surge_compact_treadmill", rotation);
+    const image = view.container.querySelector(".creator-equipment-top-view");
+    const zone = view.container.querySelector(".creator-equipment-use-zone");
+    expect(image?.getAttribute("href")).toBe("/assets/surge-compact-treadmill-top.svg");
+    expect(["width", "height", "pointer-events"].map((attribute) => image?.getAttribute(attribute)))
+      .toEqual(["78", "162", "none"]);
+    expect(image?.parentElement?.getAttribute("transform")).toBe(pose);
+    expect(view.container.querySelector(".creator-equipment-outline")).toBeTruthy();
+    expect(["x", "y", "width", "height"].map((attribute) => zone?.getAttribute(attribute))).toEqual(bounds);
+  });
+});
+
 describe("EquipmentEntity top views", () => {
   it.each([
     [0, "translate(68 84) rotate(-180)", ["-20", "20", "128", "104"]],

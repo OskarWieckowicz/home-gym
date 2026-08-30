@@ -12,6 +12,7 @@ export const VISUAL_ASSET_IDS = [
   "product_range_adjustable_dumbbells",
   "product_summit_power_cage",
   "product_summit_strength_station",
+  "product_surge_compact_treadmill",
 ] as const;
 export type VisualAssetProductId = (typeof VISUAL_ASSET_IDS)[number];
 
@@ -26,6 +27,15 @@ export type VisualAssetDefinition = {
 };
 
 export const visualAssetRegistry: Readonly<Record<VisualAssetProductId, VisualAssetDefinition>> = {
+  product_surge_compact_treadmill: {
+    productId: "product_surge_compact_treadmill",
+    src: "/assets/surge-compact-treadmill.glb",
+    topViewSrc: "/assets/surge-compact-treadmill-top.svg",
+    envelopeCm: { widthCm: 78, depthCm: 162, heightCm: 138 },
+    forward: "negative-z",
+    floorPivot: "origin",
+    scale: [1, 1, 1],
+  },
   product_range_adjustable_dumbbells: {
     productId: "product_range_adjustable_dumbbells",
     src: "/assets/range-adjustable-dumbbells.glb",

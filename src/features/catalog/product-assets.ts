@@ -4,8 +4,12 @@ const PRODUCT_IMAGE_BY_ID = {
   product_cairn_iron_plates: "/assets/cairn-iron-plates-catalog.png",
   product_delta_change_plates: "/assets/delta-change-plates-catalog.png",
   product_harbor_squat_stands: "/assets/harbor-squat-stands-catalog.png",
+  product_northstar_half_rack: "/assets/northstar-half-rack-catalog.png",
+  product_pivot_flat_bench: "/assets/pivot-flat-bench-catalog.png",
+  product_range_adjustable_dumbbells: "/assets/range-adjustable-dumbbells-catalog.png",
   product_summit_power_cage: "/assets/squat-rack-catalog.png",
-  product_summit_strength_station: "/assets/strength-station-composition-top.svg",
+  product_summit_strength_station: "/assets/summit-strength-station-catalog.png",
+  product_surge_compact_treadmill: "/assets/surge-compact-treadmill-catalog.png",
 } as const;
 
 export function getProductImage(productId: string): string | undefined {

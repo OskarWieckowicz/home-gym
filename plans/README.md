@@ -44,20 +44,15 @@ Product scope and architecture live in the [product concept](../docs/PRODUCT_CON
   provenance. An unclear license is a rejection, not a later cleanup task.
 - Landing-page work starts only after the shared-editing demo can provide real screenshots.
 
-## Current state
+## Parallel work
 
-Phases 17, 18a, 19, and 25 are complete. Together they give the queue below a stable foundation:
-`useZone` semantics with errors separated from warnings, room reachability derived after every
-mutation on a 100 cm walking path, project items independent of floor placements at schema
-version 4, and wall mounting as a catalog fact. `analyzeProject` is the shared read model that the
-remaining phases extend. Git history holds their detailed plans.
+[Phase 16 — remaining visual-asset work](phase-16-product-visual-assets.md) runs separately from
+the sequential queue below. Model generation is complete for the selected set; manifest coverage,
+bounds decisions, failure coverage and runtime acceptance remain open. Browser checks are paused
+at the user's request. Every phase below must work with the permanent geometric fallback.
 
-Phase 16 (product visual assets and model families) is in progress on its own track and is not
-part of the sequential queue below. Its detailed plan is
-[phase-16-product-visual-assets.md](phase-16-product-visual-assets.md); its active slices keep
-their own `phase-16-*.md` files in this directory until they land. Every phase below must remain
-correct whether or not a given product has an accepted visual, because the geometric fallback is
-the contract.
+[Catalog image queue](phase-16-catalog-images.md) contains only Current Fold Bike, Quarry Power
+Bar and Foundry Bumper Plates. Resume one product at a time at the user's request.
 
 ## Active queue
 

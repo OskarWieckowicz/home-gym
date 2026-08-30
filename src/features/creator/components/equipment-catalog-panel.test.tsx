@@ -14,14 +14,21 @@ function renderCatalog(onActivate = vi.fn(), onAdd = vi.fn()) {
 }
 
 describe("EquipmentCatalogPanel", () => {
-  it("shows the catalog photo for mapped products", () => {
+  it.each([
+    ["summit", "/assets/squat-rack-catalog.png"],
+    ["northstar", "/assets/northstar-half-rack-catalog.png"],
+    ["pivot", "/assets/pivot-flat-bench-catalog.png"],
+    ["range", "/assets/range-adjustable-dumbbells-catalog.png"],
+    ["surge", "/assets/surge-compact-treadmill-catalog.png"],
+    ["summit complete", "/assets/summit-strength-station-catalog.png"],
+  ])("shows the catalog photo for %s", (search, imagePath) => {
     const { container } = renderCatalog();
 
     fireEvent.change(screen.getByRole("searchbox", { name: "Search equipment" }), {
-      target: { value: "summit" },
+      target: { value: search },
     });
     expect(decodeURIComponent(container.querySelector("img")?.getAttribute("src") ?? "")).toContain(
-      "/assets/squat-rack-catalog.png",
+      imagePath,
     );
   });
 
@@ -29,10 +36,10 @@ describe("EquipmentCatalogPanel", () => {
     const { container } = renderCatalog();
 
     fireEvent.change(screen.getByRole("searchbox", { name: "Search equipment" }), {
-      target: { value: "northstar" },
+      target: { value: "cove folding bench" },
     });
     expect(container.querySelector("img")).toBeNull();
-    expect(screen.getByText("Northstar Half Rack")).toBeTruthy();
+    expect(screen.getByText("Cove Folding Bench")).toBeTruthy();
   });
 
   it("still activates placement from the list", () => {

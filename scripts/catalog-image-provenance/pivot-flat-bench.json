@@ -1,0 +1,28 @@
+{
+  "productId": "product_pivot_flat_bench",
+  "output": "public/assets/pivot-flat-bench-catalog.png",
+  "date": "2026-08-30",
+  "method": "Built-in image_gen; photographic material and lighting refinement of a deterministic depth-tested GLB reference",
+  "geometrySource": "public/assets/pivot-flat-bench.glb",
+  "geometryGenerator": "scripts/generate-pivot-flat-bench-glb.mjs",
+  "referenceRenderer": "scripts/render-product-reference.mjs",
+  "referenceRasterizer": "scripts/lib/rasterize-reference.mjs",
+  "referenceCommand": "node scripts/render-product-reference.mjs public/assets/pivot-flat-bench.glb /tmp/pivot-catalog-reference.png",
+  "styleReference": "public/assets/northstar-half-rack-catalog.png",
+  "prompt": "Use case: product-mockup.\nAsset type: square e-commerce catalog photo for Pivot Flat Bench.\nInput image 1 is the STRUCTURAL SOURCE: a deterministic depth-tested render of the actual Pivot GLB. Input image 2 is STYLE ONLY: the existing Northstar catalog photo. Do not include or copy the rack.\nCreate a polished photorealistic studio product photo of exactly the flat bench in image 1. Preserve its silhouette, proportions, orientation and component arrangement: ONE continuous perfectly horizontal charcoal upholstered pad with softly chamfered corners, a steel plate immediately below it, a fixed graphite central frame, two angled support assemblies with short diagonal braces and restrained orange bracket plates, a narrower front cross-foot, wider rear cross-foot, four black rubber foot pads, a black-gripped lift handle at the near/front end, and two small transport wheels at the far/rear end. Overall proportions are 58 cm wide, 124 cm long, 44 cm high; the pad is 31 cm wide, 110 cm long and 7 cm thick. Keep the pad single, flat, and unsegmented. Do not add hinges, incline mechanisms, adjustment ladders, a separate seat, leg rollers or exercise attachments.\nPreserve the three-quarter camera angle of the source, with the handle nearest the camera on the lower-right side and rear cross-foot receding toward upper-left. Whole bench visible, centered in a square frame, comfortable margins. Improve only surface realism, lighting and studio background: fine matte black/charcoal upholstery with subtle edge seams, graphite powder-coated steel, restrained burnt-orange brackets, black rubber and brushed zinc fasteners. Use the warm off-white seamless background, soft diffused light, gentle realistic contact shadow and premium clean catalog finish of image 2. Keep hardware crisp, manufactured and physically plausible. One bench only, empty studio. No people, rack, dumbbells, barbell, branding, text, logos, labels, measurement overlays, watermark or cropping. Output one high-resolution square photograph.",
+  "review": "Compared to the GLB reference: one flat unsegmented pad, fixed supports, orange brackets, front lift handle, unequal cross-feet and four rubber feet retained. Rear wheels are partly occluded in this view. Whole object visible on an off-white studio background. AI-generated catalog illustration, not a dimensional source or photograph of a real manufactured product.",
+  "browserVerification": "Skipped per user preference",
+  "model": "Built-in tool default; no explicit model override",
+  "sha256": {
+    "public/assets/pivot-flat-bench.glb": "9e892684fba6dd23c1a7b3d9fee08377624936822217fc0f2d883b4da3d91998",
+    "scripts/render-product-reference.mjs": "0a73fb8519ed2876ccbc3313ce2cefbcadd12455b6967c5fb55d0298d2e6d922",
+    "scripts/lib/rasterize-reference.mjs": "2409e0fa0d0c64de7ef814c903fcb3de254fe8f425c5c0480e3ecbe2b4ca67a5",
+    "public/assets/northstar-half-rack-catalog.png": "8ad55dfc51817d2178b5a4520198d4c61589c94c939aa65256b7020aaebb6e17",
+    "public/assets/pivot-flat-bench-catalog.png": "5f7a32be05c8a3492caa9f5de5fc4bbe6099995b97d9b31a84107051e2c55241"
+  },
+  "outputDimensions": {
+    "width": 1254,
+    "height": 1254
+  },
+  "outputBytes": 1699771
+}

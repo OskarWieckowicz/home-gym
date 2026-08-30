@@ -1,0 +1,26 @@
+{
+  "productId": "product_northstar_half_rack",
+  "output": "public/assets/northstar-half-rack-catalog.png",
+  "date": "2026-08-30",
+  "method": "Built-in image_gen; photographic material and lighting refinement of a deterministic GLB reference",
+  "geometrySource": "public/assets/northstar-half-rack.glb",
+  "geometryGenerator": "scripts/generate-northstar-half-rack-glb.mjs",
+  "referenceRenderer": "scripts/render-product-reference.mjs",
+  "referenceCommand": "node scripts/render-product-reference.mjs public/assets/northstar-half-rack.glb /tmp/northstar-catalog-reference.png",
+  "styleReference": "public/assets/squat-rack-catalog.png",
+  "prompt": "Use case: product-mockup.\nAsset type: square e-commerce catalog photograph for Northstar Half Rack.\nInput image 1 is the STRUCTURAL SOURCE: a deterministic render of the actual Northstar GLB. Input image 2 is STYLE ONLY: the existing Summit catalog photo. Do not copy the Summit four-post cage design.\nCreate a polished photorealistic studio product photo of precisely the half rack in image 1. Preserve its exact silhouette, proportions, viewing angle, and component positions: exactly TWO tall uprights, a rear top crossmember and straight pull-up bar with black grips, two orange J-cups, two long orange cantilever safety arms with black protective upper strips and raised end lips, two long front-to-back floor rails on four wide rubber pads, two short rear diagonal braces and a low rear crossmember. The front stays completely open. The safety arms project toward the camera/right as in image 1. Preserve the 122 cm wide, 130 cm deep, 215 cm high proportions. Do not add rear tall posts, a cage, weights, a bench, a barbell, storage pegs or extra accessories.\nReplace the flat reference rendering with realistic fine graphite powder-coated steel, restrained orange powder-coated attachments, black UHMW/rubber contact surfaces, and brushed zinc fasteners. Give the steel clean precise manufactured edges and subtle texture; faithfully retain the structural parts. Use the warm off-white seamless studio backdrop, soft diffused lighting, gentle floor contact shadow, and clean premium catalog finish of image 2. Full object visible with comfortable margin on all sides, centered square composition, front three-quarter view, no cropping. Only one half rack. No text, logos, labels, watermark, people, room furnishings, or measurement overlays. Output one high-resolution square image.",
+  "review": "Compared generated image to the GLB reference: two uprights, open front, two J-cups, two cantilever arms, rear braces and floor rails retained; full object visible on an off-white studio background. AI-generated catalog illustration, not a dimensional source or photograph of a real manufactured product.",
+  "browserVerification": "Skipped per user preference",
+  "model": "Built-in tool default; no explicit model override",
+  "sha256": {
+    "public/assets/northstar-half-rack.glb": "7921bc7bcf32235d806e7320e3d61bf2ae588436babcef08d4f4420d2836b22a",
+    "scripts/render-product-reference.mjs": "444742b722c0af9b4880b52a8f2f9d1b3de48a891f19f615a6ce7ec15f7db3ff",
+    "public/assets/squat-rack-catalog.png": "c7404120c350c62207bdd6b39b5a1589da0ef2c29cffd676321c8448460b9794",
+    "public/assets/northstar-half-rack-catalog.png": "8ad55dfc51817d2178b5a4520198d4c61589c94c939aa65256b7020aaebb6e17"
+  },
+  "outputDimensions": {
+    "width": 1254,
+    "height": 1254
+  },
+  "outputBytes": 1656877
+}
