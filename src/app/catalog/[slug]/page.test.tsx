@@ -15,6 +15,21 @@ function collectText(node: unknown): string {
   return collectText((node as { props?: { children?: unknown } }).props?.children);
 }
 
+function findProp(node: unknown, key: string): unknown {
+  if (!node || typeof node !== "object") return undefined;
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const found = findProp(child, key);
+      if (found !== undefined) return found;
+    }
+    return undefined;
+  }
+
+  const props = (node as { props?: Record<string, unknown> }).props;
+  if (props && key in props) return props[key];
+  return findProp(props?.children, key);
+}
+
 describe("product detail route", () => {
   it("builds every validated product path", () => {
     expect(generateStaticParams()).toEqual(
@@ -30,6 +45,18 @@ describe("product detail route", () => {
       title: `${product.name} — Home Gym Creator`,
       description: product.description,
     });
+  });
+
+  it("shows the catalog image on the product details page", async () => {
+    const page = await ProductPage(params("anchor-pullup-bar"));
+    expect(findProp(page, "src")).toBe("/assets/anchor-pullup-bar-catalog.png");
+    expect(findProp(page, "alt")).toBe("Anchor Pull-Up Bar catalog image");
+  });
+
+  it("shows a placeholder when the product has no catalog image", async () => {
+    const page = await ProductPage(params("foundry-wall-rack"));
+    expect(findProp(page, "src")).toBeUndefined();
+    expect(collectText(page)).toContain("Product image coming later");
   });
 
   it("shows the mount height next to anchoring on the pull-up bar page", async () => {

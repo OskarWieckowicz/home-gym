@@ -1,4 +1,6 @@
+import { ImageOff } from "lucide-react";
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -11,6 +13,7 @@ import {
   formatFootprint,
   formatPricePln,
 } from "@/features/catalog/components/catalog-formatters";
+import { getProductImage } from "@/features/catalog/product-assets";
 import { findProductBySlug } from "@/features/catalog/queries";
 import { siteLinks } from "@/lib/navigation";
 
@@ -62,6 +65,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       ? ["Assembly", formatCatalogLabel(product.requirements.assembly)]
       : undefined,
   ].filter((entry): entry is [string, string] => Boolean(entry));
+  const image = getProductImage(product.id);
 
   return (
     <main className="flex-1">
@@ -75,7 +79,25 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(19rem,0.65fr)]">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
+            <figure className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-line bg-surface-muted">
+              {image ? (
+                <Image
+                  alt={`${product.name} catalog image`}
+                  className="object-contain p-6"
+                  fetchPriority="high"
+                  fill
+                  loading="eager"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  src={image}
+                />
+              ) : (
+                <div className="grid h-full place-items-center gap-2 text-center text-ink-subtle">
+                  <ImageOff aria-hidden="true" className="size-10 stroke-[1.5]" />
+                  <span className="text-sm font-medium">Product image coming later</span>
+                </div>
+              )}
+            </figure>
+            <p className="mt-8 text-xs font-semibold uppercase tracking-[0.18em] text-brand">
               {formatCatalogLabel(product.category)} · {product.brand}
             </p>
             <h1 className="mt-3 text-4xl font-bold tracking-tight text-ink sm:text-5xl">
