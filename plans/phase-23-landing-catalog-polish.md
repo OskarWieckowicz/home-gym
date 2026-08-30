@@ -1,7 +1,7 @@
 # Phase 23 — Landing page and catalog polish
 
-> Order 2 in the [active queue](README.md). Depends on Phase 16 for final product assets
-> and Phase 26 for its reproducible demo project; Phase 27's primary 3D editor is complete. Blocks Phase 24.
+> Order 1 in the [active queue](README.md). Depends on Phase 16 for final product assets.
+> Phase 26 demo and Phase 27 primary 3D editor are implemented. Blocks Phase 24.
 
 ## Problem
 
@@ -26,7 +26,7 @@ WebMCP tools.
 ## Decisions
 
 **D1 — figures come from the built product, not from the specification.** `docs/LANDING_PAGE.md`
-illustrates the sample scenario with "4 products, PLN 9,640". The checked-in demo project from
+now records the Phase 26 baseline: four products and PLN 8,596. The checked-in demo project from
 Phase 26 is the real thing. Derive every number on the page from that project's actual contents and
 state them once; if they disagree with the doc, the doc is what changes.
 

@@ -1,0 +1,59 @@
+{
+  "version": 4,
+  "room": { "widthCm": 400, "depthCm": 320, "heightCm": 240 },
+  "obstacles": [
+    {
+      "id": "obstacle_wardrobe",
+      "kind": "obstacle",
+      "name": "Wardrobe",
+      "position": { "xCm": 300, "zCm": 0 },
+      "dimensions": { "widthCm": 80, "depthCm": 60, "heightCm": 220 },
+      "rotation": 0,
+      "locked": true
+    }
+  ],
+  "wallElements": [
+    {
+      "id": "wall-element_entry",
+      "kind": "door",
+      "name": "Entry door",
+      "wall": "top",
+      "offsetCm": 195,
+      "widthCm": 90
+    }
+  ],
+  "projectItems": [
+    { "id": "project-item_rack", "productId": "product_northstar_half_rack" },
+    { "id": "project-item_bench", "productId": "product_arc_adjustable_bench" },
+    { "id": "project-item_barbell", "productId": "product_ironvale_barbell_set" },
+    { "id": "project-item_plates", "productId": "product_foundry_bumper_plates" }
+  ],
+  "placements": [
+    {
+      "id": "placement_rack",
+      "projectItemId": "project-item_rack",
+      "position": { "xCm": 35, "zCm": 5 },
+      "rotation": 0
+    },
+    {
+      "id": "placement_bench",
+      "projectItemId": "project-item_bench",
+      "position": { "xCm": 275, "zCm": 115 },
+      "rotation": 0
+    },
+    {
+      "id": "placement_barbell",
+      "projectItemId": "project-item_barbell",
+      "position": { "xCm": 25, "zCm": 225 },
+      "rotation": 0
+    },
+    {
+      "id": "placement_plates",
+      "projectItemId": "project-item_plates",
+      "position": { "xCm": 35, "zCm": 165 },
+      "rotation": 0
+    }
+  ],
+  "budget": 10000,
+  "trainingGoals": ["strength", "muscle-gain"]
+}

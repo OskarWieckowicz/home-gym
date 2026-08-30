@@ -1,6 +1,6 @@
 # Phase 24 — Submission
 
-> Order 3 in the [active queue](README.md). Depends on Phase 23 for final submission;
+> Order 2 in the [active queue](README.md). Depends on Phase 23 for final submission;
 > shared-editing verification and script preparation can start as soon as Phase 26 is deployed.
 > Hard deadline: 3 September 2026, 22:00 CEST. Start the video no later than 2 September.
 
@@ -45,7 +45,8 @@ form, not for editing.
 ## Implementation tasks
 
 1. **Verify the live build.** In a private window with no prior storage, on the deployed URL:
-   the landing page and every CTA; `/creator?start=demo` and `?start=new`, each after a reload;
+   the landing page and every CTA; `/creator?start=demo` and `?start=new`, each consumed to
+   `/creator`; edit and reload to confirm persistence, then reopen the explicit link to confirm reset;
    the catalog with filters and a product detail page; 2D and 3D; export, import, reset, undo, redo.
 
 2. **Prepare the script and verify WebMCP on the deployed build.** Write `docs/DEMO_SCRIPT.md`

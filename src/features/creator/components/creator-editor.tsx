@@ -7,6 +7,7 @@ import { findProductById } from "@/features/catalog/queries/catalog";
 import type { ProjectCommandDependencies } from "@/features/project/commands/apply-project-command";
 import type { GymProject } from "@/features/project/schemas/project";
 import { CreatorWebMcpBridge } from "@/features/webmcp/components/creator-webmcp-bridge";
+import type { CreatorStartMode } from "@/lib/navigation";
 
 import type { EditorPanel, PlacementTool } from "../editor-types";
 import {
@@ -208,11 +209,13 @@ export function CreatorEditor({
   dependencies,
   persistence,
   storage,
+  startMode,
 }: {
   readonly initialProject?: GymProject;
   readonly dependencies?: ProjectCommandDependencies;
   readonly persistence?: boolean;
   readonly storage?: ProjectPersistenceBoundaryProps["storage"];
+  readonly startMode?: CreatorStartMode;
 } = {}) {
   const workspace = (
     <>
@@ -229,6 +232,7 @@ export function CreatorEditor({
         dependencies={dependencies}
         fallbackProject={initialProject}
         storage={storage}
+        startMode={startMode}
       >
         {workspace}
       </ProjectPersistenceBoundary>

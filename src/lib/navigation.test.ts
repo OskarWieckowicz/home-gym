@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { creatorRoute, headerLinks, productRoute, routes, siteLinks } from "./navigation";
+import { creatorRoute, headerLinks, parseCreatorStartMode, productRoute, routes, siteLinks } from "./navigation";
 
 describe("navigation", () => {
   it("keeps the destinations defined by the landing page specification", () => {
@@ -15,7 +15,7 @@ describe("navigation", () => {
     }).toEqual({
       logo: "/",
       catalog: "/catalog",
-      openCreator: "/creator?start=new",
+      openCreator: "/creator",
       runDemo: "/creator?start=demo",
       startEmpty: "/creator?start=new",
       openSampleProject: "/creator?start=demo",
@@ -37,8 +37,18 @@ describe("navigation", () => {
   it("provides the mockup navigation destinations", () => {
     expect(headerLinks).toEqual([
       { label: "How it works", href: "/" },
-      { label: "Creator", href: "/creator?start=new" },
+      { label: "Creator", href: "/creator" },
       { label: "Catalog", href: "/catalog" },
     ]);
   });
+
+  it.each(["demo", "new"])("parses the explicit %s start action", (mode) => {
+    expect(parseCreatorStartMode(mode)).toBe(mode);
+  });
+
+  it.each([undefined, null, "DEMO", "", ["demo"], "resume", 1])(
+    "ignores unsupported start value %j", (value) => {
+      expect(parseCreatorStartMode(value)).toBeNull();
+    },
+  );
 });

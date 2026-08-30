@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CreatorEditor } from "../components/creator-editor";
 import type { ScenePreviewProps } from "../scene/scene-preview";
 import { createDefaultProject } from "@/features/project/defaults";
+import { createDemoProject } from "@/features/project/demo-project";
 import { serializeProject } from "@/features/project/serialization/project-codec";
 import { toProjectItemsAndPlacements } from "@/features/project/validation/test-placed-equipment";
 import type {
@@ -44,6 +45,49 @@ afterEach(() => {
 });
 
 describe("persistent manual and agent editing flow", () => {
+  it("seeds demo before tools register, shares manual and agent history, then restores the edited demo", async () => {
+    const memory = createMemoryStorage(projectJson({ ...createDefaultProject(), budget: 999 }));
+    const tools = new Map<string, WebMcpTool>();
+    Object.defineProperty(document, "modelContext", {
+      configurable: true,
+      value: {
+        registerTool: vi.fn<WebMcpModelContext["registerTool"]>(async (tool) => {
+          tools.set(tool.name, tool);
+        }),
+      } satisfies WebMcpModelContext,
+    });
+    const first = render(<CreatorEditor startMode="demo" storage={memory.adapter} />);
+    await waitFor(() => expect(tools.size).toBe(20));
+    expect(sceneRestores.mock.lastCall![0]).toMatchObject({ project: createDemoProject() });
+    expect(await executeTool(tools, "get_project_state", {})).toMatchObject({
+      revision: 0, canUndo: false, project: { budget: 10000 },
+    });
+    expect(memory.storage.setItem).toHaveBeenCalledOnce();
+    fireEvent.change(screen.getByRole("spinbutton", { name: "Width (cm)" }), {
+      target: { value: "450" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Apply room" }));
+    expect(await executeTool(tools, "get_project_state", {})).toMatchObject({
+      revision: 1, project: { room: { widthCm: 450 } },
+    });
+    await executeTool(tools, "update_project_settings", { budget: 12000 });
+    fireEvent.click(screen.getByRole("button", { name: /Undo/ }));
+    expect(await executeTool(tools, "get_project_state", {})).toMatchObject({
+      project: { budget: 10000, room: { widthCm: 450 } },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Redo/ }));
+    first.unmount();
+    tools.clear();
+    render(<CreatorEditor storage={memory.adapter} />);
+    await waitFor(() => expect(tools.size).toBe(20));
+    expect(sceneRestores.mock.lastCall![0]).toMatchObject({
+      project: { ...createDemoProject(), budget: 12000, room: { widthCm: 450, depthCm: 320, heightCm: 240 } },
+    });
+    expect(await executeTool(tools, "get_project_state", {})).toMatchObject({
+      revision: 0, canUndo: false, project: { budget: 12000, room: { widthCm: 450 } },
+    });
+  });
+
   it("restores before WebMCP registration and persists agent mutation plus manual history", async () => {
     const seeded = { ...createDefaultProject(), budget: 12_500 };
     const memory = createMemoryStorage(projectJson(seeded));

@@ -57,13 +57,13 @@ Show a concrete case on the page:
 
 > A 4 × 3.2 m room, a fixed wardrobe, and a PLN 10,000 budget. Goals: squats, bench press, and pull-ups.
 
-Example result summary:
+Implemented Phase 26 result (derive future figures from the bundled demo):
 
 - 4 selected products,
-- cost PLN 9,640,
+- cost PLN 8,596,
 - all training goals covered,
-- no collisions,
-- deadlift zone preserved.
+- no validation errors or physical collisions,
+- five warnings: four overlapping use zones and tight access to plates.
 
 Section CTA: **Open this project**.
 
@@ -94,12 +94,14 @@ Button: **Design my gym**.
 | Start from an empty room | `/creator?start=new` |
 | Open this project | `/creator?start=demo` |
 | Design my gym | `/creator?start=new` |
-| Open creator | `/creator?start=new` |
+| Open creator | `/creator` |
 | Browse equipment | `/catalog` |
 | Specific product card | `/catalog/[slug]` |
 | Logo | `/` |
 
-The exact way of passing the start mode may change during implementation. What matters is preserving two intents:
+Start parameters are one-shot actions; the editor saves the baseline and removes `start`
+without resetting the session. Refresh then restores saved edits. Generic Creator/Open creator
+links resume `/creator`; only explicit start actions replace it:
 
 - `demo` loads a ready-made room and sample layout so the app's capabilities are visible immediately,
 - `new` opens an empty project with a short configuration panel: dimensions, goals, and budget.

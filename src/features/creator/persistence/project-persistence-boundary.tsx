@@ -5,12 +5,15 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
 
 import type { ProjectCommandDependencies } from "@/features/project/commands/apply-project-command";
 import { createDefaultProject } from "@/features/project/defaults";
+import { createDemoProject } from "@/features/project/demo-project";
+import type { CreatorStartMode } from "@/lib/navigation";
 import type { GymProject } from "@/features/project/schemas/project";
 import type { ProductResolver } from "@/features/project/validation/product-validation";
 
@@ -47,6 +50,8 @@ export type ProjectPersistenceBoundaryProps = {
   readonly dependencies?: ProjectCommandDependencies;
   readonly fallbackProject?: GymProject;
   readonly storage?: LocalProjectStorage;
+  /** Initial action for this session. A new action requires a keyed remount. */
+  readonly startMode?: CreatorStartMode;
 };
 
 type RestoredSession = {
@@ -60,29 +65,30 @@ export function ProjectPersistenceBoundary({
   dependencies,
   fallbackProject,
   storage,
+  startMode,
 }: ProjectPersistenceBoundaryProps) {
   const [session, setSession] = useState<RestoredSession | null>(null);
+  const initialized = useRef(false);
 
   useEffect(() => {
     let active = true;
     queueMicrotask(() => {
-      if (!active) return;
+      if (!active || initialized.current) return;
       const adapter = storage ?? createBrowserStorageAdapter();
       const fallback = fallbackProject ?? createDefaultProject();
-      const loaded = adapter.load();
-      const restored = restoreSession(
-        loaded,
-        fallback,
-        adapter,
-        dependencies?.resolveProduct ?? catalogProductResolver,
-      );
+      const resolveProduct = dependencies?.resolveProduct ?? catalogProductResolver;
+      const restored = startMode
+        ? startSession(startMode, adapter, resolveProduct)
+        : restoreSession(adapter.load(), fallback, adapter, resolveProduct);
+      initialized.current = true;
       setSession((current) => current ?? restored);
+      if (startMode) consumeStartMode(startMode);
     });
 
     return () => {
       active = false;
     };
-  }, [dependencies?.resolveProduct, fallbackProject, storage]);
+  }, [dependencies?.resolveProduct, fallbackProject, storage, startMode]);
 
   if (!session) {
     return (
@@ -178,6 +184,33 @@ const SAVED_STATUS: PersistenceStatus = {
   kind: "saved",
   message: "Saved locally.",
 };
+
+function startSession(
+  mode: CreatorStartMode,
+  storage: LocalProjectStorage,
+  resolveProduct: ProductResolver,
+): RestoredSession {
+  const project = mode === "demo" ? createDemoProject() : createDefaultProject();
+  if (!projectUsesKnownProducts(project, resolveProduct)) {
+    throw new Error("The start project references an unavailable catalog product.");
+  }
+  // Replacing the baseline is one write, avoiding a destructive clear/write gap.
+  const result = storage.save(project);
+  return {
+    project,
+    storage,
+    status: result.success ? SAVED_STATUS : saveFailureStatus(result.error),
+  };
+}
+
+function consumeStartMode(mode: CreatorStartMode) {
+  const url = new URL(window.location.href);
+  const values = url.searchParams.getAll("start");
+  if (values.length !== 1 || values[0] !== mode) return;
+  url.searchParams.delete("start");
+  // Native history integrates with Next's search params without remounting the editor.
+  window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+}
 
 function restoreSession(
   loaded: ReturnType<LocalProjectStorage["load"]>,

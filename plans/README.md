@@ -11,12 +11,12 @@ Git history preserves them. Implementation evidence belongs in `docs/`.
 
 | Order | Phase | Remaining outcome |
 |---|---|---|
-| 1 | [Phase 26 — Demo bootstrap](phase-26-demo-bootstrap.md) | Implement `?start=demo` and `?start=new` through existing persistence; add a reproducible, validated demo project. |
-| 2 | [Phase 23 — Landing and catalog polish](phase-23-landing-catalog-polish.md) | Complete landing sections and links; use the Phase 26 demo for screenshots and figures; resolve missing-photo presentation and the static catalog sidebar. |
-| 3 | [Phase 24 — Submission](phase-24-submission.md) | Verify the deployed shared-editing loop, update README, prepare the English description and video, submit. |
+| 1 | [Phase 23 — Landing and catalog polish](phase-23-landing-catalog-polish.md) | Complete landing sections and links; use the Phase 26 demo for screenshots and figures; resolve missing-photo presentation and the static catalog sidebar. |
+| 2 | [Phase 24 — Submission](phase-24-submission.md) | Verify the deployed shared-editing loop, update README, prepare the English description and video, submit. |
 
-Phase 23 depends on the Phase 26 demo and asset coverage decisions below. Phase 24 script
-preparation can begin once the demo is deployed; final submission depends on Phase 23.
+Phase 26 is implemented and locally verified; see [demo evidence](../docs/PHASE_26_DEMO_VERIFICATION.md).
+Phase 23 uses that demo and the asset coverage decisions below. Phase 24 script preparation
+can begin once the demo is deployed; final submission depends on Phase 23.
 
 ## Separate asset work
 
