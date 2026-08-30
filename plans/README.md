@@ -18,6 +18,8 @@ Git history preserves them. Implementation evidence belongs in `docs/`.
 Phase 26 is implemented and locally verified; see [demo evidence](../docs/PHASE_26_DEMO_VERIFICATION.md).
 Phase 23A landing is implemented and locally verified; see
 [landing evidence](../docs/PHASE_23A_LANDING_VERIFICATION.md).
+Its remaining footer-link and public-build/agent/device acceptance is tracked in
+[Phase 24's landing release checklist](phase-24-submission.md#landing-release-acceptance).
 The demo remains a secondary entry and possible capture source. Phase 23B uses the catalog asset
 coverage decisions below. Phase 29 closes the planning loop with a summary surface and carries its
 own cut list because it is late scope. Phase 24 script preparation can begin once the demo is

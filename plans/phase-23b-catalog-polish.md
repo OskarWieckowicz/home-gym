@@ -1,8 +1,8 @@
 # Phase 23B — Catalog polish
 
-> Order 2 in the [active queue](README.md). Uses Phase 16 catalog asset coverage decisions.
-> Blocks Phase 24. Independent of [Phase 23A landing work](phase-23a-landing-polish.md);
-> the queue order is sequencing, not a technical dependency.
+> Order 1 in the [active queue](README.md). Uses Phase 16 catalog asset coverage decisions.
+> Blocks Phase 24. Independent of the completed Phase 23A landing; the queue order is
+> sequencing, not a technical dependency.
 
 ## Problem
 

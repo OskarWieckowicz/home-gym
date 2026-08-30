@@ -1,6 +1,7 @@
 # Phase 23A — landing implementation and verification
 
-Verified locally on 30 August 2026. Public release acceptance remains outstanding.
+Verified locally on 30 August 2026. Landing implementation is complete; public-build and
+external-agent checks belong to [Phase 24](../plans/phase-24-submission.md).
 Design authority: [landing specification](LANDING_PAGE.md) and the accepted
 [v2 reference](mockups/home-gym-landing-page-v2.png).
 
@@ -83,7 +84,7 @@ checked without authentication. Its public availability is unverified; the foote
 omits Repository until an accessible URL is authorized and confirmed. Repository visibility was
 not changed.
 
-No deployment was performed. Remaining release acceptance is tracked in
-[Phase 23A](../plans/phase-23a-landing-polish.md): public repository link, deployed new/demo/resume
-and guidance checks, fresh external-agent conversation, plus final device/keyboard verification.
+No deployment was performed as part of this implementation. The public Repository footer link and
+public-build, external-agent and device/keyboard verification of the published site are tracked in
+[Phase 24's landing release checklist](../plans/phase-24-submission.md#landing-release-acceptance).
 Local test/build success does not prove the currently published site includes this implementation.

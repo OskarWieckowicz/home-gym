@@ -2,7 +2,6 @@
 
 > Accepted direction: 30 August 2026. Process-first hackathon introduction, not a sales page or
 > a walkthrough of the bundled demo. [Implemented and locally verified](PHASE_23A_LANDING_VERIFICATION.md).
-> Remaining release acceptance: [Phase 23A](../plans/phase-23a-landing-polish.md).
 
 ## Visual reference
 

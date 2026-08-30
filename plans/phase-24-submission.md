@@ -1,6 +1,6 @@
 # Phase 24 — Submission
 
-> Order 3 in the [active queue](README.md). Depends on Phase 23A and Phase 23B for final submission;
+> Order 3 in the [active queue](README.md). Depends on Phase 23B for final submission;
 > shared-editing verification and script preparation can start as soon as Phase 26 is deployed.
 > Hard deadline: 3 September 2026, 22:00 CEST. Start the video no later than 2 September.
 
@@ -18,10 +18,13 @@ yet. Sample prompts exist only in `docs/AGENT_HOME_GYM_WORKFLOW_PROMPT.md`.
 
 In scope: verifying the deployed build and shared-editing loop, preparing the demo script,
 rewriting the root README, writing the Devpost description, recording the video, and completing
-the submission form. No in-editor activity feed is planned.
+the submission form. This includes the remaining Phase 23A landing release acceptance below and
+adding the verified public Repository footer link with its regression test. No in-editor activity
+feed is planned.
 
-Out of scope: any behaviour change. If verification finds a real defect, fix it under the phase that
-owns it and note it here; do not fold product changes into the submission commit.
+Out of scope: behaviour changes other than the Repository footer link above. If verification finds
+a real defect, track its fix in a separate scoped plan and note it here; do not fold unrelated
+product changes into the submission commit.
 
 ## Decisions
 
@@ -48,6 +51,7 @@ form, not for editing.
    the landing page and every CTA; `/creator?start=demo` and `?start=new`, each consumed to
    `/creator`; edit and reload to confirm persistence, then reopen the explicit link to confirm reset;
    the catalog with filters and a product detail page; 2D and 3D; export, import, reset, undo, redo.
+   Complete the landing release checklist below on the actual submitted build.
 
 2. **Prepare the script and verify WebMCP on the deployed build.** Write `docs/DEMO_SCRIPT.md`
    in the primary 3D editor, with a manual change, the agent reading the updated state, an agent change, deterministic
@@ -86,9 +90,34 @@ form, not for editing.
    the description, then verify the repository is public, the license shows in the GitHub About panel
    and every submitted link opens in a private window.
 
+## Landing release acceptance
+
+Carried forward from Phase 23A; local implementation is complete, but these release gates remain:
+
+- Confirm the intended public repository URL with logged-out access. The configured URL previously
+  returned HTTP 404; do not add a dead link or change repository visibility without authorization.
+  Once an accessible URL is authorized and confirmed, add Repository to the shared footer and update
+  `src/components/site-footer.test.tsx`. Preserve the prototype limitations.
+- Use the authorized release workflow to ensure the deployed revision contains the landing changes.
+  In a fresh session, verify Start planning, Explore sample project, manual edits, refresh and
+  Open creator resume. Check How it works / Agent guide anchors from landing and catalog, and the
+  creator's home link.
+- Check phone widths including 320px, tablet and desktop: touch interaction, keyboard focus,
+  prompt-copy success and fallback, setup disclosure, sticky-header target visibility, image
+  stability and no horizontal overflow. Local responsive inspection did not complete the mobile
+  click/keyboard pass and does not replace published-build verification.
+- Run the landing starter prompt with a real external agent from an empty Start planning project:
+  missing-input questions, room setup, goals/budget, equipment selection/placement and continuation
+  after a manual edit in the same project. The demo-based script in task 2 is a separate check.
+- Record the date, environment, deployed revision, evidence and any limitations in
+  [landing verification](../docs/PHASE_23A_LANDING_VERIFICATION.md). Local tests/builds are not
+  evidence of public-build or external-agent acceptance.
+
 ## Acceptance criteria
 
 - The live URL works logged out, in a private window, with no prior local storage.
+- The landing release checklist above passes with recorded evidence, including the public footer
+  link and empty-project starter-prompt flow, unless a requirement is explicitly cut by the user.
 - Tool registration and the full demo loop are confirmed on the deployed build in a fresh session in
   both target environments.
 - The README carries the demo URL, the complete tool list, sample prompts, WebMCP testing
@@ -103,7 +132,12 @@ form, not for editing.
 
 ## Tests
 
-No new automated tests. Run `npm run agent:verify` and `npm run build` on the exact commit that is
+Update the shared-footer regression test when adding the Repository link. For that code change,
+run focused tests, `npm run quality:quick`, `npm run lint:report` and `npm run agent:verify`;
+run `npm run build` for routing, Server/Client or deployment-sensitive changes. No other new
+automated tests are planned for the documentation and media tasks.
+
+Run `npm run agent:verify` and `npm run build` on the exact commit that is
 deployed and submitted, and confirm the deployed commit matches the repository default branch.
 
 ## Manual checks
@@ -120,7 +154,7 @@ checks passed. Record their results or retain explicit limitations in submission
 
 The two schedule risks are recording the video too late and discovering a WebMCP registration
 difference on the deployed build that does not reproduce locally. Task 2 exists to surface the second
-one early; do it as soon as Phase 26 is deployed rather than waiting for Phase 23A and Phase 23B.
+one early; do it as soon as Phase 26 is deployed rather than waiting for Phase 23B.
 
 ## Exit gate
 
