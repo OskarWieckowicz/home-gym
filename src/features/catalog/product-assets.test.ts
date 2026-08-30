@@ -12,6 +12,7 @@ describe("catalog product assets", () => {
     expect(getProductImage("product_groundwork_exercise_mat")).toBe("/assets/groundwork-exercise-mat-catalog.png");
     expect(getProductImage("product_groundwork_foam_roller")).toBe("/assets/groundwork-foam-roller-catalog.png");
     expect(getProductImage("product_harbor_squat_stands")).toBe("/assets/harbor-squat-stands-catalog.png");
+    expect(getProductImage("product_loop_cable_trainer")).toBe("/assets/single-column-cable-machine-catalog-concept-v2.png");
     expect(getProductImage("product_summit_power_cage")).toBe("/assets/squat-rack-catalog.png");
     expect(getProductImage("product_summit_strength_station")).toBe("/assets/summit-strength-station-catalog.png");
     expect(getProductImage("product_northstar_half_rack")).toBe("/assets/northstar-half-rack-catalog.png");

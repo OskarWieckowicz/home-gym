@@ -65,10 +65,12 @@ function placementPairReaches(first: ResolvedPlacement, second: ResolvedPlacemen
     return true;
   }
   if (first.mounting.kind === "wall") {
-    return second.product.dimensions.heightCm > first.mounting.bottomHeightCm;
+    return first.mounting.blocksFloor === true ||
+      second.product.dimensions.heightCm > first.mounting.bottomHeightCm;
   }
   if (second.mounting.kind === "wall") {
-    return first.product.dimensions.heightCm > second.mounting.bottomHeightCm;
+    return second.mounting.blocksFloor === true ||
+      first.product.dimensions.heightCm > second.mounting.bottomHeightCm;
   }
   return true;
 }
@@ -77,7 +79,7 @@ function placementReachesObstacle(
   placement: ResolvedPlacement,
   obstacle: ObstacleWithFootprint,
 ): boolean {
-  if (placement.mounting.kind !== "wall") {
+  if (placement.mounting.kind !== "wall" || placement.mounting.blocksFloor === true) {
     return true;
   }
   if (obstacle.obstacle.kind === "unavailable-zone") {

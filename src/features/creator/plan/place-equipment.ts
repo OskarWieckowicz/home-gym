@@ -1,4 +1,5 @@
 import { findProductById, getEffectiveMounting } from "@/features/catalog/queries/catalog";
+import { findProjectProductById } from "@/features/catalog/queries/project-products";
 import { snapWallMountedPlacement } from "@/features/geometry/wall-mounting";
 import type { ProjectCommand } from "@/features/project/schemas/project-command";
 import type { GymProject } from "@/features/project/schemas/project";
@@ -14,6 +15,7 @@ export function createPlaceProductCommand(
   target: PlacementTarget,
   project: GymProject,
 ): PlaceEquipmentResult {
+  if (!findProductById(productId)) return { ok: false, error: "This catalog product is unavailable." };
   return createFloorPlacementCommand(productId, target, project, (product, position, rotation) => ({
     type: "PRODUCT_PLACED",
     payload: { productId: product.id, position, rotation },
@@ -45,7 +47,7 @@ function createFloorPlacementCommand(
   if (target.kind !== "floor") {
     return { ok: false, error: "Place equipment inside the room." };
   }
-  const product = findProductById(productId);
+  const product = findProjectProductById(productId);
   if (!product) {
     return { ok: false, error: "This catalog product is unavailable." };
   }

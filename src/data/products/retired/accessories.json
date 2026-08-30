@@ -1,0 +1,126 @@
+[
+  {
+    "id": "product_groundwork_mobility_kit",
+    "slug": "groundwork-mobility-kit",
+    "name": "Groundwork Mobility Kit",
+    "brand": "Lithe Works",
+    "category": "accessories",
+    "placementMode": "floor",
+    "description": "A mat, foam roller, and resistance-band set for warm-ups, recovery, and mobility practice.",
+    "price": 399,
+    "dimensions": {
+      "widthCm": 22,
+      "depthCm": 66,
+      "heightCm": 22
+    },
+    "useZone": {
+      "frontCm": 50,
+      "backCm": 50,
+      "leftCm": 40,
+      "rightCm": 40
+    },
+    "exercises": [
+      "band pull-apart",
+      "foam rolling",
+      "mobility flow"
+    ],
+    "trainingGoals": [
+      "mobility",
+      "general-fitness"
+    ],
+    "muscleGroups": [
+      "full body"
+    ],
+    "weightKg": 4.2,
+    "requirements": {
+      "flooring": "protective-mat"
+    }
+  },
+  {
+    "id": "product_orbit_suspension_trainer",
+    "slug": "orbit-suspension-trainer",
+    "name": "Orbit Suspension Trainer",
+    "brand": "Morrow Athletics",
+    "category": "accessories",
+    "placementMode": "floor",
+    "description": "Adjustable suspension straps for rows, assisted squats, and stability-focused movement.",
+    "price": 449,
+    "dimensions": {
+      "widthCm": 18,
+      "depthCm": 24,
+      "heightCm": 12
+    },
+    "useZone": {
+      "frontCm": 90,
+      "backCm": 10,
+      "leftCm": 45,
+      "rightCm": 45
+    },
+    "exercises": [
+      "suspension row",
+      "assisted squat",
+      "plank"
+    ],
+    "trainingGoals": [
+      "general-fitness",
+      "mobility",
+      "muscle-gain"
+    ],
+    "muscleGroups": [
+      "back",
+      "legs",
+      "core"
+    ],
+    "weightKg": 2,
+    "maximumLoadKg": 130,
+    "requirements": {
+      "anchoring": "required"
+    },
+    "constraints": [
+      "Attach only to a load-rated anchor point."
+    ]
+  },
+  {
+    "id": "product_pulse_jump_rope",
+    "slug": "pulse-jump-rope",
+    "name": "Pulse Jump Rope",
+    "brand": "Tempo Harbor",
+    "category": "accessories",
+    "placementMode": "floor",
+    "description": "An adjustable speed rope for short conditioning blocks in rooms with adequate overhead clearance.",
+    "price": 179,
+    "dimensions": {
+      "widthCm": 18,
+      "depthCm": 26,
+      "heightCm": 5
+    },
+    "useZone": {
+      "frontCm": 60,
+      "backCm": 60,
+      "leftCm": 60,
+      "rightCm": 60
+    },
+    "exercises": [
+      "jump rope",
+      "double-under",
+      "footwork drill"
+    ],
+    "trainingGoals": [
+      "conditioning",
+      "general-fitness"
+    ],
+    "muscleGroups": [
+      "legs",
+      "shoulders",
+      "core"
+    ],
+    "weightKg": 0.4,
+    "requirements": {
+      "minimumCeilingHeightCm": 240,
+      "flooring": "level-hard-surface"
+    },
+    "constraints": [
+      "Confirm overhead and side clearance before use."
+    ]
+  }
+]

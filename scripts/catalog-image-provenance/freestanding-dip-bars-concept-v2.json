@@ -1,0 +1,15 @@
+{
+  "candidate": "Freestanding dip bars",
+  "productId": "product_freestanding_dip_bars",
+  "output": "public/assets/freestanding-dip-bars-catalog-concept-v2.png",
+  "date": "2026-08-30",
+  "method": "Built-in image_gen; reference-guided edit",
+  "authorization": "User requested visible height adjustment like the attached reference. Image-only correction; no catalog or model integration.",
+  "editTarget": "public/assets/freestanding-dip-bars-catalog-concept-v1.png",
+  "formReference": "User attachment codex-clipboard-ec520c52-2cf9-4822-b16e-b60e2817c6f3.png",
+  "prompt": "Use case: precise-object-edit.\nEdit target: Image 1, our existing square graphite freestanding dip-bars catalog photograph. Image 2 is a STRUCTURAL REFERENCE ONLY for visible telescopic height adjustment; do not copy its branding or background.\nUser correction: the dip bars must visibly have adjustable height, like reference image 2.\nChange the four vertical legs of image 1 into plausible telescoping height-adjustable legs: a wider graphite lower sleeve rising from each floor foot, a narrower graphite upper tube sliding into it, clear sleeve lips/collars around mid-height, a straight row of small circular height-selection holes on each exposed upper tube, and one compact black star-shaped locking knob on the side of each lower sleeve near its top. Place knobs and hole rows facing the camera enough to read the mechanism. All four legs use the same adjustment mechanism and are set to the same height. Preserve exactly two separate inverted-U stands, two upper grip rails, four legs and four separate transverse rubber-capped feet. No connecting bar. Preserve existing black textured central grip sleeves, rounded top bends, graphite powdercoat texture, subtle metal fasteners, realistic soft studio lighting, warm off-white seamless backdrop and gentle contact shadows.\nKeep the same overall three-quarter camera composition; pull back very slightly to give every foot comfortable image margins. Full product, square image, photorealistic ecommerce catalog photography. Do not introduce people, extra equipment, cables, labels, text, logos, watermarks, dimensions or ratings. Generate one corrected image.",
+  "review": "Visually inspected: two separate stands, four telescoping legs with clear sleeve collars, exposed adjustment holes and four black star knobs, two grip rails and four rubber-capped transverse feet. Graphite finish and warm studio backdrop retained. AI-generated concept, not verified mechanical design or evidence of load ratings or dimensions.",
+  "status": "Mapped to product_freestanding_dip_bars with its GLB and derived top SVG. V1 retained as superseded history.",
+  "integrationAuthorization": "User approved v2 and explicitly requested the 3D model and catalog integration. Fictional planning specifications documented in docs/FREESTANDING_DIP_BARS_MODEL.md.",
+  "model": "Built-in tool default; no explicit model override"
+}

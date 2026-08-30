@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 
 import type { ValidationIssue } from "@/features/project/validation/validation-issues";
-import { findProductById } from "@/features/catalog/queries/catalog";
+import { findProjectProductById } from "@/features/catalog/queries/project-products";
 import { formatPricePln } from "@/features/catalog/components/catalog-formatters";
 
 import { productForPlacement } from "../placement-product";
@@ -132,7 +132,7 @@ export function ValidationSummary() {
     ...project.wallElements.map((element) => [element.id, element.name] as const),
     ...project.projectItems.map((item) => [
       item.id,
-      findProductById(item.productId)?.name ?? "Unavailable product",
+      findProjectProductById(item.productId)?.name ?? "Unavailable product",
     ] as const),
     ...project.placements.map((placement) => [
       placement.id,

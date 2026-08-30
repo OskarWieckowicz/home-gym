@@ -13,5 +13,6 @@
   },
   "sha256": {
     "public/assets/signal-resistance-bands-catalog.png": "0f0680a6f99592ef9d9eb5c8e8a4005bdaa7c241fb0457db82df48c2e3aa2192"
-  }
+  },
+  "integrationStatus": "Photo remains mapped. On 30 August 2026 the user clarified Signal bands are shopping-list-only, so placementMode is selection-only. No model or top view needed. Legacy placements reconcile to retained shopping items."
 }

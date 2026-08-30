@@ -1,10 +1,11 @@
 import { catalogProducts } from "@/data/products";
+import { retiredProducts, isRetiredProductId } from "@/data/products/retired-products";
 import type { GymProject } from "@/features/project/schemas/project";
 import { productIdForPlacement } from "@/features/project/project-lookups";
 import type { ProductResolver } from "@/features/project/validation/product-validation";
 
 const CATALOG_PRODUCTS_BY_ID = new Map(
-  catalogProducts.map((product) => [product.id, product] as const),
+  [...catalogProducts, ...retiredProducts].map((product) => [product.id, product] as const),
 );
 
 export const catalogProductResolver: ProductResolver = (productId) => {
@@ -19,6 +20,7 @@ export const catalogProductResolver: ProductResolver = (productId) => {
     mounting: product.mounting,
     placementMode: product.placementMode,
     trainingGoals: product.trainingGoals,
+    ...(isRetiredProductId(product.id) ? { retired: true } : {}),
   };
 };
 

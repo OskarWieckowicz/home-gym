@@ -11,6 +11,7 @@ import {
 
 import { useProjectPersistence } from "../persistence/project-persistence-boundary";
 import { useProjectStore } from "../store/project-store-context";
+import { SIGNAL_BANDS_RECONCILIATION_NOTICE } from "../store/reconcile-catalog-project";
 import { EditorPopover } from "./editor-popover";
 
 export const PROJECT_IMPORT_MAX_BYTES = 1024 * 1024;
@@ -85,7 +86,9 @@ export function ProjectFileActions() {
       result.ok
         ? {
             kind: "success",
-            text: result.changed ? "Project imported." : "This project is already open.",
+            text: result.reconciledSignalBands
+              ? SIGNAL_BANDS_RECONCILIATION_NOTICE
+              : result.changed ? "Project imported." : "This project is already open.",
           }
         : { kind: "error", text: result.error.message },
     );

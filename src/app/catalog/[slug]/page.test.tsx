@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { catalogProducts } from "@/data/products";
+import { retiredProducts } from "@/data/products/retired-products";
 
 import ProductPage, { generateMetadata, generateStaticParams } from "./page";
 
@@ -54,7 +55,7 @@ describe("product detail route", () => {
   });
 
   it("shows a placeholder when the product has no catalog image", async () => {
-    const page = await ProductPage(params("foundry-wall-rack"));
+    const page = await ProductPage(params("cove-wrist-wraps"));
     expect(findProp(page, "src")).toBeUndefined();
     expect(collectText(page)).toContain("Product image coming later");
   });
@@ -73,5 +74,11 @@ describe("product detail route", () => {
     await expect(
       generateMetadata(params("missing-product")),
     ).rejects.toMatchObject({ digest: "NEXT_HTTP_ERROR_FALLBACK;404" });
+  });
+
+  it.each(retiredProducts)("does not expose a product page for retired $slug", async ({ slug }) => {
+    expect(generateStaticParams()).not.toContainEqual({ slug });
+    await expect(ProductPage(params(slug))).rejects.toMatchObject({ digest: "NEXT_HTTP_ERROR_FALLBACK;404" });
+    await expect(generateMetadata(params(slug))).rejects.toMatchObject({ digest: "NEXT_HTTP_ERROR_FALLBACK;404" });
   });
 });

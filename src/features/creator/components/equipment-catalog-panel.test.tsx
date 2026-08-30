@@ -32,6 +32,8 @@ describe("EquipmentCatalogPanel", () => {
   });
 
   it.each([
+    ["loop", "/assets/single-column-cable-machine-catalog-concept-v2.png"],
+    ["dual-pulley", "/assets/compact-dual-pulley-station-catalog-concept-v1.png"],
     ["summit", "/assets/squat-rack-catalog.png"],
     ["northstar", "/assets/northstar-half-rack-catalog.png"],
     ["pivot", "/assets/pivot-flat-bench-catalog.png"],
@@ -53,10 +55,10 @@ describe("EquipmentCatalogPanel", () => {
     const { container } = renderCatalog();
 
     fireEvent.change(screen.getByRole("searchbox", { name: "Search equipment" }), {
-      target: { value: "cove folding bench" },
+      target: { value: "cove wrist wraps" },
     });
     expect(container.querySelector("img")).toBeNull();
-    expect(screen.getByText("Cove Folding Bench")).toBeTruthy();
+    expect(screen.getByText("Cove Wrist Wraps")).toBeTruthy();
   });
 
   it("still activates placement from the list", () => {

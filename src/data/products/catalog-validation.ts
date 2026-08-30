@@ -7,12 +7,12 @@ import {
 } from "@/features/catalog/schemas";
 
 const EXPECTED_CATEGORY_COUNTS: Record<ProductCategory, number> = {
-  racks: 5,
-  benches: 4,
-  barbells: 4,
-  plates: 4,
-  dumbbells: 4,
-  cardio: 6,
+  racks: 4,
+  benches: 2,
+  barbells: 1,
+  plates: 3,
+  dumbbells: 2,
+  cardio: 2,
   accessories: 10,
 };
 
@@ -31,7 +31,7 @@ function assertProductValuesAreUnique(product: Product): void {
 }
 
 function assertCatalogInvariants(products: Product[]): void {
-  if (products.length !== 37) throw new Error("Catalog must contain exactly 37 products.");
+  if (products.length !== 24) throw new Error("Catalog must contain exactly 24 products.");
 
   assertUniqueValues(products.map(({ id }) => id), "Catalog product IDs must be unique.");
   assertUniqueValues(products.map(({ slug }) => slug), "Catalog product slugs must be unique.");
@@ -61,7 +61,7 @@ function assertCatalogInvariants(products: Product[]): void {
   }
 }
 
-function deepFreeze<T>(value: T): T {
+export function deepFreeze<T>(value: T): T {
   if (value !== null && typeof value === "object" && !Object.isFrozen(value)) {
     for (const nestedValue of Object.values(value)) deepFreeze(nestedValue);
     Object.freeze(value);

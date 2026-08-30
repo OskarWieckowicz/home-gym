@@ -19,6 +19,10 @@ import type { ProductResolver } from "@/features/project/validation/product-vali
 
 import { ProjectStoreProvider, useProjectStoreApi } from "../store/project-store-context";
 import {
+  reconcileCatalogProject,
+  SIGNAL_BANDS_RECONCILIATION_NOTICE,
+} from "../store/reconcile-catalog-project";
+import {
   catalogProductResolver,
   projectUsesKnownProducts,
 } from "../store/catalog-product-resolver";
@@ -219,7 +223,8 @@ function restoreSession(
   resolveProduct: ProductResolver,
 ): RestoredSession {
   if (loaded.status === "loaded") {
-    if (!projectUsesKnownProducts(loaded.project, resolveProduct)) {
+    const project = reconcileCatalogProject(loaded.project, resolveProduct);
+    if (!projectUsesKnownProducts(project, resolveProduct)) {
       return {
         project: fallback,
         status: restoreFailureStatus({
@@ -229,7 +234,10 @@ function restoreSession(
         storage,
       };
     }
-    return { project: loaded.project, status: SAVED_STATUS, storage };
+    const status: PersistenceStatus = project === loaded.project
+      ? SAVED_STATUS
+      : { kind: "ready", message: SIGNAL_BANDS_RECONCILIATION_NOTICE };
+    return { project, status, storage };
   }
   if (loaded.status === "missing") {
     return { project: fallback, status: READY_STATUS, storage };

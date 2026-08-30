@@ -1,4 +1,6 @@
-import { findProductById, getEffectiveMounting } from "@/features/catalog/queries";
+import { getEffectiveMounting } from "@/features/catalog/queries/catalog";
+import { findProjectProductById } from "@/features/catalog/queries/project-products";
+import { isRetiredProductId } from "@/data/products/retired-products";
 import type { CommandErrorCode, DispatchResult } from "@/features/project/commands/command-results";
 import type { AccessImpact } from "@/features/project/validation/access-impact";
 import type { ProjectAccess } from "@/features/geometry/access-facts";
@@ -80,7 +82,7 @@ export function serializeWallElement(wallElement: WallElement) {
 }
 
 export function serializeProjectItem(item: ProjectItem, project: GymProject) {
-  const product = findProductById(item.productId);
+  const product = findProjectProductById(item.productId);
   const placement = findPlacementForItem(project, item.id);
   return {
     id: item.id,
@@ -90,12 +92,13 @@ export function serializeProjectItem(item: ProjectItem, project: GymProject) {
     placementMode: product?.placementMode ?? "floor",
     name: product?.name,
     price: product?.price,
+    ...(isRetiredProductId(item.productId) ? { retired: true } : {}),
   };
 }
 
 export function serializePlacement(placement: Placement, project: GymProject) {
   const productId = productIdForPlacement(project, placement);
-  const product = productId ? findProductById(productId) : undefined;
+  const product = productId ? findProjectProductById(productId) : undefined;
   return {
     id: placement.id,
     projectItemId: placement.projectItemId,
