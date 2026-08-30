@@ -3,6 +3,7 @@
 > Status: active queue.
 > Updated: 30 August 2026.
 > Submission deadline: 3 September 2026, 22:00 CEST.
+> Live deployment: <https://home-gym-coral.vercel.app/>
 
 This document is the entry point for implementation work. It keeps the remaining phases in
 dependency order and links to executable plans in this directory. Completed phases and their
@@ -18,88 +19,60 @@ Product scope and architecture live in the [product concept](../docs/PRODUCT_CON
    not already exist.
 3. A detailed plan must name its dependencies, scope boundary, implementation tasks, acceptance
    criteria, tests, manual checks, and exit gate.
-4. Remove a phase from this index and delete its detailed plan once its exit gate passes. Git
-   history keeps the implementation record; do not turn this file into a completion log.
+4. Remove a phase from this index and delete its detailed plan once its exit gate passes or the
+   phase is cut. Git history keeps the record; do not turn this file into a completion log.
 5. If evidence changes the order or scope, update this index and the affected detailed plans in
    the same change.
 
 ## Sequencing rules
 
-- Learn WebMCP on the small, read-only catalog surface before connecting it to mutable room state.
-- Treat a real tool call from a supported agent environment as a hard gate before building the
-  room domain on top of unverified WebMCP assumptions.
 - Route manual edits and agent edits through the same domain commands and project store.
 - Keep geometry, placement validation, collision detection, and rule checking deterministic.
+- The application is already deployed, so order the remaining work by what the judged submission
+  needs rather than by internal completeness. Anything a judge touches in a fresh session takes
+  precedence over depth hidden behind it.
+- Every phase boundary must be deployable on its own so that stopping early leaves a coherent
+  product. Keep the live URL working at every boundary.
+- Routing, Server/Client Component boundaries, and deployment-sensitive changes require a
+  production build in addition to the canonical local gate.
 - Treat catalog imagery, top-down editor imagery, and 3D equipment visuals as three distinct
   representations of one catalog product. None of them may become the source of truth for product
   dimensions, placement, clearance, or validation.
-- Establish equipment placement with replaceable visuals before producing the final asset pack;
-  then reuse the same placement state in both the 2D plan and the 3D preview.
-- Prove one real model in a minimal 3D scene before producing the complete asset set. Keep that
-  vertical slice separate from both full visual production and completion of the 3D preview.
-  Landing-page work starts only after the shared-editing demo can provide real screenshots.
-- Do not scale a visual pipeline from code or prompts alone. Approve one real mesh benchmark, its
-  orthographic top-down render, and a catalog-image comparison before producing the full asset set.
+- Do not scale a visual pipeline from code or prompts alone. Approve one real mesh benchmark and
+  its orthographic top-down render before producing a batch.
 - Treat generated, purchased, and downloaded visual assets as licensed inputs with recorded
   provenance. An unclear license is a rejection, not a later cleanup task.
-- Keep the application deployable; routing or deployment-sensitive changes require a production
-  build in addition to the canonical local gate.
-- Order independent work cheapest first, and place the phase carrying irreversible risk last. Every
-  phase boundary must be deployable on its own so that stopping early leaves a coherent product.
+- Landing-page work starts only after the shared-editing demo can provide real screenshots.
 
-## Detailed plans ready to execute
+## Current state
 
-[Phase 16 — Product visual assets and model families](phase-16-product-visual-assets.md) is ready
-to execute after the accepted Phase 15 vertical slice. It starts with the adjustable-bench gate,
-then builds a modular strength station and a deliberately small set of reusable MVP visual
-families.
+Phases 17, 18a, 19, and 25 are complete. Together they give the queue below a stable foundation:
+`useZone` semantics with errors separated from warnings, room reachability derived after every
+mutation on a 100 cm walking path, project items independent of floor placements at schema
+version 4, and wall mounting as a catalog fact. `analyzeProject` is the shared read model that the
+remaining phases extend. Git history holds their detailed plans.
 
-Phases 17 to 19 were originally drafted as one spatial-semantics phase, and Phase 18 was later split
-again into 18a and 18b once it became clear that automatic reachability and named access
-requirements answer different questions and carry very different risk. They are split because they
-have independent dependencies and very different cost and risk, and because splitting them means an
-interrupted queue still leaves a coherent deployable boundary. The closed rack/bench station
-template from the original draft is rejected rather than deferred: demoting the
-physical-into-use-zone relationship to a warning achieves the same result for every product pair,
-and products that ship as one physical unit stay catalog bundles. Phase 18b was then deferred
-behind 19: the named-route layer is cheaper than the item split, but it is not load-bearing.
-Phase 19 has now shipped, so 18b's migration must append `accessRequirements` on top of version 4.
+Phase 16 (product visual assets and model families) is in progress on its own track and is not
+part of the sequential queue below. Its detailed plan is
+[phase-16-product-visual-assets.md](phase-16-product-visual-assets.md); its active slices keep
+their own `phase-16-*.md` files in this directory until they land. Every phase below must remain
+correct whether or not a given product has an accepted visual, because the geometric fallback is
+the contract.
 
-Phase 17 is complete: `clearance` is `useZone`, validation splits errors from warnings so a bench
-in a rack's working area no longer blocks the project, and `analyzeProject` is the shared read
-model later phases extend. No schema change. Git history holds the detailed plan.
-
-Phase 18a is complete: every analysis derives whether doors still reach each other and whether
-equipment can still be stood in front of, unreachable entities are errors, and mutations name what
-they broke or restored. The walking path is 100 cm. Git history holds the detailed plan.
-
-Phase 18b is deferred to the later queue. Named access requirements, the visible route, and
-`check_access` remain valuable demo behaviour, but they sit above the 18a walkability guarantee
-and are not load-bearing. The detailed plan stays in this directory until the phase is either
-executed or cut.
-
-Phase 19 is complete: project items are independent of floor placements, budget and
-coverage count every item once, selection-only accessories such as Cove Wrist Wraps cannot
-be placed, and saved projects migrate v3 → v4 without cost or geometry loss. Git history
-holds the detailed plan.
-
-Phase 25 is complete: wall mounting is a catalog fact, the project schema is at version 4, and a
-mounted item never obstructs a walking path. Git history holds the detailed plan. Phase 20 can now
-complete the 3D preview around the correct spatial contract.
-
-## Later queue
-
-These phases remain intentionally brief until they reach the front of the queue. Their detailed
-plans should use the evidence and decisions produced by earlier work rather than guessing ahead.
+## Active queue
 
 | Order | Phase | Depends on | Exit gate |
 |---|---|---|---|
-| 1 | Phase 20 — 3D room preview completion | Phases 15–17, 19 | The scene shell integrates the completed asset families, placement state, validation presentation, selection, and representative complete-room performance without becoming the editing or validation source of truth. It must degrade cleanly if Phase 18b was cut. |
-| 2 | Phase 18b — Access requirements and deterministic routing | Phase 18a; Phase 19 | A persisted access requirement is intent only; the route is derived on the 18a grid after every mutation, shown in the plan, and never serialized. `check_access` persists nothing. The migration only appends `accessRequirements: []` on top of whatever `PROJECT_VERSION` is current. |
-| 3 | Phase 21 — WebMCP placement suggestions and batch changes | Phases 17 and 18a | The agent can evaluate hypothetical placements without mutating state, generate deterministic candidates, reject error-producing layouts, score warnings, treat an unreachable entity as a hard failure, treat a blocked required route as a hard failure only if 18b has shipped, and apply a validated group of layout changes with structured results. |
-| 4 | Phase 22 — Shared-editing demo and activity feed | Phases 20 and 21 | The public demo proves the complete human-change → agent-read → agent-change → validation → correction loop in the finished editor and makes tool activity visible. |
+| 1 | Phase 26 — Demo bootstrap and creator start modes | None | `/creator?start=demo` loads a checked-in demo project in a fresh session with no prior local storage, and `?start=new` opens an empty room instead of restoring a previous session. Both survive a reload and a direct visit. The fixture is built and validated through the same schema and commands as any other project, and it is not a second persistence path. |
+| 2 | Phase 21 — WebMCP placement suggestions and batch changes | Phases 17 and 18a | The agent can evaluate hypothetical placements without mutating state, generate deterministic candidates, reject error-producing layouts, score warnings, treat an unreachable entity as a hard failure, and apply a validated group of layout changes with structured results. |
+| 3 | Phase 22 — Shared-editing demo and activity feed | Phases 21 and 26 | The public demo proves the complete human-change → agent-read → agent-change → validation → correction loop in the editor and makes tool activity visible to the user in the same interface. |
+| 4 | Phase 20 — 3D room preview completion | Phases 15–17, 19 | The scene integrates placement state, selection sync with the 2D plan, validation presentation, and representative complete-room performance, without becoming the editing or validation source of truth. Narrow this to selection and validation if time is short; asset breadth belongs to Phase 16. |
 | 5 | Phase 23 — Landing page and catalog polish | Phases 16 and 22 | The landing page and catalog match their specifications and use final product assets plus real screenshots and figures from the finished shared-editing demo. |
-| 6 | Phase 24 — Submission | Phase 23 | The public URL, repository, English description, sub-three-minute video, and Devpost checklist are complete and verified while logged out. |
+| 6 | Phase 24 — Submission | Phase 23 | The live URL is verified logged out and in a fresh WebMCP session, the repository README carries the demo URL, tool list, sample prompts, WebMCP testing instructions, and architecture, and the English description and sub-three-minute video complete the Devpost checklist. |
+
+The live URL already satisfies the hosting part of Phase 24, so that phase is now documentation,
+description, and video rather than infrastructure. Verify tool registration against the deployed
+build in a fresh WebMCP session before relying on it in the video.
 
 ## Global exit gate
 
@@ -111,7 +84,7 @@ Every implementation phase must satisfy the repository validation ladder:
 - `npm run build` also passes for routing, Server/Client Component boundaries, Next.js
   configuration, build behavior, or deployment-sensitive changes,
 - no non-test source or configuration file exceeds 500 physical lines,
-- the public demo remains openable once deployment exists.
+- the public demo remains openable.
 
 ## Scope boundary
 
@@ -119,6 +92,14 @@ The MVP does not include accounts, a database, checkout, real prices, in-app mod
 server-side photo analysis, irregular room outlines, arbitrary rotation angles, photorealistic 3D
 models for every product, or a global layout solver. Reopen this boundary only through an explicit
 product decision.
+
+Named access requirements, the visible derived route, and a `check_access` tool are **cut**, not
+deferred. They were drafted as Phase 18b. The Phase 18a walkability guarantee already makes an
+unreachable entity an error, so the named-route layer adds a schema migration and a routing
+presentation layer without changing any judged outcome. The closed rack/bench station template
+from the same original draft stays rejected: demoting the physical-into-use-zone relationship to a
+warning achieves the same result for every product pair, and products that ship as one physical
+unit stay catalog bundles. Reopening either requires an explicit product decision and a new plan.
 
 ## Related documents
 
