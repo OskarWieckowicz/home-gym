@@ -4,6 +4,11 @@ Recorded 30 August 2026 for Phase 20 and the shared Phase 16 room-performance ta
 
 ## Status and scope
 
+Phase 20's implementation was closed on 30 August 2026 with the runtime benchmark and visual
+acceptance retained in [Phase 16 tasks 4–5](../plans/phase-16-product-visual-assets.md).
+This is a scope handoff, not a passing runtime result. Optional click-to-select was cut; selection
+still comes from the 2D plan or list. The implementation passed `npm run agent:verify` (596 tests).
+
 **Static asset measurement completed; full-room runtime acceptance remains open.** No live site was
 opened and no manual browser or visual checks were performed, as requested. The available Browser
 automation API was inspected, but its evaluation surface is read-only DOM and does not expose a
@@ -92,4 +97,4 @@ actually reports them; Three.js texture count is not texture memory in bytes.
 For orbit responsiveness, record frame-interval median/p95 and the observation duration while the
 camera moves at the editor viewport. Report interaction observations separately from frame timing.
 Keep those measurements as review evidence, not machine-dependent CI thresholds. The static numbers
-above do not close Phase 16 task 5 or Phase 20's interactive-room exit criterion.
+above do not close Phase 16 task 5 or establish full-room interactivity.

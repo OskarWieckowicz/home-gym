@@ -1,6 +1,6 @@
 # Phase 24 — Submission
 
-> Order 6 in the [active queue](README.md). Depends on Phase 23.
+> Order 5 in the [active queue](README.md). Depends on Phase 23.
 > Hard deadline: 3 September 2026, 22:00 CEST. Start the video no later than 2 September.
 
 ## Problem

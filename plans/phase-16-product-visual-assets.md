@@ -42,10 +42,12 @@ Keep these decisions:
    generated without browser review at the user's request. Their live recognizability and
    interaction remain unverified. Do not run browser checks as part of cleanup or model generation
    unless the user resumes that work.
+   Also verify selection from the 2D plan and list, distinct error/warning markings, and selection
+   combined with an error in the completed 3D preview, including fallback products.
 5. **Measure a representative complete room.** Include the strength setup, dumbbells, wall
    accessory and cardio. Record loaded assets, triangles, draw calls, texture memory where
-   available, and responsiveness at the demo viewport. Coordinate this with Phase 20 instead of
-   duplicating the measurement; individual asset estimates are not a room benchmark.
+   available, and responsiveness at the demo viewport. This task now owns the outstanding runtime
+   benchmark after Phase 20's implementation closure; individual asset estimates are not a room benchmark.
    [Shared performance notes](../docs/PERFORMANCE_NOTES.md) now record the static asset census;
    runtime draw calls, first-frame timing and orbit responsiveness are still open.
 
