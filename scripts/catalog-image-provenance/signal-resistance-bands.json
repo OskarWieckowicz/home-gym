@@ -1,0 +1,17 @@
+{
+  "productId": "product_signal_resistance_bands",
+  "output": "public/assets/signal-resistance-bands-catalog.png",
+  "date": "2026-08-30",
+  "method": "Built-in image_gen; image-only accessory generation approved by user for P0 resistance bands",
+  "model": "Built-in tool default; no explicit model override",
+  "styleReference": "public/assets/range-adjustable-dumbbells-catalog.png (visually inspected; aesthetic described in prompt, not supplied as an image input)",
+  "prompt": "Use case: product-mockup.\nAsset type: square ecommerce catalog photograph for Signal Resistance Bands, a fictional set of five loop resistance bands for a home gym.\nPrimary request: Create a premium photorealistic studio product photograph of exactly FIVE long continuous closed-loop flat rubber resistance bands, arranged as five separate loosely folded elongated oval loops in a tidy slightly staggered fan on a seamless warm off-white studio floor. These are long pull-up assistance power bands, not short fabric hip bands, not tubing with handles. Each band is one continuous flat rubber ribbon joined into a closed loop, with two long sides naturally resting near each other and rounded folded ends. Five progressively different ribbon widths indicate different resistance levels, with physically believable consistent thickness and gently flexible curves. Use the existing home-gym catalog aesthetic: predominantly charcoal and graphite with restrained burnt-orange accent; three bands in distinct charcoal/gray tones and two in muted orange tones. Fine matte latex texture, clean manufactured edges, subtle natural surface variation, realistic soft highlights, no glossy plastic look.\nComposition: elevated front three-quarter camera, square frame, all five bands entirely visible and individually countable, centered compact arrangement occupying about 75 percent of image width, generous empty margins, no cropping. Soft diffused studio lighting, delicate contact shadows, quiet warm neutral background without horizon line. Sharp professional commercial product photography, not illustration or toy-like CGI.\nConstraints: ONLY five loop resistance bands. No dumbbells, stand, rack, pouch, packaging, handles, clips, anchors, people, hands, text, numbers, resistance labels, logos, branding, watermark, room setting or decorative props. Do not add a sixth band. Do not make open-ended straps or impossible intersecting rubber.",
+  "review": "Five separate closed-loop bands visible, three charcoal/gray and two orange. Warm off-white studio background, soft contact shadows, no text or branding. Image is illustrative, not dimensional evidence. No GLB or top view generated; placement behavior unchanged.",
+  "outputDimensions": {
+    "width": 1254,
+    "height": 1254
+  },
+  "sha256": {
+    "public/assets/signal-resistance-bands-catalog.png": "0f0680a6f99592ef9d9eb5c8e8a4005bdaa7c241fb0457db82df48c2e3aa2192"
+  }
+}

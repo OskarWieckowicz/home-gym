@@ -1,0 +1,17 @@
+{
+  "workingProductName": "Groundwork Foam Roller",
+  "output": "public/assets/groundwork-foam-roller-catalog.png",
+  "date": "2026-08-30",
+  "method": "Built-in image_gen; standalone image-only accessory generation",
+  "model": "Built-in tool default; no explicit model override",
+  "prompt": "Use case: product-mockup.\nAsset type: square ecommerce catalog photograph for a fictional standalone Groundwork Foam Roller, consistent with a premium home-gym equipment catalog.\nPrimary request: ONE realistic cylindrical foam roller, resting horizontally on its curved side on a warm off-white seamless studio floor. No kit or other accessories. A simple solid-core high-density foam roller, approximate visual proportions 33 cm long and 14 cm diameter, with flat circular ends and softly rounded rim edges. Charcoal graphite matte foam body with fine visible microcellular texture and subtle natural material variation. Smooth, gently textured surface rather than aggressive massage spikes or deep grids. One narrow restrained burnt-orange circumferential accent ring near each end, integrated into the foam; predominantly dark charcoal. No hollow plastic core, electronic features, seams suggesting a bag, handles, or additional parts.\nComposition: professional photorealistic product photography, slightly elevated front three-quarter view revealing the full cylindrical body and one circular end; cylinder axis runs diagonally across the square frame. Centered product occupying about 75 percent of frame width, generous unclipped margins on every side. Soft diffuse studio lighting, delicate contact shadow beneath, clean warm off-white background without horizon line, natural foam texture and believable matte highlights, sharp product details.\nConstraints: exactly one foam roller only. No person, hand, mat, bands, packaging, stand, second roller, room setting, lettering, labels, logos, branding, numbers, watermark, infographic, measurement annotations, or decorative objects. Avoid glossy plastic, toy-like CGI, exaggerated texture, and perfectly featureless material.",
+  "review": "One solid charcoal foam cylinder with fine texture and two narrow orange accent rings, warm off-white background, soft contact shadow, no text or additional equipment. Visually inspected generated output. Prompt dimensions are illustrative proportions, not an approved catalog specification.",
+  "outputDimensions": {
+    "width": 1254,
+    "height": 1254
+  },
+  "sha256": {
+    "public/assets/groundwork-foam-roller-catalog.png": "d230c55a6b3a477ea57c74e2e97b00f91fa1f6556294c1b03db3c1d0f492e01c"
+  },
+  "integrationStatus": "Mapped to product_groundwork_foam_roller, a standalone selection-only product. Existing Mobility Kit preserved. No GLB or top view needed."
+}

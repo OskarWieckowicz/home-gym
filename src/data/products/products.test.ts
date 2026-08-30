@@ -17,7 +17,7 @@ const EXPECTED_CATEGORY_COUNTS: Record<ProductCategory, number> = {
   plates: 4,
   dumbbells: 4,
   cardio: 6,
-  accessories: 7,
+  accessories: 10,
 };
 
 const ORIGINAL_IDENTITIES = [
@@ -38,8 +38,8 @@ function normalized(values: string[]): string[] {
 }
 
 describe("catalogProducts", () => {
-  it("contains 34 schema-valid fictional products in the agreed distribution", () => {
-    expect(catalogProducts).toHaveLength(34);
+  it("contains 37 schema-valid fictional products in the agreed distribution", () => {
+    expect(catalogProducts).toHaveLength(37);
     expect(() => productSchema.array().parse(catalogProducts)).not.toThrow();
     expect(catalogProducts.every(({ brand }) => !/nike|adidas|rogue/i.test(brand))).toBe(true);
 
@@ -93,16 +93,20 @@ describe("catalogProducts", () => {
     expect(() => parseCatalogSeeds(invalidSeeds)).toThrow(/Exercises must be unique/);
   });
 
-  it("declares an explicit placement mode on every seed and one selection-only accessory", () => {
+  it("declares explicit placement modes and two selection-only accessories", () => {
     expect(catalogProducts.every((product) => product.placementMode === "floor" || product.placementMode === "selection-only")).toBe(true);
     const selectionOnly = catalogProducts.filter(({ placementMode }) => placementMode === "selection-only");
     expect(selectionOnly).toEqual([
+      expect.objectContaining({
+        id: "product_groundwork_foam_roller",
+        placementMode: "selection-only",
+      }),
       expect.objectContaining({
         id: "product_cove_wrist_wraps",
         placementMode: "selection-only",
       }),
     ]);
-    expect(catalogProducts.filter(({ placementMode }) => placementMode === "floor")).toHaveLength(33);
+    expect(catalogProducts.filter(({ placementMode }) => placementMode === "floor")).toHaveLength(35);
   });
 
   it("covers every training goal across multiple equipment categories", () => {

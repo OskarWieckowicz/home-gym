@@ -1,0 +1,23 @@
+{
+  "productId": "product_forge_kettlebell_16kg",
+  "output": "public/assets/forge-kettlebell-16kg-catalog.png",
+  "date": "2026-08-30",
+  "method": "Built-in image_gen; user-approved first product and standalone catalog photo, GLB deferred",
+  "model": "Built-in tool default; no explicit model override",
+  "prompt": "Use case: product-mockup.\nAsset type: square ecommerce catalog photo of Forge Kettlebell 16 kg, one fictional home-gym product.\nPrimary request: ONE single 16 kg cast-iron kettlebell resting upright on its flat circular base, centered on a warm off-white seamless studio floor. Traditional solid rounded bell body, gently flattened front marking area, a broad smoothly curved integrated arch handle with a generous open window for a two-handed grip and realistic thick round grip section. Compact believable proportions approximately 21 cm maximum width across handle, 18 cm depth and 28 cm total height. Entire body and handle in matte graphite-charcoal powder-coated cast iron with fine subtle pebbled texture. Two narrow burnt-orange painted accent bands at the bases of the handle where it joins the bell; no orange grip cover. A modest recessed weight marking on the front reads exactly '16 KG', legible in subdued light gray, not oversized. No other lettering.\nComposition: premium photorealistic product photography; slightly elevated front three-quarter camera but front weight marking remains readable. Entire single kettlebell visible with generous margins in square frame, about 70–75 percent frame height. Soft diffuse studio lighting with realistic gentle highlights on rounded iron, quiet warm off-white seamless background without horizon line, natural soft contact shadow beneath. Match graphite and restrained orange home-gym catalog aesthetic.\nConstraints: exactly one kettlebell, not a pair or set. No other weights, stand, rack, mat, packaging, people, hands, room interior, logos, brand names, numbers other than 16 KG, watermark or dimension annotations. No glossy plastic, chrome handle, adjustable mechanisms, cartoonish geometry, floating handle or disconnected pieces. This is a conventional one-piece cast kettlebell, no moving parts.",
+  "review": "Single upright charcoal cast-iron kettlebell with integral curved handle, orange accents at handle bases, legible 16 KG marking and warm off-white studio background. All parts visible, no additional products or branding. Image is illustrative; seed dimensions remain the planning source of truth.",
+  "outputDimensions": {
+    "width": 1254,
+    "height": 1254
+  },
+  "sha256": {
+    "public/assets/forge-kettlebell-16kg-catalog.png": "6939f328cad1290932e40cbd0e901357479c95d581b559342c5c5f06d1fad819"
+  },
+  "integrationStatus": "Mapped to single-unit catalog seed with procedural GLB and derived top view. User stopped further model refinement; current model is illustrative. Fictional seed price and storage dimensions are MVP assumptions, not manufacturer data.",
+  "geometrySource": "public/assets/forge-kettlebell-16kg.glb",
+  "geometryGenerator": "scripts/generate-forge-kettlebell-glb.mjs",
+  "geometrySha256": "d6176fdfce49f30afdadf915ba31db7314d82f0875dbd9850210138a24750299",
+  "geometryMetrics": { "bytes": 164084, "triangles": 7752, "meshes": 4, "materials": 4 },
+  "geometryReview": "Front and rear offline renders inspected; readable front marking and embedded handle roots. Bounds 21 × 18 × 28 cm, floor-centred. Seven geometry tests pass. Smooth simplified mesh without photographic microtexture, not a manufacturing mesh. Browser verification remains paused.",
+  "geometryReviewImages": ["docs/asset-reviews/forge-kettlebell-front.png", "docs/asset-reviews/forge-kettlebell-rear.png"]
+}

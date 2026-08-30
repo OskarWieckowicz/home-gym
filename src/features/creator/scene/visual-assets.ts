@@ -1,4 +1,5 @@
 export const VISUAL_ASSET_IDS = [
+  "product_forge_kettlebell_16kg",
   "product_anchor_pullup_bar",
   "product_arc_adjustable_bench",
   "product_cairn_iron_plates",
@@ -27,6 +28,15 @@ export type VisualAssetDefinition = {
 };
 
 export const visualAssetRegistry: Readonly<Record<VisualAssetProductId, VisualAssetDefinition>> = {
+  product_forge_kettlebell_16kg: {
+    productId: "product_forge_kettlebell_16kg",
+    src: "/assets/forge-kettlebell-16kg.glb",
+    topViewSrc: "/assets/forge-kettlebell-16kg-top.svg",
+    envelopeCm: { widthCm: 21, depthCm: 18, heightCm: 28 },
+    forward: "negative-z",
+    floorPivot: "origin",
+    scale: [1, 1, 1],
+  },
   product_surge_compact_treadmill: {
     productId: "product_surge_compact_treadmill",
     src: "/assets/surge-compact-treadmill.glb",

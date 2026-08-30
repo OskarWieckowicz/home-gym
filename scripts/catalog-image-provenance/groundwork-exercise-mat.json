@@ -1,0 +1,17 @@
+{
+  "workingProductName": "Groundwork Exercise Mat",
+  "output": "public/assets/groundwork-exercise-mat-catalog.png",
+  "date": "2026-08-30",
+  "method": "Built-in image_gen; standalone catalog photo generation",
+  "model": "Built-in tool default; no explicit model override",
+  "prompt": "Use case: product-mockup.\nAsset type: square ecommerce catalog photograph for the fictional Groundwork Exercise Mat, a standalone home exercise mat in a coordinated premium home-gym catalog.\nPrimary request: ONE fully unrolled rectangular exercise mat resting flat on a warm off-white seamless studio floor. A long adult-sized mat with approximately 180 by 65 cm visual proportions and about 8 mm thickness, gently rounded corners and clean manufactured edges. Dark charcoal graphite matte closed-cell foam with fine realistic nonslip microtexture, a restrained narrow burnt-orange accent line inset just inside the perimeter, following the rounded corners. The upper surface remains almost entirely charcoal. Realistic thin sidewall; not a mattress, rug, rigid platform or interlocking floor tile. Completely unfolded with no rolled end, no folds, and all four corners visible.\nComposition: elevated front three-quarter product photography, mat's long axis recedes diagonally from the lower-left foreground toward the upper-right background. Enough camera elevation to clearly see its full rectangular outline and usable top surface. The whole mat centered and comfortably contained within a square frame with unclipped margins on every side; occupies around 80 percent of frame. Soft diffuse studio lighting, delicate contact shadow and natural subtle foam texture, warm off-white seamless backdrop without horizon line, professional photorealistic materials and crisp details. Match the quiet graphite and burnt-orange palette of premium home-gym catalog accessories.\nConstraints: exactly one mat only. No roller, bands, dumbbells, straps, carrying bag, packaging, person, hand, feet, room interior, furniture, logos, letters, numbers, branding, exercise diagrams, alignment graphics, watermark, dimensions or other props. No glossy finish, dramatic shadows, floating corners, multiple mats, rolled-up duplicate, toy-like CGI or excessively thick padding.",
+  "review": "One fully deployed charcoal exercise mat with rounded corners, fine textured surface and narrow orange perimeter accent. All corners visible, warm off-white background, soft contact shadow, no text or extra equipment. Visually inspected generated output. Prompt dimensions are illustrative proportions only, not an approved catalog specification.",
+  "outputDimensions": {
+    "width": 1254,
+    "height": 1254
+  },
+  "sha256": {
+    "public/assets/groundwork-exercise-mat-catalog.png": "80237bbee0921a03ff3b72f47771b2f91e2bdbff228b6f11066fb2b05d5d2c12"
+  },
+  "integrationStatus": "Mapped to product_groundwork_exercise_mat, a standalone floor-placeable product with deployed 65 × 180 × 1 cm planning dimensions. Existing Mobility Kit preserved. No GLB or top view generated; existing geometric fallback used."
+}

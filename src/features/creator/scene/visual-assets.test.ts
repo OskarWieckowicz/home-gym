@@ -1,8 +1,22 @@
 import { describe, expect, it } from "vitest";
+import { findProductById } from "@/features/catalog/queries/catalog";
 import { getVisualAsset, visualAssetRegistry } from "./visual-assets";
 
 describe("visual asset registry", () => {
+  it("keeps the kettlebell visual envelope aligned with its catalog dimensions", () => {
+    const product = findProductById("product_forge_kettlebell_16kg");
+    expect(product).toBeDefined();
+    expect(getVisualAsset("product_forge_kettlebell_16kg")?.envelopeCm).toEqual(product?.dimensions);
+  });
   it("maps accepted product models explicitly", () => {
+    expect(getVisualAsset("product_forge_kettlebell_16kg")).toMatchObject({
+      src: "/assets/forge-kettlebell-16kg.glb",
+      topViewSrc: "/assets/forge-kettlebell-16kg-top.svg",
+      envelopeCm: { widthCm: 21, depthCm: 18, heightCm: 28 },
+      forward: "negative-z",
+      floorPivot: "origin",
+      scale: [1, 1, 1],
+    });
     expect(getVisualAsset("product_surge_compact_treadmill")).toMatchObject({
       src: "/assets/surge-compact-treadmill.glb",
       topViewSrc: "/assets/surge-compact-treadmill-top.svg",
