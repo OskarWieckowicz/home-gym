@@ -1,12 +1,15 @@
 import { describe, expect, it } from "vitest";
+import { Suspense } from "react";
 
-import { CreatorEditor } from "@/features/creator/components/creator-editor";
+import { CreatorEntry } from "@/features/creator/components/creator-entry";
 
 import CreatorPage, { metadata } from "./page";
 
 describe("CreatorPage", () => {
   it("keeps the route server-renderable around the client editor boundary", () => {
-    expect(CreatorPage().type).toBe(CreatorEditor);
+    const page = CreatorPage();
+    expect(page.type).toBe(Suspense);
+    expect(page.props.children.type).toBe(CreatorEntry);
   });
 
   it("describes the room editor in route metadata", () => {

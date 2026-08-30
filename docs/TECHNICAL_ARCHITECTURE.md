@@ -719,8 +719,12 @@ Features:
 - versioned project format,
 - export to a JSON file,
 - import from a JSON file,
-- reset to the demo project,
-- several ready-made room presets.
+- undoable reset to an empty project,
+- one bundled validated demo and explicit new-project start actions,
+- one-shot URL initialization; generic creator links and reload restore the current saved project.
+
+See [Phase 26 behavior and verification](./PHASE_26_DEMO_VERIFICATION.md) for start,
+URL cleanup and storage-failure semantics.
 
 We will not implement user accounts or cloud sync.
 

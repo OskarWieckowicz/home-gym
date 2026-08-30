@@ -14,6 +14,10 @@ import {
   type ProjectStorageLike,
 } from "./local-project-storage";
 
+// Persistence assertions do not require WebGL. Keep async scene loading from
+// racing a form edit under jsdom, matching the adjacent creator-entry tests.
+vi.mock("next/dynamic", () => ({ default: () => () => <div>3D test scene</div> }));
+
 afterEach(cleanup);
 
 describe("ProjectPersistenceBoundary", () => {

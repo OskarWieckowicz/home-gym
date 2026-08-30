@@ -35,15 +35,17 @@ Keep these decisions:
    pose. Resolve the Summit cage's source/runtime envelope discrepancy and document any other
    accepted visual exceptions without changing catalog dimensions to fit a mesh. Target at most
    3 cm envelope overrun and 1 cm floor/origin error; larger deviations require a recorded decision.
-3. **Complete failure coverage.** Verify missing files and invalid GLBs retain per-placement
-   fallbacks and leave editing, validation, WebMCP and undo/redo usable. Preserve existing
-   deterministic generator, SVG, mapping and orientation tests.
+3. **Complete loader-failure integration coverage.** Isolated missing/invalid-asset boundary,
+   healthy-sibling and selected-fallback tests already exist. Verify actual loader failures retain
+   per-placement fallbacks through editing, validation, WebMCP and undo/redo; do not recreate the
+   completed boundary tests. Preserve generator, SVG, mapping and orientation coverage.
 4. **Close runtime acceptance when browser checks are resumed.** Pivot, Range and Surge were
    generated without browser review at the user's request. Their live recognizability and
    interaction remain unverified. Do not run browser checks as part of cleanup or model generation
    unless the user resumes that work.
-   Also verify selection from the 2D plan and list, distinct error/warning markings, and selection
-   combined with an error in the completed 3D preview, including fallback products.
+   General selection, shared 2D/3D state and collision display have local Phase 27/28 evidence.
+   Remaining asset-specific checks include selected/error/warning combinations and fallback
+   products; do not infer full model acceptance from those general editor checks.
 5. **Measure a representative complete room.** Include the strength setup, dumbbells, wall
    accessory and cardio. Record loaded assets, triangles, draw calls, texture memory where
    available, and responsiveness at the demo viewport. This task now owns the outstanding runtime

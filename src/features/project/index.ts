@@ -13,6 +13,7 @@ export type {
 } from "./commands/command-results";
 export type { ProjectAccess } from "@/features/geometry/access-facts";
 export { createDefaultProject } from "./defaults";
+export { createDemoProject } from "./demo-project";
 export {
   findPlacementForItem,
   findProjectItem,

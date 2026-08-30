@@ -3,6 +3,13 @@
 Local verification on 30 August 2026. Implements the approved English-only workspace hierarchy,
 not new project semantics or a deployment.
 
+## Status
+
+**Completed — closed at the user's request on 30 August 2026.** The approved workspace layout
+is implemented and locally verified. The completed plan was removed from `plans/` according to
+the repository convention and remains available in Git history. The device and deployment
+limitations below remain unchanged; closure does not claim additional verification.
+
 ## Automated checks
 
 - `quality:quick`: lint errors, TypeScript, 500-line source limit and duplication gate pass.

@@ -2,6 +2,10 @@ export const CREATOR_START_MODES = ["demo", "new"] as const;
 
 export type CreatorStartMode = (typeof CREATOR_START_MODES)[number];
 
+export function parseCreatorStartMode(value: unknown): CreatorStartMode | null {
+  return value === "demo" || value === "new" ? value : null;
+}
+
 export type SiteLink = {
   readonly label: string;
   readonly href: string;
@@ -15,8 +19,8 @@ export const routes = {
 
 /**
  * `demo` loads a prepared room and layout, `new` opens an empty project with
- * the configuration panel. The editor reads the mode from the query string, so
- * both intents survive a direct visit or a page refresh.
+ * the configuration panel. Start actions are consumed once; refresh resumes
+ * the resulting project instead of discarding edits.
  */
 export function creatorRoute(start: CreatorStartMode) {
   return `${routes.creator}?start=${start}` as const;
@@ -29,9 +33,9 @@ export function productRoute(slug: string) {
 export const siteLinks = {
   logo: { label: "Home Gym Creator", href: routes.home },
   catalog: { label: "Catalog", href: routes.catalog },
-  openCreator: { label: "Open creator", href: creatorRoute("new") },
-  runDemo: { label: "Run the sample project", href: creatorRoute("demo") },
-  startEmpty: { label: "Start from an empty room", href: creatorRoute("new") },
+  openCreator: { label: "Open creator", href: routes.creator },
+  runDemo: { label: "Explore sample project", href: creatorRoute("demo") },
+  startEmpty: { label: "Start planning", href: creatorRoute("new") },
   openSampleProject: {
     label: "Open this project",
     href: creatorRoute("demo"),
@@ -40,8 +44,8 @@ export const siteLinks = {
 } as const satisfies Record<string, SiteLink>;
 
 export const headerLinks = [
-  { label: "How it works", href: routes.home },
-  { label: "Creator", href: creatorRoute("new") },
+  { label: "How it works", href: "/#how-it-works" },
+  { label: "Agent guide", href: "/#agent-guide" },
   siteLinks.catalog,
 ] as const satisfies readonly SiteLink[];
 

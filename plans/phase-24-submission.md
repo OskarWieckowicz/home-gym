@@ -1,6 +1,6 @@
 # Phase 24 — Submission
 
-> Order 4 in the [active queue](README.md). Depends on Phase 23 for final submission;
+> Order 3 in the [active queue](README.md). Depends on Phase 23A and Phase 23B for final submission;
 > shared-editing verification and script preparation can start as soon as Phase 26 is deployed.
 > Hard deadline: 3 September 2026, 22:00 CEST. Start the video no later than 2 September.
 
@@ -8,8 +8,8 @@
 
 Hosting is already done: <https://home-gym-coral.vercel.app/> is live and the MIT `LICENSE` is in
 place, so this phase is documentation, verification and media rather than infrastructure. What is
-missing is everything a judge reads before they open the app. The root `README.md` is 66 lines, its
-status table still calls the creator a placeholder, it links only to `localhost:3000`, and it carries
+missing is the judge-facing documentation. The root `README.md` has a stale
+status table that still calls the creator a placeholder, links only to `localhost:3000`, and carries
 none of the four things the exit gate names: the demo URL, the tool list, sample prompts and the
 architecture. The WebMCP testing section is written conditionally, as if the tools might not exist
 yet. Sample prompts exist only in `docs/AGENT_HOME_GYM_WORKFLOW_PROMPT.md`.
@@ -45,7 +45,8 @@ form, not for editing.
 ## Implementation tasks
 
 1. **Verify the live build.** In a private window with no prior storage, on the deployed URL:
-   the landing page and every CTA; `/creator?start=demo` and `?start=new`, each after a reload;
+   the landing page and every CTA; `/creator?start=demo` and `?start=new`, each consumed to
+   `/creator`; edit and reload to confirm persistence, then reopen the explicit link to confirm reset;
    the catalog with filters and a product detail page; 2D and 3D; export, import, reset, undo, redo.
 
 2. **Prepare the script and verify WebMCP on the deployed build.** Write `docs/DEMO_SCRIPT.md`
@@ -110,11 +111,16 @@ deployed and submitted, and confirm the deployed commit matches the repository d
 The pre-submission checklist in [the hackathon requirements](../docs/HACKATHON_REQUIREMENTS.md), run
 once in a private window on the final commit, with each link opened rather than assumed.
 
+Also review the outstanding device, GPU-failure and deployed shared-editing checks recorded in
+[Phase 27 verification](../docs/PHASE_27_3D_EDITOR_VERIFICATION.md#remaining-acceptance-checks--limitations).
+Phase 27 was closed by user acceptance on 30 August 2026; closure is not evidence that these
+checks passed. Record their results or retain explicit limitations in submission claims.
+
 ## Risks
 
 The two schedule risks are recording the video too late and discovering a WebMCP registration
 difference on the deployed build that does not reproduce locally. Task 2 exists to surface the second
-one early; do it as soon as Phase 26 is deployed rather than waiting for Phase 23.
+one early; do it as soon as Phase 26 is deployed rather than waiting for Phase 23A and Phase 23B.
 
 ## Exit gate
 

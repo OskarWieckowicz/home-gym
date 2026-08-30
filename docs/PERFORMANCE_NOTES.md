@@ -6,8 +6,10 @@ Recorded 30 August 2026 for Phase 20 and the shared Phase 16 room-performance ta
 
 Phase 20's implementation was closed on 30 August 2026 with the runtime benchmark and visual
 acceptance retained in [Phase 16 tasks 4–5](../plans/phase-16-product-visual-assets.md).
-This is a scope handoff, not a passing runtime result. Optional click-to-select was cut; selection
-still comes from the 2D plan or list. The implementation passed `npm run agent:verify` (596 tests).
+This is a scope handoff, not a passing runtime result. At Phase 20 closure, click-to-select was
+out of scope and selection came from the 2D plan or list. Phase 27 subsequently implemented direct
+3D selection and editing; it did not complete this runtime benchmark. The Phase 20 implementation
+passed `npm run agent:verify` (596 tests).
 
 **Static asset measurement completed; full-room runtime acceptance remains open.** No live site was
 opened and no manual browser or visual checks were performed, as requested. The available Browser

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
-import { CreatorEditor } from "@/features/creator/components/creator-editor";
+import { CreatorEntry } from "@/features/creator/components/creator-entry";
 
 export const metadata: Metadata = {
   title: "Creator — Home Gym Creator",
@@ -9,5 +10,9 @@ export const metadata: Metadata = {
 };
 
 export default function CreatorPage() {
-  return <CreatorEditor />;
+  return (
+    <Suspense fallback={<p role="status">Loading room editor…</p>}>
+      <CreatorEntry />
+    </Suspense>
+  );
 }
