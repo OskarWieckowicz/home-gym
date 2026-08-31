@@ -13,13 +13,11 @@ import { ValidationSummary } from "./validation-summary";
 afterEach(cleanup);
 
 function renderSummary(project: GymProject) {
-  const result = render(
+  return render(
     <ProjectStoreProvider initialProject={project}>
       <ValidationSummary />
     </ProjectStoreProvider>,
   );
-  fireEvent.click(screen.getByRole("button", { name: "Layout checks" }));
-  return result;
 }
 
 function ValidationCommands() {
@@ -35,13 +33,16 @@ function ValidationCommands() {
 }
 
 describe("ValidationSummary", () => {
-  it("keeps live counts visible while collapsed across project changes and undo", () => {
+  it("starts expanded and keeps live counts visible while collapsed across project changes and undo", () => {
     render(<ProjectStoreProvider initialProject={createDefaultProject()}>
       <ValidationSummary /><ValidationCommands />
     </ProjectStoreProvider>);
     const toggle = screen.getByRole("button", { name: "Layout checks" });
-    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByText(/Access cannot be evaluated until the room has a door/)).toBeTruthy();
     expect(screen.getByRole("status").textContent).toContain("Door needed for access check");
+    fireEvent.click(toggle);
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
     fireEvent.click(screen.getByRole("button", { name: "Add outside obstacle" }));
     expect(screen.getByRole("status").textContent).toContain("1 error");
     expect(screen.queryByRole("heading", { name: "Errors" })).toBeNull();

@@ -167,9 +167,7 @@ describe("existing creator WebMCP shared editing flow", () => {
       revision: 3,
       validation: { valid: false, issueCount: 2 },
     });
-    expect(screen.getByRole("button", { name: "Layout checks" }).getAttribute("aria-expanded")).toBe("false");
-    expect(screen.queryByRole("heading", { name: "Errors" })).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Layout checks" }));
+    expect(screen.getByRole("button", { name: "Layout checks" }).getAttribute("aria-expanded")).toBe("true");
     expect(screen.getByRole("heading", { name: "Errors" })).toBeTruthy();
     expect(container.textContent).toContain("Agent rack is outside the room on x");
 

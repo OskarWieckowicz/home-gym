@@ -119,7 +119,6 @@ describe("CreatorEditor", () => {
     expect(screen.getByRole("button", { name: /Physical obstacle, physical obstacle/ })).toHaveProperty("tabIndex", -1);
     fireEvent.pointerDown(plan, { button: 0, clientX: 330, clientY: 240 });
 
-    fireEvent.click(screen.getByRole("button", { name: "Layout checks" }));
     expect(screen.getByRole("heading", { name: "Errors" })).toBeTruthy();
     expect(container.textContent).toContain("conflict with an unavailable zone");
     expect(screen.getByRole("button", { name: /Physical obstacle, physical obstacle/ })).toHaveProperty("tabIndex", 0);

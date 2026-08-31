@@ -11,7 +11,6 @@ import { PRODUCT_CATEGORIES } from "@/features/catalog/schemas";
 import { EquipmentCatalogThumb } from "./equipment-catalog-thumb";
 
 export const EQUIPMENT_DRAG_TYPE = "application/x-home-gym-product-id";
-const RESULT_LIMIT = 8;
 
 export function EquipmentCatalogPanel({
   activeProductId,
@@ -27,7 +26,6 @@ export function EquipmentCatalogPanel({
   const searchId = useId();
   const categoryId = useId();
   const products = useMemo(() => searchProducts({ query, category }), [query, category]);
-  const visibleProducts = products.slice(0, RESULT_LIMIT);
 
   function startDrag(event: DragEvent<HTMLElement>, productId: string) {
     event.dataTransfer.effectAllowed = "copy";
@@ -60,9 +58,9 @@ export function EquipmentCatalogPanel({
       <p className="creator-catalog-count">
         {products.length} of {catalogProducts.length} products
       </p>
-      {visibleProducts.length ? (
+      {products.length ? (
         <ul>
-          {visibleProducts.map((product) => {
+          {products.map((product) => {
             const canPlace = product.placementMode === "floor";
             return (
               <li
@@ -106,9 +104,6 @@ export function EquipmentCatalogPanel({
           })}
         </ul>
       ) : <p>No equipment matches this search.</p>}
-      {products.length > RESULT_LIMIT ? (
-        <p className="creator-catalog-count">Refine the search to see the remaining products.</p>
-      ) : null}
     </section>
   );
 }

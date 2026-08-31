@@ -43,7 +43,7 @@ function countLabel(count: number, singular: string, plural: string) {
 }
 
 export function ValidationSummary() {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
   const validation = useProjectStore((state) => state.validation);
   const project = useProjectStore((state) => state.project);
   const names = new Map([

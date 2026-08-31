@@ -21,6 +21,16 @@ function renderCatalog(onActivate = vi.fn(), onAdd = vi.fn()) {
 }
 
 describe("EquipmentCatalogPanel", () => {
+  it("lists every catalog product under All equipment", () => {
+    renderCatalog();
+    expect(screen.getByText(`${catalogProducts.length} of ${catalogProducts.length} products`)).toBeTruthy();
+    expect(screen.getAllByRole("button", { name: /^Add .* to project$/ })).toHaveLength(catalogProducts.length);
+    expect(screen.queryByText("Refine the search to see the remaining products.")).toBeNull();
+    for (const product of catalogProducts) {
+      expect(screen.getByRole("button", { name: `Add ${product.name} to project` })).toBeTruthy();
+    }
+  });
+
   it.each(Object.entries(PRODUCT_CATEGORY_LABELS))("filters all equipment in %s", (category, label) => {
     renderCatalog();
     expect(screen.getByRole("option", { name: label })).toHaveProperty("value", category);

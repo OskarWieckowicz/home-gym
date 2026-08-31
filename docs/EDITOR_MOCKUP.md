@@ -67,9 +67,9 @@ The right panel shows parameters of the selected element:
 Changes made in the form immediately update both views.
 
 The inspector has a persistent Properties heading, a contextual form and a selected-product
-thumbnail. Clearing selection returns to room properties. Layout checks are collapsed initially;
-live error/warning badges and an explicit missing-door message remain visible. Missing access
-information is not presented as a completed or successful access check.
+thumbnail. Clearing selection returns to room properties. Layout checks start expanded;
+live error/warning badges and an explicit missing-door message remain visible when collapsed.
+Missing access information is not presented as a completed or successful access check.
 
 The panel is an inspector for an existing selection, not a creation wizard. The displayed fields depend on the selected kind: physical obstacles include height, unavailable zones do not, and doors/windows expose only their minimal wall properties.
 
