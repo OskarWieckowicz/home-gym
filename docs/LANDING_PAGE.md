@@ -1,7 +1,7 @@
 # Home Gym Creator — landing page
 
 > Accepted direction: 30 August 2026. Process-first hackathon introduction, not a sales page or
-> a walkthrough of the bundled demo. Implemented locally; public-build acceptance is tracked in the [submission plan](../plans/phase-24-submission.md).
+> a walkthrough of the bundled demo. Implemented locally; public-build acceptance is tracked in the [submission plan](../plans/phase-28-submission.md).
 
 ## Visual reference
 

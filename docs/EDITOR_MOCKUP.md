@@ -122,7 +122,7 @@ The main interaction rule: **both views edit one room, through one command path 
   expose Continue in 2D without remounting the project store or WebMCP bridge.
 
 Outstanding device/deployment acceptance is tracked in the
-[submission plan](../plans/phase-24-submission.md). Local automated coverage does not establish
+[submission plan](../plans/phase-28-submission.md). Local automated coverage does not establish
 physical-device, assistive-technology or public-build acceptance.
 
 ## Source of truth

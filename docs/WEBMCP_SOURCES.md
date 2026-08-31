@@ -387,7 +387,7 @@ browser version. The optional execution-signal adapter supports both the observe
 omits callback options and runtimes that pass `{ signal }`. Diagnostic `executeTool()` signatures
 are host-specific; production handlers and registration must not depend on that helper.
 
-The [submission plan](../plans/phase-24-submission.md) owns public secure-origin checks, fresh
+The [submission plan](../plans/phase-28-submission.md) owns public secure-origin checks, fresh
 Chrome and ChatGPT/Codex discovery, navigation/cleanup, actual calls and the shared-editing loop.
 Keep local logic tests separate from those checks. Registration errors must preserve manual use;
 do not work around a host limitation by creating a second backend planning path.

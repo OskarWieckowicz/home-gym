@@ -11,7 +11,7 @@ catalog are fictional.
 
 Implemented locally: editable 3D/2D planning, a shared manual/WebMCP command path, local
 save/restore and JSON import/export, deterministic validation, and a read-only project summary.
-Public-build and target-agent acceptance remain in the [submission plan](plans/phase-24-submission.md).
+Public-build and target-agent acceptance remain in the [submission plan](plans/phase-28-submission.md).
 The [active queue](plans/README.md) tracks the remaining catalog, asset and submission work.
 
 | Route | Purpose |

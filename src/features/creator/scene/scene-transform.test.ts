@@ -9,7 +9,10 @@ import {
   rotateDimensions,
   roomToScene,
   rotationToRadians,
+  SCENE_WALL_THICKNESS_M,
   scenePointToPosition,
+  WALL_OPENING_INSET_M,
+  wallElementRotation,
 } from "./scene-transform";
 
 describe("scene transforms", () => {
@@ -113,5 +116,20 @@ describe("scene transforms", () => {
     expect(box.position.z - box.dimensions.z / 2).toBeCloseTo(-1.6);
     expect(box.position.x + box.dimensions.x / 2).toBeLessThanOrEqual(2);
     expect(box.position.z + box.dimensions.z / 2).toBeLessThanOrEqual(1.6);
+  });
+
+  it.each([
+    ["top", { x: 0, z: 1 }],
+    ["right", { x: -1, z: 0 }],
+    ["bottom", { x: 0, z: -1 }],
+    ["left", { x: 1, z: 0 }],
+  ] as const)("faces %s openings into the room along local +Z", (wall, inward) => {
+    const yaw = wallElementRotation({ wall });
+    expect(Math.sin(yaw)).toBeCloseTo(inward.x);
+    expect(Math.cos(yaw)).toBeCloseTo(inward.z);
+  });
+
+  it("keeps openings off the wall slab so they cannot z-fight", () => {
+    expect(WALL_OPENING_INSET_M).toBeGreaterThan(SCENE_WALL_THICKNESS_M / 2);
   });
 });

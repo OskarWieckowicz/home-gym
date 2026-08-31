@@ -136,6 +136,11 @@ export function obstacleToScene(obstacle: Obstacle, room: Room): SceneBox {
   };
 }
 
+/** Presentation slab used by SceneWalls; openings must sit off this volume. */
+export const SCENE_WALL_THICKNESS_M = 0.035;
+/** Local +Z after wallElementRotation; inner face plus half the door leaf, with a gap. */
+export const WALL_OPENING_INSET_M = 0.04;
+
 export function wallElementToScene(element: WallElement, room: Room): SceneVector3 {
   const offset = element.offsetCm + element.widthCm / 2;
   switch (element.wall) {
@@ -146,6 +151,12 @@ export function wallElementToScene(element: WallElement, room: Room): SceneVecto
   }
 }
 
-export function wallElementRotation(element: WallElement): number {
-  return element.wall === "left" || element.wall === "right" ? Math.PI / 2 : 0;
+/** Yaw so local +Z faces the room interior on every wall. */
+export function wallElementRotation(element: Pick<WallElement, "wall">): number {
+  switch (element.wall) {
+    case "top": return 0;
+    case "right": return -Math.PI / 2;
+    case "bottom": return Math.PI;
+    case "left": return Math.PI / 2;
+  }
 }

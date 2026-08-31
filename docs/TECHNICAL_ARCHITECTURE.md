@@ -1,7 +1,7 @@
 # Home Gym Creator — technical architecture
 
 > Current implementation contracts, checked against local source on 30 August 2026.
-> Public-build and device acceptance belong to the [submission plan](../plans/phase-24-submission.md).
+> Public-build and device acceptance belong to the [submission plan](../plans/phase-28-submission.md).
 
 ## 1. Architecture goals
 
@@ -311,7 +311,7 @@ are preloaded; a failed model keeps its fallback, outline and use zone. `SceneBo
 whole Canvas and `SceneContextLoss` listens for context loss; both offer recovery to the same
 project in 2D. Neither failure remounts persistence or the WebMCP bridge.
 
-Device/deployment acceptance is tracked in the [submission plan](../plans/phase-24-submission.md);
+Device/deployment acceptance is tracked in the [submission plan](../plans/phase-28-submission.md);
 unit/controller tests are not claims of GPU validation.
 
 The compact project header is separate from `CreatorViewportToolbar`, which owns the
