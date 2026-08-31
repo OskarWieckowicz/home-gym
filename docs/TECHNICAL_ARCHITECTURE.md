@@ -440,6 +440,19 @@ The catalog must support filtering by:
 
 We will not implement real stock, external prices, checkout, or an admin panel in the MVP.
 
+The catalog keeps server-rendered results and the same GET filter contract as catalog queries.
+Price and physical dimensions precede expandable secondary filters. The small client filter
+disclosure hides the form visually on mobile without detaching the search input or submit button
+from its form. Product cards label the physical footprint separately from the zero-rotation use
+zone envelope computed by `createEquipmentFootprints`; neither is a room-fit result.
+
+`CatalogProjectSummary` replaces the static sidebar with compact saved-project context. It reads
+`home-gym-creator.project` through the existing storage adapter/codec and creator-compatible
+reconciliation and product checks. It does not mount a project store, autosave, initialize a
+default room, or write storage. Missing, invalid and unavailable storage have distinct states.
+The snapshot refreshes on mount, page return/focus and relevant storage events, and counts all
+project items, including unplaced equipment and accessories.
+
 ## 12. Zod and JSON Schema
 
 Zod is the single source of truth for:
@@ -626,6 +639,17 @@ Features:
 `?start=new` replace it with the bundled demo or empty baseline, writing once to
 `home-gym-creator.project` before the editor/tools mount. A client entry under Suspense handles
 same-route query changes while retaining a prerendered loading shell.
+
+Catalog cards and detail pages use `creatorProductRoute` to pass `?product=<active product id>`.
+Exactly one active ID is accepted; missing, malformed, repeated and retired values have no effect.
+The intent activates only after persistence has restored the project. Placeable equipment uses
+the ordinary placement preview; selection-only accessories focus an explicit Add to list action.
+No command is dispatched by navigation. The catalog panel resets its search/category/tab to make
+the requested product visible, while the project store, undo history and WebMCP bridge stay mounted.
+The product parameter is consumed with native history replacement, retaining unrelated parameters
+and fragments. Refresh does not replay it. An explicit valid `start` remains an independent request
+to replace the baseline before applying the product intent. This does not add persisted undo
+history across routes.
 
 Start is consumed once using native `history.replaceState`: remove only `start`, retaining other
 parameters and fragments. URL cleanup preserves the mounted store/history. Reopening an explicit

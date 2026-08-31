@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { catalogProducts } from "@/data/products";
@@ -16,8 +16,17 @@ describe("catalog route", () => {
     expect(screen.getByText(`${catalogProducts.length} products`)).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Equipment for your home gym" })).toBeTruthy();
     expect(screen.getByRole("searchbox", { name: "Search equipment" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Your project" })).toBeTruthy();
-    expect(screen.getByRole("combobox", { name: "Exercise" }).children.length).toBeGreaterThan(1);
+    expect(screen.queryByText("Best match")).toBeNull();
+    expect(screen.queryByText("Ready for room planning")).toBeNull();
+    const search = screen.getByRole("searchbox", { name: "Search equipment" }) as HTMLInputElement;
+    const submit = screen.getByRole("button", { name: "Search" }) as HTMLButtonElement;
+    expect(search.form?.id).toBe("catalog-filters");
+    expect(submit.form).toBe(search.form);
+    const disclosure = screen.getByRole("button", { name: "Filters" });
+    expect(disclosure.getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(disclosure);
+    expect(disclosure.getAttribute("aria-expanded")).toBe("true");
+    expect(document.querySelector("select[name='exercise']")?.children.length).toBeGreaterThan(1);
   });
 
   it("renders normalized labels for the complete filter surface", async () => {

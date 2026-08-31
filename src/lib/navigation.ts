@@ -31,6 +31,11 @@ export function productRoute(slug: string) {
   return `${routes.catalog}/${slug}` as const;
 }
 
+/** A product intent opens existing placement controls; it never adds a purchase. */
+export function creatorProductRoute(productId: string) {
+  return `${routes.creator}?product=${encodeURIComponent(productId)}` as const;
+}
+
 export const siteLinks = {
   logo: { label: "Home Gym Creator", href: routes.home },
   catalog: { label: "Catalog", href: routes.catalog },

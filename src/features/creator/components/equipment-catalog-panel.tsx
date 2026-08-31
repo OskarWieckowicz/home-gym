@@ -1,11 +1,11 @@
 "use client";
 
-import { useId, useMemo, useState, type DragEvent } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type DragEvent } from "react";
 import { Search } from "lucide-react";
 
 import { catalogProducts } from "@/data/products";
 import { formatCatalogLabel, formatFootprint, formatPricePln } from "@/features/catalog/components/catalog-formatters";
-import { searchProducts } from "@/features/catalog/queries/catalog";
+import { findProductById, searchProducts } from "@/features/catalog/queries/catalog";
 import { PRODUCT_CATEGORIES } from "@/features/catalog/schemas";
 import { useProjectShopping } from "../store/use-project-shopping";
 
@@ -14,20 +14,27 @@ import { EquipmentCatalogThumb } from "./equipment-catalog-thumb";
 export const EQUIPMENT_DRAG_TYPE = "application/x-home-gym-product-id";
 
 export function EquipmentCatalogPanel({
+  initialProductId,
   activeProductId,
   onActivate,
   onAdd,
 }: {
+  readonly initialProductId?: string;
   readonly activeProductId: string | null;
   readonly onActivate: (productId: string) => void;
   readonly onAdd: (productId: string) => void;
 }) {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(() => initialProductId ? findProductById(initialProductId)?.name ?? "" : "");
+  const requestedAction = useRef<HTMLButtonElement>(null);
   const [category, setCategory] = useState("");
   const searchId = useId();
   const categoryId = useId();
   const { byProduct } = useProjectShopping();
   const products = useMemo(() => searchProducts({ query, category }), [query, category]);
+
+  useEffect(() => {
+    if (initialProductId) requestedAction.current?.focus();
+  }, [initialProductId]);
 
   function startDrag(event: DragEvent<HTMLElement>, productId: string) {
     event.dataTransfer.effectAllowed = "copy";
@@ -92,6 +99,7 @@ export function EquipmentCatalogPanel({
                 <div className="creator-catalog-actions">
                   {canPlace ? (
                     <button
+                      ref={product.id === initialProductId ? requestedAction : undefined}
                       aria-label={`${activeProductId === product.id ? "Cancel placing" : "Place"} ${product.name}`}
                       aria-pressed={activeProductId === product.id}
                       aria-describedby={reuseExisting ? hintId : undefined}
@@ -101,6 +109,7 @@ export function EquipmentCatalogPanel({
                       {activeProductId === product.id ? "Cancel" : "Place"}
                     </button>
                   ) : <button
+                    ref={product.id === initialProductId ? requestedAction : undefined}
                     aria-label={`Add to list: ${product.name}`}
                     onClick={() => onAdd(product.id)}
                     type="button"

@@ -30,13 +30,14 @@ import { RoomForm } from "./room-form";
 import { RoomPlan } from "./room-plan";
 import { ValidationSummary } from "./validation-summary";
 import { WallElementForm } from "./wall-element-form";
+import { useCatalogProductIntent } from "./use-catalog-product-intent";
 
 const ScenePreview = dynamic(
   () => import("../scene/scene-preview").then((module) => module.ScenePreview),
   { ssr: false, loading: () => <section className="creator-scene-shell" aria-label="Loading 3D room editor"><p className="creator-help">Loading 3D editor… You can switch to 2D at any time.</p></section> },
 );
 
-function EditorWorkspace() {
+function EditorWorkspace({ catalogProductId }: { readonly catalogProductId?: string }) {
   const store = useProjectStoreApi();
   const propertiesRef = useRef<HTMLElement>(null);
   const [settingsDialog, setSettingsDialog] = useState<SettingsDialogRequest | null>(null);
@@ -45,6 +46,7 @@ function EditorWorkspace() {
   const [activeTool, setActiveTool] = useState<PlacementTool | null>(null);
   const [activeProductId, setActiveProductId] = useState<string | null>(null);
   const [activeProjectItemId, setActiveProjectItemId] = useState<string | null>(null);
+  const [catalogIntent, setCatalogIntent] = useState<{ productId: string; sequence: number } | null>(null);
   const [placementError, setPlacementError] = useState("");
   const [viewMode, setViewMode] = useState<"2d" | "3d">("3d");
   const [cameraPreset, setCameraPreset] = useState<SceneCameraPreset>({ kind: "fit", sequence: 0 });
@@ -70,6 +72,15 @@ function EditorWorkspace() {
   const placing = Boolean(activeTool || activeProductId || activeProjectItemId);
   const displayedPanel = activePanel === "selected" && !visibleSelectedId && !placing ? "room" : activePanel;
   const selectionBox = sceneSelectionBox(project, visibleSelectedId);
+
+  useCatalogProductIntent(catalogProductId, (product) => {
+    clearPlacementMode();
+    setPresentationView(false);
+    setSelectedId(null);
+    setActivePanel(product.placementMode === "floor" ? "selected" : "room");
+    if (product.placementMode === "floor") setActiveProductId(product.id);
+    setCatalogIntent((previous) => ({ productId: product.id, sequence: (previous?.sequence ?? 0) + 1 }));
+  });
 
   function clearPlacementMode() {
     setActiveTool(null);
@@ -171,6 +182,8 @@ function EditorWorkspace() {
       <CreatorToolbar onOpenSettings={(trigger) => openSettings("budget", trigger)} />
       <div className="creator-layout">
         <ElementPanel
+          key={catalogIntent?.sequence ?? 0}
+          initialCatalogProductId={catalogIntent?.productId}
           onCancelPlacement={clearPlacementMode}
           activePanel={displayedPanel}
           activeProductId={activeProductId}
@@ -248,17 +261,19 @@ export function CreatorEditor({
   persistence,
   storage,
   startMode,
+  catalogProductId,
 }: {
   readonly initialProject?: GymProject;
   readonly dependencies?: ProjectCommandDependencies;
   readonly persistence?: boolean;
   readonly storage?: ProjectPersistenceBoundaryProps["storage"];
   readonly startMode?: CreatorStartMode;
+  readonly catalogProductId?: string;
 } = {}) {
   const workspace = (
     <>
       <CreatorWebMcpBridge />
-      <EditorWorkspace />
+      <EditorWorkspace catalogProductId={catalogProductId} />
     </>
   );
   const persistenceEnabled =

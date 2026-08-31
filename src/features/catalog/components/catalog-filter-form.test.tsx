@@ -33,8 +33,8 @@ describe("CatalogFilterForm", () => {
 
     expect(screen.getByRole("group", { name: "Category" })).toBeTruthy();
     expect(screen.getByRole("group", { name: "Training goal" })).toBeTruthy();
-    expect(screen.getByRole("group", { name: "Price and exercise" })).toBeTruthy();
-    expect(screen.getByRole("group", { name: "Maximum dimensions" })).toBeTruthy();
+    expect(screen.getByRole("group", { name: "Price" })).toBeTruthy();
+    expect(screen.getByRole("group", { name: "Maximum equipment dimensions" })).toBeTruthy();
     expect(screen.getByRole("group", { name: "Requirements" })).toBeTruthy();
     expect(screen.getByRole("radio", { name: "Free Weights" })).toHaveProperty("checked", true);
     for (const [category, label] of Object.entries(PRODUCT_CATEGORY_LABELS)) {
@@ -61,6 +61,32 @@ describe("CatalogFilterForm", () => {
     expect(screen.getByRole("option", { name: "Overhead press" })).toBeTruthy();
     expect(screen.getByRole("option", { name: "No anchoring" })).toBeTruthy();
     expect(screen.getByRole("link", { name: "Clear filters" })).toHaveProperty("pathname", "/catalog");
+  });
+
+  it("keeps secondary filters collapsed unless they have values", () => {
+    const { container } = render(
+      <CatalogFilterForm exerciseOptions={[]} hasActiveFilters={false} values={{}} />,
+    );
+    expect(Array.from(container.querySelectorAll("details")).every((section) => !section.open)).toBe(true);
+    expect(Array.from(container.querySelectorAll("fieldset > legend")).slice(0, 2).map((legend) => legend.textContent)).toEqual(["Price", "Maximum equipment dimensions"]);
+  });
+
+  it("keeps every GET field and the external search value when sections are closed", () => {
+    const { container } = render(
+      <>
+        <CatalogFilterForm exerciseOptions={["overhead press"]} hasActiveFilters values={values} />
+        <input form="catalog-filters" name="query" defaultValue="press" />
+      </>,
+    );
+    for (const section of container.querySelectorAll("details")) {
+      expect(section.open).toBe(true);
+      section.open = false;
+    }
+    const form = container.querySelector("form")!;
+    expect(form.method).toBe("get");
+    expect(Object.fromEntries(new FormData(form))).toEqual(
+      Object.fromEntries(Object.entries(values).map(([key, value]) => [key, String(value)])),
+    );
   });
 
   it("omits the clear action when no filters are active", () => {

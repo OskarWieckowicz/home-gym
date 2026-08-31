@@ -1,36 +1,33 @@
-import { CheckCircle2, ImageOff, Ruler, TriangleAlert } from "lucide-react";
+import { ImageOff } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
 import { buttonClassName } from "@/components/ui/button-styles";
 import type { Product } from "@/features/catalog/schemas";
-import { productRoute, siteLinks } from "@/lib/navigation";
+import { creatorProductRoute, productRoute } from "@/lib/navigation";
 
 import {
   formatCatalogLabel,
   formatFootprint,
+  formatExerciseEnvelope,
+  formatAnchoring,
   formatPricePln,
 } from "./catalog-formatters";
 import { getProductImage } from "../product-assets";
 
 type ProductCardProps = {
-  readonly position: number;
   readonly product: Product;
 };
 
-export function ProductCard({ position, product }: ProductCardProps) {
-  const requiresAnchoring = product.requirements.anchoring === "required";
-  const tags = [product.exercises[0], product.trainingGoals[0]];
+export function ProductCard({ product }: ProductCardProps) {
+  const selectionOnly = product.placementMode === "selection-only";
   const image = getProductImage(product.id);
 
   return (
     <article className="group flex min-w-0 flex-col overflow-hidden rounded-lg border border-line bg-surface shadow-card transition hover:border-brand-muted hover:shadow-md">
-      <div className="relative flex aspect-[4/2.6] items-center justify-center bg-surface-muted">
-        <span className="absolute left-3 top-3 flex size-7 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">
-          {position}
-        </span>
+      <div className="relative flex aspect-[4/3] items-center justify-center bg-surface-muted">
         {image ? (
-          <Image alt={`${product.name} catalog image`} className="object-contain p-4" fill sizes="(max-width: 768px) 100vw, 33vw" src={image} />
+          <Image alt={`${product.name} catalog image`} className="object-contain p-2" fill sizes="(max-width: 639px) 100vw, (max-width: 1279px) 50vw, 28vw" src={image} />
         ) : (
           <div className="grid place-items-center gap-2 text-center text-ink-subtle">
             <ImageOff aria-hidden="true" className="size-8 stroke-[1.5]" />
@@ -53,44 +50,31 @@ export function ProductCard({ position, product }: ProductCardProps) {
         </h2>
         <p className="mt-1 text-lg font-bold text-brand">{formatPricePln(product.price)}</p>
 
-        <div className="mt-2 flex items-center gap-2 text-sm text-ink-muted">
-          <Ruler aria-hidden="true" className="size-4" />
-          <span>{formatFootprint(product.dimensions)}</span>
-        </div>
-
-        <ul className="mt-3 flex flex-wrap gap-2" aria-label="Product highlights">
-          {tags.map((tag) => (
-            <li
-              className="rounded-md bg-brand-soft px-2.5 py-1 text-xs font-medium text-brand-strong"
-              key={tag}
-            >
-              {formatCatalogLabel(tag)}
-            </li>
-          ))}
-        </ul>
-
-        <div
-          className={[
-            "mt-3 flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-xs font-semibold",
-            requiresAnchoring
-              ? "border-amber-200 bg-caution-soft text-caution"
-              : "border-emerald-200 bg-success-soft text-success",
-          ].join(" ")}
-        >
-          {requiresAnchoring ? (
-            <TriangleAlert aria-hidden="true" className="size-4" />
-          ) : (
-            <CheckCircle2 aria-hidden="true" className="size-4" />
-          )}
-          <span>{requiresAnchoring ? "Anchoring required" : "Ready for room planning"}</span>
-        </div>
+        <dl className="mt-4 space-y-2 text-sm">
+          <div className="flex flex-wrap justify-between gap-x-3 gap-y-1">
+            <dt className="text-ink-muted">{selectionOnly ? "Product size (W × D)" : "Footprint (W × D)"}</dt>
+            <dd className="font-medium text-ink">{formatFootprint(product.dimensions)}</dd>
+          </div>
+          {!selectionOnly ? (
+            <div className="flex flex-wrap justify-between gap-x-3 gap-y-1">
+              <dt className="text-ink-muted">Exercise space</dt>
+              <dd className="font-medium text-ink">{formatExerciseEnvelope(product)}</dd>
+            </div>
+          ) : null}
+        </dl>
+        <p className="mt-2 text-xs leading-5 text-ink-subtle">
+          {selectionOnly ? "List item · no floor placement" : "Exercise space includes the equipment footprint."}
+        </p>
+        <p className="mt-3 text-xs font-medium text-ink-muted">{formatAnchoring(product)}</p>
 
         <div className="mt-auto grid gap-2 pt-3">
-          <Link className={buttonClassName("primary", "w-full")} href={siteLinks.openCreator.href}>
-            Open creator
+          <Link className={buttonClassName("primary", "w-full")} href={creatorProductRoute(product.id)}>
+            {selectionOnly ? "Plan this accessory" : "Plan with this equipment"}
+            <span className="sr-only">: {product.name}</span>
           </Link>
           <Link
-            className={buttonClassName("secondary", "w-full")}
+            aria-label={`View details for ${product.name}`}
+            className="inline-flex min-h-11 items-center justify-center rounded-sm text-sm font-medium text-ink-muted hover:text-brand hover:underline focus-visible:outline-2 focus-visible:outline-brand"
             href={productRoute(product.slug)}
           >
             View details

@@ -2,6 +2,8 @@ import { Search } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { buttonClassName } from "@/components/ui/button-styles";
+import { CatalogFiltersDisclosure } from "@/features/catalog/components/catalog-filters-disclosure";
 import { Card } from "@/components/ui/card";
 import {
   CATALOG_FILTER_FORM_ID,
@@ -76,17 +78,16 @@ export default async function CatalogPage({
           </p>
         </div>
 
-        <div className="mt-7 grid items-start gap-7 lg:grid-cols-[15rem_minmax(0,1fr)] xl:grid-cols-[15rem_minmax(0,1fr)_18rem]">
-          <aside aria-labelledby="filters-heading">
+        <div className="mt-7 grid items-start gap-7 lg:grid-cols-[15rem_minmax(0,1fr)]">
+          <aside aria-label="Catalog filters">
             <Card className="rounded-lg p-4">
-              <h2 className="mb-5 text-lg font-bold text-ink" id="filters-heading">
-                Filters
-              </h2>
-              <CatalogFilterForm
-                exerciseOptions={getCatalogExerciseOptions()}
-                hasActiveFilters={filterLabels.length > 0}
-                values={filters}
-              />
+              <CatalogFiltersDisclosure>
+                <CatalogFilterForm
+                  exerciseOptions={getCatalogExerciseOptions()}
+                  hasActiveFilters={filterLabels.length > 0}
+                  values={filters}
+                />
+              </CatalogFiltersDisclosure>
             </Card>
           </aside>
 
@@ -95,7 +96,9 @@ export default async function CatalogPage({
               Catalog results
             </h2>
 
-            <div className="flex flex-col gap-3 md:flex-row md:items-center">
+            <CatalogProjectSummary />
+
+            <div className="mt-5 flex flex-col gap-3 md:flex-row md:items-center">
               <div className="relative min-w-0 flex-1">
                 <Search
                   aria-hidden="true"
@@ -115,9 +118,13 @@ export default async function CatalogPage({
                 />
               </div>
               <div className="flex min-h-11 items-center justify-between gap-4 md:justify-end">
-                <span className="rounded-md border border-line bg-surface px-4 py-2.5 text-sm font-semibold text-ink">
-                  Best match
-                </span>
+                <button
+                  className={buttonClassName("secondary")}
+                  form={CATALOG_FILTER_FORM_ID}
+                  type="submit"
+                >
+                  Search
+                </button>
                 <p aria-atomic="true" aria-live="polite" className="whitespace-nowrap text-sm text-ink-muted">
                   {products.length} {products.length === 1 ? "product" : "products"}
                 </p>
@@ -138,9 +145,9 @@ export default async function CatalogPage({
             ) : null}
 
             {products.length > 0 ? (
-              <div className="mt-5 grid gap-5 md:grid-cols-2 2xl:grid-cols-3">
-                {products.map((product, index) => (
-                  <ProductCard key={product.id} position={index + 1} product={product} />
+              <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                {products.map((product) => (
+                  <ProductCard key={product.id} product={product} />
                 ))}
               </div>
             ) : (
@@ -161,10 +168,6 @@ export default async function CatalogPage({
               </Card>
             )}
           </section>
-
-          <aside className="lg:col-span-2 xl:col-span-1" aria-label="Project summary">
-            <CatalogProjectSummary />
-          </aside>
         </div>
       </section>
     </main>

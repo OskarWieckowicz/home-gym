@@ -49,6 +49,30 @@ function change(name: string, value: string) {
 }
 
 describe("CreatorEditor", () => {
+  it("uses the normal placement command for a catalog intent, reuses an unplaced item and supports undo", async () => {
+    const project = createDefaultProject();
+    project.projectItems = [{ id: "project-item_bench", productId: "product_arc_adjustable_bench" }];
+    render(<CreatorEditor initialProject={project} catalogProductId="product_arc_adjustable_bench" />);
+    await screen.findByRole("button", { name: "Cancel placing Arc Adjustable Bench" });
+    const store = (sceneProps.mock.lastCall![0] as ScenePreviewProps).store;
+    expect(store.getState()).toMatchObject({ revision: 0, canUndo: false });
+    expect(store.getState().project).toEqual(project);
+    fireEvent.click(screen.getByRole("button", { name: "Scene place at centre" }));
+    expect(store.getState().project.projectItems).toEqual(project.projectItems);
+    expect(store.getState().project.placements).toHaveLength(1);
+    expect(store.getState().project.placements[0].projectItemId).toBe("project-item_bench");
+    fireEvent.click(screen.getByRole("button", { name: "Undo" }));
+    expect(store.getState().project).toEqual(project);
+  });
+
+  it("activates wall-mounted catalog equipment without a purchase", async () => {
+    render(<CreatorEditor initialProject={createDefaultProject()} catalogProductId="product_wall_mounted_punching_bag" />);
+    await screen.findByRole("button", { name: "Cancel placing Wall-Mounted Punching Bag" });
+    const props = sceneProps.mock.lastCall![0] as ScenePreviewProps;
+    expect(props.activeProductId).toBe("product_wall_mounted_punching_bag");
+    expect(props.store.getState()).toMatchObject({ revision: 0, canUndo: false });
+    expect(props.store.getState().project.projectItems).toHaveLength(0);
+  });
   it("locks equipment through the shared store and keeps manual controls, list actions and undo consistent", () => {
     const project = createDefaultProject();
     project.projectItems = [{ id: "project-item_rack", productId: "product_northstar_half_rack" }];

@@ -11,11 +11,13 @@ import {
   formatCatalogLabel,
   formatDimensions,
   formatFootprint,
+  formatExerciseEnvelope,
+  formatAnchoring,
   formatPricePln,
 } from "@/features/catalog/components/catalog-formatters";
 import { getProductImage } from "@/features/catalog/product-assets";
 import { findProductBySlug } from "@/features/catalog/queries";
-import { siteLinks } from "@/lib/navigation";
+import { creatorProductRoute } from "@/lib/navigation";
 
 type ProductPageProps = {
   readonly params: Promise<{ slug: string }>;
@@ -52,9 +54,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           `${product.requirements.minimumCeilingHeightCm} cm`,
         ]
       : undefined,
-    product.requirements.anchoring
-      ? ["Anchoring", formatCatalogLabel(product.requirements.anchoring)]
-      : undefined,
+    ["Anchoring", formatAnchoring(product)],
     product.mounting
       ? ["Mount height", `${product.mounting.bottomHeightCm} cm`]
       : undefined,
@@ -120,23 +120,36 @@ export default async function ProductPage({ params }: ProductPageProps) {
                     {formatDimensions(product.dimensions)}
                   </p>
                   <p className="mt-1 text-sm text-ink-muted">
-                    Width × depth × height; footprint {formatFootprint(product.dimensions)}.
+                    Width × depth × height; {product.placementMode === "selection-only" ? "product size" : "footprint"} {formatFootprint(product.dimensions)}.
                   </p>
                 </Card>
                 <Card className="p-5">
                   <p className="text-sm font-semibold text-ink-subtle">
-                    Use zone by side
+                    {product.placementMode === "selection-only" ? "Planning mode" : "Exercise space"}
                   </p>
-                  <dl className="mt-3 grid grid-cols-2 gap-x-5 gap-y-2 text-sm">
-                    {Object.entries(product.useZone).map(([side, value]) => (
-                      <div className="flex justify-between gap-2" key={side}>
-                        <dt className="text-ink-muted">
-                          {formatCatalogLabel(side.replace("Cm", ""))}
-                        </dt>
-                        <dd className="font-semibold text-ink">{value} cm</dd>
-                      </div>
-                    ))}
-                  </dl>
+                  {product.placementMode === "selection-only" ? (
+                    <p className="mt-2 text-sm leading-6 text-ink-muted">
+                      This accessory is added to your equipment list, without floor placement or a reserved exercise area.
+                    </p>
+                  ) : (
+                    <>
+                      <p className="mt-2 text-xl font-bold text-ink">{formatExerciseEnvelope(product)}</p>
+                      <p className="mt-1 text-sm text-ink-muted">
+                        Width × depth, including the footprint and these use-zone margins.
+                        Room fit is checked in the creator.
+                      </p>
+                      <dl className="mt-3 grid grid-cols-2 gap-x-5 gap-y-2 text-sm">
+                        {Object.entries(product.useZone).map(([side, value]) => (
+                          <div className="flex justify-between gap-2" key={side}>
+                            <dt className="text-ink-muted">
+                              {formatCatalogLabel(side.replace("Cm", ""))}
+                            </dt>
+                            <dd className="font-semibold text-ink">{value} cm</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </>
+                  )}
                 </Card>
               </div>
             </section>
@@ -211,8 +224,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 </div>
               ) : null}
 
-              <LinkButton className="mt-6 w-full" href={siteLinks.openCreator.href}>
-                Plan with this catalog
+              <LinkButton className="mt-6 w-full" href={creatorProductRoute(product.id)}>
+                {product.placementMode === "selection-only" ? "Plan this accessory" : "Plan with this equipment"}
+                <span className="sr-only">: {product.name}</span>
               </LinkButton>
             </Card>
           </aside>

@@ -19,19 +19,19 @@ function collectText(node: unknown): string {
   return collectText((node as { props?: { children?: unknown } }).props?.children);
 }
 
-function findProp(node: unknown, key: string): unknown {
+function findProp(node: unknown, key: string, matchingValue?: unknown): unknown {
   if (!node || typeof node !== "object") return undefined;
   if (Array.isArray(node)) {
     for (const child of node) {
-      const found = findProp(child, key);
+      const found = findProp(child, key, matchingValue);
       if (found !== undefined) return found;
     }
     return undefined;
   }
 
   const props = (node as { props?: Record<string, unknown> }).props;
-  if (props && key in props) return props[key];
-  return findProp(props?.children, key);
+  if (props && key in props && (matchingValue === undefined || props[key] === matchingValue)) return props[key];
+  return findProp(props?.children, key, matchingValue);
 }
 
 describe("product detail route", () => {
@@ -71,7 +71,7 @@ describe("product detail route", () => {
     expect(findProp(page, "alt")).toBe("Olympic Bench Set catalog image");
     expect(collectText(page)).toContain("four weight plates");
     expect(collectText(page)).toContain("load capacity is not specified");
-    expect(collectText(page)).toContain("Plan with this catalog");
+    expect(collectText(page)).toContain("Plan with this equipment");
   });
 
   it.each([
@@ -80,6 +80,22 @@ describe("product detail route", () => {
     ["wall-mounted-punching-bag", "Mount height30 cm"],
   ])("shows the mount height on the %s page", async (slug, mountRow) => {
     expect(collectText(await ProductPage(params(slug)))).toContain(mountRow);
+  });
+
+  it("links the exact product to the creator and distinguishes exercise space", async () => {
+    const product = catalogProducts[0];
+    const page = await ProductPage(params(product.slug));
+    const target = `/creator?product=${product.id}`;
+    expect(findProp(page, "href", target)).toBe(target);
+    expect(collectText(page)).toContain("Exercise space");
+    expect(collectText(page)).toContain("Room fit is checked in the creator.");
+  });
+
+  it("does not present an accessory as a floor placement", async () => {
+    const page = await ProductPage(params("signal-resistance-bands"));
+    expect(collectText(page)).toContain("without floor placement or a reserved exercise area");
+    expect(collectText(page)).toContain("Plan this accessory");
+    expect(collectText(page)).not.toContain("Exercise space");
   });
 
   it("uses the Next.js not-found path for an unknown product", async () => {

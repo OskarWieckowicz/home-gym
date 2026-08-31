@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { creatorRoute, headerLinks, parseCreatorStartMode, productRoute, routes, siteLinks } from "./navigation";
+import { creatorProductRoute, creatorRoute, headerLinks, parseCreatorStartMode, productRoute, routes, siteLinks } from "./navigation";
 
 describe("navigation", () => {
+  it("encodes product intents without a destructive start action", () => {
+    expect(creatorProductRoute("product_arc_adjustable_bench")).toBe("/creator?product=product_arc_adjustable_bench");
+    expect(creatorProductRoute("id&start=new#fragment")).toBe("/creator?product=id%26start%3Dnew%23fragment");
+  });
   it("links summary and editing without starting a new project", () => {
     expect(siteLinks.viewSummary.href).toBe(routes.summary);
     expect(siteLinks.backToEditing.href).toBe("/creator");

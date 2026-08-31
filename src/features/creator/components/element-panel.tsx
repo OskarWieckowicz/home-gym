@@ -11,6 +11,7 @@ import { ProjectItemsList } from "./project-items-list";
 import { SidebarTabs, type SidebarTab } from "./sidebar-tabs";
 
 type ElementPanelProps = {
+  readonly initialCatalogProductId?: string;
   readonly activePanel: EditorPanel;
   readonly activeTool: PlacementTool | null;
   readonly activeProductId: string | null;
@@ -33,6 +34,7 @@ const TOOLS = [
 ] as const;
 
 export function ElementPanel({
+  initialCatalogProductId,
   activePanel,
   activeProductId,
   activeProjectItemId,
@@ -64,6 +66,7 @@ export function ElementPanel({
       <SidebarTabs id={id} activeTab={activeTab} onChange={changeTab} pendingCount={pending.count} />
       <div className="creator-sidebar-panel" role="tabpanel" id={`${id}-panel-0`} aria-labelledby={`${id}-tab-0`} hidden={activeTab !== "Equipment"}>
         <EquipmentCatalogPanel
+          initialProductId={initialCatalogProductId}
           activeProductId={activeProductId}
           onActivate={onProductActivate}
           onAdd={onProductAdd}

@@ -87,44 +87,7 @@ export function CatalogFilterForm({
   return (
     <form action={routes.catalog} className="space-y-5" id={CATALOG_FILTER_FORM_ID} method="get">
       <fieldset className={SECTION_CLASSES}>
-        <FilterHeading>Category</FilterHeading>
-        <div className="mt-3 grid gap-1">
-          <RadioFilter checked={!values.category} label="All categories" name="category" value="" />
-          {PRODUCT_CATEGORIES.map((category) => (
-            <RadioFilter
-              checked={values.category === category}
-              key={category}
-              label={formatCatalogLabel(category)}
-              name="category"
-              value={category}
-            />
-          ))}
-        </div>
-      </fieldset>
-
-      <fieldset className={SECTION_CLASSES}>
-        <FilterHeading>Training goal</FilterHeading>
-        <div className="mt-3 grid gap-1">
-          <RadioFilter
-            checked={!values.trainingGoal}
-            label="All goals"
-            name="trainingGoal"
-            value=""
-          />
-          {TRAINING_GOALS.map((goal) => (
-            <RadioFilter
-              checked={values.trainingGoal === goal}
-              key={goal}
-              label={formatCatalogLabel(goal)}
-              name="trainingGoal"
-              value={goal}
-            />
-          ))}
-        </div>
-      </fieldset>
-
-      <fieldset className={SECTION_CLASSES}>
-        <FilterHeading>Price and exercise</FilterHeading>
+        <FilterHeading>Price</FilterHeading>
         <div className="mt-3 grid gap-4">
           <NumberField
             defaultValue={values.maxPrice}
@@ -133,29 +96,14 @@ export function CatalogFilterForm({
             name="maxPrice"
             placeholder="No limit"
           />
-          <div>
-            <label className="text-xs font-medium text-ink-muted" htmlFor="exercise">
-              Exercise
-            </label>
-            <select
-              className={FIELD_CLASSES}
-              defaultValue={values.exercise ?? ""}
-              id="exercise"
-              name="exercise"
-            >
-              <option value="">All exercises</option>
-              {exerciseOptions.map((exercise) => (
-                <option key={exercise} value={exercise}>
-                  {formatCatalogLabel(exercise)}
-                </option>
-              ))}
-            </select>
-          </div>
         </div>
       </fieldset>
 
       <fieldset className={SECTION_CLASSES}>
-        <FilterHeading>Maximum dimensions</FilterHeading>
+        <FilterHeading>Maximum equipment dimensions</FilterHeading>
+        <p className="mt-2 text-xs leading-5 text-ink-muted">
+          Physical size only; exercise space is shown on each product.
+        </p>
         <div className="mt-3 grid gap-3">
           <NumberField
             defaultValue={values.maxWidthCm}
@@ -181,36 +129,114 @@ export function CatalogFilterForm({
         </div>
       </fieldset>
 
-      <fieldset className={SECTION_CLASSES}>
-        <FilterHeading>Requirements</FilterHeading>
-        <div className="mt-3 grid gap-4">
-          <NumberField
-            defaultValue={values.availableCeilingHeightCm}
-            id="availableCeilingHeightCm"
-            label="Available ceiling height (cm)"
-            name="availableCeilingHeightCm"
-            placeholder="Ceiling height"
-          />
+      <details className={SECTION_CLASSES} open={Boolean(values.category)}>
+        <summary className="cursor-pointer rounded-sm text-sm font-bold text-ink focus-visible:outline-2 focus-visible:outline-brand">
+          Category
+        </summary>
+        <fieldset>
+          <legend className="sr-only">Category</legend>
+          <div className="mt-3 grid gap-1">
+            <RadioFilter checked={!values.category} label="All categories" name="category" value="" />
+            {PRODUCT_CATEGORIES.map((category) => (
+              <RadioFilter
+                checked={values.category === category}
+                key={category}
+                label={formatCatalogLabel(category)}
+                name="category"
+                value={category}
+              />
+            ))}
+          </div>
+        </fieldset>
+      </details>
+
+      <details className={SECTION_CLASSES} open={Boolean(values.trainingGoal)}>
+        <summary className="cursor-pointer rounded-sm text-sm font-bold text-ink focus-visible:outline-2 focus-visible:outline-brand">
+          Training goal
+        </summary>
+        <fieldset>
+          <legend className="sr-only">Training goal</legend>
+          <div className="mt-3 grid gap-1">
+            <RadioFilter
+              checked={!values.trainingGoal}
+              label="All goals"
+              name="trainingGoal"
+              value=""
+            />
+            {TRAINING_GOALS.map((goal) => (
+              <RadioFilter
+                checked={values.trainingGoal === goal}
+                key={goal}
+                label={formatCatalogLabel(goal)}
+                name="trainingGoal"
+                value={goal}
+              />
+            ))}
+          </div>
+        </fieldset>
+      </details>
+
+      <details className={SECTION_CLASSES} open={Boolean(values.exercise)}>
+        <summary className="cursor-pointer rounded-sm text-sm font-bold text-ink focus-visible:outline-2 focus-visible:outline-brand">
+          Exercise
+        </summary>
+        <div className="mt-3">
           <div>
-            <label className="text-xs font-medium text-ink-muted" htmlFor="anchoring">
-              Anchoring
+            <label className="text-xs font-medium text-ink-muted" htmlFor="exercise">
+              Exercise
             </label>
             <select
               className={FIELD_CLASSES}
-              defaultValue={values.anchoring ?? ""}
-              id="anchoring"
-              name="anchoring"
+              defaultValue={values.exercise ?? ""}
+              id="exercise"
+              name="exercise"
             >
-              <option value="">Any requirement</option>
-              {ANCHORING_FILTER_VALUES.map((anchoring) => (
-                <option key={anchoring} value={anchoring}>
-                  {anchoring === "none" ? "No anchoring" : formatCatalogLabel(anchoring)}
+              <option value="">All exercises</option>
+              {exerciseOptions.map((exercise) => (
+                <option key={exercise} value={exercise}>
+                  {formatCatalogLabel(exercise)}
                 </option>
               ))}
             </select>
           </div>
         </div>
-      </fieldset>
+      </details>
+
+      <details className={SECTION_CLASSES} open={values.availableCeilingHeightCm !== undefined || Boolean(values.anchoring)}>
+        <summary className="cursor-pointer rounded-sm text-sm font-bold text-ink focus-visible:outline-2 focus-visible:outline-brand">
+          Requirements
+        </summary>
+        <fieldset>
+          <legend className="sr-only">Requirements</legend>
+          <div className="mt-3 grid gap-4">
+            <NumberField
+              defaultValue={values.availableCeilingHeightCm}
+              id="availableCeilingHeightCm"
+              label="Available ceiling height (cm)"
+              name="availableCeilingHeightCm"
+              placeholder="Ceiling height"
+            />
+            <div>
+              <label className="text-xs font-medium text-ink-muted" htmlFor="anchoring">
+                Anchoring
+              </label>
+              <select
+                className={FIELD_CLASSES}
+                defaultValue={values.anchoring ?? ""}
+                id="anchoring"
+                name="anchoring"
+              >
+                <option value="">Any requirement</option>
+                {ANCHORING_FILTER_VALUES.map((anchoring) => (
+                  <option key={anchoring} value={anchoring}>
+                    {anchoring === "none" ? "No anchoring" : formatCatalogLabel(anchoring)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </fieldset>
+      </details>
 
       <div className="grid gap-2">
         <button className={buttonClassName("primary", "w-full")} type="submit">

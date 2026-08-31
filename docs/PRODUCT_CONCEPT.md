@@ -75,6 +75,18 @@ Each product should include commercial, spatial, and training data:
 - assembly, anchoring, flooring, or ceiling-height requirements,
 - optional constraints and safety recommendations.
 
+The public catalog prioritizes price and physical dimensions, with secondary filters in
+expandable sections and a collapsible filter panel on small screens. Cards distinguish physical
+footprint from exercise space (footprint plus directional use zones); accessories show product
+size without implying floor placement. Anchoring labels state installation requirements and do
+not claim compatibility with a room.
+
+Product-specific planning links from cards and detail pages open the creator with that equipment
+ready for the existing placement interaction, or the explicit Add to list action for accessories.
+Navigation alone never buys equipment or replaces a saved project. A compact catalog context
+shows the browser's saved room, budget and all purchased items, including unplaced equipment and
+accessories. It is a read-only saved snapshot, not live fit validation or an in-memory editor session.
+
 Products in a design, whether placed on the floor or added only to the shopping list, affect the current budget use. Selection-only accessories such as Signal Resistance Bands and Groundwork Foam Roller cannot occupy floor space.
 
 ## Project editor

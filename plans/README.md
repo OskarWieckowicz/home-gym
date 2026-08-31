@@ -10,16 +10,14 @@ Git preserves history; routine verification belongs in the task, PR or CI record
 
 ## Active queue
 
-Keep this sequence. Do not start a later phase while an earlier one is still open, except to cut
-the optional premium pass for time.
+Keep this sequence unless the user explicitly reprioritizes work.
 
 | Order | Plan | Remaining outcome |
 |---|---|---|
 | 1 | [Creator polish](phase-24-creator-polish.md) | Finish the creator visually, tighten ordinary editing, and remove flicker in overlays, panels and scene chrome. |
 | 2 | [Landing polish](phase-25-landing-polish.md) | Replace landing images with current creator captures and refine the English copy. |
-| 3 | [Catalog UI review](phase-26-catalog-ui.md) | Walk the catalog and apply only the UI fixes the review justifies. |
-| 4 | [Premium look](phase-27-premium-look.md) | Optional: a small shared visual-system pass toward a more premium look. Cut this if it would delay tests or submission. |
-| 5 | [Submission](phase-28-submission.md) | Final manual tests on the live build, then judge-facing README, description, video and submission. |
+| 3 | [Premium look](phase-27-premium-look.md) | Optional: a small shared visual-system pass toward a more premium look. Cut this if it would delay tests or submission. |
+| 4 | [Submission](phase-28-submission.md) | Final manual tests on the live build, then judge-facing README, description, video and submission. |
 
 Creator polish comes first so later landing captures and public checks use the finished editor.
 Landing polish is editorial imagery and copy, not a new product-asset production queue. The active

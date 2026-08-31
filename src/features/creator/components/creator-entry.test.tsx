@@ -69,6 +69,88 @@ function storedProject() {
 }
 
 describe("creator start navigation", () => {
+  it("restores before selecting a product, keeps history/tools and consumes repeated intents under StrictMode", async () => {
+    const project = { ...createDefaultProject(), budget: 12345 };
+    adapter.save(project);
+    const save = vi.spyOn(memory, "setItem");
+    const registerTool = vi.fn<WebMcpModelContext["registerTool"]>(async () => {});
+    Object.defineProperty(document, "modelContext", { configurable: true, value: { registerTool } });
+    navigate("/creator?product=product_arc_adjustable_bench&campaign=catalog#creator-content");
+    render(<StrictMode><CreatorEntry /></StrictMode>);
+    const cancel = await screen.findByRole("button", { name: "Cancel placing Arc Adjustable Bench" });
+    await waitFor(() => expect(window.location.search).toBe("?campaign=catalog"));
+    expect(document.activeElement).toBe(cancel);
+    expect(window.location.hash).toBe("#creator-content");
+    expect(storedProject()).toEqual(project);
+    expect(save).not.toHaveBeenCalled();
+    expect(registerTool).toHaveBeenCalledTimes(21);
+    fireEvent.click(cancel);
+    expect(save).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("tab", { name: "Room" }));
+    fireEvent.click(screen.getByRole("button", { name: "Room dimensions" }));
+    editWidth("470");
+    fireEvent.click(screen.getByRole("tab", { name: "Equipment" }));
+    fireEvent.change(screen.getByRole("searchbox", { name: "Search equipment" }), { target: { value: "nonmatching" } });
+    fireEvent.change(screen.getByRole("combobox", { name: "Equipment category" }), { target: { value: "racks" } });
+    fireEvent.click(screen.getByRole("tab", { name: "Project items" }));
+
+    navigate("/creator?product=product_arc_adjustable_bench");
+    expect(await screen.findByRole("button", { name: "Cancel placing Arc Adjustable Bench" })).toBeTruthy();
+    expect(screen.getByRole("combobox", { name: "Equipment category" })).toHaveProperty("value", "");
+    expect(storedProject().room.widthCm).toBe(470);
+    expect(storedProject().projectItems).toHaveLength(0);
+    expect(registerTool).toHaveBeenCalledTimes(21);
+    expect(screen.getByRole("button", { name: "Undo" })).toHaveProperty("disabled", false);
+    fireEvent.click(screen.getByRole("button", { name: "Undo" }));
+    expect(storedProject().room.widthCm).toBe(project.room.widthCm);
+  });
+
+  it("focuses accessories but only adds them after an explicit action and does not replay on refresh", async () => {
+    adapter.save(createDefaultProject());
+    const save = vi.spyOn(memory, "setItem");
+    navigate("/creator?product=product_signal_resistance_bands");
+    const first = render(<StrictMode><CreatorEntry /></StrictMode>);
+    await waitFor(() => expect(window.location.search).toBe(""));
+    const add = screen.getByRole("button", { name: "Add to list: Signal Resistance Bands" });
+    expect(document.activeElement).toBe(add);
+    expect(save).not.toHaveBeenCalled();
+    expect(screen.queryByRole("button", { name: /Cancel placing/ })).toBeNull();
+    fireEvent.click(add);
+    expect(storedProject().projectItems).toHaveLength(1);
+    expect(storedProject().placements).toHaveLength(0);
+    expect(save).toHaveBeenCalledTimes(1);
+    first.unmount();
+    render(<CreatorEntry />);
+    await ready();
+    expect(save).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("searchbox", { name: "Search equipment" })).toHaveProperty("value", "");
+  });
+
+  it.each(["new", "demo"])("applies a product intent after the explicit %s start", async (mode) => {
+    adapter.save({ ...createDefaultProject(), budget: 1 });
+    const save = vi.spyOn(memory, "setItem");
+    navigate(`/creator?start=${mode}&product=product_arc_adjustable_bench&other=keep#room`);
+    render(<StrictMode><CreatorEntry /></StrictMode>);
+    await screen.findByRole("button", { name: "Cancel placing Arc Adjustable Bench" });
+    expect(window.location.search).toBe("?other=keep");
+    expect(window.location.hash).toBe("#room");
+    expect(storedProject()).toEqual(mode === "demo" ? createDemoProject() : createDefaultProject());
+    expect(save).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(["unknown", "", "product_cove_wrist_wraps", "product_arc_adjustable_bench&product=product_arc_adjustable_bench"])(
+    "ignores invalid or retired product intent %s without writes", async (product) => {
+      adapter.save(createDefaultProject());
+      const save = vi.spyOn(memory, "setItem");
+      navigate(`/creator?product=${product}`);
+      render(<CreatorEntry />);
+      await ready();
+      expect(screen.queryByRole("button", { name: /Cancel placing/ })).toBeNull();
+      expect(screen.getByRole("searchbox", { name: "Search equipment" })).toHaveProperty("value", "");
+      expect(save).not.toHaveBeenCalled();
+    },
+  );
+
   it("replaces the live WebMCP tools on explicit starts but not when consuming the URL", async () => {
     const active = new Map<string, WebMcpTool>();
     const registerTool = vi.fn<WebMcpModelContext["registerTool"]>(async (tool, options) => {
