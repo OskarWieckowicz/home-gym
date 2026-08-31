@@ -135,7 +135,7 @@ describe("scene DOM event integration", () => {
     expect(capture).toHaveBeenCalledWith(1);
     expect(scene.camera.gestureActive).toBe(true);
     move(target);
-    expect(screen.getByText("Preview only — not yet saved or validated.")).toBeTruthy();
+    expect(screen.queryByText("Preview only — not yet saved or validated.")).toBeNull();
     expect(store.getState().revision).toBe(0);
     up(target);
     expect(store.getState().project.obstacles[0].position).toEqual({ xCm: 150, zCm: 100 });
@@ -143,6 +143,7 @@ describe("scene DOM event integration", () => {
     expect(scene.camera.gestureActive).toBe(false);
     expect(release).toHaveBeenCalledOnce();
     expect(screen.getByRole("status").textContent).toContain("Change saved");
+    expect(screen.getByRole("status").className).toBe("visually-hidden");
   });
 
   it.each(["global release", "global cancel", "blur", "Escape", "lost capture", "outside release", "second pointer", "second pointer outside", "unmount"])(

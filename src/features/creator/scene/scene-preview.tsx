@@ -84,7 +84,6 @@ export function ScenePreview(props: ScenePreviewProps) {
     <p id="scene-help" className="creator-scene-help">{placing
       ? "Enter places at the centre · Escape cancels"
       : "Click to select · Drag selected item to move · Drag elsewhere to orbit · Scroll to zoom"}</p>
-    {snapshot.command ? <p className="creator-help">Preview only — not yet saved or validated.</p> : null}
-    <p className="creator-scene-status" role="status">{snapshot.status}</p>
+    <p className={snapshot.status === "Change saved. Undo is available." ? "visually-hidden" : "creator-scene-status"} role="status">{snapshot.status}</p>
   </section>;
 }
