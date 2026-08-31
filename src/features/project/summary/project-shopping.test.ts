@@ -78,7 +78,7 @@ describe("buildProjectShopping", () => {
     const modified = { ...analysis, items: analysis.items.map((item) => ({ ...item, price: 7 })) };
     const before = JSON.stringify({ project, modified });
     const result = buildProjectShopping(project, modified, findProjectProductById);
-    expect(result.totals.totalPrice).toBe(28);
+    expect(result.totals.totalPrice).toBe(35);
     expect(JSON.stringify({ project, modified })).toBe(before);
   });
 });

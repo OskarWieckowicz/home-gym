@@ -1,59 +1,146 @@
 {
-  "version": 4,
-  "room": { "widthCm": 400, "depthCm": 320, "heightCm": 240 },
+  "version": 5,
+  "room": {
+    "widthCm": 600,
+    "depthCm": 400,
+    "heightCm": 240
+  },
   "obstacles": [
     {
-      "id": "obstacle_wardrobe",
-      "kind": "obstacle",
-      "name": "Wardrobe",
-      "position": { "xCm": 300, "zCm": 0 },
-      "dimensions": { "widthCm": 80, "depthCm": 60, "heightCm": 220 },
+      "id": "obstacle_ebb6f437-1e92-4282-b23b-245f917a89c6",
+      "name": "Physical obstacle",
+      "position": {
+        "xCm": 490,
+        "zCm": 340
+      },
       "rotation": 0,
-      "locked": true
+      "locked": false,
+      "kind": "obstacle",
+      "dimensions": {
+        "widthCm": 100,
+        "depthCm": 50,
+        "heightCm": 200
+      }
+    },
+    {
+      "id": "obstacle_666589cc-5f01-4cd6-87ff-74ae13ff881a",
+      "name": "Physical obstacle",
+      "position": {
+        "xCm": 390,
+        "zCm": 0
+      },
+      "rotation": 90,
+      "locked": false,
+      "kind": "obstacle",
+      "dimensions": {
+        "widthCm": 120,
+        "depthCm": 200,
+        "heightCm": 50
+      }
     }
   ],
   "wallElements": [
     {
-      "id": "wall-element_entry",
+      "id": "wall-element_852a9ed5-0d47-4c94-9077-6495b28f8873",
       "kind": "door",
-      "name": "Entry door",
+      "name": "Door",
       "wall": "top",
-      "offsetCm": 195,
+      "offsetCm": 90,
       "widthCm": 90
+    },
+    {
+      "id": "wall-element_40b38f18-97e0-4ef6-baee-674f8aefd7a2",
+      "kind": "window",
+      "name": "Window",
+      "wall": "right",
+      "offsetCm": 80,
+      "widthCm": 120
+    },
+    {
+      "id": "wall-element_2799e477-bf39-4168-bcc9-d5cd98cc40bf",
+      "kind": "window",
+      "name": "Window",
+      "wall": "right",
+      "offsetCm": 210,
+      "widthCm": 120
     }
   ],
   "projectItems": [
-    { "id": "project-item_rack", "productId": "product_northstar_half_rack" },
-    { "id": "project-item_bench", "productId": "product_arc_adjustable_bench" },
-    { "id": "project-item_barbell", "productId": "product_ironvale_barbell_set" },
-    { "id": "project-item_plates", "productId": "product_foundry_bumper_plates" }
+    {
+      "id": "project-item_4e4a4100-f4ab-42ac-9b94-0456aa64d49c",
+      "productId": "product_wall_mounted_punching_bag"
+    },
+    {
+      "id": "project-item_321de8db-8101-47ee-b2ea-38734dac4398",
+      "productId": "product_northstar_half_rack"
+    },
+    {
+      "id": "project-item_e368fb10-a2ef-4f51-9ba8-a9ea40beedf8",
+      "productId": "product_arc_adjustable_bench"
+    },
+    {
+      "id": "project-item_5eacebda-fcc8-4881-925d-953aa4ad35b0",
+      "productId": "product_forge_kettlebell_16kg"
+    },
+    {
+      "id": "project-item_143f67d2-51fd-4f29-99ee-7c121621ca3f",
+      "productId": "product_flex_studio_dumbbells"
+    }
   ],
   "placements": [
     {
-      "id": "placement_rack",
-      "projectItemId": "project-item_rack",
-      "position": { "xCm": 35, "zCm": 5 },
+      "id": "placement_b7c8eb59-0825-47af-8a90-7227b2c59883",
+      "projectItemId": "project-item_4e4a4100-f4ab-42ac-9b94-0456aa64d49c",
+      "locked": false,
+      "position": {
+        "xCm": 350,
+        "zCm": 280
+      },
+      "rotation": 180
+    },
+    {
+      "id": "placement_17a3bae7-27c9-48b0-83c1-17061d96579a",
+      "projectItemId": "project-item_321de8db-8101-47ee-b2ea-38734dac4398",
+      "locked": false,
+      "position": {
+        "xCm": 40,
+        "zCm": 260
+      },
+      "rotation": 180
+    },
+    {
+      "id": "placement_349509c3-c549-4696-87a6-e1b434f9772b",
+      "projectItemId": "project-item_e368fb10-a2ef-4f51-9ba8-a9ea40beedf8",
+      "locked": false,
+      "position": {
+        "xCm": 220,
+        "zCm": 230
+      },
+      "rotation": 180
+    },
+    {
+      "id": "placement_1c199425-824a-421d-9d5d-fc0ad62c9add",
+      "projectItemId": "project-item_5eacebda-fcc8-4881-925d-953aa4ad35b0",
+      "locked": false,
+      "position": {
+        "xCm": 330,
+        "zCm": 40
+      },
       "rotation": 0
     },
     {
-      "id": "placement_bench",
-      "projectItemId": "project-item_bench",
-      "position": { "xCm": 275, "zCm": 115 },
-      "rotation": 0
-    },
-    {
-      "id": "placement_barbell",
-      "projectItemId": "project-item_barbell",
-      "position": { "xCm": 25, "zCm": 225 },
-      "rotation": 0
-    },
-    {
-      "id": "placement_plates",
-      "projectItemId": "project-item_plates",
-      "position": { "xCm": 35, "zCm": 165 },
+      "id": "placement_b805e2f0-4deb-4b3b-b4be-ef72f731b21c",
+      "projectItemId": "project-item_143f67d2-51fd-4f29-99ee-7c121621ca3f",
+      "locked": false,
+      "position": {
+        "xCm": 270,
+        "zCm": 20
+      },
       "rotation": 0
     }
   ],
   "budget": 10000,
-  "trainingGoals": ["strength", "muscle-gain"]
+  "trainingGoals": [
+    "strength"
+  ]
 }

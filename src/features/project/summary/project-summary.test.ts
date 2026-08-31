@@ -22,14 +22,14 @@ describe("buildProjectSummary", () => {
     const result = summary(project);
     const total = analysis.items.reduce((sum, item) => sum + item.price, 0);
     expect(result.empty).toBe(false);
-    expect(result.room).toMatchObject({ areaCm2: 128_000, areaM2: 12.8, dimensionsLabel: "400 × 320 × 240 cm", areaLabel: "12.8 m²" });
-    expect(result.items).toHaveLength(4);
+    expect(result.room).toMatchObject({ areaCm2: 240_000, areaM2: 24, dimensionsLabel: "600 × 400 × 240 cm", areaLabel: "24 m²" });
+    expect(result.items).toHaveLength(5);
     expect(result.items.every((item) => item.placed && item.price !== null && item.name !== "Unavailable product")).toBe(true);
-    expect(result.totals).toMatchObject({ itemCount: 4, placedCount: 4, totalPrice: total, budget: 10_000, remainingBudget: 10_000 - total, excessBudget: 0, overBudget: false, complete: true });
+    expect(result.totals).toMatchObject({ itemCount: 5, placedCount: 5, totalPrice: total, budget: 10_000, remainingBudget: 10_000 - total, excessBudget: 0, overBudget: false, complete: true });
     expect(result.totals.totalPriceLabel).toBe(formatPricePln(total));
-    expect(result.coverage).toMatchObject({ ...analysis.coverage, requestedCount: 2, coveredCount: 2, uncoveredCount: 0, ratio: 1, label: "2 of 2 goals covered" });
+    expect(result.coverage).toMatchObject({ ...analysis.coverage, requestedCount: 1, coveredCount: 1, uncoveredCount: 0, ratio: 1, label: "1 of 1 goals covered" });
     expect(result.valid).toBe(analysis.valid);
-    expect(result.coverage.countLabel).toBe("2/2");
+    expect(result.coverage.countLabel).toBe("1/1");
     expect(result.errorCount).toBe(analysis.errorCount);
     expect(result.warningCount).toBe(analysis.warningCount);
     expect(result.recommendations).toHaveLength(analysis.warningCount);
@@ -66,12 +66,12 @@ describe("buildProjectSummary", () => {
     const project = createDemoProject();
     const original = summary(project);
     project.placements = project.placements.slice(1);
-    project.trainingGoals.push("mobility");
+    project.trainingGoals.push("muscle-gain");
     const result = summary(project);
     expect(result.items[0]).toMatchObject({ placed: false, placementLabel: "Not placed" });
-    expect(result.totals).toMatchObject({ totalPrice: original.totals.totalPrice, placedCount: 3, unplacedCount: 1 });
-    expect(result.coverage).toMatchObject({ requestedCount: 3, coveredCount: 2, uncoveredCount: 1, ratio: 2 / 3 });
-    expect(result.coverage.goals.at(-1)).toMatchObject({ id: "mobility", covered: false, statusLabel: "Not covered" });
+    expect(result.totals).toMatchObject({ totalPrice: original.totals.totalPrice, placedCount: 4, unplacedCount: 1 });
+    expect(result.coverage).toMatchObject({ requestedCount: 2, coveredCount: 2, uncoveredCount: 0, ratio: 1 });
+    expect(result.coverage.goals.at(-1)).toMatchObject({ id: "muscle-gain", covered: true, statusLabel: "Covered" });
   });
 
   it("uses analysis price rather than a second price calculation from catalog metadata", () => {
@@ -79,7 +79,7 @@ describe("buildProjectSummary", () => {
     const analysis = analyzeProject(project, { resolveProduct: catalogProductResolver });
     const modified = { ...analysis, items: analysis.items.map((item) => ({ ...item, price: 7 })) };
     const result = buildProjectSummary(project, modified, findProjectProductById);
-    expect(result.totals.totalPrice).toBe(28);
+    expect(result.totals.totalPrice).toBe(35);
     expect(result.items.every(({ price }) => price === 7)).toBe(true);
   });
 
@@ -99,11 +99,11 @@ describe("buildProjectSummary", () => {
     const project = createDemoProject();
     project.projectItems[0].productId = "product_missing";
     const result = summary(project);
-    expect(result.items).toHaveLength(4);
+    expect(result.items).toHaveLength(5);
     expect(result.items[0]).toMatchObject({ productId: "product_missing", name: "Unavailable product", price: null, priceLabel: "Price unavailable", dimensions: null, placed: true });
     expect(result.totals).toMatchObject({ complete: false, unavailableCount: 1 });
     expect(result.floor).toEqual({
-      complete: false, roomAreaCm2: 128_000,
+      complete: false, roomAreaCm2: 240_000,
       occupiedAreaCm2: null, freeAreaCm2: null, freeRatio: null, freePercent: null,
       freeAreaLabel: "Unknown", freePercentLabel: "Unknown",
     });

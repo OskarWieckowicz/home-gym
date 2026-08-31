@@ -660,9 +660,10 @@ one baseline write, not clear-then-write; there is no recovery copy or multi-pro
 
 The [demo fixture](../src/features/project/fixtures/demo-project.json) and
 [demo tests](../src/features/project/demo-project.test.ts) define its room, items and validated
-figures. The demo includes a retired product, resolved through the same legacy-aware project
-resolver as the editor. Fixture decoding checks schema/migration; persistence separately checks
-product resolution. Bundled fixture consistency remains a release invariant.
+figures. The bundled demo uses current catalog products. Retired-product resolution is covered by
+the v3 four-product room fixture and catalog-retirement tests, not the demo start action. Fixture
+decoding checks schema/migration; persistence separately checks product resolution. Bundled fixture
+consistency remains a release invariant.
 
 We will not implement user accounts or cloud sync.
 

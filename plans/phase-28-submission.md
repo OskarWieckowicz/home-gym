@@ -71,8 +71,9 @@ production work; do not claim they passed unless observed on the submitted build
   checks and floor figures; UI/tool agreement; 2D/3D; canonical JSON export; return to editing;
   reload after a saved edit. Summary tools are read-only and must not alter project/history.
 - Match demo figures to the current [fixture](../src/features/project/fixtures/demo-project.json)
-  and shared summary, including its intentional retired-item resolution. Do not describe existing
-  warnings as a perfect layout or make building/safety-regulation claims.
+  and shared summary. Retired-item resolution is covered by the v3 fixture and catalog-retirement
+  tests, not the bundled demo. Do not describe existing warnings as a perfect layout or make
+  building/safety-regulation claims.
 - Respect the single-localStorage-slot limitation: navigation after a failed save may restore the
   last durable project rather than unsaved in-memory edits. Preserve/disclose the visible warning;
   do not promise cross-route history, server persistence or a shareable summary.

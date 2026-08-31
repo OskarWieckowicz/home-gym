@@ -81,7 +81,7 @@ describe("persistent manual and agent editing flow", () => {
     render(<CreatorEditor storage={memory.adapter} />);
     await waitFor(() => expect(tools.size).toBe(21));
     expect(sceneRestores.mock.lastCall![0]).toMatchObject({
-      project: { ...createDemoProject(), budget: 12000, room: { widthCm: 450, depthCm: 320, heightCm: 240 } },
+      project: { ...createDemoProject(), budget: 12000, room: { widthCm: 450, depthCm: 400, heightCm: 240 } },
     });
     expect(await executeTool(tools, "get_project_state", {})).toMatchObject({
       revision: 0, canUndo: false, project: { budget: 12000, room: { widthCm: 450 } },

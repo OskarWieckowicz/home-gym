@@ -8,21 +8,41 @@ import { decodeProjectJson, serializeProject } from "./serialization/project-cod
 import { analyzeProject } from "./validation/analyze-project";
 import { buildProjectSummary } from "./summary/project-summary";
 
+const DEMO_PRODUCT_IDS = [
+  "product_wall_mounted_punching_bag",
+  "product_northstar_half_rack",
+  "product_arc_adjustable_bench",
+  "product_forge_kettlebell_16kg",
+  "product_flex_studio_dumbbells",
+] as const;
+
 describe("bundled demo project", () => {
-  it("provides the current-format strength room with four placed catalog products", () => {
+  it("provides the current-format strength room with five placed catalog products", () => {
     const project = createDemoProject();
     expect(project.version).toBe(5);
-    expect(project.room).toEqual({ widthCm: 400, depthCm: 320, heightCm: 240 });
+    expect(project.room).toEqual({ widthCm: 600, depthCm: 400, heightCm: 240 });
     expect(project.budget).toBe(10_000);
-    expect(project.trainingGoals).toEqual(["strength", "muscle-gain"]);
-    expect(project.obstacles).toEqual([expect.objectContaining({ name: "Wardrobe", locked: true })]);
-    expect(project.wallElements).toEqual([expect.objectContaining({ kind: "door", wall: "top" })]);
-    expect(project.projectItems.map(({ productId }) => productId)).toEqual([
-      "product_northstar_half_rack",
-      "product_arc_adjustable_bench",
-      "product_ironvale_barbell_set",
-      "product_foundry_bumper_plates",
+    expect(project.trainingGoals).toEqual(["strength"]);
+    expect(project.obstacles).toEqual([
+      expect.objectContaining({
+        kind: "obstacle",
+        name: "Physical obstacle",
+        locked: false,
+        dimensions: { widthCm: 100, depthCm: 50, heightCm: 200 },
+      }),
+      expect.objectContaining({
+        kind: "obstacle",
+        name: "Physical obstacle",
+        locked: false,
+        dimensions: { widthCm: 120, depthCm: 200, heightCm: 50 },
+      }),
     ]);
+    expect(project.wallElements).toEqual([
+      expect.objectContaining({ kind: "door", wall: "top", offsetCm: 90, widthCm: 90 }),
+      expect.objectContaining({ kind: "window", wall: "right", offsetCm: 80, widthCm: 120 }),
+      expect.objectContaining({ kind: "window", wall: "right", offsetCm: 210, widthCm: 120 }),
+    ]);
+    expect(project.projectItems.map(({ productId }) => productId)).toEqual([...DEMO_PRODUCT_IDS]);
     expect(project.placements.map(({ projectItemId }) => projectItemId).sort())
       .toEqual(project.projectItems.map(({ id }) => id).sort());
     for (const item of project.projectItems) {
@@ -54,25 +74,27 @@ describe("bundled demo project", () => {
     const analysis = analyzeProject(createDemoProject(), { resolveProduct: catalogProductResolver });
     expect(analysis.errorCount, JSON.stringify(analysis.issues)).toBe(0);
     expect(analysis.valid).toBe(true);
-    expect(analysis.warningCount).toBeGreaterThan(0);
-    expect(analysis.issues).toContainEqual(expect.objectContaining({
-      code: "USE_ZONE_OVERLAP",
-      severity: "warning",
-    }));
+    expect(analysis.warningCount).toBe(3);
+    expect(analysis.issues).toEqual([
+      expect.objectContaining({ code: "USE_ZONE_OVERLAP", severity: "warning" }),
+      expect.objectContaining({ code: "USE_ZONE_OVERLAP", severity: "warning" }),
+      expect.objectContaining({ code: "USE_ZONE_OVERLAP", severity: "warning" }),
+    ]);
     expect(analysis.access.evaluated).toBe(true);
-    expect(analysis.access.facts).toHaveLength(6);
+    expect(analysis.access.facts).toHaveLength(8);
     expect(analysis.access.facts.filter(({ state }) => state === "unreachable")).toEqual([]);
-    expect(analysis.items).toHaveLength(4);
+    expect(analysis.items).toHaveLength(5);
     expect(analysis.items.every(({ placed }) => placed)).toBe(true);
     const expectedCost = createDemoProject().projectItems.reduce((sum, item) =>
       sum + findProjectProductById(item.productId)!.price, 0);
     expect(analysis.items.reduce((cost, { price }) => cost + price, 0)).toBe(expectedCost);
+    expect(expectedCost).toBe(6395);
     expect(expectedCost).toBeLessThanOrEqual(createDemoProject().budget);
     expect(analysis.coverage.uncovered).toEqual([]);
     const summary = buildProjectSummary(createDemoProject(), analysis, findProjectProductById);
-    expect(summary.totals.totalPrice).toBe(8596);
-    expect(summary.totals.remainingBudget).toBe(1404);
-    expect(summary.coverage.countLabel).toBe("2/2");
-    expect(summary.floor.freePercent).toBe(68);
+    expect(summary.totals.totalPrice).toBe(6395);
+    expect(summary.totals.remainingBudget).toBe(3605);
+    expect(summary.coverage.countLabel).toBe("1/1");
+    expect(summary.floor.freePercent).toBe(74);
   });
 });
