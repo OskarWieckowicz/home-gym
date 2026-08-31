@@ -1,0 +1,11 @@
+{
+  "productId": "product_northstar_half_rack",
+  "output": "public/assets/northstar-half-rack-catalog-v4.png",
+  "date": "2026-08-31",
+  "method": "Built-in image_gen",
+  "reference": "public/assets/northstar-half-rack-catalog-v3.png",
+  "prompt": "Use case: precise-object-edit. Edit the attached Northstar Half Rack catalog photograph with ONE tiny change only: add a very narrow muted burnt-orange painted vertical edge strip on the outer edge of each of the TWO upper J-cup front retaining lips (the two small barbell hooks halfway up the uprights). Each strip is only about 2 mm wide, a subtle hairline accent like the orange edges already present on the lower safety-arm tips. The broad front face and body of each J-cup must remain charcoal black. Keep the existing two orange lower spotter-tip accents exactly as they are. Total orange stays tiny: now four small edge accents instead of two. Do NOT color whole brackets, hooks, arms, top mounts or crossmembers orange. Preserve everything else unchanged: product structure, component positions, dark satin steel, realistic photographic texture, hardware, lighting, shadows, white backdrop, camera angle, square crop and dimensions. No text, branding, watermark, people or additional equipment. Output one high-resolution square image.",
+  "review": "Visually inspected: two thin J-cup edge accents added; large surfaces remain charcoal and existing spotter-tip accents are retained. AI-generated image, not a real manufactured product photograph.",
+  "applicationUrl": "/assets/northstar-half-rack-catalog-v4.png",
+  "modelUrl": "/assets/northstar-half-rack.glb?v=4"
+}

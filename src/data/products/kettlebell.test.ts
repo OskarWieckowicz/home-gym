@@ -17,7 +17,7 @@ describe("Forge Kettlebell 16 kg", () => {
       name: "Forge Kettlebell 16 kg",
       weightKg: 16,
       price: 299,
-      category: "accessories",
+      category: "free-weights",
       placementMode: "floor",
       dimensions: { widthCm: 21, depthCm: 18, heightCm: 28 },
       useZone: { frontCm: 30, backCm: 30, leftCm: 30, rightCm: 30 },

@@ -19,7 +19,7 @@ describe("normalizeCatalogFilters", () => {
     expect(
       normalizeCatalogFilters({
         query: "  ADJUSTABLE   Dumbbells ",
-        category: " DUMBBELLS ",
+        category: " FREE-WEIGHTS ",
         maxPrice: " 1800 ",
         maxWidthCm: " 80 ",
         maxDepthCm: 60,
@@ -31,7 +31,7 @@ describe("normalizeCatalogFilters", () => {
       }),
     ).toEqual({
       query: "adjustable dumbbells",
-      category: "dumbbells",
+      category: "free-weights",
       maxPrice: 1800,
       maxWidthCm: 80,
       maxDepthCm: 60,
@@ -160,7 +160,7 @@ describe("searchProducts", () => {
   });
 
   it("does not mutate the filter object or canonical dataset", () => {
-    const filters = { query: "  Press ", category: "DUMBBELLS", maxPrice: "2200" };
+    const filters = { query: "  Press ", category: "FREE-WEIGHTS", maxPrice: "2200" };
     const filtersSnapshot = structuredClone(filters);
     const productsSnapshot = structuredClone(catalogProducts);
 
@@ -197,8 +197,10 @@ describe("findProductBySlug", () => {
 });
 
 describe("getEffectiveMounting", () => {
-  it("defaults to floor and reports the anchor bar as wall-mounted", () => {
-    const floorProduct = catalogProducts.find(({ id }) => id !== "product_anchor_pullup_bar");
+  it("defaults to floor and reports wall-mounted catalog products", () => {
+    const floorProduct = catalogProducts.find(
+      (product) => getEffectiveMounting(product).kind === "floor",
+    );
     const bar = findProductById("product_anchor_pullup_bar");
     expect(floorProduct).toBeDefined();
     expect(bar).toBeDefined();
@@ -208,7 +210,11 @@ describe("getEffectiveMounting", () => {
     expect(getEffectiveMounting(bar)).toEqual({ kind: "wall", bottomHeightCm: 195 });
     expect(
       catalogProducts.filter((product) => getEffectiveMounting(product).kind === "wall"),
-    ).toEqual([bar, findProductById("product_wall_mounted_punching_bag")]);
+    ).toEqual([
+      findProductById("product_loop_cable_trainer"),
+      bar,
+      findProductById("product_wall_mounted_punching_bag"),
+    ]);
     expect(getEffectiveRequiredHeightCm(bar)).toBe(233);
   });
 });

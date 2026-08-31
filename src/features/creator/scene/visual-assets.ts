@@ -1,4 +1,5 @@
 export const VISUAL_ASSET_IDS = [
+  "product_olympic_bench",
   "product_groundwork_exercise_mat",
   "product_wall_mounted_punching_bag",
   "product_flex_studio_dumbbells",
@@ -34,6 +35,15 @@ export type VisualAssetDefinition = {
 };
 
 export const visualAssetRegistry: Readonly<Record<VisualAssetProductId, VisualAssetDefinition>> = {
+  product_olympic_bench: {
+    productId: "product_olympic_bench",
+    src: "/assets/olympic-bench.glb",
+    topViewSrc: "/assets/olympic-bench-top.svg",
+    envelopeCm: { widthCm: 220, depthCm: 160, heightCm: 140 },
+    forward: "negative-z",
+    floorPivot: "origin",
+    scale: [1, 1, 1],
+  },
   product_groundwork_exercise_mat: {
     productId: "product_groundwork_exercise_mat",
     src: "/assets/groundwork-exercise-mat.glb",
@@ -126,8 +136,8 @@ export const visualAssetRegistry: Readonly<Record<VisualAssetProductId, VisualAs
   },
   product_northstar_half_rack: {
     productId: "product_northstar_half_rack",
-    src: "/assets/northstar-half-rack.glb",
-    topViewSrc: "/assets/northstar-half-rack-top.svg",
+    src: "/assets/northstar-half-rack.glb?v=4",
+    topViewSrc: "/assets/northstar-half-rack-top.svg?v=4",
     envelopeCm: { widthCm: 122, depthCm: 130, heightCm: 215 },
     forward: "negative-z",
     floorPivot: "origin",

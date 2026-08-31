@@ -11,6 +11,30 @@ afterEach(async () => {
 });
 
 describe("ProceduralGlb", () => {
+  it.each(["box", "chamfer", "x", "y", "z"])("repairs %s winding without changing positions, normals or bounds", (kind) => {
+    const model = new ProceduralGlb({ generator: "winding fixture", materials: [{ name: "Steel" }] });
+    const options = { center: [0.2, 0.4, -0.1], rotation: [0.4, 0.2, 0.6], size: [0.4, 0.2, 0.3], bevel: 0.02 };
+    if (kind === "box") model.addBox(options);
+    else if (kind === "chamfer") model.addChamferedBox(options);
+    else model.addCylinder({ ...options, axis: kind, length: 0.3, radius: 0.08 });
+    const before = structuredClone(model.groups[0]);
+    const metrics = model.getMetrics();
+    const corrected = model.orientFacesToNormals();
+    expect(corrected).toBe(kind === "box" ? 0 : kind === "chamfer" ? 16 : 40);
+    expect(model.groups[0].vertices).toEqual(before.vertices);
+    expect(model.groups[0].normals).toEqual(before.normals);
+    expect(model.getMetrics()).toEqual(metrics);
+    expect(model.orientFacesToNormals()).toBe(0);
+    const { vertices, normals, indices } = model.groups[0];
+    for (let i = 0; i < indices.length; i += 3) {
+      const [a, b, c] = indices.slice(i, i + 3).map((j) => j * 3);
+      const u = [0, 1, 2].map((j) => vertices[b + j] - vertices[a + j]);
+      const v = [0, 1, 2].map((j) => vertices[c + j] - vertices[a + j]);
+      const cross = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
+      expect(cross.reduce((dot, value, j) => dot + value * normals[a + j], 0)).toBeGreaterThan(0);
+    }
+  });
+
   it("writes a valid GLB with merged material groups, normals, and measured bounds", async () => {
     const directory = await mkdtemp(join(tmpdir(), "home-gym-glb-"));
     temporaryDirectories.push(directory);

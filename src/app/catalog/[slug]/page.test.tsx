@@ -64,11 +64,22 @@ describe("product detail route", () => {
     expect(collectText(page)).toContain("Product image coming later");
   });
 
-  it("shows the mount height next to anchoring on the pull-up bar page", async () => {
-    const page = await ProductPage(params("anchor-pullup-bar"));
-    const text = collectText(page);
-    expect(text).toContain("Mount height");
-    expect(text).toContain("195 cm");
+  it("publishes the Olympic set with its accepted photo and creator entry", async () => {
+    expect(generateStaticParams()).toContainEqual({ slug: "olympic-bench" });
+    const page = await ProductPage(params("olympic-bench"));
+    expect(findProp(page, "src")).toBe("/assets/olympic-bench-catalog-concept-v1.png");
+    expect(findProp(page, "alt")).toBe("Olympic Bench Set catalog image");
+    expect(collectText(page)).toContain("four weight plates");
+    expect(collectText(page)).toContain("load capacity is not specified");
+    expect(collectText(page)).toContain("Plan with this catalog");
+  });
+
+  it.each([
+    ["anchor-pullup-bar", "Mount height195 cm"],
+    ["loop-cable-trainer", "Mount height0 cm"],
+    ["wall-mounted-punching-bag", "Mount height30 cm"],
+  ])("shows the mount height on the %s page", async (slug, mountRow) => {
+    expect(collectText(await ProductPage(params(slug)))).toContain(mountRow);
   });
 
   it("uses the Next.js not-found path for an unknown product", async () => {

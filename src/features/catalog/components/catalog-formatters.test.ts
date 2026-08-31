@@ -11,6 +11,18 @@ import {
 const dimensions = { widthCm: 120, depthCm: 140, heightCm: 215 };
 
 describe("catalog formatters", () => {
+  it.each([
+    ["racks", "Racks & Stands"],
+    ["benches", "Benches"],
+    ["free-weights", "Free Weights"],
+    ["cable-machines", "Cable Machines"],
+    ["bodyweight-training", "Bodyweight Training"],
+    ["cardio-conditioning", "Cardio & Conditioning"],
+    ["mobility-recovery", "Mobility & Recovery"],
+  ])("formats the %s category consistently", (category, label) => {
+    expect(formatCatalogLabel(category)).toBe(label);
+  });
+
   it("formats commercial and spatial values consistently", () => {
     expect(formatPricePln(4490)).toMatch(/4[,.\s]490/);
     expect(formatPricePln(4490)).toContain("PLN");

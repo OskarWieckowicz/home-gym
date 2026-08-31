@@ -5,6 +5,11 @@ export type SceneWallVisibility = Readonly<Record<Wall, boolean>>;
 
 export const ALL_SCENE_WALLS: SceneWallVisibility = { top: true, right: true, bottom: true, left: true };
 
+/** Perimeter slabs stand in for cut-away walls and must not share a volume with a visible wall. */
+export function scenePerimeterVisibility(walls: SceneWallVisibility): SceneWallVisibility {
+  return { top: !walls.top, right: !walls.right, bottom: !walls.bottom, left: !walls.left };
+}
+
 /** Keep both side walls near a frontal view; separate thresholds prevent flicker on return. */
 const SIDE_HIDE_THRESHOLD = Math.sin(25 * Math.PI / 180);
 const SIDE_SHOW_THRESHOLD = Math.sin(20 * Math.PI / 180);

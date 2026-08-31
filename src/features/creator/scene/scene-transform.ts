@@ -1,7 +1,7 @@
 import { createEquipmentFootprints, type ProductGeometryDescriptor } from "@/features/geometry/equipment-footprints";
 import { createRectangleFootprint, type RectangleFootprint } from "@/features/geometry/rectangles";
 import type { Dimensions as Dimensions3D, Rotation } from "@/features/project/schemas/geometry";
-import type { Obstacle, Room, WallElement } from "@/features/project/schemas/project";
+import type { Obstacle, Room, Wall, WallElement } from "@/features/project/schemas/project";
 
 export type SceneVector3 = { readonly x: number; readonly y: number; readonly z: number };
 export type SceneBox = { readonly position: SceneVector3; readonly dimensions: SceneVector3; readonly rotationY: number };
@@ -136,10 +136,32 @@ export function obstacleToScene(obstacle: Obstacle, room: Room): SceneBox {
   };
 }
 
-/** Presentation slab used by SceneWalls; openings must sit off this volume. */
+/** Presentation slab used by SceneWalls; sits entirely outside the room AABB. */
 export const SCENE_WALL_THICKNESS_M = 0.035;
-/** Local +Z after wallElementRotation; inner face plus half the door leaf, with a gap. */
-export const WALL_OPENING_INSET_M = 0.04;
+/** Local +Z after wallElementRotation; half the 4 cm door leaf plus a gap from the inner face. */
+export const WALL_OPENING_INSET_M = 0.023;
+
+/** Inner face on the room AABB; length covers outer corners. */
+export function sceneWallSlab(
+  wall: Wall,
+  size: { readonly x: number; readonly y: number; readonly z: number },
+  height: number,
+  y: number,
+): { readonly position: [number, number, number]; readonly args: [number, number, number] } {
+  const horizontal = wall === "top" || wall === "bottom";
+  const sign = wall === "top" || wall === "left" ? -1 : 1;
+  const offset = SCENE_WALL_THICKNESS_M / 2;
+  return {
+    position: [
+      horizontal ? 0 : sign * (size.x / 2 + offset),
+      y,
+      horizontal ? sign * (size.z / 2 + offset) : 0,
+    ],
+    args: horizontal
+      ? [size.x + SCENE_WALL_THICKNESS_M * 2, height, SCENE_WALL_THICKNESS_M]
+      : [SCENE_WALL_THICKNESS_M, height, size.z + SCENE_WALL_THICKNESS_M * 2],
+  };
+}
 
 export function wallElementToScene(element: WallElement, room: Room): SceneVector3 {
   const offset = element.offsetCm + element.widthCm / 2;

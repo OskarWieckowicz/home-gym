@@ -25,7 +25,7 @@ describe("catalog route", () => {
       await CatalogPage({
         searchParams: Promise.resolve({
           query: " press ",
-          category: "barbells",
+          category: "free-weights",
           maxPrice: "2500",
           maxWidthCm: "220",
           maxDepthCm: "80",
@@ -40,7 +40,7 @@ describe("catalog route", () => {
 
     const activeFilters = screen.getByRole("list", { name: "Active filters" });
     expect(activeFilters.textContent).toContain("Search: “press”");
-    expect(activeFilters.textContent).toContain("Category: Barbells");
+    expect(activeFilters.textContent).toContain("Category: Free Weights");
     expect(activeFilters.textContent).toContain("Goal: Strength");
     expect(activeFilters.textContent).toContain("Up to");
     expect(activeFilters.textContent).toContain("Width ≤ 220 cm");

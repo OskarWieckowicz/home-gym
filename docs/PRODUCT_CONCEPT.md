@@ -56,6 +56,12 @@ The agent creates the model, and the user reviews and corrects the result before
 
 The app has its own catalog of fictional products. Users can browse, filter, and use products in the planner as usual.
 
+The 24 active products use seven equipment categories: Racks & Stands, Benches, Free Weights,
+Cable Machines, Bodyweight Training, Cardio & Conditioning, and Mobility & Recovery.
+Free Weights groups barbells, plates, dumbbells and kettlebells. The punching bag belongs to
+Cardio & Conditioning; the exercise mat, foam roller and resistance bands belong to Mobility
+& Recovery. Training goals and placement mode are independent of these categories.
+
 Each product should include commercial, spatial, and training data:
 
 - identifier and name,

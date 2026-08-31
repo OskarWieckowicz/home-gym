@@ -14,7 +14,7 @@ describe("Flex Studio Dumbbells model integration", () => {
       slug: "flex-studio-dumbbells",
       name: "Flex Studio Dumbbells",
       brand: "Tempo Harbor",
-      category: "dumbbells",
+      category: "free-weights",
       placementMode: "floor",
       dimensions: { widthCm: 46, depthCm: 24, heightCm: 18 },
       useZone: { frontCm: 35, backCm: 10, leftCm: 35, rightCm: 35 },

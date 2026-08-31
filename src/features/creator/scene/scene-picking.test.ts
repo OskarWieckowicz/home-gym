@@ -86,7 +86,7 @@ describe("asset-independent scene picking", () => {
   });
 
   it("lifts wall-mounted pick bounds by domain mounting height", () => {
-    const product = catalogProducts.find((product) => product.mounting?.kind === "wall")!;
+    const product = catalogProducts.find((product) => product.id === "product_anchor_pullup_bar")!;
     expect(product).toBeDefined();
     const store = createProjectStore(createDefaultProject());
     expect(store.getState().dispatch({ type: "PRODUCT_PLACED", payload: {

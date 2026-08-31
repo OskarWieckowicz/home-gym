@@ -116,7 +116,7 @@ describe("ElementPanel workspace tabs", () => {
 describe("ElementPanel project equipment", () => {
   it.each([
     ["product_harbor_squat_stands", "Harbor Squat Stands", "/assets/harbor-squat-stands-catalog.png"],
-    ["product_northstar_half_rack", "Northstar Half Rack", "/assets/northstar-half-rack-catalog.png"],
+    ["product_northstar_half_rack", "Northstar Half Rack", "/assets/northstar-half-rack-catalog-v4.png"],
     ["product_pivot_flat_bench", "Pivot Flat Bench", "/assets/pivot-flat-bench-catalog.png"],
     ["product_range_adjustable_dumbbells", "Range Adjustable Dumbbells", "/assets/range-adjustable-dumbbells-catalog.png"],
     ["product_surge_compact_treadmill", "Surge Compact Treadmill", "/assets/surge-compact-treadmill-catalog.png"],

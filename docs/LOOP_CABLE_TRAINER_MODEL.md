@@ -15,9 +15,13 @@ planning assumption, not a dimension inferred from the photograph or achieved by
 
 One rail, one pulley carriage, **one D-handle**, one 18-plate stack, guide rods and rear mounting
 brackets preserve the accepted structure. Cables and wheel internals are simplified; this is not
-an engineered mechanism or a load/installation certification. The brackets do not introduce wall
-snapping: [Loop's catalog seed](../src/data/products/accessories.ts) retains floor-placement
-behavior with anchoring requirements. It is distinct from Compact Dual-Pulley Station.
+an engineered mechanism or a load/installation certification.
+
+[Loop's catalog seed](../src/data/products/accessories.ts) uses the same wall-mount path as the
+punching bag: `mounting: { kind: "wall", bottomHeightCm: 0, blocksFloor: true }`. Placement snaps
+flush to the nearest wall, dragging stays on that wall, and the full 62 × 28 cm footprint reserves
+floor space. Mount height 0 cm keeps the column on the floor; ceiling, opening and collision
+checks still use the shared mounted-product rules. It is distinct from Compact Dual-Pulley Station.
 
 The GLB/top view are presentation for `product_loop_cable_trainer`; the accepted photo mapping
 remains v2. Catalog geometry defines collision, clearance and other validation.

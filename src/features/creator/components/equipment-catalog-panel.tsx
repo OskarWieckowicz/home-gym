@@ -4,7 +4,7 @@ import { useId, useMemo, useState, type DragEvent } from "react";
 import { Search } from "lucide-react";
 
 import { catalogProducts } from "@/data/products";
-import { formatFootprint, formatPricePln } from "@/features/catalog/components/catalog-formatters";
+import { formatCatalogLabel, formatFootprint, formatPricePln } from "@/features/catalog/components/catalog-formatters";
 import { searchProducts } from "@/features/catalog/queries/catalog";
 import { PRODUCT_CATEGORIES } from "@/features/catalog/schemas";
 
@@ -53,7 +53,7 @@ export function EquipmentCatalogPanel({
         <select id={categoryId} value={category} onChange={(event) => setCategory(event.target.value)}>
           <option value="">All equipment</option>
           {PRODUCT_CATEGORIES.map((value) => (
-            <option key={value} value={value}>{value[0].toUpperCase() + value.slice(1)}</option>
+            <option key={value} value={value}>{formatCatalogLabel(value)}</option>
           ))}
         </select>
       </label>

@@ -7,6 +7,7 @@ import { EquipmentCatalogPanel } from "./equipment-catalog-panel";
 import { searchProducts } from "@/features/catalog/queries/catalog";
 import * as productAssets from "@/features/catalog/product-assets";
 import { catalogProducts } from "@/data/products";
+import { PRODUCT_CATEGORY_LABELS } from "@/shared/schemas/product-category";
 
 afterEach(() => {
   cleanup();
@@ -20,6 +21,20 @@ function renderCatalog(onActivate = vi.fn(), onAdd = vi.fn()) {
 }
 
 describe("EquipmentCatalogPanel", () => {
+  it.each(Object.entries(PRODUCT_CATEGORY_LABELS))("filters all equipment in %s", (category, label) => {
+    renderCatalog();
+    expect(screen.getByRole("option", { name: label })).toHaveProperty("value", category);
+    expect(screen.queryByRole("option", { name: "Accessories" })).toBeNull();
+    fireEvent.change(screen.getByRole("combobox", { name: "Equipment category" }), {
+      target: { value: category },
+    });
+    const products = searchProducts({ category });
+    expect(screen.getAllByRole("button", { name: /^Add .* to project$/ })).toHaveLength(products.length);
+    for (const product of products) {
+      expect(screen.getByRole("button", { name: `Add ${product.name} to project` })).toBeTruthy();
+    }
+  });
+
   it("does not offer retired wrist wraps", () => {
     renderCatalog();
     fireEvent.change(screen.getByRole("searchbox", { name: "Search equipment" }), {
@@ -45,10 +60,11 @@ describe("EquipmentCatalogPanel", () => {
   });
 
   it.each([
+    ["olympic", "/assets/olympic-bench-catalog-concept-v1.png"],
     ["loop", "/assets/single-column-cable-machine-catalog-concept-v2.png"],
     ["dual-pulley", "/assets/compact-dual-pulley-station-catalog-concept-v1.png"],
     ["summit", "/assets/squat-rack-catalog.png"],
-    ["northstar", "/assets/northstar-half-rack-catalog.png"],
+    ["northstar", "/assets/northstar-half-rack-catalog-v4.png"],
     ["pivot", "/assets/pivot-flat-bench-catalog.png"],
     ["range", "/assets/range-adjustable-dumbbells-catalog.png"],
     ["surge", "/assets/surge-compact-treadmill-catalog.png"],

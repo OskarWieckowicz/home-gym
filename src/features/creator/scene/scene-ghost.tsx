@@ -29,7 +29,7 @@ function wallUpdateGhost(command: CommandOf<"WALL_ELEMENT_UPDATED">, project: Gy
   return element ? wallGhost({ ...element, ...command.payload.patch }, project) : [];
 }
 
-function equipmentGhost(product: Product | null | undefined, pose: PlacementPose, project: GymProject): SceneBox[] {
+function equipmentGhost(product: Pick<Product, "dimensions" | "useZone" | "mounting"> | null | undefined, pose: PlacementPose, project: GymProject): SceneBox[] {
   if (!product) return [];
   const mounting = getEffectiveMounting(product);
   const bottomHeightCm = mounting.kind === "wall" ? mounting.bottomHeightCm : 0;

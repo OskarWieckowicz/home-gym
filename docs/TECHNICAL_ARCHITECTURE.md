@@ -300,8 +300,10 @@ change when a pointer crosses another entity; selection changes cancel pending g
 camera presets do not run on ordinary revisions. Camera-relative wall cutaway keeps both side
 walls near frontal views: hide the nearer side after 25° of horizontal rotation, restore below
 20° (hysteresis), symmetrically around all four axes. Top-down retains its separate thresholds;
-floor edges, openings, mounted equipment and placement targets remain independent of visual wall
-visibility. Native lists/inspector controls and keyboard centre placement provide an alternative
+floor-edge slabs remain when a wall is cut away and are omitted while that wall is shown, so the
+two never share a volume. Presentation wall slabs sit entirely outside the room AABB so
+flush-mounted equipment stays in the interior. Openings, mounted equipment and placement targets remain independent of
+visual wall visibility. Native lists/inspector controls and keyboard centre placement provide an alternative
 to pointer interaction. Switching views clears incomplete work, not project selection/history.
 
 Selection appears as an additive amber envelope outline. Validation uses the same
@@ -325,7 +327,7 @@ are local UI state, with no domain/schema changes.
 The primary equipment visuals are reproducible, AI-generated procedural GLB assets produced
 offline and mapped by explicit product ID in
 [visual-assets.ts](../src/features/creator/scene/visual-assets.ts). They remain simplified
-presentation assets rather than photorealistic product twins. All 21 placeable catalog products
+presentation assets rather than photorealistic product twins. All 22 placeable catalog products
 have a registered family/variant or geometric fallback; the two selection-only accessories have
 photos and no room models. Unregistered or legacy products keep a catalog-sized solid. Missing
 or failed loads isolate per placement: the fallback, outline and use zone remain, healthy
@@ -339,7 +341,7 @@ SVG applies the inverse angle. Asset orientation must not change catalog clearan
 
 ## 11. Product catalog
 
-The active MVP catalog is static and contains 23 fictional products: 21 placeable products with
+The active MVP catalog is static and contains 24 fictional products: 22 placeable products with
 photos/models and two shopping-list-only accessories. Seventeen products were removed
 at the user's request. Their frozen specifications live separately in `src/data/products/retired/`
 only to interpret existing saved projects. Active search, detail queries and product routes exclude
@@ -348,8 +350,9 @@ new purchases/direct placements of retired products but allows editing or removi
 
 Wall mounting and floor blockage are independent product facts. Mounted products can opt into
 `mounting.blocksFloor: true` to reserve their entire physical footprint for collision and walking
-access checks, even when suspended above the floor (the Wall-Mounted Punching Bag). Omitted or
-false retains the existing elevated-bar behavior. Mount height still governs visuals, ceiling and
+access checks, even when suspended above the floor (the Wall-Mounted Punching Bag) or sitting on
+the floor against the wall (Loop Wall Cable Trainer, `bottomHeightCm: 0`). Omitted or false
+retains the existing elevated-bar behavior. Mount height still governs visuals, ceiling and
 wall-opening checks; UI and WebMCP use the same validation path.
 
 Signal Resistance Bands and Groundwork Foam Roller are active shopping-list-only
@@ -359,15 +362,26 @@ legacy Signal placements into existing unplaced shopping items before catalog va
 item IDs, quantities and unrelated project data. Other invalid or unknown products still fail
 validation. Local restore does not write until a normal user edit; import is one undoable change.
 
-Active MVP categories:
+Active MVP categories (canonical value → shared display label):
 
-- racks,
-- benches,
-- barbells,
-- plates,
-- dumbbells,
-- cardio,
-- accessories.
+- `racks` → Racks & Stands (4), including the complete Summit rack station,
+- `benches` → Benches (3), including the complete Olympic Bench Set,
+- `free-weights` → Free Weights (7): barbells, plates, dumbbells and kettlebells,
+- `cable-machines` → Cable Machines (2),
+- `bodyweight-training` → Bodyweight Training (2),
+- `cardio-conditioning` → Cardio & Conditioning (3), including the punching bag,
+- `mobility-recovery` → Mobility & Recovery (3): mat, roller and resistance bands.
+
+`src/shared/schemas/product-category.ts` owns the vocabulary and labels consumed by catalog
+filters, creator filters and WebMCP schemas. Category describes equipment grouping; training
+goals, mounting and placement mode remain independent. Active products have no Accessories
+category. Seed file groupings are historical and do not determine product categories.
+
+Frozen retired JSON retains its original categories. Its separate schema shares all non-category
+validation with active records; project-specific queries accept both types without widening the
+active catalog or WebMCP search vocabulary. Saved projects reference product IDs, so this taxonomy
+change requires no project migration. Obsolete URL category values follow the existing invalid-filter
+behavior (ignored); WebMCP rejects them as invalid input.
 
 Flooring is deferred. Treating floor products as placeable would require layered surfaces and
 overlap exceptions that are outside the current deterministic placement model.

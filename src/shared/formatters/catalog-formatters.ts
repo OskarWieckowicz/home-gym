@@ -1,3 +1,5 @@
+import { PRODUCT_CATEGORY_LABELS, type ProductCategory } from "@/shared/schemas/product-category";
+
 type Dimensions = {
   readonly widthCm: number;
   readonly depthCm: number;
@@ -44,6 +46,9 @@ export function formatUseZoneSummary(useZone: UseZone) {
 }
 
 export function formatCatalogLabel(value: string) {
+  if (Object.hasOwn(PRODUCT_CATEGORY_LABELS, value)) {
+    return PRODUCT_CATEGORY_LABELS[value as ProductCategory];
+  }
   return value
     .split("-")
     .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)

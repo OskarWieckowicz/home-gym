@@ -3,7 +3,7 @@ import type { PlanIssueRef } from "../plan/entity-issue-state";
 import { Box, SelectionOutline, WallMarker } from "./scene-entities";
 import { PlacementModel } from "./scene-equipment";
 import { sceneEntityAppearance } from "./scene-entity-state";
-import { obstacleToScene, roomToScene } from "./scene-transform";
+import { obstacleToScene, roomToScene, SCENE_WALL_THICKNESS_M } from "./scene-transform";
 import { ignoreSceneRaycast, SceneWalls } from "./scene-walls";
 
 export type SceneContentsProps = {
@@ -18,9 +18,9 @@ export function SceneContents({ project, selectedId, issues }: SceneContentsProp
   return <>
     <ambientLight intensity={1.8} />
     <directionalLight castShadow intensity={2.2} position={[4, 6, 3]} />
-    <mesh raycast={ignoreSceneRaycast} position={[0, -0.003, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-      <planeGeometry args={[room.x, room.z]} />
-      <meshStandardMaterial color="#e2e8f0" roughness={0.95} />
+    <mesh raycast={ignoreSceneRaycast} position={[0, -0.008, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+      <planeGeometry args={[room.x + SCENE_WALL_THICKNESS_M * 2, room.z + SCENE_WALL_THICKNESS_M * 2]} />
+      <meshStandardMaterial color="#e2e8f0" roughness={0.95} polygonOffset polygonOffsetFactor={1} polygonOffsetUnits={1} />
     </mesh>
     <SceneWalls room={project.room} />
     {project.obstacles.map((obstacle) => {

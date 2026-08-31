@@ -54,7 +54,7 @@ export function EquipmentEntity({
   readonly issues: readonly PlanIssueRef[];
   readonly placement: Placement;
   readonly position: Placement["position"];
-  readonly product: Product;
+  readonly product: Pick<Product, "id" | "name" | "dimensions" | "useZone" | "mounting">;
   readonly selectedId: string | null;
   readonly transform: PlanTransform;
   readonly onBeginDrag: (event: PointerEvent<SVGGElement>, placement: Placement) => void;

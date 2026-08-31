@@ -39,7 +39,7 @@ function createFloorPlacementCommand(
   target: PlacementTarget,
   project: GymProject,
   commandFor: (
-    product: NonNullable<ReturnType<typeof findProductById>>,
+    product: NonNullable<ReturnType<typeof findProjectProductById>>,
     position: { xCm: number; zCm: number },
     rotation: 0 | 90 | 180 | 270,
   ) => ProjectCommand,

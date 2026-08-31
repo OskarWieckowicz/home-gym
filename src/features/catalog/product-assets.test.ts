@@ -15,7 +15,7 @@ describe("catalog product assets", () => {
     expect(getProductImage("product_loop_cable_trainer")).toBe("/assets/single-column-cable-machine-catalog-concept-v2.png");
     expect(getProductImage("product_summit_power_cage")).toBe("/assets/squat-rack-catalog.png");
     expect(getProductImage("product_summit_strength_station")).toBe("/assets/summit-strength-station-catalog.png");
-    expect(getProductImage("product_northstar_half_rack")).toBe("/assets/northstar-half-rack-catalog.png");
+    expect(getProductImage("product_northstar_half_rack")).toBe("/assets/northstar-half-rack-catalog-v4.png");
     expect(getProductImage("product_pivot_flat_bench")).toBe("/assets/pivot-flat-bench-catalog.png");
     expect(getProductImage("product_quarry_power_bar")).toBe("/assets/quarry-power-bar-catalog.png");
     expect(getProductImage("product_range_adjustable_dumbbells")).toBe("/assets/range-adjustable-dumbbells-catalog.png");

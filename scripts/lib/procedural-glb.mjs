@@ -130,6 +130,26 @@ export class ProceduralGlb {
     this.addGeometry({ vertices, normals, indices, material, center, rotation });
   }
 
+  // Offline repair for authored geometry whose outward normals are already correct.
+  // Explicit opt-in keeps unrelated published assets byte-identical until reviewed.
+  orientFacesToNormals() {
+    let corrected = 0;
+    for (const { vertices, normals, indices } of this.groups) {
+      for (let index = 0; index < indices.length; index += 3) {
+        const [a, b, c] = indices.slice(index, index + 3).map((vertex) => vertex * 3);
+        const ab = [0, 1, 2].map((axis) => vertices[b + axis] - vertices[a + axis]);
+        const ac = [0, 1, 2].map((axis) => vertices[c + axis] - vertices[a + axis]);
+        const cross = [ab[1] * ac[2] - ab[2] * ac[1], ab[2] * ac[0] - ab[0] * ac[2], ab[0] * ac[1] - ab[1] * ac[0]];
+        const dot = cross.reduce((sum, value, axis) => sum + value * (normals[a + axis] + normals[b + axis] + normals[c + axis]), 0);
+        if (dot < 0) {
+          [indices[index + 1], indices[index + 2]] = [indices[index + 2], indices[index + 1]];
+          corrected += 1;
+        }
+      }
+    }
+    return corrected;
+  }
+
   getMetrics() {
     const populated = this.groups.filter((group) => group.indices.length > 0);
     const min = [Infinity, Infinity, Infinity], max = [-Infinity, -Infinity, -Infinity];

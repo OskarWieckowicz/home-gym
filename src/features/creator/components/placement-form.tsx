@@ -21,7 +21,7 @@ export function PlacementForm({
   onRemoved,
 }: {
   readonly placement: Placement;
-  readonly product: Product;
+  readonly product: Pick<Product, "id" | "name" | "price" | "dimensions" | "mounting">;
   readonly onRemoved: () => void;
 }) {
   const dispatch = useProjectStore((state) => state.dispatch);

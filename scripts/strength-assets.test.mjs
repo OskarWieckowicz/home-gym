@@ -36,6 +36,7 @@ async function generateTwice(scriptName, directory) {
 
 describe("Product asset generators", () => {
   it.each([
+    { slug: "harbor-squat-stands", groups: 4, minimum: [-0.54, 0, -0.41], dimensions: [1.08, 1.78, 0.82], viewBox: "-0.54 -0.41 1.08 0.82" },
     { slug: "groundwork-exercise-mat", groups: 3, minimum: [-0.325, 0, -0.9], dimensions: [0.65, 0.01, 1.8], viewBox: "-0.325 -0.9 0.65 1.8" },
     { slug: "wall-mounted-punching-bag", groups: 4, minimum: [-0.3, 0, -0.6], dimensions: [0.6, 1.9, 1.2], viewBox: "-0.3 -0.6 0.6 1.2" },
     { slug: "flex-studio-dumbbells", groups: 3, minimum: [-0.23, 0, -0.12], dimensions: [0.46, 0.18, 0.24], viewBox: "-0.23 -0.12 0.46 0.24" },
@@ -88,7 +89,6 @@ describe("Product asset generators", () => {
   it.each([
     ["generate-quarry-power-bar-glb.mjs", 4, [2.2, 0.054, 0.054]],
     ["generate-foundry-bumper-plates-glb.mjs", 3, [0.45, 0.45, 0.364]],
-    ["generate-harbor-squat-stands-glb.mjs", 4, [1.08, 1.78, 0.82]],
     ["generate-anchor-pullup-bar-glb.mjs", 4, [1.12, 0.38, 0.54]],
     ["generate-cairn-iron-plates-glb.mjs", 3, [0.45, 0.45, 0.24]],
     ["generate-delta-change-plates-glb.mjs", 5, [0.32, 0.32, 0.18]],

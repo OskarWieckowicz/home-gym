@@ -112,8 +112,10 @@ The main interaction rule: **both views edit one room, through one command path 
   Enter on the scene or Place at centre offers the keyboard creation path.
 - Drag equipment/areas on the floor. Doors/windows and mounted equipment retain their wall and
   move along it. A changed release commits once; cancellation, camera movement and previews do not.
-- Near-side wall surfaces disappear as the camera moves. The floor perimeter, wall markers and
-  four wall-edge placement targets are independent of that cutaway. Fit view and Top view are
+- Near-side wall surfaces disappear as the camera moves. A floor-perimeter slab remains on a
+  cut-away wall and is omitted while that wall is shown, so the two never share a volume.
+  Presentation walls sit outside the room interior so wall-mounted plates stay visible. Wall
+  markers and four wall-edge placement targets stay independent of that cutaway. Fit view and Top view are
   explicit camera actions and never edit the room. Initial fitting uses all eight projected room
   corners, a near-frontal 12° azimuth and 29° elevation, keeping both side walls visible.
 - Exact inspector edits, supported rotations/locks, unplace/remove, lists, validation and file

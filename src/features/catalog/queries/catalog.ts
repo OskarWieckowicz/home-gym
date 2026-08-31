@@ -1,4 +1,5 @@
 import { catalogProducts } from "@/data/products";
+import { formatCatalogLabel } from "@/shared/formatters/catalog-formatters";
 import {
   ANCHORING_FILTER_VALUES,
   PRODUCT_CATEGORIES,
@@ -83,11 +84,11 @@ export function normalizeCatalogFilters(filters: CatalogFilters = {}): Normalize
   };
 }
 
-export function getEffectiveMounting(product: Product): EffectiveMounting {
+export function getEffectiveMounting(product: Pick<Product, "mounting">): EffectiveMounting {
   return product.mounting ?? { kind: "floor" };
 }
 
-export function getEffectiveRequiredHeightCm(product: Product): number {
+export function getEffectiveRequiredHeightCm(product: Pick<Product, "requirements" | "dimensions" | "mounting">): number {
   const stored = product.requirements.minimumCeilingHeightCm ?? product.dimensions.heightCm;
   const mounting = getEffectiveMounting(product);
   return mounting.kind === "wall"
@@ -95,7 +96,7 @@ export function getEffectiveRequiredHeightCm(product: Product): number {
     : stored;
 }
 
-export function getEffectiveAnchoring(product: Product): AnchoringFilter {
+export function getEffectiveAnchoring(product: Pick<Product, "requirements">): AnchoringFilter {
   return product.requirements.anchoring ?? "none";
 }
 
@@ -118,6 +119,7 @@ function searchableText(product: Product): string {
       product.name,
       product.brand,
       product.category,
+      formatCatalogLabel(product.category),
       ...product.exercises,
       ...product.trainingGoals,
     ].join(" "),

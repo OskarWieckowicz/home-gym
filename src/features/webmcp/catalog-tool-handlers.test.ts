@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { catalogProducts } from "@/data/products";
 import { searchProducts } from "@/features/catalog/queries";
+import { PRODUCT_CATEGORIES } from "@/features/catalog/schemas";
 
 import {
   createGetProductDetailsHandler,
@@ -12,6 +13,15 @@ import {
 const options = () => ({ signal: new AbortController().signal });
 
 describe("search_products handler", () => {
+  it.each(PRODUCT_CATEGORIES)("matches the manual %s category filter", (category) => {
+    const result = createSearchProductsHandler()({ category });
+    if (!result.ok) throw new Error("Expected successful category search.");
+    const expected = searchProducts({ category });
+    expect(result.matchCount).toBe(expected.length);
+    expect(result.products.map(({ productId }) => productId)).toEqual(expected.map(({ id }) => id));
+    expect(result.products.every((product) => product.category === category)).toBe(true);
+  });
+
   it("supports runtimes that omit execute options", () => {
     expect(createSearchProductsHandler()({})).toMatchObject({
       ok: true,
@@ -55,7 +65,7 @@ describe("search_products handler", () => {
   it("uses manual catalog semantics for combined filters and preserves order", () => {
     const product = catalogProducts.find(
       ({ category, requirements }) =>
-        category === "dumbbells" && requirements.anchoring === undefined,
+        category === "free-weights" && requirements.anchoring === undefined,
     );
     expect(product).toBeDefined();
     if (!product) return;
@@ -143,7 +153,7 @@ describe("get_product_details handler", () => {
     expect(() => JSON.stringify(result)).not.toThrow();
   });
 
-  it("reports effective wall mounting on the anchor bar", () => {
+  it("reports effective wall mounting on catalog products", () => {
     const result = createGetProductDetailsHandler()(
       { productId: "product_anchor_pullup_bar" },
       options(),
@@ -151,6 +161,13 @@ describe("get_product_details handler", () => {
     expect(result).toMatchObject({
       ok: true,
       product: { mounting: { kind: "wall", bottomHeightCm: 195 } },
+    });
+    expect(createGetProductDetailsHandler()(
+      { productId: "product_loop_cable_trainer" },
+      options(),
+    )).toMatchObject({
+      ok: true,
+      product: { mounting: { kind: "wall", bottomHeightCm: 0, blocksFloor: true } },
     });
     const search = createSearchProductsHandler()({ query: "anchor pull-up" }, options());
     expect(search).toMatchObject({ ok: true });

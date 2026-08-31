@@ -61,6 +61,13 @@ it("uses the latest aspect on explicit Fit without resetting navigation during r
   expect(state.controls.update).toHaveBeenCalledTimes(2);
 });
 
+it("keeps the clip range close to the room so wall-floor edges stay stable", () => {
+  render(<SceneCameraControls room={room} placing={false} gestureActive={false} preset={{ kind: "fit", sequence: 0 }} />);
+  expect(state.camera.near).toBe(0.05);
+  expect(state.camera.far).toBeGreaterThan(state.camera.near);
+  expect(state.camera.far).toBeLessThan(200);
+});
+
 it("fits portrait rooms further away and top view stays above the floor", () => {
   const first = render(<SceneCameraControls room={room} placing={false} gestureActive={false} preset={{ kind: "top", sequence: 0 }} />);
   const wideDistance = state.camera.position.y;

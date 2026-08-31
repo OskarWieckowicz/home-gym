@@ -17,7 +17,7 @@ export function ProjectItemForm({
   onRemoved,
 }: {
   readonly item: ProjectItem;
-  readonly product: Product;
+  readonly product: Pick<Product, "name" | "price" | "placementMode">;
   readonly onPlace: () => void;
   readonly onRemoved: () => void;
 }) {

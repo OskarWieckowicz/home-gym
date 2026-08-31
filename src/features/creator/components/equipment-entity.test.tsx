@@ -119,7 +119,7 @@ describe("EquipmentEntity top views", () => {
   it("renders the Northstar top view inside its catalog footprint", () => {
     const view = renderEquipment("product_northstar_half_rack");
     const image = view.container.querySelector(".creator-equipment-top-view");
-    expect(image?.getAttribute("href")).toBe("/assets/northstar-half-rack-top.svg");
+    expect(image?.getAttribute("href")).toBe("/assets/northstar-half-rack-top.svg?v=4");
     expect(image?.getAttribute("width")).toBe("122");
     expect(image?.getAttribute("height")).toBe("130");
     expect(image?.getAttribute("pointer-events")).toBe("none");

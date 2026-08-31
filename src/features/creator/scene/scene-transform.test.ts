@@ -11,6 +11,7 @@ import {
   rotationToRadians,
   SCENE_WALL_THICKNESS_M,
   scenePointToPosition,
+  sceneWallSlab,
   WALL_OPENING_INSET_M,
   wallElementRotation,
 } from "./scene-transform";
@@ -129,7 +130,21 @@ describe("scene transforms", () => {
     expect(Math.cos(yaw)).toBeCloseTo(inward.z);
   });
 
-  it("keeps openings off the wall slab so they cannot z-fight", () => {
-    expect(WALL_OPENING_INSET_M).toBeGreaterThan(SCENE_WALL_THICKNESS_M / 2);
+  it.each([
+    ["top", 2, -1.6],
+    ["right", 0, 2],
+    ["bottom", 2, 1.6],
+    ["left", 0, -2],
+  ] as const)("keeps the %s wall inner face on the room AABB", (wall, axis, inner) => {
+    const size = roomToScene(room);
+    const slab = sceneWallSlab(wall, size, size.y, size.y / 2);
+    const inward = inner < 0 ? 1 : -1;
+    expect(slab.args[axis]).toBe(SCENE_WALL_THICKNESS_M);
+    expect(slab.position[axis] + inward * slab.args[axis] / 2).toBeCloseTo(inner);
+    expect(Math.abs(slab.position[axis])).toBeGreaterThan(Math.abs(inner));
+  });
+
+  it("keeps openings inside the room and off the inner wall face", () => {
+    expect(WALL_OPENING_INSET_M).toBeGreaterThan(0.02);
   });
 });

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { PRODUCT_CATEGORIES } from "@/features/catalog/schemas";
 
 import {
   getProductDetailsInputSchema,
@@ -9,12 +10,22 @@ import {
 } from "./catalog-tool-schemas";
 
 describe("catalog tool input schemas", () => {
+  it.each(PRODUCT_CATEGORIES)("accepts the current %s category", (category) => {
+    expect(searchProductsInputSchema.parse({ category })).toEqual({ category });
+  });
+
+  it.each(["barbells", "plates", "dumbbells", "cardio", "accessories"])(
+    "rejects the historical %s search category", (category) => {
+      expect(searchProductsInputSchema.safeParse({ category }).success).toBe(false);
+    },
+  );
+
   it("accepts an empty search and valid combined filters", () => {
     expect(searchProductsInputSchema.parse({})).toEqual({});
     expect(
       searchProductsInputSchema.parse({
         query: "  adjustable dumbbells  ",
-        category: "dumbbells",
+        category: "free-weights",
         maxPrice: 1800,
         maxWidthCm: 80,
         maxDepthCm: 60,
@@ -26,7 +37,7 @@ describe("catalog tool input schemas", () => {
       }),
     ).toEqual({
       query: "adjustable dumbbells",
-      category: "dumbbells",
+      category: "free-weights",
       maxPrice: 1800,
       maxWidthCm: 80,
       maxDepthCm: 60,
@@ -77,7 +88,7 @@ describe("catalog tool input schemas", () => {
       additionalProperties: false,
       properties: {
         query: { type: "string", maxLength: 120 },
-        category: { type: "string" },
+        category: { type: "string", enum: PRODUCT_CATEGORIES },
         maxPrice: { type: "integer", minimum: 0 },
         maxWidthCm: { type: "integer", minimum: 0 },
         maxDepthCm: { type: "integer", minimum: 0 },

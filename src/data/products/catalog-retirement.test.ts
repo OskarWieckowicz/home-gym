@@ -17,12 +17,12 @@ import { createPlaceProductCommand, createPlaceProjectItemCommand } from "@/feat
 import { suggestPlacements } from "@/features/project/suggestions/suggest-placements";
 
 describe("incomplete product retirement", () => {
-  it("leaves exactly 21 fully illustrated placeable products and two list-only items", () => {
-    expect(catalogProducts).toHaveLength(23);
+  it("has exactly 22 fully illustrated placeable products and two list-only items", () => {
+    expect(catalogProducts).toHaveLength(24);
     expect(retiredProducts).toHaveLength(17);
-    expect(new Set([...catalogProducts, ...retiredProducts].map(({ id }) => id)).size).toBe(40);
+    expect(new Set([...catalogProducts, ...retiredProducts].map(({ id }) => id)).size).toBe(41);
     const floor = catalogProducts.filter(({ placementMode }) => placementMode === "floor");
-    expect(floor).toHaveLength(21);
+    expect(floor).toHaveLength(22);
     for (const product of floor) {
       expect(getProductImage(product.id)).toBeDefined();
       expect(getVisualAsset(product.id)?.topViewSrc).toBeDefined();

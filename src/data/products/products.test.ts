@@ -12,12 +12,12 @@ import { parseCatalogSeeds } from "./catalog-validation";
 
 const EXPECTED_CATEGORY_COUNTS: Record<ProductCategory, number> = {
   racks: 4,
-  benches: 2,
-  barbells: 1,
-  plates: 3,
-  dumbbells: 2,
-  cardio: 2,
-  accessories: 9,
+  benches: 3,
+  "free-weights": 7,
+  "cable-machines": 2,
+  "bodyweight-training": 2,
+  "cardio-conditioning": 3,
+  "mobility-recovery": 3,
 };
 
 const ORIGINAL_IDENTITIES = [
@@ -34,8 +34,8 @@ function normalized(values: string[]): string[] {
 }
 
 describe("catalogProducts", () => {
-  it("contains 23 schema-valid fictional products in the agreed distribution", () => {
-    expect(catalogProducts).toHaveLength(23);
+  it("contains 24 schema-valid fictional products in the agreed distribution", () => {
+    expect(catalogProducts).toHaveLength(24);
     expect(() => productSchema.array().parse(catalogProducts)).not.toThrow();
     expect(catalogProducts.every(({ brand }) => !/nike|adidas|rogue/i.test(brand))).toBe(true);
 
@@ -102,7 +102,7 @@ describe("catalogProducts", () => {
         placementMode: "selection-only",
       }),
     ]);
-    expect(catalogProducts.filter(({ placementMode }) => placementMode === "floor")).toHaveLength(21);
+    expect(catalogProducts.filter(({ placementMode }) => placementMode === "floor")).toHaveLength(22);
   });
 
   it("covers every training goal across multiple equipment categories", () => {

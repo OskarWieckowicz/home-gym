@@ -14,6 +14,7 @@ describe("visual asset registry", () => {
       floorPivot: "origin",
       scale: [1, 1, 1],
     });
+    expect(product?.mounting).toEqual({ kind: "wall", bottomHeightCm: 0, blocksFloor: true });
   });
   it("keeps the kettlebell visual envelope aligned with its catalog dimensions", () => {
     const product = findProductById("product_forge_kettlebell_16kg");
@@ -108,8 +109,8 @@ describe("visual asset registry", () => {
       scale: [1, 1, 1],
     });
     expect(getVisualAsset("product_northstar_half_rack")).toMatchObject({
-      src: "/assets/northstar-half-rack.glb",
-      topViewSrc: "/assets/northstar-half-rack-top.svg",
+      src: "/assets/northstar-half-rack.glb?v=4",
+      topViewSrc: "/assets/northstar-half-rack-top.svg?v=4",
       envelopeCm: { widthCm: 122, depthCm: 130, heightCm: 215 },
       forward: "negative-z",
       floorPivot: "origin",

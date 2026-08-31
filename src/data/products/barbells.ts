@@ -6,7 +6,7 @@ export const barbellSeeds = [
     slug: "quarry-power-bar",
     name: "Quarry Power Bar",
     brand: "Anvil North",
-    category: "barbells",
+    category: "free-weights",
     placementMode: "floor",
     description: "A rigid 20 kg bar intended for heavy squats, presses, and controlled deadlifts.",
     price: 1499,

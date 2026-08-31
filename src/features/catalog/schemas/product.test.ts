@@ -42,11 +42,11 @@ describe("productSchema", () => {
     expect(PRODUCT_CATEGORIES).toEqual([
       "racks",
       "benches",
-      "barbells",
-      "plates",
-      "dumbbells",
-      "cardio",
-      "accessories",
+      "free-weights",
+      "cable-machines",
+      "bodyweight-training",
+      "cardio-conditioning",
+      "mobility-recovery",
     ]);
     expect(PRODUCT_CATEGORIES).not.toContain("weights");
   });
@@ -117,11 +117,20 @@ describe("productSchema", () => {
     ).toEqual({ kind: "wall", bottomHeightCm: 195 });
   });
 
-  it("rejects a non-positive mount height", () => {
+  it("accepts a floor-sitting wall mount at 0 cm", () => {
+    expect(
+      productSchema.parse({
+        ...validProduct,
+        mounting: { kind: "wall", bottomHeightCm: 0, blocksFloor: true },
+      }).mounting,
+    ).toEqual({ kind: "wall", bottomHeightCm: 0, blocksFloor: true });
+  });
+
+  it("rejects a negative mount height", () => {
     expect(() =>
       productSchema.parse({
         ...validProduct,
-        mounting: { kind: "wall", bottomHeightCm: 0 },
+        mounting: { kind: "wall", bottomHeightCm: -1 },
       }),
     ).toThrow();
   });

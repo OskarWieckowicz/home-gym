@@ -35,9 +35,9 @@ The derived 2D top view always comes from the GLB, not an independently generate
 5. Preserve source images, prompts, provenance, generator/output links and non-obvious assumptions.
    Review runtime performance with a furnished room before claiming public-device acceptance.
 
-The [visual registry](../src/features/creator/scene/visual-assets.ts) maps all 21 placeable
+The [visual registry](../src/features/creator/scene/visual-assets.ts) maps all 22 placeable
 products to an explicit family/variant or geometric fallback. The two selection-only accessories
-have catalog images and no room models. All 23 active products have mapped photos; there is no
+have catalog images and no room models. All 24 active products have mapped photos; there is no
 missing-photo queue. Multi-angle capture sets, new SKUs, sourced meshes, animation and physics
 remain outside the MVP. This strategy does not authorize new image batches, purchases or review.
 
@@ -104,6 +104,16 @@ calls low; the writer uses 16-bit indices where possible and 32-bit indices for 
 The generators are authoring tools, not runtime dependencies. The Forge kettlebell ships as the
 current generated model; further silhouette refinement is out of scope unless explicitly resumed.
 
+Harbor, Northstar and Summit explicitly call `orientFacesToNormals()` before writing their GLBs.
+Some legacy chamfer/cylinder primitives have triangle winding opposite to their authored
+outward normals. This offline pass corrects indices only; dimensions, normals and materials
+are preserved. Other published assets are not regenerated implicitly. Apply the pass when
+reviewing those models individually. It assumes correct outward authored normals and does
+not repair intersecting solids. Structural visibility tests must retain normal front-face
+culling: forcing `DoubleSide` masks missing outer faces and internal contact-surface flicker.
+The offline reference rasterizer does not cull back faces, so its previews alone cannot
+verify this rendering contract.
+
 Run the individual generator documented with a model, then `npm run assets:top-views` to rebuild
 derived SVGs. [inspect-glb.mjs](../scripts/inspect-glb.mjs) reports current bounds, triangles,
 nodes, primitives, materials, file size, normals, generator metadata and SHA-256. Use this output
@@ -125,9 +135,80 @@ Keep results as review evidence tied to the measured revision, not machine-depen
 
 ## Accepted visual exceptions and compositions
 
+### Olympic Bench Set
+
+`product_olympic_bench` is one Benches product and one placement containing a fixed flat bench,
+two integrated uprights, a 220 cm barbell and four loaded plates. The accepted
+[catalog concept](../public/assets/olympic-bench-catalog-concept-v1.png) guides the silhouette,
+graphite/black materials and restrained orange accents. The original image provenance records
+the concept-generation event before catalog registration.
+
+The fictional planning envelope is 220 × 160 × 140 cm, including both bar ends. Clearance is
+60 cm at front/rear and 50 cm at either side for access. The illustrative PLN 3299 price covers
+the whole set; the plates and bar do not add separate shopping items. Dimensions, clearances
+and price are planning assumptions, not measurements from the image or certified specifications.
+No maximum load or plate mass is claimed.
+
+Regenerate with `node scripts/generate-olympic-bench-glb.mjs`; the top SVG is derived from this
+GLB through `generateGlbTopViewSvg` in `scripts/lib/glb-top-view.mjs` and is included in
+`npm run assets:top-views`. The model uses unit scale, a floor origin and negative-Z front.
+It is static presentation geometry and does not make its constituent parts independently editable.
+
+### Northstar Half Rack
+
+The [v4 generator](../scripts/generate-northstar-half-rack-glb.mjs) refines the existing
+catalog silhouette: exactly two hollow uprights with actual adjustment holes through all
+four walls, lined bent-plate J-cups, long lined spotters with paired under-arm gussets,
+ring pins, bolted brackets, rear braces and crossmembers, foot mounting tabs and a
+straight pull-up bar with grips and supported collars. No cage, weights or storage pegs
+are added. The 122 × 130 × 215 cm envelope, unit scale, origin and negative-Z front remain
+unchanged. Four material groups are merged; indexed authoring geometry shares vertices
+only where normals match. This is a static planning model, not engineering validation.
+
+Regenerate with `node scripts/generate-northstar-half-rack-glb.mjs`, then
+`npm run assets:top-views`. Offline preview:
+`node scripts/render-product-reference.mjs public/assets/northstar-half-rack.glb /tmp/northstar-front.png front`
+(use `rear` with a separate output for the reverse view). The catalog photo now uses the
+updated [v4 photographic variant](../scripts/catalog-image-provenance/northstar-half-rack-v4.json):
+charcoal attachments with small orange accents at the spotter tips and J-cup edges. The GLB and its derived
+top view match this palette: graphite J-cups, spotters and upper mounts, with muted burnt-orange
+strips only on the outer spotter-tip and J-cup edges. Dimensions and placement geometry are unchanged.
+The shared catalog image mapping uses `northstar-half-rack-catalog-v4.png`; the creator's
+GLB and top-view URLs include `?v=4` so previously cached assets do not mask this update.
+The v1 provenance describes the original image event.
+
+### Harbor Squat Stands
+
+The [v2 generator](../scripts/generate-harbor-squat-stands-glb.mjs) follows the existing
+Harbor catalog photo: two H bases, triangular gussets, hollow perforated telescoping
+uprights, rubber-lined orange J-cups, separate lower spotter arms, bolts and ring pins.
+It retains the exact 108 × 82 × 178 cm catalog envelope, origin and negative-Z front;
+the pair remains one static placement with no connecting crossbar or included barbell.
+The displayed adjustment heights are illustrative, not an engineering or safety claim.
+Four merged material groups keep details independent of runtime component count.
+
+Regenerate with `node scripts/generate-harbor-squat-stands-glb.mjs`, then
+`npm run assets:top-views`. Inspect offline with
+`node scripts/render-product-reference.mjs public/assets/harbor-squat-stands.glb /tmp/harbor-front.png front`
+(use `rear` and a separate output for the reverse view). The catalog photo stays unchanged.
+
 ### Summit Power Cage
 
-[squat-rack.glb](../public/assets/squat-rack.glb) uses the accepted per-material merged geometry.
+[squat-rack.glb](../public/assets/squat-rack.glb) is generated by the
+[v3 generator](../scripts/generate-squat-rack-glb.mjs). It borrows Harbor's manufactured detail:
+hollow columns perforated on all four walls, chamfered edges, thin bent orange J-cups with
+UHMW liners, hex bolts and washers, ring pins, base gussets and rubber feet. Upper side rails
+connect the four posts; the entrance has no floor crossmember. The straight pull-up bar has
+grip sleeves, and removable pin-and-pipe safeties align with the column hole rows.
+
+The model keeps five merged material groups and remains below 1 MB. Its approximately 21.7k
+triangles (26.8k for the complete station) include actual hole walls; small 20 mm apertures use
+eight segments and welded matching vertices to keep the dependent station below 1 MB too.
+These static display details do not certify construction or safe loads. The J-cup contact
+surface stays at Y=1.453 m; the detailed station's 28 mm shaft is centered at Y=1.467 m to rest on it. Regenerate the dependent
+`strength-station-composition.glb` after changing the cage, then regenerate both top views.
+The existing catalog photos remain unchanged.
+
 Its unscaled measured envelope is approximately 132 × 174 × 227 cm (width × depth × height),
 whereas the catalog remains 130 × 165 × 225 cm. The explicit runtime scale `[1.016, 1, 1.04]`
 preserves the accepted appearance; it is not exact normalization to the catalog envelope.
@@ -150,8 +231,22 @@ Summit rack, Arc bench, Quarry bar and Foundry plates as `product_summit_strengt
 It is one project item and one placement with a 228 × 174 cm catalog footprint. Nested pieces
 are render-only components; they do not become independent placements or bypass collision rules.
 
-The [composition generator](../scripts/generate-strength-station-composition-glb.mjs) retains the
-rack at the origin, rotates the bench 180 degrees beneath the bar, positions the bar at
-`[0, 1.453, -0.59]` with shaft height 1.48 m, mounts four display discs on the sleeves and places
-the spare-plate set at `[0.95, 0, 0.35]`. The derived top view uses the bundle's single catalog
-footprint for selection and placement. These display arrangements are not independently editable.
+The [v2 composition generator](../scripts/generate-strength-station-composition-glb.mjs) imports
+the current Summit rack and uses [composition parts](../scripts/lib/strength-station-parts.mjs)
+for refined versions of the Arc bench, Quarry bar and Foundry plates. Standalone product GLBs
+are unchanged. The bench retains its reversed 35-degree display incline and separate seat/back
+pads, with perimeter piping, a continuous hinge axle, a ladder-engaged support reaching the
+backing plate, attached lifting handle and transport wheels.
+
+The 28 mm bar shaft sits at `[0, 1.467, -0.59]`, touching the J-cup liners at Y=1.453 m.
+Each sleeve carries two beveled bumper plates flush with its shoulder, followed by a locking
+collar and orange lever. Plate profiles have metal annular hubs and real 52 mm bores, including
+the six spare discs beside the rack at X=0.95 m. Spare discs retain their floor contact and
+approximately 0.45 × 0.36 m footprint. Surface winding is corrected across the entire composition.
+Eight merged material groups, about 26.8k triangles and a sub-1-MB binary preserve the existing
+asset budgets and approximately 227.5 × 174 × 227 cm measured envelope.
+
+Regenerate with `node scripts/generate-strength-station-composition-glb.mjs`, then regenerate
+its top SVG. The derived top view uses the bundle's single catalog footprint for selection and
+placement. Parts are display geometry rather than independently editable items or certified
+engineering details. The existing catalog photo remains unchanged.

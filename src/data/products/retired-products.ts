@@ -1,4 +1,5 @@
-import { productSchema, type Product } from "@/features/catalog/schemas";
+import type { z } from "zod";
+import { createProductSchema } from "@/features/catalog/schemas/product";
 import { deepFreeze } from "./catalog-validation";
 import accessories from "./retired/accessories.json";
 import barbells from "./retired/barbells.json";
@@ -9,7 +10,13 @@ import plates from "./retired/plates.json";
 import racks from "./retired/racks.json";
 
 /** Historical specifications only. Never include these in active catalog queries. */
-export const retiredProducts: readonly Product[] = deepFreeze(productSchema.array().parse([
+const retiredProductSchema = createProductSchema([
+  "racks", "benches", "barbells", "plates", "dumbbells", "cardio", "accessories",
+]);
+
+type RetiredProduct = z.infer<typeof retiredProductSchema>;
+
+export const retiredProducts: readonly RetiredProduct[] = deepFreeze(retiredProductSchema.array().parse([
   ...racks, ...benches, ...barbells, ...plates, ...dumbbells, ...cardio, ...accessories,
 ]));
 const retiredIds = new Set(retiredProducts.map(({ id }) => id));

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ALL_SCENE_WALLS, sceneWallVisibility } from "./scene-wall-visibility";
+import { ALL_SCENE_WALLS, scenePerimeterVisibility, sceneWallVisibility } from "./scene-wall-visibility";
 
 describe("camera-relative cutaway", () => {
   it.each([
@@ -67,5 +67,14 @@ describe("camera-relative cutaway", () => {
     sceneWallVisibility(camera, previous);
     expect(previous).toEqual(ALL_SCENE_WALLS);
     expect(camera).toEqual({ x: 4, y: 5, z: 3 });
+  });
+});
+
+describe("floor-perimeter stand-in", () => {
+  it("keeps a perimeter slab only where its wall is cut away", () => {
+    const walls = { top: true, right: false, bottom: true, left: false };
+    expect(scenePerimeterVisibility(walls)).toEqual({ top: false, right: true, bottom: false, left: true });
+    expect(scenePerimeterVisibility(ALL_SCENE_WALLS)).toEqual({ top: false, right: false, bottom: false, left: false });
+    expect(scenePerimeterVisibility({ top: false, right: false, bottom: false, left: false })).toEqual(ALL_SCENE_WALLS);
   });
 });

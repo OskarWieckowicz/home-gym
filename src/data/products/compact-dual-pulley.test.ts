@@ -48,6 +48,7 @@ describe("Compact Dual-Pulley Station integration", () => {
       price: 2799,
       dimensions: { widthCm: 62, depthCm: 28, heightCm: 205 },
       useZone: { frontCm: 90, backCm: 0, leftCm: 40, rightCm: 40 },
+      mounting: { kind: "wall", bottomHeightCm: 0, blocksFloor: true },
     });
   });
 

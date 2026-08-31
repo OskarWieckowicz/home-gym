@@ -30,13 +30,13 @@ export function SceneCameraControls({ room, placing, gestureActive, preset }: {
     const perspective = camera instanceof PerspectiveCamera ? camera : null;
     const { target, position, distance } = fitSceneCamera(room, preset.kind, perspective?.fov ?? 45, perspective?.aspect ?? 1);
     camera.position.copy(position);
-    camera.near = 0.01;
-    camera.far = Math.max(200, distance * 20);
+    camera.near = 0.05;
+    camera.far = Math.max(40, maxSize * 16, distance * 8);
     camera.updateProjectionMatrix();
     controls.current.target.copy(target);
     controls.current.update();
     invalidate();
-  }, [getScene, invalidate, preset.kind, preset.sequence, room]);
+  }, [getScene, invalidate, maxSize, preset.kind, preset.sequence, room]);
 
   const navigate = !placing;
   return <OrbitControls ref={controls} makeDefault enabled={!gestureActive} enableDamping={false}

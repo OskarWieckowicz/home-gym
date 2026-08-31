@@ -16,7 +16,7 @@ let safetyTip: Vector3;
 beforeAll(async () => {
   const buffer = await readFile("public/assets/northstar-half-rack.glb");
   const gltf = await new GLTFLoader().parseAsync(new Uint8Array(buffer).buffer, "");
-  const attachments = gltf.scene.getObjectByName("Safety_orange_powder_coat_parts") as Mesh;
+  const attachments = gltf.scene.getObjectByName("Graphite_powder_coat_parts") as Mesh;
   const positions = attachments.geometry.getAttribute("position");
   const tips: Vector3[] = [];
   for (let index = 0; index < positions.count; index += 1) {

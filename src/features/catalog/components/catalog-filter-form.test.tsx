@@ -4,12 +4,13 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { CatalogFilterForm } from "./catalog-filter-form";
+import { PRODUCT_CATEGORY_LABELS } from "@/shared/schemas/product-category";
 
 afterEach(cleanup);
 
 const values = {
   query: "press",
-  category: "barbells",
+  category: "free-weights",
   maxPrice: 2400,
   maxWidthCm: 220,
   maxDepthCm: 80,
@@ -35,7 +36,11 @@ describe("CatalogFilterForm", () => {
     expect(screen.getByRole("group", { name: "Price and exercise" })).toBeTruthy();
     expect(screen.getByRole("group", { name: "Maximum dimensions" })).toBeTruthy();
     expect(screen.getByRole("group", { name: "Requirements" })).toBeTruthy();
-    expect(screen.getByRole("radio", { name: "Barbells" })).toHaveProperty("checked", true);
+    expect(screen.getByRole("radio", { name: "Free Weights" })).toHaveProperty("checked", true);
+    for (const [category, label] of Object.entries(PRODUCT_CATEGORY_LABELS)) {
+      expect(screen.getByRole("radio", { name: label })).toHaveProperty("value", category);
+    }
+    expect(screen.queryByRole("radio", { name: "Accessories" })).toBeNull();
     expect(screen.getByRole("radio", { name: "Strength" })).toHaveProperty("checked", true);
     expect(screen.getByRole("combobox", { name: "Exercise" })).toHaveProperty("value", "overhead press");
     expect(screen.getByRole("combobox", { name: "Anchoring" })).toHaveProperty("value", "none");

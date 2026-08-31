@@ -1,6 +1,7 @@
 import { generateGlbTopViewSvg } from "./lib/glb-top-view.mjs";
 
 const assets = [
+  ["public/assets/olympic-bench.glb", "public/assets/olympic-bench-top.svg"],
   ["public/assets/groundwork-exercise-mat.glb", "public/assets/groundwork-exercise-mat-top.svg"],
   ["public/assets/wall-mounted-punching-bag.glb", "public/assets/wall-mounted-punching-bag-top.svg"],
   ["public/assets/flex-studio-dumbbells.glb", "public/assets/flex-studio-dumbbells-top.svg"],
