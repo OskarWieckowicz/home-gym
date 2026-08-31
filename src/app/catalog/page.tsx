@@ -9,7 +9,7 @@ import {
   CATALOG_FILTER_FORM_ID,
   CatalogFilterForm,
 } from "@/features/catalog/components/catalog-filter-form";
-import { formatCatalogLabel, formatPricePln } from "@/features/catalog/components/catalog-formatters";
+import { formatCatalogLabel, formatPrice } from "@/features/catalog/components/catalog-formatters";
 import { CatalogProjectSummary } from "@/features/catalog/components/catalog-project-summary";
 import { ProductCard } from "@/features/catalog/components/product-card";
 import {
@@ -32,7 +32,7 @@ function activeFilterLabels(filters: ReturnType<typeof normalizeCatalogFilters>)
     filters.query ? `Search: “${filters.query}”` : undefined,
     filters.category ? `Category: ${formatCatalogLabel(filters.category)}` : undefined,
     filters.trainingGoal ? `Goal: ${formatCatalogLabel(filters.trainingGoal)}` : undefined,
-    filters.maxPrice !== undefined ? `Up to ${formatPricePln(filters.maxPrice)}` : undefined,
+    filters.maxPrice !== undefined ? `Up to ${formatPrice(filters.maxPrice)}` : undefined,
     filters.maxWidthCm !== undefined ? `Width ≤ ${filters.maxWidthCm} cm` : undefined,
     filters.maxDepthCm !== undefined ? `Depth ≤ ${filters.maxDepthCm} cm` : undefined,
     filters.maxHeightCm !== undefined ? `Height ≤ ${filters.maxHeightCm} cm` : undefined,

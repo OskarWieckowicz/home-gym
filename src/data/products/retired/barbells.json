@@ -7,7 +7,7 @@
     "category": "barbells",
     "placementMode": "floor",
     "description": "A 20 kg barbell with 100 kg of bumper plates for foundational strength training.",
-    "price": 2199,
+    "price": 550,
     "dimensions": {
       "widthCm": 220,
       "depthCm": 45,
@@ -51,7 +51,7 @@
     "category": "barbells",
     "placementMode": "floor",
     "description": "A lighter 15 kg bar for technique practice and compact strength setups.",
-    "price": 899,
+    "price": 225,
     "dimensions": {
       "widthCm": 201,
       "depthCm": 5,
@@ -91,7 +91,7 @@
     "category": "barbells",
     "placementMode": "floor",
     "description": "A short angled bar for arm training where a full-length barbell is impractical.",
-    "price": 649,
+    "price": 162,
     "dimensions": {
       "widthCm": 120,
       "depthCm": 7,

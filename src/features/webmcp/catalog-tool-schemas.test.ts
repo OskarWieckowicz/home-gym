@@ -114,7 +114,7 @@ describe("catalog tool input schemas", () => {
     expect(mapInputIssues(parsed.error)).toEqual([
       {
         path: "maxPrice",
-        message: "Maximum price must be a non-negative integer in PLN.",
+        message: "Maximum price must be a non-negative integer in USD.",
       },
       { path: "extra", message: "This field is not supported." },
     ]);

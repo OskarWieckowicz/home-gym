@@ -76,7 +76,7 @@ describe("ProjectFileActions", () => {
     openProjectSettings();
     expect(screen.getByRole("spinbutton", { name: "Budget" })).toHaveProperty(
       "value",
-      "10000",
+      "2500",
     );
   });
 
@@ -130,7 +130,7 @@ describe("ProjectFileActions", () => {
     openProjectSettings();
     expect(screen.getByRole("spinbutton", { name: "Budget" })).toHaveProperty(
       "value",
-      "10000",
+      "2500",
     );
     closeProjectSettings();
     fireEvent.click(screen.getByRole("button", { name: /Undo/ }));
@@ -194,7 +194,7 @@ describe("persistent reset edge cases", () => {
     openProjectSettings();
     expect(screen.getByRole("spinbutton", { name: "Budget" })).toHaveProperty(
       "value",
-      "10000",
+      "2500",
     );
   });
 
@@ -222,7 +222,7 @@ describe("persistent reset edge cases", () => {
     openProjectSettings();
     expect(screen.getByRole("spinbutton", { name: "Budget" })).toHaveProperty(
       "value",
-      "10000",
+      "2500",
     );
     closeProjectSettings();
     fireEvent.click(screen.getByRole("button", { name: /Undo/ }));
@@ -293,7 +293,7 @@ describe("concurrent project file actions", () => {
     openProjectSettings();
     expect(screen.getByRole("spinbutton", { name: "Budget" })).toHaveProperty(
       "value",
-      "10000",
+      "2500",
     );
   });
 });

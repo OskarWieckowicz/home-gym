@@ -65,8 +65,7 @@ Provide reference measurements and review the model.**
 
 Illustrate the same room and fixed obstacle across all three steps: empty geometry, goals/budget,
 then furnished layout with clearance visualization. Use captures/crops of real product states;
-editorial labels may explain them, but must not invent controls. Do not copy the mockup's dollar
-symbol into the PLN-based product. This is a conceptual sequence, not a new mandatory wizard.
+editorial labels may explain them, but must not invent controls. This is a conceptual sequence, not a new mandatory wizard.
 
 A photo goes to the external agent; do not imply built-in photo upload or accurate automatic
 reconstruction. The agent can gather several inputs in one exchange or ask for missing ones.

@@ -144,7 +144,7 @@ graphite/black materials and restrained orange accents. The original image prove
 the concept-generation event before catalog registration.
 
 The fictional planning envelope is 220 × 160 × 140 cm, including both bar ends. Clearance is
-60 cm at front/rear and 50 cm at either side for access. The illustrative PLN 3299 price covers
+60 cm at front/rear and 50 cm at either side for access. The illustrative $825 price covers
 the whole set; the plates and bar do not add separate shopping items. Dimensions, clearances
 and price are planning assumptions, not measurements from the image or certified specifications.
 No maximum load or plate mass is claimed.

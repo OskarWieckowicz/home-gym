@@ -188,7 +188,7 @@ describe("CreatorEditor", () => {
     render(<CreatorEditor initialProject={project} dependencies={{ generatePlacementId: () => `placement_bench_${++placementSequence}` }} />);
     const cost = within(screen.getByRole("heading", { name: "Project cost" }).closest("section")!);
     const totalBefore = cost.getByRole("status").textContent;
-    expect(cost.getByText("PLN 1,299")).toBeTruthy();
+    expect(cost.getByText("$325")).toBeTruthy();
     expect(screen.getByRole("tab", { name: "Project items, 1 not placed" })).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "Place Arc Adjustable Bench" }));
@@ -242,7 +242,7 @@ describe("CreatorEditor", () => {
     expect(screen.getByRole("tab", { name: "Project items" })).toBeTruthy();
     expect(within(screen.getByRole("complementary", { name: "Properties and validation" })).getByText("No placement needed")).toBeTruthy();
     act(() => { store.getState().replaceProject(createDefaultProject()); });
-    expect(cost.getByText("PLN 0")).toBeTruthy();
+    expect(cost.getByText("$0")).toBeTruthy();
   });
 
   it("cancels equipment placement without creating a purchase or changing cost", () => {

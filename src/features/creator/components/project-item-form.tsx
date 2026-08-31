@@ -3,7 +3,7 @@
 import { MapPin, Trash2 } from "lucide-react";
 import { useState } from "react";
 
-import { formatPricePln } from "@/features/catalog/components/catalog-formatters";
+import { formatPrice } from "@/features/catalog/components/catalog-formatters";
 import type { Product } from "@/features/catalog/schemas";
 import type { ProjectItem } from "@/features/project/schemas/project";
 
@@ -30,7 +30,7 @@ export function ProjectItemForm({
       <p className="creator-inspector-kind">Project equipment</p>
       <h2 className="creator-selection-name">{product.name}</h2>
       <dl className="creator-product-facts">
-        <div><dt>Price</dt><dd>{formatPricePln(product.price)}</dd></div>
+        <div><dt>Price</dt><dd>{formatPrice(product.price)}</dd></div>
         <div><dt>Status</dt><dd>{canPlace ? "Not placed" : "No placement needed"}</dd></div>
       </dl>
       {error ? <p className="creator-form-error" role="alert">{error}</p> : null}

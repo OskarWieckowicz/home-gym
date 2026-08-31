@@ -139,7 +139,7 @@
       "rotation": 0
     }
   ],
-  "budget": 10000,
+  "budget": 2500,
   "trainingGoals": [
     "strength"
   ]

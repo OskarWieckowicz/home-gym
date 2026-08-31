@@ -7,7 +7,7 @@
     "category": "benches",
     "placementMode": "floor",
     "description": "A light fold-flat bench for general dumbbell sessions in rooms that change purpose during the day.",
-    "price": 599,
+    "price": 150,
     "dimensions": {
       "widthCm": 54,
       "depthCm": 118,
@@ -50,7 +50,7 @@
     "category": "benches",
     "placementMode": "floor",
     "description": "A heavy flat-incline-decline bench for varied barbell and dumbbell strength work.",
-    "price": 1999,
+    "price": 500,
     "dimensions": {
       "widthCm": 70,
       "depthCm": 150,

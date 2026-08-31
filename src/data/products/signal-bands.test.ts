@@ -11,7 +11,7 @@ const productId = "product_signal_resistance_bands";
 describe("Signal bands shopping-list-only catalog behavior", () => {
   it("preserves the photo, identity and price without a model or floor clearances", () => {
     expect(findProductById(productId)).toMatchObject({
-      placementMode: "selection-only", price: 249, weightKg: 1.8,
+      placementMode: "selection-only", price: 62, weightKg: 1.8,
       useZone: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
     });
     expect(getProductImage(productId)).toBe("/assets/signal-resistance-bands-catalog.png");
@@ -19,7 +19,7 @@ describe("Signal bands shopping-list-only catalog behavior", () => {
   });
 
   it("counts list additions but rejects manual and agent placement without mutation", () => {
-    const store = createProjectStore({ ...createDefaultProject(), budget: 248 });
+    const store = createProjectStore({ ...createDefaultProject(), budget: 61 });
     expect(store.getState().dispatch({ type: "PROJECT_ITEM_ADDED", payload: { productId } })).toMatchObject({ ok: true });
     const selected = store.getState().project;
     expect(selected.projectItems).toHaveLength(1);

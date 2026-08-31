@@ -116,7 +116,7 @@ describe("catalogProducts", () => {
     }
   });
 
-  it("supports a stable mixed strength and compact-cardio bundle below PLN 10,000", () => {
+  it("supports a stable mixed strength and compact-cardio bundle below $2,500", () => {
     const bundleIds = [
       "product_northstar_half_rack",
       "product_arc_adjustable_bench",
@@ -127,13 +127,13 @@ describe("catalogProducts", () => {
     const bundle = bundleIds.map((id) => catalogProducts.find((product) => product.id === id));
 
     expect(bundle.every(Boolean)).toBe(true);
-    expect(bundle.reduce((sum, product) => sum + (product?.price ?? 0), 0)).toBeLessThanOrEqual(10_000);
+    expect(bundle.reduce((sum, product) => sum + (product?.price ?? 0), 0)).toBeLessThanOrEqual(2_500);
     expect(bundle.at(-1)?.dimensions.depthCm).toBeLessThan(100);
   });
 
   it("varies price, footprint, height, ceiling, and anchoring tradeoffs", () => {
     expect(Math.min(...catalogProducts.map(({ price }) => price))).toBeLessThan(250);
-    expect(Math.max(...catalogProducts.map(({ price }) => price))).toBeGreaterThan(5_000);
+    expect(Math.max(...catalogProducts.map(({ price }) => price))).toBeGreaterThan(2_000);
     expect(new Set(catalogProducts.map(({ dimensions }) => dimensions.widthCm)).size).toBeGreaterThan(20);
     expect(catalogProducts.some(({ requirements }) => requirements.minimumCeilingHeightCm)).toBe(true);
     expect(catalogProducts.some(({ requirements }) => requirements.anchoring === "recommended")).toBe(true);

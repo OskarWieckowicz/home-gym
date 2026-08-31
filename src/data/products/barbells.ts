@@ -9,7 +9,7 @@ export const barbellSeeds = [
     category: "free-weights",
     placementMode: "floor",
     description: "A rigid 20 kg bar intended for heavy squats, presses, and controlled deadlifts.",
-    price: 1499,
+    price: 375,
     dimensions: { widthCm: 220, depthCm: 5, heightCm: 5 },
     useZone: { frontCm: 50, backCm: 50, leftCm: 25, rightCm: 25 },
     exercises: ["back squat", "bench press", "deadlift"],

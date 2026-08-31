@@ -13,7 +13,7 @@ import {
   formatFootprint,
   formatExerciseEnvelope,
   formatAnchoring,
-  formatPricePln,
+  formatPrice,
 } from "@/features/catalog/components/catalog-formatters";
 import { getProductImage } from "@/features/catalog/product-assets";
 import { findProductBySlug } from "@/features/catalog/queries";
@@ -186,7 +186,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <aside>
             <Card className="p-6 lg:sticky lg:top-24">
               <p className="text-3xl font-bold text-ink">
-                {formatPricePln(product.price)}
+                {formatPrice(product.price)}
               </p>
               <p className="mt-1 text-sm text-ink-muted">
                 Fictional planning price, including VAT.

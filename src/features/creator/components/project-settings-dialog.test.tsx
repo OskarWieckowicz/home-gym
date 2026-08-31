@@ -38,7 +38,7 @@ describe("Project settings dialog", () => {
     expect(document.activeElement).toBe(opener);
     expect(store().getState()).toMatchObject({ project: initial, revision: 0, canUndo: false });
     click("Edit budget");
-    expect(screen.getByRole("spinbutton", { name: "Budget" })).toHaveProperty("value", "10000");
+    expect(screen.getByRole("spinbutton", { name: "Budget" })).toHaveProperty("value", "2500");
     expect(screen.getByRole("checkbox", { name: "Strength" })).toHaveProperty("checked", false);
   });
 
@@ -56,7 +56,7 @@ describe("Project settings dialog", () => {
     expect(opener).toBe(screen.getByRole("button", { name: "Edit training goals" }));
     expect(screen.getByText("Strength")).toBeTruthy();
     click("Undo");
-    expect(store().getState()).toMatchObject({ canUndo: false, project: { budget: 10000, trainingGoals: [] } });
+    expect(store().getState()).toMatchObject({ canUndo: false, project: { budget: 2500, trainingGoals: [] } });
     click("Redo");
     expect(store().getState()).toMatchObject({ project: { budget: 0, trainingGoals: ["strength"] } });
   });
@@ -82,7 +82,7 @@ describe("Project settings dialog", () => {
     expect(onKey).not.toHaveBeenCalled();
     window.removeEventListener("keydown", onKey);
     expect(screen.queryByRole("dialog")).toBeNull();
-    expect(store().getState()).toMatchObject({ revision: 0, project: { budget: 10000 } });
+    expect(store().getState()).toMatchObject({ revision: 0, project: { budget: 2500 } });
     expect(document.activeElement).toBe(screen.getByRole("button", { name: "Edit budget" }));
     click("Edit budget");
     fireEvent(dialog(), new Event("cancel", { cancelable: true }));
@@ -183,7 +183,7 @@ describe("Project settings dialog", () => {
     fireEvent.submit(dialog().querySelector("form")!);
     expect(store().getState().revision).toBe(revision);
     click("Reload current settings");
-    const expected = source === "undo" ? 10000 : 18000;
+    const expected = source === "undo" ? 2500 : 18000;
     expect(screen.getByRole("spinbutton", { name: "Budget" })).toHaveProperty("value", String(expected));
     expect(document.activeElement).toBe(screen.getByRole("spinbutton", { name: "Budget" }));
     changeBudget("15000");

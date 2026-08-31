@@ -4,7 +4,7 @@ import { useEffect, useId, useMemo, useRef, useState, type DragEvent } from "rea
 import { Search } from "lucide-react";
 
 import { catalogProducts } from "@/data/products";
-import { formatCatalogLabel, formatFootprint, formatPricePln } from "@/features/catalog/components/catalog-formatters";
+import { formatCatalogLabel, formatFootprint, formatPrice } from "@/features/catalog/components/catalog-formatters";
 import { findProductById, searchProducts } from "@/features/catalog/queries/catalog";
 import { PRODUCT_CATEGORIES } from "@/features/catalog/schemas";
 import { useProjectShopping } from "../store/use-project-shopping";
@@ -88,7 +88,7 @@ export function EquipmentCatalogPanel({
                     <small>
                       {canPlace ? formatFootprint(product.dimensions) : "No floor placement needed"}
                       {" · "}
-                      {formatPricePln(product.price)}
+                      {formatPrice(product.price)}
                     </small>
                   </span>
                 </div>

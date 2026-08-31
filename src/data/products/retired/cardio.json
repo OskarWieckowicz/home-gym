@@ -7,7 +7,7 @@
     "category": "cardio",
     "placementMode": "floor",
     "description": "An upright-storing magnetic rower for full-body conditioning without a permanent long footprint.",
-    "price": 2399,
+    "price": 600,
     "dimensions": {
       "widthCm": 58,
       "depthCm": 184,
@@ -50,7 +50,7 @@
     "category": "cardio",
     "placementMode": "floor",
     "description": "A fan-resistance bike for short full-body intervals with no external power requirement.",
-    "price": 2799,
+    "price": 700,
     "dimensions": {
       "widthCm": 61,
       "depthCm": 128,
@@ -90,7 +90,7 @@
     "category": "cardio",
     "placementMode": "floor",
     "description": "A low-profile walking deck that stores under furniture between light conditioning sessions.",
-    "price": 1399,
+    "price": 350,
     "dimensions": {
       "widthCm": 57,
       "depthCm": 126,
@@ -132,7 +132,7 @@
     "category": "cardio",
     "placementMode": "floor",
     "description": "A compact step machine for lower-body conditioning with a modest stored footprint.",
-    "price": 3199,
+    "price": 800,
     "dimensions": {
       "widthCm": 72,
       "depthCm": 104,

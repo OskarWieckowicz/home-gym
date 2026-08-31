@@ -11,7 +11,7 @@ import {
 import { routes } from "@/lib/navigation";
 
 import { readSavedCatalogProject, type SavedCatalogProject } from "../saved-catalog-project";
-import { formatDimensions, formatPricePln } from "./catalog-formatters";
+import { formatDimensions, formatPrice } from "./catalog-formatters";
 
 function loadBrowserProject(): SavedCatalogProject {
   try {
@@ -71,7 +71,7 @@ export function CatalogProjectSummary() {
                 </div>
                 <div>
                   <dt className="text-xs text-ink-muted">Budget</dt>
-                  <dd className="mt-0.5 font-medium text-ink">{formatPricePln(project.budget)}</dd>
+                  <dd className="mt-0.5 font-medium text-ink">{formatPrice(project.budget)}</dd>
                 </div>
                 <div>
                   <dt className="text-xs text-ink-muted">Selected equipment</dt>

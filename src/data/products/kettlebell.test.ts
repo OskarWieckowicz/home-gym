@@ -16,7 +16,7 @@ describe("Forge Kettlebell 16 kg", () => {
       id: productId,
       name: "Forge Kettlebell 16 kg",
       weightKg: 16,
-      price: 299,
+      price: 75,
       category: "free-weights",
       placementMode: "floor",
       dimensions: { widthCm: 21, depthCm: 18, heightCm: 28 },
@@ -32,17 +32,17 @@ describe("Forge Kettlebell 16 kg", () => {
   });
 
   it("is discoverable through shared name, exercise, goal, and price filters", () => {
-    expect(searchProducts({ query: "kettlebell", maxPrice: 299 })).toEqual([
+    expect(searchProducts({ query: "kettlebell", maxPrice: 75 })).toEqual([
       expect.objectContaining({ id: productId }),
     ]);
     expect(searchProducts({ exercise: "kettlebell swing", trainingGoal: "conditioning" })).toEqual([
       expect.objectContaining({ id: productId }),
     ]);
-    expect(searchProducts({ query: "kettlebell", maxPrice: 298 })).toEqual([]);
+    expect(searchProducts({ query: "kettlebell", maxPrice: 74 })).toEqual([]);
   });
 
   it("places one unit, accounts for its price, and preserves shared undo/redo", () => {
-    const store = createProjectStore({ ...createDefaultProject(), budget: 298 }, {
+    const store = createProjectStore({ ...createDefaultProject(), budget: 74 }, {
       dependencies: {
         generatePlacementId: () => "placement_kettlebell",
         generateProjectItemId: () => "project-item_kettlebell",
@@ -58,7 +58,7 @@ describe("Forge Kettlebell 16 kg", () => {
     ]);
     expect(store.getState().project.placements).toHaveLength(1);
     expect(store.getState().validation.issues).toContainEqual(expect.objectContaining({
-      details: { budget: 298, totalPrice: 299, excess: 1 },
+      details: { budget: 74, totalPrice: 75, excess: 1 },
     }));
     expect(store.getState().undo()).toBe(true);
     expect(store.getState().project.projectItems).toHaveLength(0);
@@ -71,7 +71,7 @@ describe("Forge Kettlebell 16 kg", () => {
     expect(store.getState().project.placements).toHaveLength(0);
     expect(store.getState().project.projectItems).toHaveLength(1);
     expect(store.getState().validation.issues).toContainEqual(expect.objectContaining({
-      details: { budget: 298, totalPrice: 299, excess: 1 },
+      details: { budget: 74, totalPrice: 75, excess: 1 },
     }));
   });
 });

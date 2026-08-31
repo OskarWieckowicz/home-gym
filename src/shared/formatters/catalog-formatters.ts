@@ -13,12 +13,13 @@ type UseZone = {
   readonly rightCm: number;
 };
 
-export function formatPricePln(pricePln: number) {
+export function formatPrice(amount: number) {
   return new Intl.NumberFormat("en-GB", {
     style: "currency",
-    currency: "PLN",
+    currency: "USD",
+    currencyDisplay: "narrowSymbol",
     maximumFractionDigits: 0,
-  }).format(pricePln);
+  }).format(amount);
 }
 
 export function formatDimensions(dimensions: Dimensions) {

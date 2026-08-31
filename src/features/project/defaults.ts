@@ -7,7 +7,7 @@ const DEFAULT_PROJECT_INPUT = {
   wallElements: [],
   projectItems: [],
   placements: [],
-  budget: 10_000,
+  budget: 2_500,
   trainingGoals: [],
 } as const;
 

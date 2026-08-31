@@ -14,9 +14,9 @@ function Probe({ label }: { readonly label: string }) {
 describe("ProjectStoreProvider", () => {
   it("creates independent stores for independently mounted workspaces", () => {
     render(<><ProjectStoreProvider><Probe label="First" /></ProjectStoreProvider><ProjectStoreProvider><Probe label="Second" /></ProjectStoreProvider></>);
-    fireEvent.click(screen.getByRole("button", { name: "First: 10000" }));
-    expect(screen.getByRole("button", { name: "First: 10001" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Second: 10000" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "First: 2500" }));
+    expect(screen.getByRole("button", { name: "First: 2501" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Second: 2500" })).toBeTruthy();
   });
 
   it("fails clearly without a provider", () => {

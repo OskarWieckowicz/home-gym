@@ -123,7 +123,7 @@ const ISSUE_MESSAGES: Readonly<Record<string, string>> = {
   widthCm: "Width must be a positive integer number of centimeters.",
   depthCm: "Depth must be a positive integer number of centimeters.",
   heightCm: "Height must be a positive integer number of centimeters.",
-  budget: "Budget must be a non-negative integer in PLN.",
+  budget: "Budget must be a non-negative integer in USD.",
   trainingGoals: "Training goals must contain up to five supported goals.",
   obstacleId: "Obstacle ID must use the canonical obstacle ID format.",
   wallElementId: "Wall element ID must use the canonical wall-element ID format.",

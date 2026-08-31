@@ -18,7 +18,7 @@ export function formatAnchoring(product: Product) {
 }
 
 export {
-  formatPricePln,
+  formatPrice,
   formatDimensions,
   formatFootprint,
   formatUseZoneSummary,

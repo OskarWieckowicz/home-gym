@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { findProjectProductById } from "@/features/catalog/queries/project-products";
 import { catalogProductResolver } from "@/features/creator/store/catalog-product-resolver";
-import { formatPricePln } from "@/shared/formatters/catalog-formatters";
+import { formatPrice } from "@/shared/formatters/catalog-formatters";
 import { createDemoProject } from "../demo-project";
 import { createDefaultProject } from "../defaults";
 import type { GymProject } from "../schemas/project";
@@ -25,8 +25,8 @@ describe("buildProjectSummary", () => {
     expect(result.room).toMatchObject({ areaCm2: 240_000, areaM2: 24, dimensionsLabel: "600 × 400 × 240 cm", areaLabel: "24 m²" });
     expect(result.items).toHaveLength(5);
     expect(result.items.every((item) => item.placed && item.price !== null && item.name !== "Unavailable product")).toBe(true);
-    expect(result.totals).toMatchObject({ itemCount: 5, placedCount: 5, totalPrice: total, budget: 10_000, remainingBudget: 10_000 - total, excessBudget: 0, overBudget: false, complete: true });
-    expect(result.totals.totalPriceLabel).toBe(formatPricePln(total));
+    expect(result.totals).toMatchObject({ itemCount: 5, placedCount: 5, totalPrice: total, budget: 2_500, remainingBudget: 2_500 - total, excessBudget: 0, overBudget: false, complete: true });
+    expect(result.totals.totalPriceLabel).toBe(formatPrice(total));
     expect(result.coverage).toMatchObject({ ...analysis.coverage, requestedCount: 1, coveredCount: 1, uncoveredCount: 0, ratio: 1, label: "1 of 1 goals covered" });
     expect(result.valid).toBe(analysis.valid);
     expect(result.coverage.countLabel).toBe("1/1");
@@ -88,8 +88,8 @@ describe("buildProjectSummary", () => {
     project.projectItems.push({ id: "project-item_roller", productId: "product_groundwork_foam_roller" });
     project.trainingGoals = ["mobility"];
     const result = summary(project);
-    expect(result.items[0]).toMatchObject({ placed: false, placementLabel: "No floor placement needed", price: 89 });
-    expect(result.totals.totalPrice).toBe(89);
+    expect(result.items[0]).toMatchObject({ placed: false, placementLabel: "No floor placement needed", price: 22 });
+    expect(result.totals.totalPrice).toBe(22);
     expect(result.coverage.countLabel).toBe("1/1");
     expect(result.floor.freeRatio).toBe(1);
     expect(result.empty).toBe(false);

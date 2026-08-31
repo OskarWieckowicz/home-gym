@@ -1,4 +1,4 @@
-import { formatPricePln } from "@/shared/formatters/catalog-formatters";
+import { formatPrice } from "@/shared/formatters/catalog-formatters";
 import type { GymProject } from "../schemas/project";
 import type { ProjectAnalysis } from "../validation/project-analysis";
 import type { ProjectSummary, SummaryProductResolver } from "./project-summary-types";
@@ -45,10 +45,10 @@ function buildTotals(project: GymProject, items: readonly ShoppingItem[]): Proje
     itemCount: items.length, placedCount, unplacedCount: items.length - placedCount,
     unavailableCount, totalPrice, budget: project.budget, remainingBudget, excessBudget,
     overBudget, budgetUsedRatio, budgetUsedPercent: Math.min(100, budgetUsedRatio * 100),
-    totalPriceLabel: `${formatPricePln(totalPrice)}${complete ? "" : " (known prices only)"}`,
-    budgetLabel: formatPricePln(project.budget),
+    totalPriceLabel: `${formatPrice(totalPrice)}${complete ? "" : " (known prices only)"}`,
+    budgetLabel: formatPrice(project.budget),
     balanceLabel: complete
-      ? `${formatPricePln(overBudget ? excessBudget : remainingBudget)} ${overBudget ? "over budget" : "remaining"}`
+      ? `${formatPrice(overBudget ? excessBudget : remainingBudget)} ${overBudget ? "over budget" : "remaining"}`
       : "Budget total incomplete: some product details are unavailable",
     itemCountLabel: `${items.length} ${items.length === 1 ? "item" : "items"}`, complete,
   };
@@ -75,7 +75,7 @@ export function buildProjectShopping(
       pendingCount: count.pendingCount + Number(placementRequired === true && !placed),
     });
     return {
-      ...item, price, priceLabel: price === null ? "Price unavailable" : formatPricePln(price),
+      ...item, price, priceLabel: price === null ? "Price unavailable" : formatPrice(price),
       placed, placementRequired, detailsAvailable: product !== undefined,
       placementLabel: placed ? "Placed" : placementRequired === false ? "No placement needed" : "Not placed",
     };
@@ -87,7 +87,7 @@ export function buildProjectShopping(
     items, byProduct, totals: buildTotals(project, items),
     pending: {
       count: pendingItems.length, totalPrice, complete,
-      totalPriceLabel: `${formatPricePln(totalPrice)}${complete ? "" : " (known prices only)"}`,
+      totalPriceLabel: `${formatPrice(totalPrice)}${complete ? "" : " (known prices only)"}`,
     },
   };
 }

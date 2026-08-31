@@ -68,7 +68,7 @@ describe("persistent manual and agent editing flow", () => {
     await waitFor(() => expect(tools.size).toBe(21));
     expect(sceneRestores.mock.lastCall![0]).toMatchObject({ project: createDemoProject() });
     expect(await executeTool(tools, "get_project_state", {})).toMatchObject({
-      revision: 0, canUndo: false, project: { budget: 10000 },
+      revision: 0, canUndo: false, project: { budget: 2500 },
     });
     expect(memory.storage.setItem).toHaveBeenCalledOnce();
     fireEvent.change(screen.getByRole("spinbutton", { name: "Width (cm)" }), {
@@ -81,7 +81,7 @@ describe("persistent manual and agent editing flow", () => {
     await executeTool(tools, "update_project_settings", { budget: 12000 });
     fireEvent.click(screen.getByRole("button", { name: /Undo/ }));
     expect(await executeTool(tools, "get_project_state", {})).toMatchObject({
-      project: { budget: 10000, room: { widthCm: 450 } },
+      project: { budget: 2500, room: { widthCm: 450 } },
     });
     fireEvent.click(screen.getByRole("button", { name: /Redo/ }));
     first.unmount();
@@ -290,7 +290,7 @@ describe("persistent manual and agent editing flow", () => {
     expect(memory.storage.setItem).toHaveBeenCalledTimes(2);
     expect(await executeTool(tools, "get_project_state", {})).toMatchObject({
       revision: 1,
-      project: { budget: 10_000 },
+      project: { budget: 2_500 },
       canUndo: true,
     });
 
@@ -300,7 +300,7 @@ describe("persistent manual and agent editing flow", () => {
     await waitFor(() => expect(tools.size).toBe(21));
     expect(await executeTool(tools, "get_project_state", {})).toMatchObject({
       revision: 0,
-      project: { budget: 10_000 },
+      project: { budget: 2_500 },
       canUndo: false,
     });
   });

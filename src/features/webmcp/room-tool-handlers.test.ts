@@ -403,7 +403,7 @@ describe("room mutation handlers", () => {
       settings: { budget: 15_000, trainingGoals: ["strength", "mobility"] },
     });
     expect(store.getState().undo()).toBe(true);
-    expect(store.getState().project.budget).toBe(10_000);
+    expect(store.getState().project.budget).toBe(2_500);
   });
 
   it("adds, updates, and removes the executor-generated canonical obstacle", () => {

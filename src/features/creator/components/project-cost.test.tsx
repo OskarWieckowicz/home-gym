@@ -115,19 +115,19 @@ describe("ProjectCost", () => {
     act(() => { store.getState().redo(); });
     expect(expectSharedCost().totalPrice).toBe(0);
     act(() => { store.getState().replaceProject({ ...createDefaultProject(), budget: 0, projectItems: [{ id: "project-item_imported", productId: "product_groundwork_foam_roller" }] }); });
-    expect(expectSharedCost()).toMatchObject({ totalPrice: 89, overBudget: true });
+    expect(expectSharedCost()).toMatchObject({ totalPrice: 22, overBudget: true });
     expect(screen.getByRole("status").querySelector(".creator-project-cost-over")).toBeTruthy();
   });
 });
 
 describe("PendingPlacementNotice", () => {
   it("renders nothing for no pending equipment and explains known-only totals without creating a warning", () => {
-    const pending = { count: 0, totalPrice: 0, complete: true, totalPriceLabel: "PLN 0" };
+    const pending = { count: 0, totalPrice: 0, complete: true, totalPriceLabel: "$0" };
     const view = render(<PendingPlacementNotice pending={pending} />);
     expect(view.container.textContent).toBe("");
-    view.rerender(<PendingPlacementNotice pending={{ ...pending, count: 2, complete: false, totalPriceLabel: "PLN 0 (known prices only)" }} />);
+    view.rerender(<PendingPlacementNotice pending={{ ...pending, count: 2, complete: false, totalPriceLabel: "$0 (known prices only)" }} />);
     expect(screen.getByText("2 items not placed.")).toBeTruthy();
-    expect(view.container.textContent).toContain("PLN 0 (known prices only) already included in the total cost.");
+    expect(view.container.textContent).toContain("$0 (known prices only) already included in the total cost.");
     expect(screen.queryByRole("alert")).toBeNull();
   });
 });

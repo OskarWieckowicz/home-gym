@@ -27,7 +27,7 @@ testimonials, embedded chatbot or safety guarantees.
 ## Interpretation limits
 
 Follow the written specification over incidental generated pixels or copy. Use real editor
-captures, retain PLN conventions, and explain that tools directly update the shared project.
-The dollar symbol, imaginary controls and “you apply” wording are not requirements. Photo-based
+captures, retain USD conventions, and explain that tools directly update the shared project.
+The imaginary controls and “you apply” wording are not requirements. Photo-based
 modeling is approximate and requires reference measurements and review. Do not ship the full-page
 raster instead of accessible, responsive HTML.

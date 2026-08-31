@@ -24,8 +24,8 @@ describe("standalone Groundwork products", () => {
   });
 
   it.each([
-    ["groundwork-foam-roller", "selection-only", 89, { widthCm: 33, depthCm: 14, heightCm: 14 }],
-    ["groundwork-exercise-mat", "floor", 129, { widthCm: 65, depthCm: 180, heightCm: 1 }],
+    ["groundwork-foam-roller", "selection-only", 22, { widthCm: 33, depthCm: 14, heightCm: 14 }],
+    ["groundwork-exercise-mat", "floor", 32, { widthCm: 65, depthCm: 180, heightCm: 1 }],
   ])("exposes %s with its own image, price and placement mode", (slug, placementMode, price, dimensions) => {
     const product = findProductBySlug(slug as string)!;
     expect(product).toMatchObject({ placementMode, price, dimensions });
@@ -36,7 +36,7 @@ describe("standalone Groundwork products", () => {
   });
 
   it("allows shopping-list roller selection, rejects roller placement, and places the unfolded mat", () => {
-    const store = createProjectStore({ ...createDefaultProject(), budget: 217 });
+    const store = createProjectStore({ ...createDefaultProject(), budget: 53 });
     expect(store.getState().dispatch({
       type: "PRODUCT_PLACED",
       payload: { productId: "product_groundwork_foam_roller", position: { xCm: 100, zCm: 70 }, rotation: 0 },
@@ -56,7 +56,7 @@ describe("standalone Groundwork products", () => {
     expect(store.getState().project.projectItems).toHaveLength(2);
     expect(store.getState().project.placements).toHaveLength(1);
     expect(store.getState().validation.issues).toContainEqual(expect.objectContaining({
-      details: { budget: 217, totalPrice: 218, excess: 1 },
+      details: { budget: 53, totalPrice: 54, excess: 1 },
     }));
     expect(store.getState().undo()).toBe(true);
     expect(store.getState().project.projectItems).toHaveLength(1);

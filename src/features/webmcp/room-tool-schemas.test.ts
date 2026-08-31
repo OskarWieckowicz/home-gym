@@ -91,7 +91,7 @@ describe("room tool input schemas", () => {
       { budget: 1.5 },
       { trainingGoals: ["speed"] },
       { trainingGoals: Array(6).fill("strength") },
-      { budget: 100, currency: "PLN" },
+      { budget: 100, currency: "USD" },
     ]) {
       expect(updateProjectSettingsInputSchema.safeParse(input).success).toBe(false);
     }

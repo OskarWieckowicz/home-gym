@@ -26,7 +26,7 @@ export const searchProductsInputSchema = z
       .number()
       .int()
       .nonnegative()
-      .describe("Maximum product price in PLN, as a non-negative integer.")
+      .describe("Maximum product price in USD, as a non-negative integer.")
       .optional(),
     maxWidthCm: z.number().int().nonnegative().describe("Maximum stored product width in centimetres.").optional(),
     maxDepthCm: z.number().int().nonnegative().describe("Maximum stored product depth in centimetres.").optional(),
@@ -78,7 +78,7 @@ export type InputIssue = {
 const ISSUE_MESSAGES: Readonly<Record<string, string>> = {
   query: "Query must be non-empty text up to 120 characters.",
   category: "Category must be one of the catalog categories.",
-  maxPrice: "Maximum price must be a non-negative integer in PLN.",
+  maxPrice: "Maximum price must be a non-negative integer in USD.",
   maxWidthCm: "Maximum width must be a non-negative integer in centimetres.",
   maxDepthCm: "Maximum depth must be a non-negative integer in centimetres.",
   maxHeightCm: "Maximum height must be a non-negative integer in centimetres.",

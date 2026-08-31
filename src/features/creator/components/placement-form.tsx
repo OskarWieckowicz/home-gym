@@ -3,7 +3,7 @@
 import { LockKeyhole, LockKeyholeOpen, RotateCw, Trash2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
 
-import { formatDimensions, formatPricePln } from "@/features/catalog/components/catalog-formatters";
+import { formatDimensions, formatPrice } from "@/features/catalog/components/catalog-formatters";
 import { getEffectiveMounting } from "@/features/catalog/queries";
 import type { Product } from "@/features/catalog/schemas";
 import { getMountedWall } from "@/features/geometry/wall-mounting";
@@ -76,7 +76,7 @@ export function PlacementForm({
         <h2 className="creator-selection-name">{product.name}</h2>
       </div>
       <dl className="creator-product-facts">
-        <div><dt>Price</dt><dd>{formatPricePln(product.price)}</dd></div>
+        <div><dt>Price</dt><dd>{formatPrice(product.price)}</dd></div>
         <div><dt>Dimensions</dt><dd>{formatDimensions(product.dimensions)}</dd></div>
         {mounting.kind === "wall" ? (
           <div>

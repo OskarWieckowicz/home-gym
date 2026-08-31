@@ -7,7 +7,7 @@
     "category": "accessories",
     "placementMode": "floor",
     "description": "A mat, foam roller, and resistance-band set for warm-ups, recovery, and mobility practice.",
-    "price": 399,
+    "price": 100,
     "dimensions": {
       "widthCm": 22,
       "depthCm": 66,
@@ -44,7 +44,7 @@
     "category": "accessories",
     "placementMode": "floor",
     "description": "Adjustable suspension straps for rows, assisted squats, and stability-focused movement.",
-    "price": 449,
+    "price": 112,
     "dimensions": {
       "widthCm": 18,
       "depthCm": 24,
@@ -88,7 +88,7 @@
     "category": "accessories",
     "placementMode": "floor",
     "description": "An adjustable speed rope for short conditioning blocks in rooms with adequate overhead clearance.",
-    "price": 179,
+    "price": 45,
     "dimensions": {
       "widthCm": 18,
       "depthCm": 26,
@@ -131,7 +131,7 @@
     "category": "accessories",
     "placementMode": "selection-only",
     "description": "Stiff wrist wraps for heavy pressing and pulling. They belong on the shopping list, not on the floor plan.",
-    "price": 89,
+    "price": 22,
     "dimensions": {
       "widthCm": 10,
       "depthCm": 16,

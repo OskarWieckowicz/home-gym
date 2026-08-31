@@ -29,7 +29,7 @@ describe("historical product categories", () => {
     if (!decoded.success) throw new Error(decoded.error.message);
     const state = createProjectStore(decoded.project).getState();
     expect(state.project).toEqual(project);
-    expect(state.validation.items.map(({ price }) => price)).toEqual([299, 89]);
+    expect(state.validation.items.map(({ price }) => price)).toEqual([75, 22]);
     expect(findProjectProductById("product_forge_kettlebell_16kg")?.category).toBe("free-weights");
     expect(findProjectProductById("product_cove_wrist_wraps")?.category).toBe("accessories");
   });

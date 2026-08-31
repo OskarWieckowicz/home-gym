@@ -18,7 +18,7 @@ describe("Flex Studio Dumbbells model integration", () => {
       placementMode: "floor",
       dimensions: { widthCm: 46, depthCm: 24, heightCm: 18 },
       useZone: { frontCm: 35, backCm: 10, leftCm: 35, rightCm: 35 },
-      price: 399,
+      price: 100,
       weightKg: 18,
       requirements: { flooring: "level-hard-surface" },
     });

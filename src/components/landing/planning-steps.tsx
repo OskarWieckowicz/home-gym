@@ -12,7 +12,7 @@ const steps = [
     title: "Set your goals and budget",
     description: "Choose your training goals, preferred exercises and spending limit.",
     image: "goals",
-    alt: "The same room with the creator’s real project settings for training goals and a budget in PLN.",
+    alt: "The same room with the creator’s real project settings for training goals and a budget in USD.",
   },
   {
     title: "Choose and arrange equipment",

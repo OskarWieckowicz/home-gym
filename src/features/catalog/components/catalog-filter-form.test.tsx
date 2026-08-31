@@ -46,7 +46,7 @@ describe("CatalogFilterForm", () => {
     expect(screen.getByRole("combobox", { name: "Anchoring" })).toHaveProperty("value", "none");
 
     for (const [name, value] of [
-      ["Maximum price (PLN)", "2400"],
+      ["Maximum price (USD)", "2400"],
       ["Width (cm)", "220"],
       ["Depth (cm)", "80"],
       ["Product height (cm)", "60"],

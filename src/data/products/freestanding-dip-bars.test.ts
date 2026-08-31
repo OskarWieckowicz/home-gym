@@ -33,11 +33,11 @@ describe("Freestanding Dip Bars integration", () => {
   });
 
   it("is searchable as independent floor equipment with no rack or wall requirement", () => {
-    expect(searchProducts({ query: "freestanding dip", exercise: "dip", anchoring: "none", maxPrice: 499 }))
+    expect(searchProducts({ query: "freestanding dip", exercise: "dip", anchoring: "none", maxPrice: 125 }))
       .toEqual([product]);
-    expect(searchProducts({ query: "freestanding dip", maxPrice: 498 })).toEqual([]);
+    expect(searchProducts({ query: "freestanding dip", maxPrice: 124 })).toEqual([]);
     expect(getEffectiveMounting(product)).toEqual({ kind: "floor" });
-    expect(product).toMatchObject({ placementMode: "floor", price: 499 });
+    expect(product).toMatchObject({ placementMode: "floor", price: 125 });
     expect(product.requirements).toEqual({
       minimumCeilingHeightCm: 210,
       flooring: "level-hard-surface",
@@ -48,7 +48,7 @@ describe("Freestanding Dip Bars integration", () => {
   });
 
   it("places and prices the pair once through shared commands and undo/redo", () => {
-    const store = createProjectStore({ ...createDefaultProject(), budget: 498 });
+    const store = createProjectStore({ ...createDefaultProject(), budget: 124 });
     expect(store.getState().dispatch({
       type: "PRODUCT_PLACED",
       payload: { productId, position: { xCm: 120, zCm: 120 }, rotation: 0 },
@@ -59,7 +59,7 @@ describe("Freestanding Dip Bars integration", () => {
     expect(placed.placements[0].projectItemId).toBe(placed.projectItems[0].id);
     expect(store.getState().validation.issues).toEqual([
       expect.objectContaining({ code: "ACCESS_NOT_EVALUATED", details: { reason: "no-door" } }),
-      expect.objectContaining({ code: "BUDGET_EXCEEDED", details: { budget: 498, totalPrice: 499, excess: 1 } }),
+      expect.objectContaining({ code: "BUDGET_EXCEEDED", details: { budget: 124, totalPrice: 125, excess: 1 } }),
     ]);
     expect(store.getState().undo()).toBe(true);
     expect(store.getState().project.projectItems).toHaveLength(0);

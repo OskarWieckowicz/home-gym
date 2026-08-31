@@ -52,7 +52,7 @@ describe("buildProjectShopping", () => {
     expect(shopping(project).totals).toMatchObject({ totalPrice: 0, budgetUsedRatio: 0, overBudget: false });
     project.projectItems.push({ id: "project-item_roller", productId: "product_groundwork_foam_roller" });
     const result = shopping(project);
-    expect(result.totals).toMatchObject({ totalPrice: 89, excessBudget: 89, remainingBudget: 0, budgetUsedRatio: 1, overBudget: true });
+    expect(result.totals).toMatchObject({ totalPrice: 22, excessBudget: 22, remainingBudget: 0, budgetUsedRatio: 1, overBudget: true });
     expect(result.totals.balanceLabel).toContain("over budget");
     expect(JSON.parse(JSON.stringify(result.totals))).toEqual(result.totals);
   });

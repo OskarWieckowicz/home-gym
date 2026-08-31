@@ -10,7 +10,7 @@ import {
 } from "@/features/creator/persistence/local-project-storage";
 import { createDefaultProject } from "@/features/project/defaults";
 import { readSavedCatalogProject } from "../saved-catalog-project";
-import { formatPricePln } from "./catalog-formatters";
+import { formatPrice } from "./catalog-formatters";
 import { CatalogProjectSummary } from "./catalog-project-summary";
 
 const originalStorage = Object.getOwnPropertyDescriptor(window, "localStorage");
@@ -58,7 +58,7 @@ describe("catalog saved project context", () => {
 
     await screen.findByRole("heading", { name: "Your saved project" });
     expect(screen.getByText("410 × 320 × 260 cm")).toBeTruthy();
-    expect(screen.getByText(formatPricePln(0), { normalizer: (value) => value })).toBeTruthy();
+    expect(screen.getByText(formatPrice(0), { normalizer: (value) => value })).toBeTruthy();
     expect(screen.getByText("2 items")).toBeTruthy();
     expect(screen.getByText(/Includes unplaced equipment and accessories/)).toBeTruthy();
     expect(screen.getByRole("link", { name: "Continue project" }).getAttribute("href")).toBe("/creator");
@@ -111,9 +111,9 @@ describe("catalog saved project context", () => {
 
     storage.save({ ...savedProject(), budget: 12500 });
     act(() => window.dispatchEvent(new StorageEvent("storage", { key: "unrelated" })));
-    expect(screen.getByText(formatPricePln(0), { normalizer: (value) => value })).toBeTruthy();
+    expect(screen.getByText(formatPrice(0), { normalizer: (value) => value })).toBeTruthy();
     act(() => window.dispatchEvent(new StorageEvent("storage", { key: LOCAL_PROJECT_STORAGE_KEY })));
-    expect(screen.getByText(formatPricePln(12500), { normalizer: (value) => value })).toBeTruthy();
+    expect(screen.getByText(formatPrice(12500), { normalizer: (value) => value })).toBeTruthy();
 
     storage.save({ ...savedProject(), projectItems: [] });
     act(() => window.dispatchEvent(new Event("pageshow")));

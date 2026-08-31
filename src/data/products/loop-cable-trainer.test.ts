@@ -35,13 +35,13 @@ function lowObstacle(heightCm: number): PhysicalObstacle {
 describe("Loop Wall Cable Trainer domain integration", () => {
   it("sits on the floor and still uses wall snapping with a reserved footprint", () => {
     expect(product).toMatchObject({
-      placementMode: "floor", price: 2799,
+      placementMode: "floor", price: 700,
       dimensions: { widthCm: 62, depthCm: 28, heightCm: 205 },
       mounting: { kind: "wall", bottomHeightCm: 0, blocksFloor: true },
       requirements: { anchoring: "required", assembly: "professional" },
     });
     expect(getEffectiveRequiredHeightCm(product)).toBe(215);
-    expect(searchProducts({ query: "loop wall", anchoring: "required", maxPrice: 2799 })).toEqual([product]);
+    expect(searchProducts({ query: "loop wall", anchoring: "required", maxPrice: 700 })).toEqual([product]);
     expect(catalogProductResolver(productId)?.mounting).toEqual(product.mounting);
     expect(productSchema.parse(product).mounting).toEqual({
       kind: "wall", bottomHeightCm: 0, blocksFloor: true,
@@ -63,7 +63,7 @@ describe("Loop Wall Cable Trainer domain integration", () => {
   });
 
   it("uses the same commands, validation and undo history through WebMCP", () => {
-    const initial = { ...createDefaultProject(), obstacles: [lowObstacle(1)], budget: 2798 };
+    const initial = { ...createDefaultProject(), obstacles: [lowObstacle(1)], budget: 699 };
     const manual = createProjectStore(initial);
     const agent = createProjectStore(initial);
     manual.getState().dispatch({ type: "PRODUCT_PLACED", payload: { productId, ...pose } });

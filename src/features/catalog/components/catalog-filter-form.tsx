@@ -92,7 +92,7 @@ export function CatalogFilterForm({
           <NumberField
             defaultValue={values.maxPrice}
             id="maxPrice"
-            label="Maximum price (PLN)"
+            label="Maximum price (USD)"
             name="maxPrice"
             placeholder="No limit"
           />

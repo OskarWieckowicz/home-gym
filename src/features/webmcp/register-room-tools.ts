@@ -67,7 +67,7 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "get_project_summary",
       title: "Get the project summary",
       description:
-        "Read the same deterministic summary shown on the project summary page: room dimensions, equipment and placement status, prices and budget, training-goal coverage, layout checks, recommendations, and free floor area. Reads the live project without changing it or its undo history. Prices use PLN and dimensions use centimeters. Invalid layouts are summarized with errors and warnings; inspect summary.valid, summary.errorCount, and summary.warningCount.",
+        "Read the same deterministic summary shown on the project summary page: room dimensions, equipment and placement status, prices and budget, training-goal coverage, layout checks, recommendations, and free floor area. Reads the live project without changing it or its undo history. Prices use USD and dimensions use centimeters. Invalid layouts are summarized with errors and warnings; inspect summary.valid, summary.errorCount, and summary.warningCount.",
       inputSchema: getProjectSummaryJsonSchema,
       annotations: { readOnlyHint: true },
       execute: createGetProjectSummaryHandler(store),
@@ -92,7 +92,7 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "update_project_settings",
       title: "Update room project settings",
       description:
-        "Update a non-empty patch containing the non-negative integer PLN budget and/or up to five canonical training goals. This creates one shared manual undo step when values change.",
+        "Update a non-empty patch containing the non-negative integer USD budget and/or up to five canonical training goals. This creates one shared manual undo step when values change.",
       inputSchema: updateProjectSettingsJsonSchema,
       execute: createUpdateProjectSettingsHandler(store),
     },

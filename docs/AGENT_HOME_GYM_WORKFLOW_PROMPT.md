@@ -67,7 +67,7 @@ Have a short conversation with me to determine:
 - the exercises I want to perform,
 - my experience level,
 - how many times per week I plan to train,
-- my maximum budget in PLN,
+- my maximum budget in USD,
 - equipment I already own,
 - preferences concerning free floor space, noise, foldable equipment, and wall or floor anchoring,
 - any health or mobility constraints relevant to equipment selection.
@@ -124,7 +124,7 @@ Collaboration rules:
 - Make all changes in the currently open project.
 - My manual changes take precedence over earlier assumptions or suggestions.
 - After any manual edit, read the current project state before continuing.
-- Use centimeters for dimensions and PLN for costs.
+- Use centimeters for dimensions and USD for costs.
 - Clearly distinguish confirmed facts, information I provided, and your estimates.
 - Do not purchase anything or take actions outside the editor.
 ```

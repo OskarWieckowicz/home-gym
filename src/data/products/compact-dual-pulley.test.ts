@@ -39,13 +39,13 @@ describe("Compact Dual-Pulley Station integration", () => {
   });
 
   it("is searchable without replacing the narrow Loop station", () => {
-    expect(searchProducts({ query: "dual-pulley", exercise: "cable row", maxPrice: 6999 }))
+    expect(searchProducts({ query: "dual-pulley", exercise: "cable row", maxPrice: 1750 }))
       .toEqual([expect.objectContaining({ id: productId })]);
-    expect(searchProducts({ query: "dual-pulley", maxPrice: 6998 })).toEqual([]);
+    expect(searchProducts({ query: "dual-pulley", maxPrice: 1749 })).toEqual([]);
     expect(findProductById("product_loop_cable_trainer")).toMatchObject({
       slug: "loop-cable-trainer",
       name: "Loop Wall Cable Trainer",
-      price: 2799,
+      price: 700,
       dimensions: { widthCm: 62, depthCm: 28, heightCm: 205 },
       useZone: { frontCm: 90, backCm: 0, leftCm: 40, rightCm: 40 },
       mounting: { kind: "wall", bottomHeightCm: 0, blocksFloor: true },
@@ -53,7 +53,7 @@ describe("Compact Dual-Pulley Station integration", () => {
   });
 
   it("uses shared placement, budget, ceiling validation and undo/redo", () => {
-    const store = createProjectStore({ ...createDefaultProject(), budget: 6998 });
+    const store = createProjectStore({ ...createDefaultProject(), budget: 1749 });
     expect(store.getState().dispatch({
       type: "PRODUCT_PLACED",
       payload: { productId, position: { xCm: 200, zCm: 90 }, rotation: 0 },
@@ -63,7 +63,7 @@ describe("Compact Dual-Pulley Station integration", () => {
     expect(placed.placements).toHaveLength(1);
     expect(store.getState().validation.issues).toEqual(expect.arrayContaining([
       expect.objectContaining({ code: "CEILING_TOO_LOW" }),
-      expect.objectContaining({ details: { budget: 6998, totalPrice: 6999, excess: 1 } }),
+      expect.objectContaining({ details: { budget: 1749, totalPrice: 1750, excess: 1 } }),
     ]));
     expect(store.getState().undo()).toBe(true);
     expect(store.getState().project.placements).toHaveLength(0);

@@ -5,7 +5,7 @@ import {
   formatUseZoneSummary,
   formatDimensions,
   formatFootprint,
-  formatPricePln,
+  formatPrice,
 } from "./catalog-formatters";
 
 const dimensions = { widthCm: 120, depthCm: 140, heightCm: 215 };
@@ -24,8 +24,8 @@ describe("catalog formatters", () => {
   });
 
   it("formats commercial and spatial values consistently", () => {
-    expect(formatPricePln(4490)).toMatch(/4[,.\s]490/);
-    expect(formatPricePln(4490)).toContain("PLN");
+    expect(formatPrice(4490)).toMatch(/4[,.\s]490/);
+    expect(formatPrice(4490)).toContain("$");
     expect(formatDimensions(dimensions)).toBe("120 × 140 × 215 cm");
     expect(formatFootprint(dimensions)).toBe("120 × 140 cm");
   });

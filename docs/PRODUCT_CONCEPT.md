@@ -187,7 +187,7 @@ validation. See the [summary contract](TECHNICAL_ARCHITECTURE.md#project-summary
 
 The user sends a photo and says:
 
-> This is a 4 × 3.2 m room. There is a 180 × 60 cm wardrobe on the left that I cannot move. I have PLN 10,000 and want to train squats, bench press, and pull-ups.
+> This is a 4 × 3.2 m room. There is a 180 × 60 cm wardrobe on the left that I cannot move. I have $2,500 and want to train squats, bench press, and pull-ups.
 
 The agent:
 

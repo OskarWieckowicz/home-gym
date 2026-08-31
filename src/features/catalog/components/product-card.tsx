@@ -11,7 +11,7 @@ import {
   formatFootprint,
   formatExerciseEnvelope,
   formatAnchoring,
-  formatPricePln,
+  formatPrice,
 } from "./catalog-formatters";
 import { getProductImage } from "../product-assets";
 
@@ -48,7 +48,7 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.name}
           </Link>
         </h2>
-        <p className="mt-1 text-lg font-bold text-brand">{formatPricePln(product.price)}</p>
+        <p className="mt-1 text-lg font-bold text-brand">{formatPrice(product.price)}</p>
 
         <dl className="mt-4 space-y-2 text-sm">
           <div className="flex flex-wrap justify-between gap-x-3 gap-y-1">

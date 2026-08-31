@@ -132,7 +132,7 @@ describe("project migrations", () => {
     expect(decoded.project.budget).toBe(v3FourProductRoom.budget);
     expect(decoded.project.trainingGoals).toEqual(v3FourProductRoom.trainingGoals);
     expect(currentCost).toBe(v3Cost);
-    expect(currentCost).toBe(8596);
+    expect(currentCost).toBe(2150);
 
     for (const placement of v3FourProductRoom.placements) {
       const itemId = projectItemIdFromPlacementId(placement.id);

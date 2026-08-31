@@ -57,7 +57,7 @@ describe("project store batch commands", () => {
   it("does not create history for an exact or net no-op", () => {
     const store = createProjectStore(createDefaultProject());
     const before = store.getState();
-    for (const budgets of [[10_000], [12_000, 10_000]]) {
+    for (const budgets of [[2_500], [12_000, 2_500]]) {
       expect(store.getState().dispatchBatch(budgets.map((budget) => ({
         type: "PROJECT_SETTINGS_UPDATED", payload: { budget },
       })))).toMatchObject({ ok: true, changed: false, revision: 0 });

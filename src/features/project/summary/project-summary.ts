@@ -1,6 +1,6 @@
 import { calculateFloorArea } from "@/features/geometry/floor-area";
 import { createRectangleFootprint } from "@/features/geometry/rectangles";
-import { formatCatalogLabel, formatDimensions, formatPricePln } from "@/shared/formatters/catalog-formatters";
+import { formatCatalogLabel, formatDimensions, formatPrice } from "@/shared/formatters/catalog-formatters";
 import type { GymProject } from "../schemas/project";
 import type { ProjectAnalysis } from "../validation/project-analysis";
 import { describeValidationIssue } from "../validation/describe-validation-issue";
@@ -40,7 +40,7 @@ function buildItems(project: GymProject, analysis: ProjectAnalysis, resolveProdu
       dimensions: product ? { ...product.dimensions } : null,
       dimensionsLabel: product ? formatDimensions(product.dimensions) : "Dimensions unavailable",
       price,
-      priceLabel: price === null ? "Price unavailable" : formatPricePln(price),
+      priceLabel: price === null ? "Price unavailable" : formatPrice(price),
       placed,
       placementLabel,
       blockingIssueCodes,

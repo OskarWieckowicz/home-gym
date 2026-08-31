@@ -17,7 +17,7 @@ const product = findProductById(productId)!;
 describe("Olympic Bench Set integration", () => {
   it("maps the accepted image and spatial assets to the complete loaded-bar envelope", () => {
     expect(product).toMatchObject({
-      slug: "olympic-bench", category: "benches", placementMode: "floor", price: 3299,
+      slug: "olympic-bench", category: "benches", placementMode: "floor", price: 825,
       dimensions: { widthCm: 220, depthCm: 160, heightCm: 140 },
       useZone: { frontCm: 60, backCm: 60, leftCm: 50, rightCm: 50 },
     });
@@ -35,17 +35,17 @@ describe("Olympic Bench Set integration", () => {
   });
 
   it("offers the same bench set through manual and WebMCP catalog filters", () => {
-    const filters = { query: "olympic", category: "benches", exercise: "bench press", maxPrice: 3299 };
+    const filters = { query: "olympic", category: "benches", exercise: "bench press", maxPrice: 825 };
     expect(searchProducts(filters)).toEqual([product]);
     expect(createSearchProductsHandler()(filters)).toMatchObject({
       ok: true, matchCount: 1, products: [{ productId, dimensions: product.dimensions }],
     });
-    expect(searchProducts({ ...filters, maxPrice: 3298 })).toEqual([]);
+    expect(searchProducts({ ...filters, maxPrice: 824 })).toEqual([]);
     expect(searchProducts({ ...filters, maxWidthCm: 219 })).toEqual([]);
   });
 
   it("keeps manual placement and agent rotation in one budget and undo history", () => {
-    const store = createProjectStore({ ...createDefaultProject(), budget: 3298 });
+    const store = createProjectStore({ ...createDefaultProject(), budget: 824 });
     expect(store.getState().dispatch({
       type: "PRODUCT_PLACED", payload: { productId, position: { xCm: 90, zCm: 80 }, rotation: 0 },
     })).toMatchObject({ ok: true, changed: true });
@@ -53,7 +53,7 @@ describe("Olympic Bench Set integration", () => {
     expect(placed.projectItems).toEqual([expect.objectContaining({ productId })]);
     expect(placed.placements).toHaveLength(1);
     expect(store.getState().validation.issues).toEqual(expect.arrayContaining([
-      expect.objectContaining({ code: "BUDGET_EXCEEDED", details: { budget: 3298, totalPrice: 3299, excess: 1 } }),
+      expect.objectContaining({ code: "BUDGET_EXCEEDED", details: { budget: 824, totalPrice: 825, excess: 1 } }),
     ]));
     expect(createUpdatePlacementHandler(store)({
       placementId: placed.placements[0].id, patch: { rotation: 90, position: { xCm: 100, zCm: 50 } },

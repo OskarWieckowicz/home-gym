@@ -1,4 +1,4 @@
-import { formatPricePln } from "@/shared/formatters/catalog-formatters";
+import { formatPrice } from "@/shared/formatters/catalog-formatters";
 import type { ValidationIssue } from "./validation-issues";
 
 const ACCESS_ISSUE_CODES = [
@@ -50,7 +50,7 @@ export function describeValidationIssue(issue: ValidationIssue, names: ReadonlyM
     return `${label(issue.entityIds[0])} overlaps ${label(issue.entityIds[1])} on the ${issue.details.wall} wall.`;
   }
   if (issue.code === "BUDGET_EXCEEDED") {
-    return `Project equipment costs ${formatPricePln(issue.details.totalPrice)}, exceeding the ${formatPricePln(issue.details.budget)} budget by ${formatPricePln(issue.details.excess)}.`;
+    return `Project equipment costs ${formatPrice(issue.details.totalPrice)}, exceeding the ${formatPrice(issue.details.budget)} budget by ${formatPrice(issue.details.excess)}.`;
   }
   if (isAccessIssue(issue)) return describeAccessIssue(issue, label);
   const pair = `${label(issue.entityIds[0])} and ${label(issue.entityIds[1])}`;

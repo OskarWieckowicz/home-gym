@@ -58,7 +58,7 @@ describe("project codec", () => {
   it("normalizes whitespace and field order to the canonical schema order", () => {
     const shuffled = JSON.stringify({
       trainingGoals: [],
-      budget: 10_000,
+      budget: 2_500,
       obstacles: [],
       room: { heightCm: 240, depthCm: 320, widthCm: 400 },
       version: 1,

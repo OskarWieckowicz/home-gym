@@ -21,7 +21,7 @@ describe("bundled demo project", () => {
     const project = createDemoProject();
     expect(project.version).toBe(5);
     expect(project.room).toEqual({ widthCm: 600, depthCm: 400, heightCm: 240 });
-    expect(project.budget).toBe(10_000);
+    expect(project.budget).toBe(2_500);
     expect(project.trainingGoals).toEqual(["strength"]);
     expect(project.obstacles).toEqual([
       expect.objectContaining({
@@ -88,12 +88,12 @@ describe("bundled demo project", () => {
     const expectedCost = createDemoProject().projectItems.reduce((sum, item) =>
       sum + findProjectProductById(item.productId)!.price, 0);
     expect(analysis.items.reduce((cost, { price }) => cost + price, 0)).toBe(expectedCost);
-    expect(expectedCost).toBe(6395);
+    expect(expectedCost).toBe(1600);
     expect(expectedCost).toBeLessThanOrEqual(createDemoProject().budget);
     expect(analysis.coverage.uncovered).toEqual([]);
     const summary = buildProjectSummary(createDemoProject(), analysis, findProjectProductById);
-    expect(summary.totals.totalPrice).toBe(6395);
-    expect(summary.totals.remainingBudget).toBe(3605);
+    expect(summary.totals.totalPrice).toBe(1600);
+    expect(summary.totals.remainingBudget).toBe(900);
     expect(summary.coverage.countLabel).toBe("1/1");
     expect(summary.floor.freePercent).toBe(74);
   });

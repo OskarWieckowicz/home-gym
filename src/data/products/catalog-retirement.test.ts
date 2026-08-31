@@ -53,7 +53,7 @@ describe("incomplete product retirement", () => {
     expect(state.project).toEqual(decoded.project);
     expect(state.project.projectItems).toHaveLength(4);
     expect(state.project.placements).toHaveLength(4);
-    expect(state.validation.items.reduce((sum, item) => sum + item.price, 0)).toBe(8596);
+    expect(state.validation.items.reduce((sum, item) => sum + item.price, 0)).toBe(2150);
     const item = state.project.projectItems.find(({ productId }) => productId === "product_ironvale_barbell_set")!;
     expect(serializeProjectItem(item, state.project)).toMatchObject({ retired: true, name: "Ironvale Barbell Set", placed: true });
     const saved = serializeProject(state.project);
@@ -70,7 +70,7 @@ describe("incomplete product retirement", () => {
     if (!decoded.success) throw new Error(decoded.error.message);
     const store = createProjectStore(decoded.project);
     expect(store.getState().project).toEqual(project);
-    expect(store.getState().validation.items).toEqual([expect.objectContaining({ price: 89 })]);
+    expect(store.getState().validation.items).toEqual([expect.objectContaining({ price: 22 })]);
     expect(serializeProjectItem(item, project)).toMatchObject({ retired: true, name: "Cove Wrist Wraps", placed: false });
     expect(store.getState().dispatch({ type: "PROJECT_ITEM_REMOVED", payload: { projectItemId: item.id } })).toMatchObject({ ok: true });
     expect(store.getState().project.projectItems).toEqual([]);

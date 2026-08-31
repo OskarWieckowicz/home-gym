@@ -35,13 +35,13 @@ function lowObstacle(heightCm: number): PhysicalObstacle {
 describe("Wall-Mounted Punching Bag domain integration", () => {
   it("keeps actual hanging height separate from conservative floor reservation", () => {
     expect(product).toMatchObject({
-      placementMode: "floor", price: 899,
+      placementMode: "floor", price: 225,
       dimensions: { widthCm: 60, depthCm: 120, heightCm: 190 },
       mounting: { kind: "wall", bottomHeightCm: 30, blocksFloor: true },
       requirements: { anchoring: "required", assembly: "professional" },
     });
     expect(getEffectiveRequiredHeightCm(product)).toBe(230);
-    expect(searchProducts({ query: "punching bag", anchoring: "required", maxPrice: 899 })).toEqual([product]);
+    expect(searchProducts({ query: "punching bag", anchoring: "required", maxPrice: 225 })).toEqual([product]);
     expect(catalogProductResolver(productId)?.mounting).toEqual(product.mounting);
     expect(productSchema.parse(product).mounting?.blocksFloor).toBe(true);
     expect(() => productSchema.parse({ ...product, mounting: { ...product.mounting, blocksFloor: "true" } })).toThrow();
@@ -63,7 +63,7 @@ describe("Wall-Mounted Punching Bag domain integration", () => {
   });
 
   it("uses the same commands, validation and undo history through WebMCP", () => {
-    const initial = { ...createDefaultProject(), obstacles: [lowObstacle(1)], budget: 898 };
+    const initial = { ...createDefaultProject(), obstacles: [lowObstacle(1)], budget: 224 };
     const manual = createProjectStore(initial);
     const agent = createProjectStore(initial);
     manual.getState().dispatch({ type: "PRODUCT_PLACED", payload: { productId, ...pose } });

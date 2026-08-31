@@ -137,7 +137,7 @@ describe("createProjectStore", () => {
 
     expect(store.getState().undo()).toBe(true);
     expect(store.getState()).toMatchObject({
-      project: { budget: 10_000, trainingGoals: [] },
+      project: { budget: 2_500, trainingGoals: [] },
       revision: 2,
       canUndo: false,
       canRedo: true,
@@ -168,7 +168,7 @@ describe("createProjectStore", () => {
 
     expect(store.getState().undo()).toBe(true);
     expect(store.getState().project).toMatchObject({
-      budget: 10_000,
+      budget: 2_500,
       room: { widthCm: 400 },
       trainingGoals: [],
     });
@@ -258,7 +258,7 @@ describe("project replacement", () => {
     });
 
     expect(store.getState().undo()).toBe(true);
-    expect(store.getState().project.budget).toBe(10_000);
+    expect(store.getState().project.budget).toBe(2_500);
     expect(store.getState().redo()).toBe(true);
     expect(store.getState().project.budget).toBe(15_000);
   });
