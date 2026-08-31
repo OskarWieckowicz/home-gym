@@ -19,6 +19,7 @@ import { ProjectStoreProvider, useProjectStore, useProjectStoreApi } from "../st
 import { CreatorToolbar } from "./creator-toolbar";
 import { CreatorViewportToolbar } from "./creator-viewport-toolbar";
 import type { SceneCameraPreset } from "../scene/scene-camera-controls";
+import { sceneSelectionBox } from "../scene/scene-selection-box";
 import { ElementPanel } from "./element-panel";
 import { ObstacleForm } from "./obstacle-form";
 import { PlacementForm } from "./placement-form";
@@ -47,6 +48,7 @@ function EditorWorkspace() {
   const [placementError, setPlacementError] = useState("");
   const [viewMode, setViewMode] = useState<"2d" | "3d">("3d");
   const [cameraPreset, setCameraPreset] = useState<SceneCameraPreset>({ kind: "fit", sequence: 0 });
+  const [showAllUseZones, setShowAllUseZones] = useState(false);
   const obstacles = useProjectStore((state) => state.project.obstacles);
   const placements = useProjectStore((state) => state.project.placements);
   const wallElements = useProjectStore((state) => state.project.wallElements);
@@ -66,6 +68,7 @@ function EditorWorkspace() {
     : null;
   const placing = Boolean(activeTool || activeProductId || activeProjectItemId);
   const displayedPanel = activePanel === "selected" && !visibleSelectedId && !placing ? "room" : activePanel;
+  const selectionBox = sceneSelectionBox(project, visibleSelectedId);
 
   function clearPlacementMode() {
     setActiveTool(null);
@@ -76,7 +79,16 @@ function EditorWorkspace() {
 
   function changeView(mode: "2d" | "3d") {
     clearPlacementMode();
+    setCameraPreset((previous) => ({ kind: "fit", sequence: previous.sequence + 1 }));
     setViewMode(mode);
+  }
+
+  function changeCamera(kind: "fit" | "top" | "selection") {
+    if (kind === "selection") {
+      if (selectionBox) setCameraPreset((previous) => ({ kind, box: selectionBox, sequence: previous.sequence + 1 }));
+      return;
+    }
+    setCameraPreset((previous) => ({ kind, sequence: previous.sequence + 1 }));
   }
 
   function openSettings(initialFocus: SettingsDialogRequest["initialFocus"], returnFocus: HTMLButtonElement) {
@@ -164,7 +176,8 @@ function EditorWorkspace() {
         />
         <div className="creator-viewport">
         <CreatorViewportToolbar viewMode={viewMode} onViewModeChange={changeView}
-          onCameraPreset={(kind) => setCameraPreset((previous) => ({ kind, sequence: previous.sequence + 1 }))} />
+          canFocusSelection={selectionBox !== null} onCameraPreset={changeCamera}
+          showAllUseZones={showAllUseZones} onShowAllUseZonesChange={setShowAllUseZones} />
         {viewMode === "2d" ? <RoomPlan
           activeProductId={activeProductId}
           activeProjectItemId={activeProjectItemId}
@@ -177,6 +190,7 @@ function EditorWorkspace() {
           selectedId={visibleSelectedId}
         /> : <ScenePreview project={project} selectedId={visibleSelectedId} issues={issues} store={store}
           cameraPreset={cameraPreset}
+          showAllUseZones={showAllUseZones}
           activeTool={activeTool} activeProductId={activeProductId} activeProjectItemId={activeProjectItemId}
           placementError={placementError} onSelect={select} onPlacementComplete={finishPlacement}
           onPlacementError={setPlacementError} onCancelPlacement={clearPlacementMode} onFallback={() => changeView("2d")} />}

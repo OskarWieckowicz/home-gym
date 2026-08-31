@@ -7,6 +7,7 @@ import type { SceneCameraPreset } from "./scene-camera-controls";
 
 export type SceneEditorProps = {
   readonly cameraPreset?: SceneCameraPreset;
+  readonly showAllUseZones?: boolean;
   readonly project: GymProject;
   readonly selectedId: string | null;
   readonly issues: readonly PlanIssueRef[];

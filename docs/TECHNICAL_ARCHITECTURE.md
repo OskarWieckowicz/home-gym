@@ -309,7 +309,7 @@ to pointer interaction. Switching views clears incomplete work, not project sele
 Selection appears as an additive amber envelope outline. Validation uses the same
 `entityIssueState` helper as 2D: errors take precedence over warnings and tint use zones, fallback
 solids, obstacles and wall markers without modifying GLB materials. Only currently placed assets
-are preloaded; a failed model keeps its fallback, outline and use zone. `SceneBoundary` wraps the
+are preloaded; a failed model keeps its fallback, outline and applicable use zone. `SceneBoundary` wraps the
 whole Canvas and `SceneContextLoss` listens for context loss; both offer recovery to the same
 project in 2D. Neither failure remounts persistence or the WebMCP bridge.
 
@@ -319,10 +319,24 @@ unit/controller tests are not claims of GPU validation.
 The compact project header is separate from `CreatorViewportToolbar`, which owns the
 visible view/history/camera controls outside the lazy scene. Camera preset requests are transient
 parent state; the scene cancels any gesture before applying them. `fitSceneCamera` solves distance
-from the eight room corners projected against horizontal and vertical frustum slopes, leaving
-6% edge margins. It runs on mount or an explicit preset, not on project revisions. `SiteChrome`
+and the lateral/up camera offsets from the eight projected room corners, centering their bounds
+with 6% edge margins. Focus selected snapshots a `SceneBox` from `sceneSelectionBox`, using physical
+equipment/catalog bounds, mounting height, areas or opening presentation envelopes. It retains the
+current orbit direction and uses a 72% frame fraction. Unplaced purchases cannot be focused. Camera
+fitting runs on mount or an explicit preset, not project revisions or selection changes; returning
+from 2D resets to the room fit. `SiteChrome`
 hides marketing chrome at `/creator` and `/summary`; sidebar tabs and popover disclosure state
 are local UI state, with no domain/schema changes.
+
+`SCENE_ROOM_COLORS` provides warm neutral/off-white/gray materials to both 3D surfaces. Use zones
+are a translucent plane plus a thin dashed line, lifted clear of the floor and excluded from
+picking. Editor-local `showAllUseZones` defaults off: selected or flagged equipment keeps its zone
+visible, while the toggle reveals other zones. `sceneEntityAppearance` owns this presentation
+decision without changing validation or meshes. A DOM legend identifies zone colors and scope.
+The shared read-only scene defaults to all zones. Unavailable areas use a separate planar overlay
+with neutral diagonal hatch segments clipped to the domain-derived rectangle, plus a solid
+perimeter. This renderer stays visible independently of the use-zone toggle and reuses existing
+selection/issue appearance. The 2D overlays and draft outlines are unchanged.
 
 The primary equipment visuals are reproducible, AI-generated procedural GLB assets produced
 offline and mapped by explicit product ID in

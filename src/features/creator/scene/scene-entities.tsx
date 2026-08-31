@@ -22,13 +22,6 @@ export function Box({ box, color, opacity = 1, appearance }: {
   </mesh>;
 }
 
-export function UseZoneOverlay({ box, appearance }: { readonly box: SceneBox; readonly appearance: SceneEntityAppearance }) {
-  return <mesh position={[box.position.x, box.position.y, box.position.z]} renderOrder={1}>
-    <boxGeometry args={[box.dimensions.x, box.dimensions.y, box.dimensions.z]} />
-    <meshBasicMaterial color={appearance.overlayColor} depthWrite={false} opacity={appearance.opacity} transparent />
-  </mesh>;
-}
-
 export function WallMarker({ element, project, appearance }: { readonly element: GymProject["wallElements"][number]; readonly project: GymProject; readonly appearance: SceneEntityAppearance }) {
   const position = wallElementToScene(element, project.room);
   const width = element.widthCm / 100;

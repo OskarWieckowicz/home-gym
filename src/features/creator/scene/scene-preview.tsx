@@ -5,6 +5,7 @@ import { useGLTF } from "@react-three/drei";
 import { useCallback, useEffect, useLayoutEffect, useState, type PointerEvent } from "react";
 import { PCFShadowMap } from "three";
 import { EQUIPMENT_DRAG_TYPE } from "../components/equipment-catalog-panel";
+import { SceneZoneLegend } from "../components/scene-zone-legend";
 import { SceneBoundary, SceneContextLoss, SceneRecovery } from "./scene-boundary";
 import { SceneCameraControls, type SceneCameraPreset } from "./scene-camera-controls";
 import { SceneContents } from "./scene-contents";
@@ -72,7 +73,7 @@ export function ScenePreview(props: ScenePreviewProps) {
       <SceneBoundary onFallback={props.onFallback} onFailure={controller.dispose}>
         {contextLost ? <SceneRecovery onFallback={props.onFallback} message="The graphics context was lost. Continue editing the same project in 2D." /> :
           <Canvas camera={{ position: [4.8, 4.4, 5.2], fov: 45 }} dpr={[1, 1.5]} shadows={{ type: PCFShadowMap }} fallback={<SceneRecovery onFallback={props.onFallback} />}>
-            <SceneContents project={project} selectedId={selectedId} issues={issues} />
+            <SceneContents project={project} selectedId={selectedId} issues={issues} showAllUseZones={props.showAllUseZones ?? false} />
             <ScenePicking projectPointerRef={projectPointerRef} getProject={getProject} />
             <SceneGhost command={snapshot.command} project={project} />
             <SceneWallTargets project={project} active={props.activeTool === "door" || props.activeTool === "window"} />
@@ -81,6 +82,7 @@ export function ScenePreview(props: ScenePreviewProps) {
           </Canvas>}
       </SceneBoundary>
     </div>
+    <SceneZoneLegend showAll={props.showAllUseZones ?? false} />
     <p id="scene-help" className="creator-scene-help">{placing
       ? "Enter places at the centre · Escape cancels"
       : "Click to select · Drag selected item to move · Drag elsewhere to orbit · Scroll to zoom"}</p>

@@ -4,6 +4,7 @@ import type { Group } from "three";
 import type { Room, Wall } from "@/features/project/schemas/project";
 import { roomToScene, sceneWallSlab } from "./scene-transform";
 import { ALL_SCENE_WALLS, scenePerimeterVisibility, sceneWallVisibility } from "./scene-wall-visibility";
+import { SCENE_ROOM_COLORS } from "./scene-presentation";
 
 export const ignoreSceneRaycast = () => undefined;
 const WALLS: readonly Wall[] = ["top", "right", "bottom", "left"];
@@ -30,7 +31,7 @@ export function SceneWalls({ room }: { readonly room: Room }) {
         const slab = sceneWallSlab(wall, size, size.y, size.y / 2);
         return <mesh key={wall} name={wall} raycast={ignoreSceneRaycast} position={slab.position}>
           <boxGeometry args={slab.args} />
-          <meshStandardMaterial color="#cbd5e1" roughness={0.9} polygonOffset polygonOffsetFactor={1} polygonOffsetUnits={1} />
+          <meshStandardMaterial color={SCENE_ROOM_COLORS.wall} roughness={0.9} polygonOffset polygonOffsetFactor={1} polygonOffsetUnits={1} />
         </mesh>;
       })}
     </group>
@@ -40,7 +41,7 @@ export function SceneWalls({ room }: { readonly room: Room }) {
         const slab = sceneWallSlab(wall, size, PERIMETER_HEIGHT_M, PERIMETER_HEIGHT_M / 2);
         return <mesh key={wall} name={wall} raycast={ignoreSceneRaycast} position={slab.position} visible={false}>
           <boxGeometry args={slab.args} />
-          <meshBasicMaterial color="#64748b" />
+          <meshBasicMaterial color={SCENE_ROOM_COLORS.perimeter} />
         </mesh>;
       })}
     </group>

@@ -22,7 +22,6 @@ the optional premium pass for time.
 | 5 | [Submission](phase-28-submission.md) | Final manual tests on the live build, then judge-facing README, description, video and submission. |
 
 Creator polish comes first so later landing captures and public checks use the finished editor.
-The current user-approved slice is [editor scene refinement](editor-scene-refinement.md).
 Landing polish is editorial imagery and copy, not a new product-asset production queue. The active
 catalog already has 23 mapped photos, for 21 placeable products and two selection-only accessories.
 Per-model browser recognizability, kettlebell silhouette refinement and complete-room runtime

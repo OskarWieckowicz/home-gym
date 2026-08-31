@@ -4,7 +4,8 @@ import { AssetBoundary } from "./scene-asset-boundary";
 import { getEffectiveMounting } from "@/features/catalog/queries/catalog";
 import type { GymProject, Placement } from "@/features/project/schemas/project";
 import { productForPlacement } from "../placement-product";
-import { Box, SelectionOutline, UseZoneOverlay } from "./scene-entities";
+import { Box, SelectionOutline } from "./scene-entities";
+import { UseZoneOverlay } from "./scene-use-zone";
 import type { SceneEntityAppearance } from "./scene-entity-state";
 import { equipmentBoxToScene, equipmentUseZoneToScene, placementCenterToScene } from "./scene-transform";
 import { equipmentVisualRotation } from "./visual-orientation";
@@ -39,7 +40,7 @@ export function PlacementModel({ placement, project, appearance }: { readonly pl
   const box = equipmentBoxToScene(placement, product.dimensions, project.room, mountBottomHeightCm(project, placement));
   const fallback = <Box box={box} color={appearance.color} appearance={appearance} />;
   return <group>
-    <UseZoneOverlay box={equipmentUseZoneToScene(placement, product, project.room)} appearance={appearance} />
+    {appearance.useZoneVisible ? <UseZoneOverlay box={equipmentUseZoneToScene(placement, product, project.room)} appearance={appearance} /> : null}
     <SelectionOutline box={box} color={appearance.outline} />
     {getVisualAsset(product.id) ? <AssetBoundary fallback={fallback}><Suspense fallback={fallback}><EquipmentAsset placement={placement} project={project} /></Suspense></AssetBoundary> : fallback}
   </group>;

@@ -1,12 +1,15 @@
 "use client";
-import { ChevronDown, Maximize, Redo2, Undo2 } from "lucide-react";
+import { ChevronDown, Focus, Layers, Maximize, Redo2, Undo2 } from "lucide-react";
 import { useProjectStore } from "../store/project-store-context";
 import { EditorPopover } from "./editor-popover";
 
-export function CreatorViewportToolbar({ viewMode, onViewModeChange, onCameraPreset }: {
+export function CreatorViewportToolbar({ viewMode, onViewModeChange, onCameraPreset, canFocusSelection, showAllUseZones, onShowAllUseZonesChange }: {
   readonly viewMode: "2d" | "3d";
   readonly onViewModeChange: (mode: "2d" | "3d") => void;
-  readonly onCameraPreset: (kind: "fit" | "top") => void;
+  readonly onCameraPreset: (kind: "fit" | "top" | "selection") => void;
+  readonly canFocusSelection: boolean;
+  readonly showAllUseZones: boolean;
+  readonly onShowAllUseZonesChange: (show: boolean) => void;
 }) {
   const canUndo = useProjectStore((state) => state.canUndo);
   const canRedo = useProjectStore((state) => state.canRedo);
@@ -19,6 +22,10 @@ export function CreatorViewportToolbar({ viewMode, onViewModeChange, onCameraPre
         <button aria-pressed={viewMode === "2d"} onClick={() => onViewModeChange("2d")} type="button">2D</button>
         <button aria-pressed={viewMode === "3d"} onClick={() => onViewModeChange("3d")} type="button">3D</button>
       </div>
+      {viewMode === "3d" ? <button type="button" className="creator-zone-toggle" aria-pressed={showAllUseZones}
+        onClick={() => onShowAllUseZonesChange(!showAllUseZones)}>
+        <Layers aria-hidden="true" size={16} /> Show all use zones
+      </button> : null}
       <div className="creator-history" role="group" aria-label="Edit history">
         <button aria-label="Undo" title="Undo" disabled={!canUndo} onClick={undo} type="button"><Undo2 aria-hidden="true" size={18} /></button>
         <button aria-label="Redo" title="Redo" disabled={!canRedo} onClick={redo} type="button"><Redo2 aria-hidden="true" size={18} /></button>
@@ -27,6 +34,9 @@ export function CreatorViewportToolbar({ viewMode, onViewModeChange, onCameraPre
     <div className="creator-viewport-secondary">
       <span>{room.widthCm} × {room.depthCm} cm</span>
       {viewMode === "3d" ? <div className="creator-camera-actions">
+        <button type="button" disabled={!canFocusSelection} onClick={() => onCameraPreset("selection")}>
+          <Focus aria-hidden="true" size={16} /> Focus selected
+        </button>
         <button type="button" onClick={() => onCameraPreset("fit")}><Maximize aria-hidden="true" size={16} /> Fit view</button>
         <EditorPopover label="Camera views" icon={<ChevronDown aria-hidden="true" size={16} />}>
           <button type="button" onClick={() => onCameraPreset("top")}>Top view</button>

@@ -254,7 +254,7 @@ body {
 .creator-plan-heading > span { color: var(--ink-muted); font-size: 0.82rem; font-weight: 700; white-space: nowrap; }
 .creator-plan { display: block; width: 100%; max-block-size: calc(100dvh - 10rem); border: 1px solid var(--line); border-radius: 0.9rem; background: var(--surface-muted); touch-action: none; }
 .creator-scene-shell { display: grid; align-content: start; min-width: 0; padding: clamp(1rem, 2vw, 2rem); }
-.creator-scene-canvas { min-height: min(62dvh, 38rem); overflow: hidden; border: 1px solid var(--line); border-radius: 0.9rem; background: #dbe4ee; }
+.creator-scene-canvas { min-height: min(62dvh, 38rem); overflow: hidden; border: 1px solid var(--line); border-radius: 0.9rem; background: #eeede9; }
 .creator-scene-canvas canvas { display: block; min-height: min(62dvh, 38rem); }
 .creator-scene-canvas { touch-action: none; }
 .creator-scene-canvas:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }

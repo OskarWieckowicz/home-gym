@@ -49,6 +49,52 @@ function change(name: string, value: string) {
 }
 
 describe("CreatorEditor", () => {
+  it("toggles all use zones without changing the project, selection, camera or history", () => {
+    render(<CreatorEditor initialProject={createDefaultProject()} />);
+    const initial = sceneProps.mock.lastCall![0] as ScenePreviewProps;
+    const state = initial.store.getState();
+    const toggle = screen.getByRole("button", { name: "Show all use zones" });
+    expect(toggle.getAttribute("aria-pressed")).toBe("false");
+    expect(initial.showAllUseZones).toBe(false);
+    expect(screen.getByRole("button", { name: "Focus selected" })).toHaveProperty("disabled", true);
+    fireEvent.click(toggle);
+    expect(sceneProps.mock.lastCall![0]).toMatchObject({ showAllUseZones: true, selectedId: null, cameraPreset: initial.cameraPreset });
+    expect(toggle.getAttribute("aria-pressed")).toBe("true");
+    expect(initial.store.getState()).toBe(state);
+    fireEvent.click(screen.getByRole("button", { name: "2D" }));
+    expect(screen.queryByRole("button", { name: "Show all use zones" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "3D" }));
+    expect(sceneProps.mock.lastCall![0]).toMatchObject({ showAllUseZones: true });
+    fireEvent.click(screen.getByRole("button", { name: "Show all use zones" }));
+    expect(sceneProps.mock.lastCall![0]).toMatchObject({ showAllUseZones: false });
+    expect(initial.store.getState()).toBe(state);
+  });
+
+  it("focuses a selected scene object explicitly and disables focus after it is removed", () => {
+    const project = createDefaultProject();
+    project.obstacles = [{ id: "obstacle_box", name: "Box", kind: "obstacle", rotation: 0, locked: false,
+      position: { xCm: 100, zCm: 80 }, dimensions: { widthCm: 80, depthCm: 50, heightCm: 100 } }];
+    render(<CreatorEditor initialProject={project} />);
+    const initial = sceneProps.mock.lastCall![0] as ScenePreviewProps;
+    const state = initial.store.getState();
+    fireEvent.click(screen.getByRole("button", { name: "Scene select first" }));
+    expect(sceneProps.mock.lastCall![0]).toMatchObject({ cameraPreset: initial.cameraPreset });
+    const focus = screen.getByRole("button", { name: "Focus selected" });
+    expect(focus).toHaveProperty("disabled", false);
+    fireEvent.click(focus);
+    const focused = (sceneProps.mock.lastCall![0] as ScenePreviewProps).cameraPreset;
+    expect(focused).toMatchObject({ kind: "selection", sequence: 1, box: { dimensions: { x: 0.8, y: 1, z: 0.5 } } });
+    expect(initial.store.getState()).toBe(state);
+    fireEvent.click(screen.getByRole("button", { name: "Fit view" }));
+    expect(sceneProps.mock.lastCall![0]).toMatchObject({ cameraPreset: { kind: "fit", sequence: 2 } });
+    act(() => { initial.store.getState().dispatch({ type: "OBSTACLE_REMOVED", payload: { obstacleId: "obstacle_box" } }); });
+    expect(focus).toHaveProperty("disabled", true);
+    expect(sceneProps.mock.lastCall![0]).toMatchObject({ selectedId: null, cameraPreset: { kind: "fit", sequence: 2 } });
+    fireEvent.click(screen.getByRole("button", { name: "Undo" }));
+    expect(initial.store.getState().project.obstacles).toHaveLength(1);
+    expect(initial.store.getState().canUndo).toBe(false);
+  });
+
   it("keeps the cost visible, reuses an unplaced purchase and restores it with undo", () => {
     const project = createDefaultProject();
     project.projectItems = [{ id: "project-item_bench", productId: "product_arc_adjustable_bench" }];
@@ -77,6 +123,7 @@ describe("CreatorEditor", () => {
     fireEvent.click(keep);
     expect(document.activeElement).toBe(screen.getByRole("complementary", { name: "Properties and validation" }));
     expect(screen.getByRole("button", { name: "Place on plan" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Focus selected" })).toHaveProperty("disabled", true);
     expect(store.getState().project.placements).toHaveLength(0);
     expect(cost.getByRole("status").textContent).toBe(totalBefore);
 

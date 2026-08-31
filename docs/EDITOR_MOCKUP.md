@@ -15,8 +15,10 @@ status. **Project** reveals Export, Import and Reset; a help disclosure explains
 The creator omits the marketing header/footer. All editor labels are English.
 
 The **2D / 3D** switch, undo/redo and room dimensions live in a separate toolbar directly above
-the viewport. **Fit view** is the primary 3D camera action; **Top view** is secondary under Camera
-views. These controls stay mounted while the 3D scene loads or fails.
+the viewport. **Fit view** frames the room; **Focus selected** frames a selected placed object,
+and is disabled for no selection or an unplaced purchase. **Top view** is secondary under Camera
+views. **Show all use zones** reveals the full zone layer. These controls stay mounted while the
+3D scene loads or fails, and change only presentation state, never project history.
 
 ### Element panel
 
@@ -54,7 +56,8 @@ The center of the interface is occupied by the room plan. Dimensions, walls, doo
 
 Desktop uses a viewport-height three-column workspace with independently scrolling sidebars.
 Narrow layouts put the inspector below the scene; phone layouts stack all three regions with
-normal page scrolling and a bounded catalog. The scene has a single short gesture hint beneath it.
+normal page scrolling and a bounded catalog. A compact use-zone legend and a short gesture hint
+sit beneath the 3D scene.
 
 A physical obstacle is a rectangular volume with width, depth, and height. An unavailable zone is a 2D floor constraint with width and depth only. Doors and windows are intentionally minimal wall elements described by a name, wall, offset along the wall, and width.
 
@@ -127,6 +130,18 @@ uses simplified generated GLB families with permanent geometric fallbacks. Neith
 fallbacks define placement geometry. Domain-sized envelopes provide stable selection even while
 a model is loading or unavailable.
 
+Room presentation uses a warm neutral background, off-white walls and a medium-gray matte floor.
+These materials are shared with the summary's 3D view; the 2D palette and domain geometry remain
+unchanged. Equipment use zones have a light fill and a thin dashed perimeter. The editor shows
+zones for selected and flagged equipment by default; **Show all use zones** reveals other zones.
+Warnings/errors stay visible when the all-zones layer is off. The legend names use zones, warnings
+and errors, and states which layer is visible. Placement previews remain distinct purple outlines,
+not a claim that a draft has passed validation. The read-only summary retains all use zones.
+Unavailable zones are always-visible flat areas with a neutral gray fill, clipped diagonal
+hatching and a solid perimeter, distinct from dashed equipment use zones. Selection emphasizes
+their perimeter; issue colors remain available. Their legend entry explains the pattern. This
+presentation does not change their footprint or blocked-area checks.
+
 The user can orbit the camera, zoom, and inspect the project from different sides. The view helps check:
 
 - equipment height relative to the ceiling,
@@ -148,9 +163,12 @@ The main interaction rule: **both views edit one room, through one command path 
 - Near-side wall surfaces disappear as the camera moves. A floor-perimeter slab remains on a
   cut-away wall and is omitted while that wall is shown, so the two never share a volume.
   Presentation walls sit outside the room interior so wall-mounted plates stay visible. Wall
-  markers and four wall-edge placement targets stay independent of that cutaway. Fit view and Top view are
-  explicit camera actions and never edit the room. Initial fitting uses all eight projected room
-  corners, a near-frontal 12° azimuth and 29° elevation, keeping both side walls visible.
+  markers and four wall-edge placement targets stay independent of that cutaway. Fit view, Top view
+  and Focus selected are explicit camera actions and never edit the room. Initial/Fit framing
+  centers all eight projected room corners with 6% edge margins, at a near-frontal 12° azimuth and
+  29° elevation. Focus selected uses domain-derived physical bounds, including mounting height,
+  retains the current orbit direction and leaves more surrounding context. Ordinary edits and
+  selection changes do not move the camera; returning from 2D starts with the room fit.
 - Exact inspector edits, supported rotations/locks, secondary remove-from-room, removal, lists, validation and file
   actions remain available. An agent revision cancels in-progress manual gestures immediately.
 - The toolbar's 2D switch remains available during loading. Whole-scene errors and context loss
