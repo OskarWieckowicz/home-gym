@@ -12,8 +12,8 @@ export function LandingHero() {
             Your space. Your training. Your budget.
           </p>
           <h1 id="landing-title" className="mt-4 text-4xl font-bold leading-[1.14] tracking-tight text-ink sm:text-5xl lg:text-[3.25rem]">
-            What equipment should you buy — and{" "}
-            <span className="text-brand">where will it fit?</span>
+            What to buy.{" "}
+            <span className="text-brand">Where it fits.</span>
           </h1>
           <p className="mt-6 max-w-lg text-lg leading-8 text-ink-muted">
             Create your room, describe how you train, and set a budget. An AI

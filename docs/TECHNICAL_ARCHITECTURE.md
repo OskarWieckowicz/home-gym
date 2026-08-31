@@ -323,9 +323,14 @@ hides marketing chrome at `/creator` and `/summary`; sidebar tabs and popover di
 are local UI state, with no domain/schema changes.
 
 The primary equipment visuals are reproducible, AI-generated procedural GLB assets produced
-offline and mapped by visual family. They remain simplified presentation assets rather than
-photorealistic product twins. Missing assets fall back to deterministic solids, and validation
-always uses the catalog footprint rather than rendered mesh geometry.
+offline and mapped by explicit product ID in
+[visual-assets.ts](../src/features/creator/scene/visual-assets.ts). They remain simplified
+presentation assets rather than photorealistic product twins. All 21 placeable catalog products
+have a registered family/variant or geometric fallback; the two selection-only accessories have
+photos and no room models. Unregistered or legacy products keep a catalog-sized solid. Missing
+or failed loads isolate per placement: the fallback, outline and use zone remain, healthy
+siblings stay loaded, and editing, validation, WebMCP and undo/redo continue against catalog
+geometry. Validation always uses the catalog footprint rather than rendered mesh geometry.
 
 Visual assets face negative Z in their source GLB and raw top-view SVG. Domain `frontCm` points
 toward positive Z at rotation 0, then negative X, negative Z, and positive X at 90/180/270.

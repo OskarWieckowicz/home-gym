@@ -29,5 +29,6 @@ task/PR/CI records, not a new report for each phase.
   [Punching Bag](WALL_MOUNTED_PUNCHING_BAG_MODEL.md).
 - [Image provenance metadata](../scripts/catalog-image-provenance/): original prompts and sources.
 
-Asset browser review remains paused in the asset plan. Public-build, agent-host and device
-acceptance are tracked in the submission plan; this index does not claim they have passed.
+Public-build, agent-host and device acceptance are tracked in the submission plan; this index
+does not claim they have passed. Per-model browser recognizability and complete-room runtime
+metrics are not remaining production work and must not be inferred from this index.

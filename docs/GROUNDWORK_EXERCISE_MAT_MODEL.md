@@ -24,5 +24,4 @@ node scripts/inspect-glb.mjs public/assets/groundwork-exercise-mat.glb
 node scripts/render-product-reference.mjs public/assets/groundwork-exercise-mat.glb /tmp/groundwork-exercise-mat-front.png front
 ```
 
-Follow the [visual strategy](PRODUCT_VISUALS_STRATEGY.md); remaining runtime/browser acceptance
-belongs to the paused [asset plan](../plans/phase-16-product-visual-assets.md).
+Follow the [visual strategy](PRODUCT_VISUALS_STRATEGY.md) for shared conventions and exceptions.

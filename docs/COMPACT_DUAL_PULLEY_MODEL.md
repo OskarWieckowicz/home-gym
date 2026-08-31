@@ -34,5 +34,4 @@ node scripts/render-product-reference.mjs public/assets/compact-dual-pulley-stat
 node scripts/render-product-reference.mjs public/assets/compact-dual-pulley-station.glb /tmp/compact-dual-pulley-station-rear.png rear
 ```
 
-Follow the [visual strategy](PRODUCT_VISUALS_STRATEGY.md) for shared conventions. Runtime/browser
-acceptance remains owned by the paused [asset plan](../plans/phase-16-product-visual-assets.md).
+Follow the [visual strategy](PRODUCT_VISUALS_STRATEGY.md) for shared conventions and exceptions.

@@ -35,9 +35,22 @@ The derived 2D top view always comes from the GLB, not an independently generate
 5. Preserve source images, prompts, provenance, generator/output links and non-obvious assumptions.
    Review runtime performance with a furnished room before claiming public-device acceptance.
 
-The [asset plan](../plans/phase-16-product-visual-assets.md) owns remaining coverage, bounds,
-loader-failure and runtime checks, including the existing browser-review pause and stopped
-kettlebell refinement. This strategy does not authorize new image batches, purchases or review.
+The [visual registry](../src/features/creator/scene/visual-assets.ts) maps all 21 placeable
+products to an explicit family/variant or geometric fallback. The two selection-only accessories
+have catalog images and no room models. All 23 active products have mapped photos; there is no
+missing-photo queue. Multi-angle capture sets, new SKUs, sourced meshes, animation and physics
+remain outside the MVP. This strategy does not authorize new image batches, purchases or review.
+
+Target at most 3 cm envelope overrun and 1 cm floor/origin error after runtime scale and displayed
+pose. Larger deviations need a recorded decision; do not change catalog dimensions to fit a mesh.
+Target at most 24 mesh nodes, 12 material groups and 1 MB per GLB; record justified exceptions.
+Every released model needs a reproducible generator, a generated top SVG, explicit registry
+mapping and an intentional catalog image or fallback. Preserve generator, SVG, mapping and
+orientation coverage when changing assets.
+
+Live per-model browser recognizability, kettlebell silhouette refinement and complete-room runtime
+metrics are not remaining production work. Do not claim they passed from isolated asset estimates
+or general editor checks; submission claims must use observed public-build evidence.
 
 ## Catalog images and provenance
 
@@ -68,7 +81,8 @@ monetary estimates and provider claims are not permanent architectural facts.
   scale; the Summit exception below must remain explicit.
 - Load GLBs only on the client. An asset-local
   [error boundary](../src/features/creator/scene/scene-asset-boundary.tsx) provides the catalog-sized
-  cuboid for failed loads; unregistered products also use geometric fallback.
+  cuboid for failed loads; unregistered and legacy products also use geometric fallback. Failed
+  loads stay isolated per placement through editing, validation, WebMCP and undo/redo.
 - Keep hit targets, selection/invalid outlines, collision inputs and clearance regions derived
   from catalog geometry. Neither mesh bounds nor transparent image pixels redefine these.
 
@@ -87,14 +101,27 @@ rotation convention. Assets have no baked-in labels, selections, warnings or use
 merging, binary buffers and GLB writing. [equipment-parts.mjs](../scripts/lib/equipment-parts.mjs)
 provides reusable beams, pads, feet and wheels. Merge static geometry by material to keep draw
 calls low; the writer uses 16-bit indices where possible and 32-bit indices for larger groups.
-The generators are authoring tools, not runtime dependencies.
+The generators are authoring tools, not runtime dependencies. The Forge kettlebell ships as the
+current generated model; further silhouette refinement is out of scope unless explicitly resumed.
 
 Run the individual generator documented with a model, then `npm run assets:top-views` to rebuild
 derived SVGs. [inspect-glb.mjs](../scripts/inspect-glb.mjs) reports current bounds, triangles,
 nodes, primitives, materials, file size, normals, generator metadata and SHA-256. Use this output
 for current measurements instead of retaining an ever-growing census in documentation.
 [render-product-reference.mjs](../scripts/render-product-reference.mjs) provides offline preview
-images; the model records show reproducible front/rear commands where applicable.
+images; the model records show reproducible front/rear commands where applicable. Offline
+previews do not establish live browser recognizability.
+
+When claiming public-device or interaction acceptance, measure a representative furnished room
+rather than summing individual asset estimates. Use the checked-in
+[demo fixture](../src/features/project/fixtures/demo-project.json), extended through the normal
+project path if needed, and preserve any intentional legacy fallback. Record commit, machine,
+browser/GPU, canvas size, device pixel ratio and production versus development build. Measure 3D
+activation to first submitted frame, and separately to first frame with expected GLBs loaded,
+because fallbacks may paint first. Capture steady-frame triangles and draw calls (state whether
+shadows count), network assets actually loaded, and orbit frame-interval median/p95. Static
+primitive counts are not renderer draw calls; disk bytes are not transfer size or GPU allocation.
+Keep results as review evidence tied to the measured revision, not machine-dependent CI thresholds.
 
 ## Accepted visual exceptions and compositions
 
@@ -104,9 +131,9 @@ images; the model records show reproducible front/rear commands where applicable
 Its unscaled measured envelope is approximately 132 × 174 × 227 cm (width × depth × height),
 whereas the catalog remains 130 × 165 × 225 cm. The explicit runtime scale `[1.016, 1, 1.04]`
 preserves the accepted appearance; it is not exact normalization to the catalog envelope.
-The appearance is accepted, but reconciling these bounds remains open in the asset plan.
-Do not silently compensate in domain geometry or derive a family variant by uniform scaling;
-Northstar already has its own generator and unit-scale mapping.
+This source/runtime discrepancy is an accepted recorded exception. Do not silently compensate
+in domain geometry or derive a family variant by uniform scaling; Northstar already has its own
+generator and unit-scale mapping.
 
 ### Arc Adjustable Bench
 

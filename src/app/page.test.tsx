@@ -10,7 +10,7 @@ describe("process-first landing", () => {
   it("explains the complete process before technology, in the approved order", () => {
     const { container } = render(<Home />);
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(
-      "What equipment should you buy — and where will it fit?",
+      "What to buy. Where it fits.",
     );
     expect(Array.from(container.querySelectorAll("h2"), (h) => h.textContent)).toEqual([
       "From an empty room to your home gym.",

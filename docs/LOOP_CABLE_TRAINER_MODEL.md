@@ -33,6 +33,5 @@ node scripts/render-product-reference.mjs public/assets/loop-cable-trainer.glb /
 ```
 
 Geometry is merged into five material groups; single-handle correctness needs visual review
-alongside reproducibility/bounds checks. Follow the [visual strategy](PRODUCT_VISUALS_STRATEGY.md);
-remaining runtime/browser acceptance belongs to the paused
-[asset plan](../plans/phase-16-product-visual-assets.md).
+alongside reproducibility/bounds checks. Follow the
+[visual strategy](PRODUCT_VISUALS_STRATEGY.md) for shared conventions and exceptions.

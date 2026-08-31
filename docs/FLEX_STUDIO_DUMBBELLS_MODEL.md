@@ -29,5 +29,4 @@ node scripts/render-product-reference.mjs public/assets/flex-studio-dumbbells.gl
 
 Material merging does not retain semantic assertions about individual weights; count, color and
 pose need visual review alongside reproducibility/bounds checks. Follow the
-[visual strategy](PRODUCT_VISUALS_STRATEGY.md); remaining runtime/browser acceptance belongs to
-the paused [asset plan](../plans/phase-16-product-visual-assets.md).
+[visual strategy](PRODUCT_VISUALS_STRATEGY.md) for shared conventions and exceptions.

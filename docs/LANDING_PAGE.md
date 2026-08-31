@@ -29,7 +29,7 @@ fake endorsements and a dominant catalog presentation.
 
 Headline:
 
-> What equipment should you buy — and where will it fit?
+> What to buy. Where it fits.
 
 Description:
 

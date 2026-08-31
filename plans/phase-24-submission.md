@@ -1,7 +1,6 @@
 # Phase 24 — Submission
 
-> Order 2 in the [active queue](README.md). Final submission depends on catalog polish;
-> deployed-flow verification and script preparation can start now.
+> Order 1 in the [active queue](README.md). Catalog sidebar polish is cut; do not reopen it.
 > Recorded deadline: 3 September 2026, 22:00 CEST. Start recording no later than 2 September.
 > Recheck official requirements and supported browser setup before submitting.
 
@@ -18,8 +17,9 @@ real defect, create a separate scoped fix plan rather than folding unrelated cha
 Do not introduce an activity feed, PDF/print export, shareable summary URL or other cut scope.
 
 Do not change repository visibility without authorization. Use the authorized deployment workflow;
-cleanup itself neither deploys nor authorizes a visibility change. Asset-model browser review and
-kettlebell refinement retain their separate pause/stop in the [asset plan](phase-16-product-visual-assets.md).
+cleanup itself neither deploys nor authorizes a visibility change. Per-model asset recognizability,
+kettlebell silhouette refinement and complete-room runtime metrics are cut from remaining
+production work; do not claim they passed unless observed on the submitted build.
 
 ## Work sequence
 
@@ -119,8 +119,10 @@ acceptance do not establish that these checks passed. A material defect needs a 
   actions on narrow screens. Native import/export/reset and destructive removal are also included
   in the required disposable-project public-build checklist above.
 
-Asset-specific recognizability, bounds and complete-room runtime metrics remain in the separate
-asset plan; do not claim they passed from general editor verification.
+Do not claim per-model recognizability, catalog-envelope fit in the live viewport or
+complete-room runtime metrics from general editor verification. If those claims appear in
+submission material, measure them on the submitted build using the furnished-room recipe in
+[the visual strategy](../docs/PRODUCT_VISUALS_STRATEGY.md).
 
 ## Evidence, tests and final gate
 

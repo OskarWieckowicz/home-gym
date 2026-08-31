@@ -43,5 +43,4 @@ node scripts/render-product-reference.mjs public/assets/wall-mounted-punching-ba
 node scripts/render-product-reference.mjs public/assets/wall-mounted-punching-bag.glb /tmp/wall-mounted-punching-bag-rear.png rear
 ```
 
-Follow the [visual strategy](PRODUCT_VISUALS_STRATEGY.md); remaining runtime/browser acceptance
-belongs to the paused [asset plan](../plans/phase-16-product-visual-assets.md).
+Follow the [visual strategy](PRODUCT_VISUALS_STRATEGY.md) for shared conventions and exceptions.
