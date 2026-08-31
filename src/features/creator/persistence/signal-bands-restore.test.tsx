@@ -53,7 +53,7 @@ describe("legacy Signal bands session compatibility", () => {
 
   it("reports compatibility after importing while keeping the purchased bands", async () => {
     const legacy = legacyProject();
-    render(<ProjectStoreProvider><ProjectFileActions /><Probe /></ProjectStoreProvider>);
+    render(<ProjectStoreProvider><ProjectFileActions onOpenSettings={vi.fn()} /><Probe /></ProjectStoreProvider>);
     fireEvent.click(screen.getByRole("button", { name: "Project" }));
     fireEvent.change(screen.getByLabelText("Choose project JSON to import"), {
       target: { files: [{ name: "bands.json", size: 200, text: async () => JSON.stringify(legacy) }] },

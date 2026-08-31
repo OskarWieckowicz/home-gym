@@ -21,11 +21,25 @@ views. These controls stay mounted while the 3D scene loads or fails.
 ### Element panel
 
 The left panel has keyboard-accessible **Equipment / Room / Project items** tabs. Equipment
-provides catalog search, category filtering, Place and Add actions. Search/filter state survives
-tab changes. Project items lists equipment, floor areas and openings. Switching tabs cancels only
+provides catalog search, category filtering and one main action per product: **Place / Cancel**
+for room equipment (including wall-mounted products), or **Add to list** for accessories with
+**No floor placement needed**. Search/filter state survives tab changes. Project items lists
+equipment, floor areas and openings. Switching tabs cancels only
 an unfinished placement, preserving selection and history.
 
-The Room tab exposes room dimensions, project settings and four explicit placement tools:
+Catalog cards show quantities, pending placement counts and **Places an item already on your list**
+when applicable. Every catalog placement path reuses the first unplaced copy in project order;
+otherwise it buys a new copy only on successful placement. Cancellation leaves purchases and cost
+unchanged. Project items keeps a separate priced row per copy with **Placed**, **Not placed** or
+**No placement needed**. The tab badge and the count/cost notice above the list count only unplaced
+equipment that requires room placement; the notice explains that its cost is already included.
+
+**Remove from project** remains directly available and confirms deletion of placed equipment.
+**Remove from room, keep on list** is also directly visible in both the list and Properties,
+with **Total cost stays the same** beneath it; there is no More actions disclosure.
+Removing the placement returns focus to the retained list row or Properties, as appropriate.
+
+The Room tab exposes room dimensions and four explicit placement tools (project settings are not room geometry):
 
 - **Physical obstacle**,
 - **Unavailable zone**,
@@ -55,7 +69,26 @@ A selected element receives edit handles and dimensions. Collisions and insuffic
 
 ### Properties panel
 
-The right panel shows parameters of the selected element:
+The right panel starts with **Project cost**: total, budget and the remaining or over-budget amount.
+It remains visible across selection and tab changes, sticky during desktop panel scrolling and
+static at the start of Properties below the scene on narrow layouts. **Edit budget** opens the
+Project settings dialog with Budget focused. All purchases count, including unplaced equipment and accessories; previews do
+not. Amount updates use a polite status region without moving focus. Zero budgets are valid and
+incomplete prices are explicitly identified rather than presented as free products.
+
+A compact **Training goals** summary sits beneath the cost, with **Edit** or **Set training goals**.
+It opens the same dialog with the first goal checkbox focused. **Project → Settings** is the third
+entry point, available without switching tabs. Goals stay outside the monetary live status.
+
+The native modal keeps the current selection, inspector and 2D/3D view in place and cancels any
+unfinished placement without making a purchase. **Apply settings** validates and saves budget and
+goals through one shared command, closes only on success, and creates one undo step only if values
+changed. **Cancel**, the close button and Escape discard the draft. Focus returns to the opener
+(the Project button for the menu entry), while native modal behavior contains keyboard focus.
+External settings changes require **Reload current settings** before saving; unrelated project
+edits do not erase the draft or move focus. The dialog fits narrow screens and scrolls at small heights.
+
+Below the cost section, the panel shows parameters of the selected element:
 
 - position,
 - width,
@@ -118,7 +151,7 @@ The main interaction rule: **both views edit one room, through one command path 
   markers and four wall-edge placement targets stay independent of that cutaway. Fit view and Top view are
   explicit camera actions and never edit the room. Initial fitting uses all eight projected room
   corners, a near-frontal 12° azimuth and 29° elevation, keeping both side walls visible.
-- Exact inspector edits, supported rotations/locks, unplace/remove, lists, validation and file
+- Exact inspector edits, supported rotations/locks, secondary remove-from-room, removal, lists, validation and file
   actions remain available. An agent revision cancels in-progress manual gestures immediately.
 - The toolbar's 2D switch remains available during loading. Whole-scene errors and context loss
   expose Continue in 2D without remounting the project store or WebMCP bridge.

@@ -9,7 +9,7 @@ import { useProjectPersistence } from "../persistence/project-persistence-bounda
 import { ProjectFileActions } from "./project-file-actions";
 import { EditorPopover } from "./editor-popover";
 
-export function CreatorToolbar() {
+export function CreatorToolbar({ onOpenSettings }: { readonly onOpenSettings: (trigger: HTMLButtonElement) => void }) {
   const persistence = useProjectPersistence();
 
   return (
@@ -30,7 +30,7 @@ export function CreatorToolbar() {
         </div>
       </div>
       <div className="creator-toolbar-actions" aria-label="Project controls" role="group">
-        <ProjectFileActions />
+        <ProjectFileActions onOpenSettings={onOpenSettings} />
         <LinkButton href={siteLinks.viewSummary.href}>{siteLinks.viewSummary.label}</LinkButton>
         <EditorPopover label="Editor help" icon={<CircleHelp aria-hidden="true" size={19} />}>
           <strong>Make room for your training</strong>

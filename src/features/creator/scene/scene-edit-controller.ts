@@ -51,16 +51,18 @@ export class SceneEditController {
     const active = this.session || this.snapshot.command || this.isPlacing();
     this.cancel(active ? "Project changed; preview cancelled." : "");
     if (this.isPlacing()) this.options.onCancelPlacement();
-    this.placementRevision = state.revision;
+    // Keep the old token until configure receives a new placement intent. React may
+    // not have cleared the active options yet, so a synchronous commit must stay stale.
   });
 
   configure(options: SceneControllerOptions) {
     const previous = this.options;
     this.options = options;
-    if (previous.selectedId !== options.selectedId || previous.activeTool !== options.activeTool
-      || previous.activeProductId !== options.activeProductId || previous.activeProjectItemId !== options.activeProjectItemId) {
+    const placementChanged = previous.activeTool !== options.activeTool
+      || previous.activeProductId !== options.activeProductId || previous.activeProjectItemId !== options.activeProjectItemId;
+    if (previous.selectedId !== options.selectedId || placementChanged) {
       this.cancel(this.snapshot.status);
-      this.placementRevision = this.store.getState().revision;
+      if (placementChanged) this.placementRevision = this.store.getState().revision;
     }
   }
 

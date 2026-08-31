@@ -38,11 +38,13 @@ describe("ProjectItemsList", () => {
       </ProjectStoreProvider>,
     );
 
-    expect(screen.getAllByText("Unplaced")).toHaveLength(2);
+    expect(screen.getByText("Not placed")).toBeTruthy();
+    expect(screen.getByText("No placement needed")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Place Quarry Power Bar" }));
     expect(onPlaceItem).toHaveBeenCalledWith("project-item_barbell");
     expect(screen.queryByRole("button", { name: "Place Cove Wrist Wraps" })).toBeNull();
-    expect(screen.getByRole("button", { name: /Cove Wrist WrapsUnplaced/ })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Cove Wrist WrapsNo placement needed/ })).toBeTruthy();
+    expect(screen.getByText("1 item not placed.")).toBeTruthy();
   });
 
   it("unplaces without removing and then removes the unplaced item without a cascade prompt", () => {
@@ -66,9 +68,15 @@ describe("ProjectItemsList", () => {
       </ProjectStoreProvider>,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Unplace Arc Adjustable Bench" }));
+    expect(screen.queryByRole("button", { name: /More actions/ })).toBeNull();
+    expect(screen.getByText("Total cost stays the same.")).toBeTruthy();
+    const unplace = screen.getByRole("button", { name: /Remove from room, keep on list/ });
+    expect(document.getElementById(unplace.getAttribute("aria-describedby")!)?.textContent).toBe("Total cost stays the same.");
+    unplace.focus();
+    fireEvent.click(unplace);
     expect(confirm).not.toHaveBeenCalled();
-    expect(screen.getByText("Unplaced")).toBeTruthy();
+    expect(screen.getByText("Not placed")).toBeTruthy();
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: /Arc Adjustable BenchNot placed/ }));
     expect(screen.getByRole("button", { name: "Place Arc Adjustable Bench" })).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "Remove Arc Adjustable Bench from project" }));

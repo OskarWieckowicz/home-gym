@@ -1,10 +1,11 @@
 "use client";
 
-import { Ban, Box, DoorOpen, PanelTop, Ruler, Settings } from "lucide-react";
+import { Ban, Box, DoorOpen, PanelTop, Ruler } from "lucide-react";
 import { useId, useState } from "react";
 
 import type { EditorPanel, PlacementTool } from "../editor-types";
 import { useProjectStore } from "../store/project-store-context";
+import { useProjectShopping } from "../store/use-project-shopping";
 import { EquipmentCatalogPanel } from "./equipment-catalog-panel";
 import { ProjectItemsList } from "./project-items-list";
 import { SidebarTabs, type SidebarTab } from "./sidebar-tabs";
@@ -49,6 +50,7 @@ export function ElementPanel({
   const [activeTab, setActiveTab] = useState<SidebarTab>("Equipment");
   const obstacles = useProjectStore((state) => state.project.obstacles);
   const wallElements = useProjectStore((state) => state.project.wallElements);
+  const { pending } = useProjectShopping();
 
   function changeTab(tab: SidebarTab) {
     if (tab === activeTab) return;
@@ -59,7 +61,7 @@ export function ElementPanel({
   return (
     <aside className="creator-side creator-elements" aria-label="Room elements">
       <h2 className="visually-hidden">Build the room</h2>
-      <SidebarTabs id={id} activeTab={activeTab} onChange={changeTab} />
+      <SidebarTabs id={id} activeTab={activeTab} onChange={changeTab} pendingCount={pending.count} />
       <div className="creator-sidebar-panel" role="tabpanel" id={`${id}-panel-0`} aria-labelledby={`${id}-tab-0`} hidden={activeTab !== "Equipment"}>
         <EquipmentCatalogPanel
           activeProductId={activeProductId}
@@ -72,9 +74,6 @@ export function ElementPanel({
       <nav aria-label="Editor panels">
         <button aria-current={activePanel === "room" ? "page" : undefined} onClick={() => onPanelChange("room")} type="button">
           <Ruler aria-hidden="true" size={18} /> Room dimensions
-        </button>
-        <button aria-current={activePanel === "settings" ? "page" : undefined} onClick={() => onPanelChange("settings")} type="button">
-          <Settings aria-hidden="true" size={18} /> Project settings
         </button>
       </nav>
 

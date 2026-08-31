@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { useEffect } from "react";
 import { ProjectStoreProvider, useProjectStoreApi } from "@/features/creator/store/project-store-context";
@@ -57,6 +57,20 @@ describe("SummaryView", () => {
     expect(screen.getByText(summary.totals.balanceLabel, exactText)).toBeTruthy();
     for (const issue of summary.recommendations) expect(screen.getByText(issue.message, exactText)).toBeTruthy();
     expect(screen.getByRole("progressbar").getAttribute("value")).toBe("100");
+  });
+
+  it("shows the cost already included for pending floor equipment but not selection-only accessories", () => {
+    const project = createDefaultProject();
+    project.projectItems = [
+      { id: "project-item_bench", productId: "product_arc_adjustable_bench" },
+      { id: "project-item_roller", productId: "product_groundwork_foam_roller" },
+    ];
+    render(<ProjectStoreProvider initialProject={project}><SummaryView /></ProjectStoreProvider>);
+    expect(screen.getByText("1 item not placed.")).toBeTruthy();
+    expect(screen.getByText(/already included in the total cost/)).toBeTruthy();
+    expect(screen.getByText("No floor placement needed")).toBeTruthy();
+    expect(screen.queryByText("2 items not placed.")).toBeNull();
+    expect(screen.getByRole("table")).toBeTruthy();
   });
 
   it("shows a content-based empty state without zero-filled tiles", () => {
@@ -137,13 +151,13 @@ describe("summary persistence", () => {
     const tree = <ProjectPersistenceBoundary storage={storage}><CaptureStore /><SummaryView /></ProjectPersistenceBoundary>;
     const first = render(tree);
     await screen.findByText("Saved locally.");
-    expect(store.getState().project).toEqual(project);
+    await waitFor(() => expect(store.getState().project).toEqual(project));
     fireEvent.click(screen.getByRole("button", { name: "3D" }));
     fireEvent.click(screen.getByRole("button", { name: "2D" }));
     first.unmount();
     render(tree);
     await screen.findByText("Saved locally.");
-    expect(store.getState().project).toEqual(project);
+    await waitFor(() => expect(store.getState().project).toEqual(project));
     expect(setItem).not.toHaveBeenCalled();
     expect(removeItem).not.toHaveBeenCalled();
   });

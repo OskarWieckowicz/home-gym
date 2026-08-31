@@ -1,6 +1,6 @@
 import type { Position } from "@/features/project/schemas/geometry";
 
-export type EditorPanel = "room" | "settings" | "selected";
+export type EditorPanel = "room" | "selected";
 
 export type PlacementTool = "obstacle" | "unavailable-zone" | "door" | "window";
 

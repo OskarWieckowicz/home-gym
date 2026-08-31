@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { EquipmentCatalogPanel } from "./equipment-catalog-panel";
@@ -8,15 +8,20 @@ import { searchProducts } from "@/features/catalog/queries/catalog";
 import * as productAssets from "@/features/catalog/product-assets";
 import { catalogProducts } from "@/data/products";
 import { PRODUCT_CATEGORY_LABELS } from "@/shared/schemas/product-category";
+import { ProjectStoreProvider } from "../store/project-store-context";
+import { createDefaultProject } from "@/features/project/defaults";
+import type { GymProject } from "@/features/project/schemas/project";
 
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
 });
 
-function renderCatalog(onActivate = vi.fn(), onAdd = vi.fn()) {
+function renderCatalog(onActivate = vi.fn(), onAdd = vi.fn(), project: GymProject = createDefaultProject()) {
   return render(
-    <EquipmentCatalogPanel activeProductId={null} onActivate={onActivate} onAdd={onAdd} />,
+    <ProjectStoreProvider initialProject={project}>
+      <EquipmentCatalogPanel activeProductId={null} onActivate={onActivate} onAdd={onAdd} />
+    </ProjectStoreProvider>,
   );
 }
 
@@ -24,10 +29,10 @@ describe("EquipmentCatalogPanel", () => {
   it("lists every catalog product under All equipment", () => {
     renderCatalog();
     expect(screen.getByText(`${catalogProducts.length} of ${catalogProducts.length} products`)).toBeTruthy();
-    expect(screen.getAllByRole("button", { name: /^Add .* to project$/ })).toHaveLength(catalogProducts.length);
+    expect(screen.getAllByRole("button")).toHaveLength(catalogProducts.length);
     expect(screen.queryByText("Refine the search to see the remaining products.")).toBeNull();
     for (const product of catalogProducts) {
-      expect(screen.getByRole("button", { name: `Add ${product.name} to project` })).toBeTruthy();
+      expect(screen.getByRole("button", { name: product.placementMode === "floor" ? `Place ${product.name}` : `Add to list: ${product.name}` })).toBeTruthy();
     }
   });
 
@@ -39,9 +44,9 @@ describe("EquipmentCatalogPanel", () => {
       target: { value: category },
     });
     const products = searchProducts({ category });
-    expect(screen.getAllByRole("button", { name: /^Add .* to project$/ })).toHaveLength(products.length);
+    expect(screen.getAllByRole("button")).toHaveLength(products.length);
     for (const product of products) {
-      expect(screen.getByRole("button", { name: `Add ${product.name} to project` })).toBeTruthy();
+      expect(screen.getByRole("button", { name: product.placementMode === "floor" ? `Place ${product.name}` : `Add to list: ${product.name}` })).toBeTruthy();
     }
   });
 
@@ -109,11 +114,14 @@ describe("EquipmentCatalogPanel", () => {
     expect(onActivate).toHaveBeenCalledWith("product_northstar_half_rack");
   });
 
-  it("keeps Add as the visible catalog action while exposing the full accessible name", () => {
+  it("offers only Place for floor and wall-mounted products", () => {
     renderCatalog();
 
-    const addButton = screen.getByRole("button", { name: "Add Northstar Half Rack to project" });
-    expect(addButton.textContent).toBe("Add");
+    for (const name of ["Northstar Half Rack", "Wall-Mounted Punching Bag"]) {
+      const place = screen.getByRole("button", { name: `Place ${name}` });
+      expect(place.textContent).toBe("Place");
+      expect(within(place.closest("li")!).getAllByRole("button")).toHaveLength(1);
+    }
   });
 
   it("adds selection-only accessories without a Place action", () => {
@@ -124,7 +132,27 @@ describe("EquipmentCatalogPanel", () => {
       target: { value: "resistance bands" },
     });
     expect(screen.queryByRole("button", { name: "Place Signal Resistance Bands" })).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Add Signal Resistance Bands to project" }));
+    const add = screen.getByRole("button", { name: "Add to list: Signal Resistance Bands" });
+    expect(add.textContent).toBe("Add to list");
+    expect(screen.getByText(/No floor placement needed/)).toBeTruthy();
+    fireEvent.click(add);
     expect(onAdd).toHaveBeenCalledWith("product_signal_resistance_bands");
+  });
+
+  it("shows quantities and explains reuse without labeling accessories as pending", () => {
+    const project = createDefaultProject();
+    project.projectItems = [
+      { id: "project-item_one", productId: "product_northstar_half_rack" },
+      { id: "project-item_two", productId: "product_northstar_half_rack" },
+      { id: "project-item_bands", productId: "product_signal_resistance_bands" },
+    ];
+    project.placements = [{ id: "placement_one", projectItemId: "project-item_one", position: { xCm: 0, zCm: 0 }, rotation: 0 }];
+    renderCatalog(vi.fn(), vi.fn(), project);
+    expect(screen.getByText("2 in project · 1 not placed")).toBeTruthy();
+    const hint = screen.getByText("Places an item already on your list");
+    expect(screen.getByRole("button", { name: "Place Northstar Half Rack" }).getAttribute("aria-describedby")).toBe(hint.id);
+    const bands = screen.getByRole("button", { name: "Add to list: Signal Resistance Bands" }).closest("li")!;
+    expect(within(bands).getByText("1 in project")).toBeTruthy();
+    expect(bands.textContent).not.toContain("not placed");
   });
 });

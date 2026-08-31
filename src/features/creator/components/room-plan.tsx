@@ -22,7 +22,7 @@ import {
   clientPointToPlanPoint,
   createPlanTransform,
 } from "../plan/plan-transform";
-import { useProjectStore } from "../store/project-store-context";
+import { useProjectStore, useProjectStoreApi } from "../store/project-store-context";
 import { EQUIPMENT_DRAG_TYPE } from "./equipment-catalog-panel";
 import { EquipmentEntity } from "./equipment-entity";
 import { ObstacleEntity, WallElementEntity } from "./room-plan-entities";
@@ -69,6 +69,7 @@ export function RoomPlan({
   onPlacementError,
   onCancelPlacement,
 }: RoomPlanProps) {
+  const store = useProjectStoreApi();
   const project = useProjectStore((state) => state.project);
   const issues = useProjectStore((state) => state.validation.issues);
   const dispatch = useProjectStore((state) => state.dispatch);
@@ -195,7 +196,7 @@ export function RoomPlan({
 
   function place(target: PlacementTarget) {
     if (!activeTool) return;
-    const result = createRoomElementCommand(activeTool, target, project);
+    const result = createRoomElementCommand(activeTool, target, store.getState().project);
     if (!result.ok) {
       onPlacementError(result.error);
       return;
@@ -204,13 +205,14 @@ export function RoomPlan({
   }
 
   function placeEquipment(target: PlacementTarget) {
+    const currentProject = store.getState().project;
     if (activeProjectItemId) {
-      const item = project.projectItems.find((candidate) => candidate.id === activeProjectItemId);
+      const item = currentProject.projectItems.find((candidate) => candidate.id === activeProjectItemId);
       if (!item) {
         onPlacementError("This project item is unavailable.");
         return;
       }
-      const result = createPlaceProjectItemCommand(item.id, item.productId, target, project);
+      const result = createPlaceProjectItemCommand(item.id, item.productId, target, currentProject);
       if (!result.ok) {
         onPlacementError(result.error);
         return;
@@ -219,7 +221,7 @@ export function RoomPlan({
       return;
     }
     if (!activeProductId) return;
-    const result = createPlaceProductCommand(activeProductId, target, project);
+    const result = createPlaceProductCommand(activeProductId, target, currentProject);
     if (!result.ok) {
       onPlacementError(result.error);
       return;
@@ -238,7 +240,8 @@ export function RoomPlan({
     }
     if (event.button !== 0) return;
     const kind = activeTool === "door" || activeTool === "window" ? "wall" : "floor";
-    const target = getPlacementTarget(svgPoint(event), transform, kind);
+    const currentTransform = createPlanTransform(store.getState().project.room, VIEWPORT, 48);
+    const target = getPlacementTarget(svgPoint(event), currentTransform, kind);
     if (!target) {
       onPlacementError(kind === "wall"
         ? "Click directly on one of the room walls."
@@ -259,17 +262,18 @@ export function RoomPlan({
     }
     if (event.key !== "Enter") return;
     event.preventDefault();
+    const { room } = store.getState().project;
     if (activeProductId || activeProjectItemId) {
       placeEquipment({
         kind: "floor",
-        position: { xCm: project.room.widthCm / 2, zCm: project.room.depthCm / 2 },
+        position: { xCm: room.widthCm / 2, zCm: room.depthCm / 2 },
       });
     } else if (activeTool === "door" || activeTool === "window") {
-      place({ kind: "wall", wall: "top", offsetCm: project.room.widthCm / 2 });
+      place({ kind: "wall", wall: "top", offsetCm: room.widthCm / 2 });
     } else {
       place({
         kind: "floor",
-        position: { xCm: project.room.widthCm / 2, zCm: project.room.depthCm / 2 },
+        position: { xCm: room.widthCm / 2, zCm: room.depthCm / 2 },
       });
     }
   }
@@ -284,20 +288,21 @@ export function RoomPlan({
     const productId = event.dataTransfer.getData(EQUIPMENT_DRAG_TYPE);
     if (!productId) return;
     event.preventDefault();
+    const currentProject = store.getState().project;
     const target = getPlacementTarget(
       clientPointToPlanPoint(
         event,
         VIEWPORT,
         event.currentTarget.getBoundingClientRect(),
       ),
-      transform,
+      createPlanTransform(currentProject.room, VIEWPORT, 48),
       "floor",
     );
     if (!target) {
       onPlacementError("Drop equipment inside the room boundary.");
       return;
     }
-    const result = createPlaceProductCommand(productId, target, project);
+    const result = createPlaceProductCommand(productId, target, currentProject);
     if (!result.ok) {
       onPlacementError(result.error);
       return;

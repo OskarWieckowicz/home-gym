@@ -28,6 +28,8 @@ Empty state recipe: room 400 × 320 × 240 cm; locked Wardrobe 80 × 60 × 220 c
 rotation 0; Entry door on top wall at offset 195 cm, width 90 cm. No project items or placements.
 This reproduces the demo's room/obstacles without changing production fixtures or user project data.
 The goals capture is a real configuration example, not a prescribed budget in the landing narrative.
+It documents the 30 August UI: settings have since moved from Room into a modal opened through
+Project → Settings or the direct budget/goals actions. The capture provenance above remains historical.
 
 ## Truthfulness and limitations
 

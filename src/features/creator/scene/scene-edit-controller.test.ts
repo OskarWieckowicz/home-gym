@@ -37,6 +37,77 @@ function startDrag(context: ReturnType<typeof setup>) {
 }
 
 describe("scene controller creation against the shared store", () => {
+  it.each(["click", "center", "drop"] as const)("reuses the first unplaced catalog purchase through %s with one undo", (method) => {
+    const productId = "product_northstar_half_rack";
+    const project = { ...createDefaultProject(), projectItems: [
+      { id: "project-item_first", productId }, { id: "project-item_second", productId },
+    ] };
+    const { controller, store, capture } = setup({ activeProductId: productId }, project);
+    controller.pointerMove(pointer(), hit(200, 160, null));
+    expect(controller.getSnapshot().command).toMatchObject({ type: "PROJECT_ITEM_PLACED", payload: { projectItemId: "project-item_first" } });
+    expect(store.getState().project).toEqual(project);
+    expect(store.getState()).toMatchObject({ revision: 0, canUndo: false });
+    if (method === "click") {
+      controller.pointerDown(pointer(), hit(200, 160, null), capture);
+      controller.pointerUp(pointer(), hit(200, 160, null), true);
+    } else if (method === "center") controller.placeCenter();
+    else controller.dropProduct(productId, { xCm: 200, zCm: 160 });
+    expect(store.getState().project.projectItems).toEqual(project.projectItems);
+    expect(store.getState().project.placements).toMatchObject([{ projectItemId: "project-item_first" }]);
+    expect(store.getState().revision).toBe(1);
+    store.getState().undo();
+    expect(store.getState().project).toEqual(project);
+    expect(store.getState().canUndo).toBe(false);
+  });
+
+  it("uses the current purchase list for a drop after another actor places the first item", () => {
+    const productId = "product_northstar_half_rack";
+    const project = { ...createDefaultProject(), projectItems: [
+      { id: "project-item_first", productId }, { id: "project-item_second", productId },
+    ] };
+    const { controller, store } = setup({}, project);
+    store.getState().dispatch({ type: "PROJECT_ITEM_PLACED", payload: {
+      projectItemId: "project-item_first", position: { xCm: 0, zCm: 0 }, rotation: 0,
+    } });
+    controller.dropProduct(productId, { xCm: 200, zCm: 160 });
+    expect(store.getState().project.projectItems).toEqual(project.projectItems);
+    expect(store.getState().project.placements.map((placement) => placement.projectItemId))
+      .toEqual(["project-item_first", "project-item_second"]);
+    expect(store.getState().revision).toBe(2);
+  });
+
+  it("cancels an existing-purchase preview without modifying the purchase or history", () => {
+    const productId = "product_northstar_half_rack";
+    const project = { ...createDefaultProject(), projectItems: [{ id: "project-item_first", productId }] };
+    const { controller, store, options } = setup({ activeProductId: productId }, project);
+    controller.pointerMove(pointer(), hit(200, 160, null));
+    controller.cancelPlacement();
+    expect(controller.getSnapshot().command).toBeNull();
+    expect(store.getState().project).toEqual(project);
+    expect(store.getState()).toMatchObject({ revision: 0, canUndo: false });
+    expect(options.onCancelPlacement).toHaveBeenCalledOnce();
+  });
+
+  it("refuses an outdated catalog preview even if live state now has a reusable purchase", () => {
+    const productId = "product_northstar_half_rack";
+    const store = createProjectStore(createDefaultProject());
+    const options: SceneControllerOptions = { selectedId: null, activeTool: null,
+      activeProductId: productId, activeProjectItemId: null,
+      onSelect: vi.fn(), onPlacementComplete: vi.fn(), onPlacementError: vi.fn(), onCancelPlacement: vi.fn(),
+    };
+    // Intentionally no connect(): exercise the final revision guard before subscription cancellation.
+    const controller = new SceneEditController(store, options);
+    cleanups.push(controller.dispose);
+    controller.pointerMove(pointer(), hit(200, 160, null));
+    store.getState().dispatch({ type: "PROJECT_ITEM_ADDED", payload: { productId } });
+    const current = store.getState();
+    controller.placeCenter();
+    expect(store.getState()).toBe(current);
+    expect(store.getState().project.placements).toEqual([]);
+    expect(options.onPlacementComplete).not.toHaveBeenCalled();
+    expect(controller.getSnapshot().status).toBe("Project changed; edit cancelled.");
+  });
+
   it.each(["obstacle", "unavailable-zone", "door", "window"] as const)("previews and creates %s once with one undo step", (activeTool) => {
     const { controller, store, options, capture, release } = setup({ activeTool });
     const target = hit(200, activeTool === "door" || activeTool === "window" ? 0 : 160, null);

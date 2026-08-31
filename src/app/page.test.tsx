@@ -54,6 +54,8 @@ describe("process-first landing", () => {
     expect(guide.querySelector('a[href="https://learn.chatgpt.com/docs/webmcp"]')).not.toBeNull();
     expect(guide.textContent).toContain("replaces your saved project");
     expect(guide.textContent).toContain("Room → Room dimensions");
+    expect(guide.textContent).toContain("Project → Settings");
+    expect(guide.textContent).not.toContain("Room → Project settings");
     const mobileGuide = screen.getByRole("navigation", { name: "Planning guide" });
     expect(within(mobileGuide).getByRole("link", { name: "Agent guide" }).getAttribute("href"))
       .toBe("/#agent-guide");

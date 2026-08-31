@@ -31,7 +31,7 @@ export function ProjectItemForm({
       <p className="creator-entity-type">{product.name}</p>
       <dl className="creator-product-facts">
         <div><dt>Price</dt><dd>{formatPricePln(product.price)}</dd></div>
-        <div><dt>Status</dt><dd>Unplaced</dd></div>
+        <div><dt>Status</dt><dd>{canPlace ? "Not placed" : "No placement needed"}</dd></div>
       </dl>
       {error ? <p className="creator-form-error" role="alert">{error}</p> : null}
       <FormActions>

@@ -9,6 +9,9 @@ import { serializeProject } from "@/features/project/serialization/project-codec
 
 import { CreatorEditor } from "./creator-editor";
 import { PROJECT_IMPORT_MAX_BYTES } from "./project-file-actions";
+import { mockNativeDialog } from "./test-dialog";
+
+mockNativeDialog();
 
 afterEach(() => {
   cleanup();
@@ -28,8 +31,11 @@ function chooseImportInput() {
 }
 
 function openProjectSettings() {
-  fireEvent.click(screen.getByRole("tab", { name: "Room" }));
-  fireEvent.click(screen.getByRole("button", { name: "Project settings" }));
+  fireEvent.click(screen.getByRole("button", { name: "Edit budget" }));
+}
+
+function closeProjectSettings() {
+  fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
 }
 
 describe("ProjectFileActions", () => {
@@ -65,7 +71,9 @@ describe("ProjectFileActions", () => {
       "value",
       "18000",
     );
+    closeProjectSettings();
     fireEvent.click(screen.getByRole("button", { name: /Undo/ }));
+    openProjectSettings();
     expect(screen.getByRole("spinbutton", { name: "Budget" })).toHaveProperty(
       "value",
       "10000",
@@ -115,14 +123,18 @@ describe("ProjectFileActions", () => {
       "14000",
     );
 
+    closeProjectSettings();
     confirm.mockReturnValueOnce(true);
     openProjectActions();
     fireEvent.click(screen.getByRole("button", { name: /Reset/ }));
+    openProjectSettings();
     expect(screen.getByRole("spinbutton", { name: "Budget" })).toHaveProperty(
       "value",
       "10000",
     );
+    closeProjectSettings();
     fireEvent.click(screen.getByRole("button", { name: /Undo/ }));
+    openProjectSettings();
     expect(screen.getByRole("spinbutton", { name: "Budget" })).toHaveProperty(
       "value",
       "14000",
@@ -212,7 +224,9 @@ describe("persistent reset edge cases", () => {
       "value",
       "10000",
     );
+    closeProjectSettings();
     fireEvent.click(screen.getByRole("button", { name: /Undo/ }));
+    openProjectSettings();
     expect(screen.getByRole("spinbutton", { name: "Budget" })).toHaveProperty(
       "value",
       "16000",

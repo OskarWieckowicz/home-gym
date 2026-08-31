@@ -8,6 +8,7 @@ import { LinkButton } from "@/components/ui/link-button";
 import { findProjectProductById } from "@/features/catalog/queries/project-products";
 import { useProjectPersistence } from "@/features/creator/persistence/project-persistence-boundary";
 import { useProjectStore } from "@/features/creator/store/project-store-context";
+import { useProjectShopping } from "@/features/creator/store/use-project-shopping";
 import { buildProjectSummary } from "@/features/project/summary/project-summary";
 import { routes } from "@/lib/navigation";
 import { SummaryToolbar } from "./summary-toolbar";
@@ -19,6 +20,7 @@ export function SummaryView() {
   const project = useProjectStore((state) => state.project);
   const analysis = useProjectStore((state) => state.validation);
   const persistence = useProjectPersistence();
+  const { pending } = useProjectShopping();
   const summary = useMemo(() => buildProjectSummary(project, analysis, findProjectProductById), [project, analysis]);
   return <div className="summary-page">
     <SummaryToolbar />
@@ -36,7 +38,7 @@ export function SummaryView() {
       </Card> : <div className="summary-grid">
         <div className="summary-column">
           <SummaryLayoutCard project={project} issues={analysis.issues} room={summary.room} />
-          <SummaryEquipment summary={summary} />
+          <SummaryEquipment summary={summary} pending={pending} />
         </div>
         <div className="summary-column">
           <SummaryResults summary={summary} />

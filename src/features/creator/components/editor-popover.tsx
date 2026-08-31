@@ -1,13 +1,15 @@
 "use client";
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode, type RefObject } from "react";
 
 /** Disclosure of native controls, not an ARIA menu with missing arrow behavior. */
-export function EditorPopover({ label, children, icon }: {
+export function EditorPopover({ label, children, icon, triggerRef }: {
   readonly label: string; readonly children: ReactNode; readonly icon?: ReactNode;
+  readonly triggerRef?: RefObject<HTMLButtonElement | null>;
 }) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
-  const trigger = useRef<HTMLButtonElement>(null);
+  const localTrigger = useRef<HTMLButtonElement>(null);
+  const trigger = triggerRef ?? localTrigger;
   const id = useId();
   useEffect(() => {
     if (!open) return;

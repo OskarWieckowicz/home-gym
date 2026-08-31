@@ -15,8 +15,5 @@ export function createSceneCreationCommand(mode: SceneCreation, target: Placemen
   if (mode.activeProductId) return createPlaceProductCommand(mode.activeProductId, target, project);
   const item = project.projectItems.find((item) => item.id === mode.activeProjectItemId);
   if (!item) return { ok: false, error: "This project item is unavailable." };
-  if (project.placements.some((placement) => placement.projectItemId === item.id)) {
-    return { ok: false, error: "This project item is already placed." };
-  }
   return createPlaceProjectItemCommand(item.id, item.productId, target, project);
 }

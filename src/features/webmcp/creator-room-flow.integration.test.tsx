@@ -1,14 +1,17 @@
 // @vitest-environment jsdom
 
-import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { CreatorEditor } from "@/features/creator/components/creator-editor";
+import { mockNativeDialog } from "@/features/creator/components/test-dialog";
 import type { ScenePreviewProps } from "@/features/creator/scene/scene-preview";
 import { createDefaultProject } from "@/features/project/defaults";
 import type { ProjectCommand } from "@/features/project/schemas/project-command";
 
 import type { WebMcpModelContext, WebMcpTool } from "./types";
+
+mockNativeDialog();
 
 let originalModelContext: PropertyDescriptor | undefined;
 const sceneState = vi.hoisted(() => vi.fn());
@@ -107,8 +110,7 @@ describe("existing creator WebMCP shared editing flow", () => {
     fireEvent.click(screen.getByRole("button", { name: "2D" }));
     await waitFor(() => expect(tools.size).toBe(21));
 
-    fireEvent.click(screen.getByRole("tab", { name: "Room" }));
-    fireEvent.click(screen.getByRole("button", { name: "Project settings" }));
+    fireEvent.click(screen.getByRole("button", { name: "Edit budget" }));
     setNumber("Budget", "12500");
     fireEvent.click(screen.getByRole("checkbox", { name: "Strength" }));
     fireEvent.click(screen.getByRole("button", { name: "Apply settings" }));
@@ -275,6 +277,9 @@ describe("existing creator WebMCP shared editing flow", () => {
       },
     );
     expect(placed).toMatchObject({ placementId: "placement_agent-rack", revision: 1 });
+    const cost = within(screen.getByRole("heading", { name: "Project cost" }).closest("section")!);
+    const agentSummary = await execute<{ summary: { totals: { totalPriceLabel: string } } }>("get_project_summary", {});
+    expect(cost.getByRole("status").textContent).toContain(agentSummary.summary.totals.totalPriceLabel);
     fireEvent.click(screen.getByRole("tab", { name: "Project items" }));
     expect(screen.getByRole("button", { name: /Northstar Half RackPlaced · 0°/ }))
       .toBeTruthy();
@@ -305,6 +310,7 @@ describe("existing creator WebMCP shared editing flow", () => {
     expect(screen.getByText("No equipment in the project yet.")).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: /Undo/ }));
+    expect(cost.getByRole("status").textContent).toContain(agentSummary.summary.totals.totalPriceLabel);
     expect(screen.getByRole("button", { name: /Northstar Half RackPlaced · 90°/ }))
       .toBeTruthy();
   });

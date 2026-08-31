@@ -85,8 +85,8 @@ The user should be able to:
 - select one of four placement tools: physical obstacle, unavailable zone, door, or window,
 - place the selected element directly on a valid floor or wall target,
 - edit the newly created or selected element in the properties inspector,
-- drag products from the catalog into the room, or add them to the project without placing them,
-- move, rotate, and unplace equipment without removing it from the shopping list,
+- place equipment from the catalog by click, keyboard or drag; add selection-only accessories directly to the shopping list,
+- move and rotate equipment, or remove it from the room while keeping it on the shopping list,
 - remove equipment from the design,
 - display physical footprints and clearance zones,
 - switch between a 2D plan and a simple 3D view,
@@ -94,6 +94,28 @@ The user should be able to:
 - undo and redo changes.
 
 Manual user operations and operations performed through WebMCP should use the same domain logic. This keeps the project consistent regardless of who made a change.
+
+Catalog equipment has one primary **Place / Cancel** action, including wall-mounted equipment.
+Placement reuses the first unplaced purchase of that product in project order; only when all
+copies are placed does confirmation create another purchase. Previews and cancelled or failed
+placements never add a purchase. Accessories instead offer **Add to list** and require no
+room placement. Catalog cards show existing quantities and explain when Place reuses a purchase.
+
+**Project cost** stays at the top of Properties across selections and tabs, pinned on desktop.
+It includes every purchase, including accessories and unplaced equipment. A compact **Training goals**
+summary sits beneath it. **Edit budget**, **Edit / Set training goals**, and **Project → Settings**
+open one modal settings form directly, without changing the selected equipment, inspector or view.
+Room tools contain only geometry controls. Settings apply through the same undoable domain command
+as agent edits; cancel/Escape discard the draft. An external budget/goals change requires an explicit
+reload before saving, so an open form cannot silently overwrite newer agent settings.
+The shopping list keeps individual rows with prices and
+Placed / Not placed / No placement needed statuses. Its tab badge counts only unplaced equipment
+that requires placement. A count-and-cost notice in the list and summary explains that these
+purchases are already included in the total; they are not a new geometry error or a summary gate.
+**Remove from project** removes the purchase and any placement, retaining confirmation for placed
+equipment. **Remove from room, keep on list** is directly visible in the list and Properties and
+removes only its placement, with an always-visible note that cost stays unchanged.
+Existing purchases are never automatically deduplicated or discarded.
 
 The editor follows a **palette → room → inspector** interaction in either view: the left panel chooses what to add, a floor or wall-edge target determines where it is created, and the right panel edits an existing selection. The inspector is not a second creation step.
 
@@ -126,6 +148,10 @@ The creator exposes current state and summary reads, catalog search, room/settin
 obstacle/opening operations, shopping-item and placement commands, layout validation,
 deterministic placement suggestions, batch evaluation and atomic application. Each changed
 mutation uses the same domain commands and history as manual editing.
+
+The catalog's reuse behavior is a UI convenience, not a change to the agent contract:
+`place_product` creates a new purchase, while `place_project_item` places the specified existing
+purchase. Explicit item placement never silently falls back to buying a new copy.
 
 The [architecture tool contract](TECHNICAL_ARCHITECTURE.md#route-scoped-tool-sets) records the
 exact route split: 21 tools in the creator, two catalog reads and three summary reads. Keep tools

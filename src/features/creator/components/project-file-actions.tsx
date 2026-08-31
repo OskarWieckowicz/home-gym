@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, RotateCcw, Upload } from "lucide-react";
+import { Download, RotateCcw, Settings, Upload } from "lucide-react";
 import { useRef, useState, type ChangeEvent } from "react";
 
 import { createDefaultProject } from "@/features/project/defaults";
@@ -18,8 +18,9 @@ export { PROJECT_EXPORT_FILENAME } from "../persistence/export-project";
 
 export const PROJECT_IMPORT_MAX_BYTES = 1024 * 1024;
 
-export function ProjectFileActions() {
+export function ProjectFileActions({ onOpenSettings }: { readonly onOpenSettings: (trigger: HTMLButtonElement) => void }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const menuTrigger = useRef<HTMLButtonElement>(null);
   const importGeneration = useRef(0);
   const [message, setMessage] = useState<{
     kind: "error" | "success";
@@ -107,7 +108,12 @@ export function ProjectFileActions() {
 
   return (
     <div className="creator-file-actions">
-      <EditorPopover label="Project">
+      <EditorPopover label="Project" triggerRef={menuTrigger}>
+      <button className="creator-project-settings-action" onClick={() => {
+        if (!menuTrigger.current) return;
+        menuTrigger.current.focus();
+        onOpenSettings(menuTrigger.current);
+      }} type="button"><Settings aria-hidden="true" size={17} /> Settings</button>
       <div aria-label="Project file actions" className="creator-file-action-buttons" role="group">
         <button onClick={exportProject} type="button">
           <Download aria-hidden="true" size={17} /> Export

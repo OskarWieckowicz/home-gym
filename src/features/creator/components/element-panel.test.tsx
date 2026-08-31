@@ -84,6 +84,17 @@ describe("ElementPanel workspace tabs", () => {
     expect(document.activeElement).toBe(equipment);
   });
 
+  it("keeps Room focused on room dimensions and placement tools rather than project settings", () => {
+    renderPanel(createDefaultProject());
+    fireEvent.click(screen.getByRole("tab", { name: "Room" }));
+    expect(screen.getByRole("button", { name: "Room dimensions" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Physical obstacle" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Unavailable zone" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Door" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Window" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Project settings", hidden: true })).toBeNull();
+  });
+
   it("cancels placement on changed tabs without changing the selected entity or inspector", () => {
     renderPanel(createDefaultProject());
     fireEvent.click(screen.getByRole("tab", { name: "Equipment" }));

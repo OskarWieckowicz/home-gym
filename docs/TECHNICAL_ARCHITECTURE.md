@@ -434,6 +434,22 @@ and floor figures come from the pure `buildProjectSummary(project, analysis, res
 The summary registers only `get_project_summary`, `get_project_state` and `validate_layout`.
 The creator also registers `get_project_summary` in its full tool set. The catalog remains unchanged.
 
+The lightweight `buildProjectShopping(project, analysis, resolveProduct)` derives shared cost
+totals, individual purchase prices/statuses, per-product quantities and pending placement count/cost.
+It consumes existing analysis without running floor geometry or validation. Summary uses its same
+totals; the creator's `useProjectShopping` updates from the shared store for manual/agent edits,
+replacement/import and undo/redo. Pending counts exclude selection-only accessories and products
+whose placement mode is unknown. The summary/WebMCP payload and persisted JSON format are unchanged.
+
+The UI placement helper chooses the first currently unplaced item for catalog interactions and
+dispatches `PROJECT_ITEM_PLACED`, otherwise `PRODUCT_PLACED`. Click, keyboard/centre and drop in both
+views share this helper and read current store state. Explicit item requests reject missing,
+mismatched or already-placed items without fallback. The 3D revision guard rejects stale previews.
+WebMCP remains explicit: `place_product` always creates a purchase and `place_project_item` targets
+an existing purchase. Successful placement is one command and one undo step; preview cancellation
+does not change the project. Secondary remove-from-room dispatches `PLACEMENT_REMOVED`, retaining
+the purchase and cost. Retired purchases continue to use the project-aware product resolver.
+
 The default preview is a read-only SVG assembled from existing entity renderers. A lazily loaded
 Canvas reuses `SceneContents` and camera controls without picking or edit controllers. Graphics
 failure switches back to 2D. Export shares the creator's canonical JSON download helper.

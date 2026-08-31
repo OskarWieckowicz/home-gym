@@ -3,10 +3,11 @@ import { useRef, type KeyboardEvent } from "react";
 export const SIDEBAR_TABS = ["Equipment", "Room", "Project items"] as const;
 export type SidebarTab = (typeof SIDEBAR_TABS)[number];
 
-export function SidebarTabs({ id, activeTab, onChange }: {
+export function SidebarTabs({ id, activeTab, onChange, pendingCount = 0 }: {
   readonly id: string;
   readonly activeTab: SidebarTab;
   readonly onChange: (tab: SidebarTab) => void;
+  readonly pendingCount?: number;
 }) {
   const buttons = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -41,6 +42,10 @@ export function SidebarTabs({ id, activeTab, onChange }: {
           type="button"
         >
           {tab}
+          {tab === "Project items" && pendingCount > 0 ? <>
+            <span className="creator-tab-count" aria-hidden="true">{pendingCount}</span>
+            <span className="visually-hidden">, {pendingCount} not placed</span>
+          </> : null}
         </button>
       ))}
     </div>

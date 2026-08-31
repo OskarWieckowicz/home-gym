@@ -10,12 +10,17 @@ export type PlaceEquipmentResult =
   | { readonly ok: true; readonly command: ProjectCommand }
   | { readonly ok: false; readonly error: string };
 
+/** Manual catalog placement reuses an unplaced purchase before creating a new one. */
 export function createPlaceProductCommand(
   productId: string,
   target: PlacementTarget,
   project: GymProject,
 ): PlaceEquipmentResult {
   if (!findProductById(productId)) return { ok: false, error: "This catalog product is unavailable." };
+  const placedItemIds = new Set(project.placements.map((placement) => placement.projectItemId));
+  const existingItem = project.projectItems.find((item) =>
+    item.productId === productId && !placedItemIds.has(item.id));
+  if (existingItem) return createPlaceProjectItemCommand(existingItem.id, productId, target, project);
   return createFloorPlacementCommand(productId, target, project, (product, position, rotation) => ({
     type: "PRODUCT_PLACED",
     payload: { productId: product.id, position, rotation },
@@ -28,6 +33,13 @@ export function createPlaceProjectItemCommand(
   target: PlacementTarget,
   project: GymProject,
 ): PlaceEquipmentResult {
+  const item = project.projectItems.find((candidate) => candidate.id === projectItemId);
+  if (!item || item.productId !== productId) {
+    return { ok: false, error: "This project item is unavailable." };
+  }
+  if (project.placements.some((placement) => placement.projectItemId === item.id)) {
+    return { ok: false, error: "This project item is already placed." };
+  }
   return createFloorPlacementCommand(productId, target, project, (product, position, rotation) => ({
     type: "PROJECT_ITEM_PLACED",
     payload: { projectItemId, position, rotation },

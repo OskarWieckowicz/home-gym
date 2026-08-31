@@ -14,15 +14,18 @@ import type { Placement } from "@/features/project/schemas/project";
 import { useProjectStore } from "../store/project-store-context";
 import { FormActions, NumberField, readInteger } from "./form-controls";
 import { EquipmentCatalogThumb } from "./equipment-catalog-thumb";
+import { EquipmentUnplaceAction } from "./equipment-unplace-action";
 
 export function PlacementForm({
   placement,
   product,
   onRemoved,
+  onUnplaced,
 }: {
   readonly placement: Placement;
   readonly product: Pick<Product, "id" | "name" | "price" | "dimensions" | "mounting">;
   readonly onRemoved: () => void;
+  readonly onUnplaced?: () => void;
 }) {
   const dispatch = useProjectStore((state) => state.dispatch);
   const revision = useProjectStore((state) => state.revision);
@@ -116,16 +119,7 @@ export function PlacementForm({
         >
           <Trash2 aria-hidden="true" size={16} /> Remove from project
         </button>
-        <button onClick={() => {
-          const result = dispatch({
-            type: "PLACEMENT_REMOVED",
-            payload: { placementId: placement.id },
-          });
-          if (result.ok) onRemoved();
-          else setError(result.error.message);
-        }} type="button">
-          Unplace
-        </button>
+        <EquipmentUnplaceAction placementId={placement.id} name={product.name} onUnplaced={onUnplaced ?? onRemoved} />
       </FormActions>
       <fieldset className="creator-nudge">
         <legend>Move by 10 cm</legend>

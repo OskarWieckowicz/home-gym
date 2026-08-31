@@ -7,6 +7,7 @@ import { catalogProducts } from "@/data/products";
 import { formatCatalogLabel, formatFootprint, formatPricePln } from "@/features/catalog/components/catalog-formatters";
 import { searchProducts } from "@/features/catalog/queries/catalog";
 import { PRODUCT_CATEGORIES } from "@/features/catalog/schemas";
+import { useProjectShopping } from "../store/use-project-shopping";
 
 import { EquipmentCatalogThumb } from "./equipment-catalog-thumb";
 
@@ -25,6 +26,7 @@ export function EquipmentCatalogPanel({
   const [category, setCategory] = useState("");
   const searchId = useId();
   const categoryId = useId();
+  const { byProduct } = useProjectShopping();
   const products = useMemo(() => searchProducts({ query, category }), [query, category]);
 
   function startDrag(event: DragEvent<HTMLElement>, productId: string) {
@@ -62,6 +64,9 @@ export function EquipmentCatalogPanel({
         <ul>
           {products.map((product) => {
             const canPlace = product.placementMode === "floor";
+            const counts = byProduct.get(product.id);
+            const reuseExisting = canPlace && (counts?.pendingCount ?? 0) > 0;
+            const hintId = `${searchId}-${product.id}-reuse`;
             return (
               <li
                 className={canPlace ? undefined : "is-selection-only"}
@@ -74,30 +79,34 @@ export function EquipmentCatalogPanel({
                   <span>
                     <strong>{product.name}</strong>
                     <small>
-                      {canPlace ? formatFootprint(product.dimensions) : "Not placed on the floor"}
+                      {canPlace ? formatFootprint(product.dimensions) : "No floor placement needed"}
                       {" · "}
                       {formatPricePln(product.price)}
                     </small>
                   </span>
                 </div>
+                {counts ? <p className="creator-catalog-quantity">
+                  {counts.itemCount} in project{counts.pendingCount > 0 ? ` · ${counts.pendingCount} not placed` : ""}
+                </p> : null}
+                {reuseExisting ? <p className="creator-catalog-reuse" id={hintId}>Places an item already on your list</p> : null}
                 <div className="creator-catalog-actions">
                   {canPlace ? (
                     <button
                       aria-label={`${activeProductId === product.id ? "Cancel placing" : "Place"} ${product.name}`}
                       aria-pressed={activeProductId === product.id}
+                      aria-describedby={reuseExisting ? hintId : undefined}
                       onClick={() => onActivate(product.id)}
                       type="button"
                     >
                       {activeProductId === product.id ? "Cancel" : "Place"}
                     </button>
-                  ) : null}
-                  <button
-                    aria-label={`Add ${product.name} to project`}
+                  ) : <button
+                    aria-label={`Add to list: ${product.name}`}
                     onClick={() => onAdd(product.id)}
                     type="button"
                   >
-                    Add
-                  </button>
+                    Add to list
+                  </button>}
                 </div>
               </li>
             );

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { ScenePreviewProps } from "../scene/scene-preview";
@@ -9,8 +9,13 @@ import { catalogProductResolver } from "../store/catalog-product-resolver";
 import { useProjectStore } from "../store/project-store-context";
 import { analyzeProject } from "@/features/project/validation/analyze-project";
 import { createDefaultProject } from "@/features/project/defaults";
+import { buildProjectSummary } from "@/features/project/summary/project-summary";
+import { findProjectProductById } from "@/features/catalog/queries/project-products";
 
 import { CreatorEditor } from "./creator-editor";
+import { mockNativeDialog } from "./test-dialog";
+
+mockNativeDialog();
 
 const { sceneProps } = vi.hoisted(() => ({ sceneProps: vi.fn() }));
 
@@ -44,6 +49,81 @@ function change(name: string, value: string) {
 }
 
 describe("CreatorEditor", () => {
+  it("keeps the cost visible, reuses an unplaced purchase and restores it with undo", () => {
+    const project = createDefaultProject();
+    project.projectItems = [{ id: "project-item_bench", productId: "product_arc_adjustable_bench" }];
+    let placementSequence = 0;
+    render(<CreatorEditor initialProject={project} dependencies={{ generatePlacementId: () => `placement_bench_${++placementSequence}` }} />);
+    const cost = within(screen.getByRole("heading", { name: "Project cost" }).closest("section")!);
+    const totalBefore = cost.getByRole("status").textContent;
+    expect(cost.getByText("PLN 1,299")).toBeTruthy();
+    expect(screen.getByRole("tab", { name: "Project items, 1 not placed" })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Place Arc Adjustable Bench" }));
+    fireEvent.click(screen.getByRole("button", { name: "Scene preview target" }));
+    const store = (sceneProps.mock.lastCall![0] as ScenePreviewProps).store;
+    expect(store.getState()).toMatchObject({ revision: 0, canUndo: false });
+    expect(cost.getByRole("status").textContent).toBe(totalBefore);
+    fireEvent.click(screen.getByRole("button", { name: "Scene place at centre" }));
+    expect(store.getState().project.projectItems).toHaveLength(1);
+    expect(store.getState().project.placements[0].projectItemId).toBe("project-item_bench");
+    expect(cost.getByRole("status").textContent).toBe(totalBefore);
+    expect(screen.getByRole("tab", { name: "Project items" })).toBeTruthy();
+
+    expect(screen.queryByRole("button", { name: /More actions/ })).toBeNull();
+    const keep = screen.getByRole("button", { name: /Remove from room, keep on list/ });
+    expect(within(screen.getByRole("complementary", { name: "Properties and validation" })).getByText("Total cost stays the same.")).toBeTruthy();
+    keep.focus();
+    fireEvent.click(keep);
+    expect(document.activeElement).toBe(screen.getByRole("complementary", { name: "Properties and validation" }));
+    expect(screen.getByRole("button", { name: "Place on plan" })).toBeTruthy();
+    expect(store.getState().project.placements).toHaveLength(0);
+    expect(cost.getByRole("status").textContent).toBe(totalBefore);
+
+    fireEvent.click(screen.getByRole("button", { name: "Place Arc Adjustable Bench" }));
+    fireEvent.click(screen.getByRole("button", { name: "Scene place at centre" }));
+    expect(store.getState().project.projectItems).toHaveLength(1);
+    fireEvent.click(screen.getByRole("button", { name: "Undo" }));
+    expect(store.getState().project.placements).toHaveLength(0);
+    fireEvent.click(screen.getByRole("button", { name: "Redo" }));
+    expect(store.getState().project.placements).toHaveLength(1);
+    expect(cost.getByRole("status").textContent).toBe(totalBefore);
+  });
+
+  it("edits budget in existing settings and counts accessories without pending placement", () => {
+    render(<CreatorEditor initialProject={createDefaultProject()} />);
+    const cost = within(screen.getByRole("heading", { name: "Project cost" }).closest("section")!);
+    fireEvent.click(cost.getByRole("button", { name: "Edit budget" }));
+    expect(screen.getByRole("heading", { name: "Project settings" })).toBeTruthy();
+    change("Budget", "0");
+    fireEvent.click(screen.getByRole("button", { name: "Apply settings" }));
+    fireEvent.click(screen.getByRole("button", { name: "Add to list: Signal Resistance Bands" }));
+    fireEvent.click(screen.getByRole("button", { name: "Add to list: Signal Resistance Bands" }));
+    const store = (sceneProps.mock.lastCall![0] as ScenePreviewProps).store;
+    const state = store.getState();
+    const summary = buildProjectSummary(state.project, state.validation, findProjectProductById);
+    expect(state.project.projectItems).toHaveLength(2);
+    expect(state.project.placements).toHaveLength(0);
+    expect(cost.getByRole("status").textContent).toContain(summary.totals.totalPriceLabel);
+    expect(cost.getByRole("status").textContent).toContain(summary.totals.balanceLabel);
+    expect(screen.getByRole("tab", { name: "Project items" })).toBeTruthy();
+    expect(within(screen.getByRole("complementary", { name: "Properties and validation" })).getByText("No placement needed")).toBeTruthy();
+    act(() => { store.getState().replaceProject(createDefaultProject()); });
+    expect(cost.getByText("PLN 0")).toBeTruthy();
+  });
+
+  it("cancels equipment placement without creating a purchase or changing cost", () => {
+    render(<CreatorEditor initialProject={createDefaultProject()} />);
+    const store = (sceneProps.mock.lastCall![0] as ScenePreviewProps).store;
+    fireEvent.click(screen.getByRole("button", { name: "Place Northstar Half Rack" }));
+    fireEvent.click(screen.getByRole("button", { name: "Scene preview target" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cancel placing Northstar Half Rack" }));
+    expect(store.getState()).toMatchObject({ revision: 0, canUndo: false, project: { projectItems: [], placements: [] } });
+    fireEvent.click(screen.getByRole("button", { name: "Place Northstar Half Rack" }));
+    fireEvent.click(screen.getByRole("button", { name: "2D" }));
+    expect(store.getState()).toMatchObject({ revision: 0, canUndo: false, project: { projectItems: [], placements: [] } });
+  });
+
   it("switches presentation views without creating project history", () => {
     const project = createDefaultProject();
     project.projectItems = [
@@ -95,7 +175,7 @@ describe("CreatorEditor", () => {
     }) });
 
     fireEvent.click(screen.getByRole("tab", { name: "Room" }));
-    fireEvent.click(screen.getByRole("button", { name: "Project settings" }));
+    fireEvent.click(screen.getByRole("button", { name: "Edit budget" }));
     change("Budget", "12500");
     fireEvent.click(screen.getByRole("checkbox", { name: "Strength" }));
     fireEvent.click(screen.getByRole("button", { name: "Apply settings" }));

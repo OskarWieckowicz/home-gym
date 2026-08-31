@@ -6,6 +6,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { CreatorEditor } from "../components/creator-editor";
+import { mockNativeDialog } from "../components/test-dialog";
 import { createDefaultProject } from "@/features/project/defaults";
 import { serializeProject } from "@/features/project/serialization/project-codec";
 
@@ -13,6 +14,8 @@ import {
   createLocalProjectStorage,
   type ProjectStorageLike,
 } from "./local-project-storage";
+
+mockNativeDialog();
 
 // Persistence assertions do not require WebGL. Keep async scene loading from
 // racing a form edit under jsdom, matching the adjacent creator-entry tests.
@@ -41,8 +44,7 @@ describe("ProjectPersistenceBoundary", () => {
       "disabled",
       true,
     );
-    fireEvent.click(screen.getByRole("tab", { name: "Room" }));
-    fireEvent.click(screen.getByRole("button", { name: "Project settings" }));
+    fireEvent.click(screen.getByRole("button", { name: "Edit budget" }));
     expect(screen.getByRole("spinbutton", { name: "Budget" })).toHaveProperty(
       "value",
       "12500",
@@ -55,11 +57,11 @@ describe("ProjectPersistenceBoundary", () => {
     const first = render(<CreatorEditor persistence storage={memory.adapter} />);
     await screen.findByText("Local saving ready.");
 
-    fireEvent.click(screen.getByRole("tab", { name: "Room" }));
-    fireEvent.click(screen.getByRole("button", { name: "Project settings" }));
+    fireEvent.click(screen.getByRole("button", { name: "Edit budget" }));
     fireEvent.click(screen.getByRole("button", { name: "Apply settings" }));
     expect(memory.storage.setItem).not.toHaveBeenCalled();
 
+    fireEvent.click(screen.getByRole("button", { name: "Edit budget" }));
     fireEvent.change(screen.getByRole("spinbutton", { name: "Budget" }), {
       target: { value: "13500" },
     });
@@ -70,8 +72,7 @@ describe("ProjectPersistenceBoundary", () => {
     first.unmount();
     render(<CreatorEditor persistence storage={memory.adapter} />);
     await screen.findByText("Saved locally.");
-    fireEvent.click(screen.getByRole("tab", { name: "Room" }));
-    fireEvent.click(screen.getByRole("button", { name: "Project settings" }));
+    fireEvent.click(screen.getByRole("button", { name: "Edit budget" }));
     expect(screen.getByRole("spinbutton", { name: "Budget" })).toHaveProperty(
       "value",
       "13500",

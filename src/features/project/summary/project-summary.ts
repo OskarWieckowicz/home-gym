@@ -6,6 +6,7 @@ import type { ProjectAnalysis } from "../validation/project-analysis";
 import { describeValidationIssue } from "../validation/describe-validation-issue";
 import type { ValidationIssue } from "../validation/validation-issues";
 import { buildSummaryChecks } from "./project-summary-checks";
+import { buildProjectShopping } from "./project-shopping";
 import type { ProjectSummary, SummaryItem, SummaryProductResolver } from "./project-summary-types";
 
 export type { ProjectSummary, SummaryProductResolver } from "./project-summary-types";
@@ -45,29 +46,6 @@ function buildItems(project: GymProject, analysis: ProjectAnalysis, resolveProdu
       blockingIssueCodes,
     };
   });
-}
-
-function buildTotals(project: GymProject, items: readonly SummaryItem[]): ProjectSummary["totals"] {
-  const totalPrice = items.reduce((total, item) => total + (item.price ?? 0), 0);
-  const unavailableCount = items.filter((item) => item.price === null || item.dimensions === null).length;
-  const complete = unavailableCount === 0;
-  const remainingBudget = Math.max(0, project.budget - totalPrice);
-  const excessBudget = Math.max(0, totalPrice - project.budget);
-  const overBudget = excessBudget > 0;
-  const placedCount = items.filter((item) => item.placed).length;
-  // Zero budget is a real zero, not an unset value; keep the payload JSON-safe.
-  const budgetUsedRatio = project.budget > 0 ? totalPrice / project.budget : totalPrice > 0 ? 1 : 0;
-  return {
-    itemCount: items.length, placedCount, unplacedCount: items.length - placedCount,
-    unavailableCount, totalPrice, budget: project.budget, remainingBudget, excessBudget,
-    overBudget, budgetUsedRatio, budgetUsedPercent: Math.min(100, budgetUsedRatio * 100),
-    totalPriceLabel: `${formatPricePln(totalPrice)}${complete ? "" : " (known prices only)"}`,
-    budgetLabel: formatPricePln(project.budget),
-    balanceLabel: complete
-      ? `${formatPricePln(overBudget ? excessBudget : remainingBudget)} ${overBudget ? "over budget" : "remaining"}`
-      : "Budget total incomplete: some product details are unavailable",
-    itemCountLabel: countLabel(items.length, "item", "items"), complete,
-  };
 }
 
 function buildCoverage(analysis: ProjectAnalysis): ProjectSummary["coverage"] {
@@ -130,7 +108,7 @@ export function buildProjectSummary(
   resolveProduct: SummaryProductResolver,
 ): ProjectSummary {
   const items = buildItems(project, analysis, resolveProduct);
-  const totals = buildTotals(project, items);
+  const { totals } = buildProjectShopping(project, analysis, resolveProduct);
   const names = new Map([
     ...project.obstacles.map(({ id, name }) => [id, name] as const),
     ...project.wallElements.map(({ id, name }) => [id, name] as const),

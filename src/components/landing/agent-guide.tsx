@@ -25,7 +25,7 @@ function AgentSetupGuide() {
           <li>
             Choose <Link className={guideLinkClass} href={siteLinks.startEmpty.href}>Start planning</Link> in
             that browser. To edit manually, choose Room → Room dimensions and
-            apply your measurements; use Room → Project settings for budget and
+            apply your measurements; use Project → Settings for budget and
             goals. The agent can also configure the room while you keep editing.
           </li>
           <li>

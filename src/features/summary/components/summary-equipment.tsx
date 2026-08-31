@@ -1,9 +1,12 @@
 import { Card } from "@/components/ui/card";
 import type { ProjectSummary } from "@/features/project/summary/project-summary";
+import type { PendingPlacementSummary } from "@/features/project/summary/project-shopping";
+import { PendingPlacementNotice } from "@/features/creator/components/pending-placement-notice";
 
-export function SummaryEquipment({ summary }: { readonly summary: ProjectSummary }) {
+export function SummaryEquipment({ summary, pending }: { readonly summary: ProjectSummary; readonly pending: PendingPlacementSummary }) {
   return <Card className="summary-card">
     <h2>Equipment list</h2>
+    <PendingPlacementNotice pending={pending} />
     <div className="summary-table-scroll" role="region" aria-label="Equipment list" tabIndex={0}>
       <table className="summary-table">
         <caption className="visually-hidden">Selected equipment, price and placement status</caption>

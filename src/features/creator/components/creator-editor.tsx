@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { findProjectProductById } from "@/features/catalog/queries/project-products";
 import type { ProjectCommandDependencies } from "@/features/project/commands/apply-project-command";
@@ -23,7 +23,8 @@ import { ElementPanel } from "./element-panel";
 import { ObstacleForm } from "./obstacle-form";
 import { PlacementForm } from "./placement-form";
 import { ProjectItemForm } from "./project-item-form";
-import { ProjectSettingsForm } from "./project-settings-form";
+import { ProjectSettingsDialog, type SettingsDialogRequest } from "./project-settings-dialog";
+import { ProjectCost } from "./project-cost";
 import { RoomForm } from "./room-form";
 import { RoomPlan } from "./room-plan";
 import { ValidationSummary } from "./validation-summary";
@@ -36,6 +37,8 @@ const ScenePreview = dynamic(
 
 function EditorWorkspace() {
   const store = useProjectStoreApi();
+  const propertiesRef = useRef<HTMLElement>(null);
+  const [settingsDialog, setSettingsDialog] = useState<SettingsDialogRequest | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [activePanel, setActivePanel] = useState<EditorPanel>("room");
   const [activeTool, setActiveTool] = useState<PlacementTool | null>(null);
@@ -74,6 +77,11 @@ function EditorWorkspace() {
   function changeView(mode: "2d" | "3d") {
     clearPlacementMode();
     setViewMode(mode);
+  }
+
+  function openSettings(initialFocus: SettingsDialogRequest["initialFocus"], returnFocus: HTMLButtonElement) {
+    clearPlacementMode();
+    setSettingsDialog({ initialFocus, returnFocus });
   }
 
   function select(id: string | null) {
@@ -138,7 +146,7 @@ function EditorWorkspace() {
 
   return (
     <main className="creator-editor" id="creator-content" tabIndex={-1}>
-      <CreatorToolbar />
+      <CreatorToolbar onOpenSettings={(trigger) => openSettings("budget", trigger)} />
       <div className="creator-layout">
         <ElementPanel
           onCancelPlacement={clearPlacementMode}
@@ -173,14 +181,18 @@ function EditorWorkspace() {
           placementError={placementError} onSelect={select} onPlacementComplete={finishPlacement}
           onPlacementError={setPlacementError} onCancelPlacement={clearPlacementMode} onFallback={() => changeView("2d")} />}
         </div>
-        <aside className="creator-side creator-properties" aria-label="Properties and validation">
+        <aside className="creator-side creator-properties" aria-label="Properties and validation" ref={propertiesRef} tabIndex={-1}>
+          <ProjectCost onEditBudget={(trigger) => openSettings("budget", trigger)} onEditGoals={(trigger) => openSettings("goals", trigger)} />
           <h2 className="creator-properties-title">Properties</h2>
           {displayedPanel === "room" ? <RoomForm /> : null}
-          {displayedPanel === "settings" ? <ProjectSettingsForm /> : null}
           {displayedPanel === "selected" && selectedObstacle ? <ObstacleForm obstacle={selectedObstacle} onRemoved={() => select(null)} /> : null}
           {displayedPanel === "selected" && selectedWallElement ? <WallElementForm element={selectedWallElement} onRemoved={() => select(null)} /> : null}
           {displayedPanel === "selected" && selectedPlacement && selectedProduct ? (
-            <PlacementForm placement={selectedPlacement} product={selectedProduct} onRemoved={() => select(null)} />
+            <PlacementForm placement={selectedPlacement} product={selectedProduct} onRemoved={() => select(null)}
+              onUnplaced={() => {
+                select(selectedPlacement.projectItemId);
+                propertiesRef.current?.focus({ preventScroll: true });
+              }} />
           ) : null}
           {displayedPanel === "selected" && selectedItem && selectedItemProduct && !selectedPlacement ? (
             <ProjectItemForm
@@ -200,6 +212,7 @@ function EditorWorkspace() {
           <ValidationSummary />
         </aside>
       </div>
+      {settingsDialog ? <ProjectSettingsDialog {...settingsDialog} onClose={() => setSettingsDialog(null)} /> : null}
     </main>
   );
 }
