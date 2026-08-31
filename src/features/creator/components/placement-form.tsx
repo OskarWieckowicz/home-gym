@@ -1,6 +1,6 @@
 "use client";
 
-import { RotateCw, Trash2 } from "lucide-react";
+import { LockKeyhole, LockKeyholeOpen, RotateCw, Trash2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
 
 import { formatDimensions, formatPricePln } from "@/features/catalog/components/catalog-formatters";
@@ -15,6 +15,7 @@ import { useProjectStore } from "../store/project-store-context";
 import { FormActions, NumberField, readInteger } from "./form-controls";
 import { EquipmentCatalogThumb } from "./equipment-catalog-thumb";
 import { EquipmentUnplaceAction } from "./equipment-unplace-action";
+import { SelectionDistances } from "./selection-distances";
 
 export function PlacementForm({
   placement,
@@ -42,6 +43,7 @@ export function PlacementForm({
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (placement.locked) return;
     const data = new FormData(event.currentTarget);
     const parsed = placementPatchSchema.safeParse({
       position: {
@@ -68,10 +70,10 @@ export function PlacementForm({
 
   return (
     <form className="creator-form" key={`${placement.id}-${revision}`} noValidate onSubmit={submit}>
-      <h2>Selected equipment</h2>
+      <p className="creator-inspector-kind">Selected equipment</p>
       <div className="creator-selected-product">
         <EquipmentCatalogThumb productId={product.id} />
-        <p className="creator-entity-type">{product.name}</p>
+        <h2 className="creator-selection-name">{product.name}</h2>
       </div>
       <dl className="creator-product-facts">
         <div><dt>Price</dt><dd>{formatPricePln(product.price)}</dd></div>
@@ -85,23 +87,30 @@ export function PlacementForm({
           </div>
         ) : null}
       </dl>
+      <button type="button" className="creator-equipment-lock" aria-pressed={placement.locked}
+        onClick={() => update({ locked: !placement.locked })}>
+        {placement.locked ? <LockKeyhole aria-hidden="true" size={16} /> : <LockKeyholeOpen aria-hidden="true" size={16} />}
+        Lock position
+      </button>
+      {placement.locked ? <p className="creator-lock-note">Position locked for manual and agent edits. Unlock before moving or removing.</p> : null}
       <div className="creator-field-grid">
-        <NumberField defaultValue={placement.position.xCm} id="placement-x" label="X (cm)" min="0" name="xCm" step="1" />
-        <NumberField defaultValue={placement.position.zCm} id="placement-z" label="Z (cm)" min="0" name="zCm" step="1" />
+        <NumberField disabled={placement.locked} defaultValue={placement.position.xCm} id="placement-x" label="X (cm)" min="0" name="xCm" step="1" />
+        <NumberField disabled={placement.locked} defaultValue={placement.position.zCm} id="placement-z" label="Z (cm)" min="0" name="zCm" step="1" />
         <div className="creator-field">
           <label htmlFor="placement-rotation">Rotation</label>
-          <select defaultValue={placement.rotation} id="placement-rotation" name="rotation">
+          <select disabled={placement.locked} defaultValue={placement.rotation} id="placement-rotation" name="rotation">
             {[0, 90, 180, 270].map((value) => <option key={value} value={value}>{value}°</option>)}
           </select>
         </div>
       </div>
       {error ? <p className="creator-form-error" role="alert">{error}</p> : null}
       <FormActions>
-        <button className="creator-primary" type="submit">Apply changes</button>
-        <button onClick={() => update({ rotation: ((placement.rotation + 90) % 360) as Rotation })} type="button">
+        <button disabled={placement.locked} className="creator-primary" type="submit">Apply changes</button>
+        <button disabled={placement.locked} onClick={() => update({ rotation: ((placement.rotation + 90) % 360) as Rotation })} type="button">
           <RotateCw aria-hidden="true" size={16} /> Rotate 90°
         </button>
         <button
+          disabled={placement.locked}
           className="creator-danger"
           onClick={() => {
             const confirmed = globalThis.confirm(
@@ -121,13 +130,14 @@ export function PlacementForm({
         </button>
         <EquipmentUnplaceAction placementId={placement.id} name={product.name} onUnplaced={onUnplaced ?? onRemoved} />
       </FormActions>
-      <fieldset className="creator-nudge">
+      <fieldset disabled={placement.locked} className="creator-nudge">
         <legend>Move by 10 cm</legend>
         <button onClick={() => nudge(0, -10)} type="button">Up</button>
         <button onClick={() => nudge(-10, 0)} type="button">Left</button>
         <button onClick={() => nudge(0, 10)} type="button">Down</button>
         <button onClick={() => nudge(10, 0)} type="button">Right</button>
       </fieldset>
+      <SelectionDistances placement={placement} product={product} />
     </form>
   );
 }

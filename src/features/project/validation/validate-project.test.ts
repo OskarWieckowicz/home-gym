@@ -80,7 +80,7 @@ function project(
   placements: TestPlacementInput[] = [],
 ): GymProject {
   return {
-    version: 4,
+    version: 5,
     room: { widthCm: 300, depthCm: 250, heightCm: 220 },
     obstacles,
     wallElements,

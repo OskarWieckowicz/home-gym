@@ -146,7 +146,7 @@ describe("EquipmentCatalogPanel", () => {
       { id: "project-item_two", productId: "product_northstar_half_rack" },
       { id: "project-item_bands", productId: "product_signal_resistance_bands" },
     ];
-    project.placements = [{ id: "placement_one", projectItemId: "project-item_one", position: { xCm: 0, zCm: 0 }, rotation: 0 }];
+    project.placements = [{ locked: false, id: "placement_one", projectItemId: "project-item_one", position: { xCm: 0, zCm: 0 }, rotation: 0 }];
     renderCatalog(vi.fn(), vi.fn(), project);
     expect(screen.getByText("2 in project · 1 not placed")).toBeTruthy();
     const hint = screen.getByText("Places an item already on your list");

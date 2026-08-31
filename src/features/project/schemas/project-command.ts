@@ -94,11 +94,13 @@ export const wallElementPatchSchema = z.union([
 ]);
 
 const placementPatchFields = {
+  locked: z.boolean().optional(),
   position: positionSchema.optional(),
   rotation: rotationSchema.optional(),
 };
 
 export const placementPatchSchema = z.union([
+  z.object({ ...placementPatchFields, locked: z.boolean() }).strict(),
   z.object({ ...placementPatchFields, position: positionSchema }).strict(),
   z.object({ ...placementPatchFields, rotation: rotationSchema }).strict(),
 ]);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { findProjectProductById } from "@/features/catalog/queries/project-products";
 import { isRetiredProductId } from "@/data/products/retired-products";
 import { findPlacementForItem } from "@/features/project/project-lookups";
@@ -27,6 +27,7 @@ export function ProjectItemsList({
   const project = useProjectStore((state) => state.project);
   const dispatch = useProjectStore((state) => state.dispatch);
   const shopping = useProjectShopping();
+  const [error, setError] = useState("");
   const shoppingItems = new Map(shopping.items.map((item) => [item.id, item]));
 
   function removeItem(item: ProjectItem, name: string, placed: boolean) {
@@ -34,15 +35,17 @@ export function ProjectItemsList({
       `Removing ${name} will also remove it from the floor plan.`,
     );
     if (!confirmed) return;
-    dispatch({
+    const result = dispatch({
       type: "PROJECT_ITEM_REMOVED",
       payload: { projectItemId: item.id },
     });
+    setError(result.ok ? "" : result.error.message);
   }
 
   return (
     <div className="creator-element-list creator-project-items">
       <h3>Project equipment</h3>
+      {error ? <p className="creator-form-error" role="alert">{error}</p> : null}
       <PendingPlacementNotice pending={shopping.pending} />
       {project.projectItems.length === 0 ? <p>No equipment in the project yet.</p> : (
         <ul>
@@ -80,7 +83,7 @@ function ProjectEquipmentRow({ item, placement, shoppingItem, selected, active, 
       <EquipmentCatalogThumb productId={item.productId} />
       <span>
         <strong>{name}</strong>
-        <small>{placement ? `Placed · ${placement.rotation}°` : shoppingItem?.placementLabel ?? "Not placed"}</small>
+        <small>{placement ? `Placed · ${placement.rotation}°${placement.locked ? " · Locked" : ""}` : shoppingItem?.placementLabel ?? "Not placed"}</small>
         <small>{shoppingItem?.priceLabel ?? "Price unavailable"}</small>
         {isRetiredProductId(item.productId) ? <small>Retired from catalog</small> : null}
       </span>
@@ -90,7 +93,7 @@ function ProjectEquipmentRow({ item, placement, shoppingItem, selected, active, 
         aria-pressed={active} onClick={() => onPlaceItem(item.id)} type="button">
         {active ? "Cancel" : "Place"}
       </button> : null}
-      <button aria-label={`Remove ${name} from project`}
+      <button disabled={placement?.locked} aria-label={`Remove ${name} from project`}
         onClick={() => onRemove(item, name, placement !== undefined)} type="button">Remove from project</button>
       {placement ? <EquipmentUnplaceAction placementId={placement.id} name={name} onUnplaced={() => {
         selectButton.current?.focus({ preventScroll: true });

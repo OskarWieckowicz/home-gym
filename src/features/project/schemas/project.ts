@@ -12,7 +12,7 @@ import {
   rotationSchema,
 } from "./geometry";
 
-export const PROJECT_VERSION = 4 as const;
+export const PROJECT_VERSION = 5 as const;
 export const PROJECT_ENTITY_ID_PATTERN = /^obstacle_[a-z0-9]+(?:[-_][a-z0-9]+)*$/;
 export const WALL_ELEMENT_ID_PATTERN = /^wall-element_[a-z0-9]+(?:[-_][a-z0-9]+)*$/;
 export const PLACEMENT_ID_PATTERN = /^placement_[a-z0-9]+(?:[-_][a-z0-9]+)*$/;
@@ -90,6 +90,7 @@ export const placementSchema = z
   .object({
     id: z.string().regex(PLACEMENT_ID_PATTERN),
     projectItemId: projectItemSchema.shape.id,
+    locked: z.boolean().default(false),
     position: positionSchema,
     rotation: rotationSchema,
   })

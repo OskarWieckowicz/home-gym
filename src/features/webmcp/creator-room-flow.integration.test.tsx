@@ -199,7 +199,7 @@ describe("existing creator WebMCP shared editing flow", () => {
       patch: { position: { xCm: 250, zCm: 20 } },
     });
     expect(corrected).toMatchObject({ revision: 4, validation: { valid: true } });
-    expect(container.textContent).toContain("Access cannot be evaluated until the room has a door");
+    expect(container.textContent).toContain("Add a door to check access.");
 
     fireEvent.click(screen.getByRole("button", { name: /Undo/ }));
     expect(container.textContent).toContain("Agent rack is outside the room on x");
@@ -209,7 +209,7 @@ describe("existing creator WebMCP shared editing flow", () => {
     );
 
     fireEvent.click(screen.getByRole("button", { name: /Redo/ }));
-    expect(container.textContent).toContain("Access cannot be evaluated until the room has a door");
+    expect(container.textContent).toContain("Add a door to check access.");
 
     const finalState = await execute<{
       revision: number;

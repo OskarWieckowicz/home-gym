@@ -19,6 +19,7 @@ export function toProjectItemsAndPlacements(inputs: readonly TestPlacementInput[
     })),
     placements: inputs.map((input) => ({
       id: input.id,
+      locked: false,
       projectItemId: projectItemIdFromPlacementId(input.id),
       position: input.position,
       rotation: input.rotation,

@@ -80,7 +80,7 @@ describe("room WebMCP tool definitions", () => {
       );
     }
     expect(tools.find(({ name }) => name === "get_project_state")?.description)
-      .toContain("version-4");
+      .toContain("version-5");
     expect(tools.find(({ name }) => name === "get_project_state")?.description)
       .toContain("equipment placements");
     expect(tools.find(({ name }) => name === "validate_layout")?.description)

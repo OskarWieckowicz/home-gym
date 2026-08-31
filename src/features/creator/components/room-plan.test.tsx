@@ -225,7 +225,8 @@ describe("RoomPlan dragging", () => {
     expect(screen.getByRole("status", { name: "Store state" }).textContent).toBe("0:20:30:false");
   });
 
-  it("renders equipment use zones and commits equipment drag once", () => {
+  it.each([false, true])("selects equipment but commits a drag only when unlocked (locked=%s)", (locked) => {
+    const onSelect = vi.fn();
     const project: GymProject = {
       ...createDefaultProject(),
       ...toProjectItemsAndPlacements([{
@@ -235,6 +236,7 @@ describe("RoomPlan dragging", () => {
         rotation: 0,
       }]),
     };
+    project.placements[0].locked = locked;
     render(
       <ProjectStoreProvider initialProject={project}>
         <EquipmentStoreProbe />
@@ -245,7 +247,7 @@ describe("RoomPlan dragging", () => {
           onCancelPlacement={vi.fn()}
           onPlacementComplete={vi.fn()}
           onPlacementError={vi.fn()}
-          onSelect={vi.fn()}
+          onSelect={onSelect}
           placementError=""
           selectedId={null}
         />
@@ -266,7 +268,8 @@ describe("RoomPlan dragging", () => {
     fireEvent.pointerUp(entity, { clientX: 129, clientY: 129, pointerId: 8 });
 
     expect(screen.getByRole("status", { name: "Equipment store state" }).textContent)
-      .toBe("1:40:50:true");
+      .toBe(locked ? "0:20:30:false" : "1:40:50:true");
+    expect(onSelect).toHaveBeenCalledWith("placement_rack");
   });
 });
 

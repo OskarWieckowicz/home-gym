@@ -106,7 +106,7 @@ function project(
   placements: TestPlacementInput[] = [],
 ): GymProject {
   return {
-    version: 4,
+    version: 5,
     room: { widthCm: 400, depthCm: 400, heightCm: 250 },
     obstacles,
     wallElements: walls,

@@ -1,7 +1,7 @@
-import { gymProjectSchema, type GymProject } from "./schemas/project";
+import { gymProjectSchema, PROJECT_VERSION, type GymProject } from "./schemas/project";
 
 const DEFAULT_PROJECT_INPUT = {
-  version: 4,
+  version: PROJECT_VERSION,
   room: { widthCm: 400, depthCm: 320, heightCm: 240 },
   obstacles: [],
   wallElements: [],

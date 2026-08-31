@@ -16,7 +16,7 @@ function legacyProject(): GymProject {
   return {
     ...createDefaultProject(), budget: 12_345,
     projectItems: [{ id: "project-item_bands", productId: "product_signal_resistance_bands" }],
-    placements: [{ id: "placement_bands", projectItemId: "project-item_bands", position: { xCm: 100, zCm: 100 }, rotation: 0 }],
+    placements: [{ locked: false, id: "placement_bands", projectItemId: "project-item_bands", position: { xCm: 100, zCm: 100 }, rotation: 0 }],
   };
 }
 

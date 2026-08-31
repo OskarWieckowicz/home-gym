@@ -127,19 +127,21 @@ The `geometry` layer and most of `project` must not import React, Zustand, or Th
 ## 6. Domain model
 
 All domain dimensions and positions use integer centimeters; rotations are 0/90/180/270 degrees.
-The renderer converts them to centred scene units. The version-4 schema is defined in
+The renderer converts them to centred scene units. The version-5 schema is defined in
 [`project.ts`](../src/features/project/schemas/project.ts), with geometry primitives in
 [`geometry.ts`](../src/features/project/schemas/geometry.ts).
 
 A project contains a rectangular room, physical obstacles, unavailable zones, wall elements,
 shopping items, placements, budget and training goals. Shopping items carry product identity;
-placements refer to an item and add its pose. Unplacing preserves the purchase; removing an
+placements refer to an item and add its pose and persistent `locked` boolean. Unplacing preserves the purchase; removing an
 item removes its placement too. Physical obstacles have height and locking; unavailable zones
 have a 2D footprint. Product mounting and planning requirements come from the catalog.
 
 Domain coordinates start in one corner of the room. The renderer is responsible for converting them into the Three.js scene coordinate system, which is centered.
 
 The versioned codec migrates supported saved formats before project/catalog validation.
+Version 5 adds placement locking; the v4→v5 migration gives existing placements `locked: false`
+without changing their poses. Earlier migrations continue through that step. Exports preserve locks.
 
 `offsetCm` is measured left-to-right on horizontal walls and top-to-bottom on vertical walls. Doors and windows deliberately have no hinge side, opening direction, swing arc, sill height, opening height, or derived unavailable zone in this MVP phase. They are validated against their wall and neighboring wall elements, but they do not participate in floor collision checks.
 
@@ -153,6 +155,15 @@ and `suggestPlacements`, plus validated project replacement and undo/redo.
 The exact command union and runtime input contracts live in
 [`project-command.ts`](../src/features/project/schemas/project-command.ts). Do not maintain a
 second copied schema in documentation or give the agent a separate mutation path.
+
+`PLACEMENT_UPDATED` also sets `locked`. While locked, the only permitted placement patch is
+exactly `{ locked: false }`; mixed unlock-and-move patches are rejected with `ENTITY_LOCKED`.
+Locked equipment cannot move, rotate, unplace or be deleted through `PROJECT_ITEM_REMOVED`.
+UI controls and 2D/3D gestures respect the same guard. Explicit unlock followed by an edit may
+be separate commands within an atomic batch; undo restores both. Suggestions for a locked target
+return `ENTITY_LOCKED` before candidate generation and never unlock automatically. Other equipment
+can still be planned around it. Room resizing does not move placements and remains available.
+Whole-project import/reset and undo/redo remain explicit project-level operations, not equipment edits.
 
 Command flow:
 
@@ -337,6 +348,20 @@ The shared read-only scene defaults to all zones. Unavailable areas use a separa
 with neutral diagonal hatch segments clipped to the domain-derived rectangle, plus a solid
 perimeter. This renderer stays visible independently of the use-zone toggle and reuses existing
 selection/issue appearance. The 2D overlays and draft outlines are unchanged.
+
+Editor-local `presentationView` overrides all zone layers and diagnostic/selection appearance,
+including unavailable-area hatching. It cancels pending scene gestures and permits camera
+navigation only; project state, selection, the previous all-zones choice and panel validation
+are retained. Placement activation and switching to 2D exit presentation view. Summary defaults
+are unchanged. The inspector's distance readout uses `measureSelectionDistances`: four signed
+wall gaps and the nearest physical obstacle's Euclidean rectangle gap in the floor plane.
+It distinguishes touching from overlapping, excludes unavailable/use zones and ignores height.
+The same deterministic rotated physical bounds drive both views; no GLB measurement is used.
+
+The right-panel Layout checks counts and lists share one filtered spatial issue collection.
+`ACCESS_NOT_EVALUATED` is a separate missing-door message; `BUDGET_EXCEEDED` is displayed only
+by Project cost. This is presentation filtering: shared validation and WebMCP results retain
+the complete issue set and its original semantics.
 
 The primary equipment visuals are reproducible, AI-generated procedural GLB assets produced
 offline and mapped by explicit product ID in

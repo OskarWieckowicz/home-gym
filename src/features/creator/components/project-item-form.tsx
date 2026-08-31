@@ -27,8 +27,8 @@ export function ProjectItemForm({
 
   return (
     <form className="creator-form" noValidate>
-      <h2>Project equipment</h2>
-      <p className="creator-entity-type">{product.name}</p>
+      <p className="creator-inspector-kind">Project equipment</p>
+      <h2 className="creator-selection-name">{product.name}</h2>
       <dl className="creator-product-facts">
         <div><dt>Price</dt><dd>{formatPricePln(product.price)}</dd></div>
         <div><dt>Status</dt><dd>{canPlace ? "Not placed" : "No placement needed"}</dd></div>

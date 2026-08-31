@@ -6,6 +6,11 @@ const warning: PlanIssueRef = { entityIds: ["bench"], severity: "warning" };
 const error: PlanIssueRef = { entityIds: ["bench", "rack"], severity: "error" };
 
 describe("sceneEntityAppearance", () => {
+  it("hides all zone, issue and selection cues in presentation view even with all zones enabled", () => {
+    expect(sceneEntityAppearance("bench", "bench", [error, warning], { showAllUseZones: true, presentationView: true })).toMatchObject({
+      issue: null, outline: null, emissive: colors.noEmission, color: colors.fallback, useZoneVisible: false,
+    });
+  });
   it("adds an independent selection outline without tinting valid equipment", () => {
     expect(sceneEntityAppearance("bench", "bench", [])).toMatchObject({
       outline: colors.selected, color: colors.fallback, emissive: colors.noEmission,
@@ -50,15 +55,15 @@ describe("sceneEntityAppearance", () => {
 
   it("shows all zones only when requested, without changing issue or selection appearance", () => {
     const contextual = sceneEntityAppearance("bench", null, []);
-    expect(sceneEntityAppearance("bench", null, [], true)).toEqual({ ...contextual, useZoneVisible: true });
+    expect(sceneEntityAppearance("bench", null, [], { showAllUseZones: true })).toEqual({ ...contextual, useZoneVisible: true });
     expect(contextual.opacity).toBeLessThan(0.22);
   });
 
   it.each([error, warning])("keeps flagged zones visible with the all-zones layer off", (issue) => {
-    expect(sceneEntityAppearance("bench", null, [issue], false)).toMatchObject({ useZoneVisible: true, issue: issue.severity });
+    expect(sceneEntityAppearance("bench", null, [issue], { showAllUseZones: false })).toMatchObject({ useZoneVisible: true, issue: issue.severity });
   });
 
   it("does not reveal zones for unrelated or global issues", () => {
-    expect(sceneEntityAppearance("other", null, [error, { severity: "error", entityIds: [] }], false).useZoneVisible).toBe(false);
+    expect(sceneEntityAppearance("other", null, [error, { severity: "error", entityIds: [] }], { showAllUseZones: false }).useZoneVisible).toBe(false);
   });
 });

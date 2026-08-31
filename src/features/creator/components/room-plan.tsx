@@ -101,7 +101,7 @@ export function RoomPlan({
   ) {
     event.stopPropagation();
     onSelect(placement.id);
-    if (event.button !== 0) return;
+    if (placement.locked || event.button !== 0) return;
     event.currentTarget.setPointerCapture(event.pointerId);
     setDragEntityKind("placement");
     setSession(createDragSession(
@@ -156,7 +156,7 @@ export function RoomPlan({
       )) {
         onPlacementError("Keep wall-mounted equipment flush to its wall.");
       } else {
-        dispatch(dragEntityKind === "placement"
+        const result = dispatch(dragEntityKind === "placement"
           ? {
               type: "PLACEMENT_UPDATED",
               payload: { placementId: session.obstacleId, patch: { position: finalDraft.position } },
@@ -165,6 +165,7 @@ export function RoomPlan({
               type: "OBSTACLE_UPDATED",
               payload: { obstacleId: session.obstacleId, patch: { position: finalDraft.position } },
             });
+        if (!result.ok) onPlacementError(result.error.message);
       }
     }
     setSession(null);

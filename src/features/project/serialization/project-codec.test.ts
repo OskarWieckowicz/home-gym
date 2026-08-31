@@ -30,6 +30,7 @@ const project: GymProject = {
   ],
   placements: [
     {
+      locked: true,
       id: "placement_power-rack",
       projectItemId: "project-item_power-rack",
       position: { xCm: 140, zCm: 80 },
@@ -40,7 +41,7 @@ const project: GymProject = {
 };
 
 describe("project codec", () => {
-  it("round-trips a version-4 project through canonical pretty JSON", () => {
+  it("round-trips a version-5 project through canonical pretty JSON", () => {
     const serialized = serializeProject(project);
     const canonicalProject = gymProjectSchema.parse(project);
 
@@ -93,7 +94,7 @@ describe("project codec", () => {
     expect(decoded).toEqual({
       success: true,
       project: {
-        version: 4,
+        version: 5,
         room: { widthCm: 400, depthCm: 320, heightCm: 240 },
         obstacles: [
           {
@@ -138,7 +139,7 @@ describe("project codec", () => {
 
   it("rejects future versions before schema parsing", () => {
     expectErrorCode(
-      decodeProject({ ...createDefaultProject(), version: 5 }),
+      decodeProject({ ...createDefaultProject(), version: 6 }),
       "unsupported-version",
     );
   });

@@ -25,7 +25,7 @@ const validObstacle = {
 } as const;
 
 const validProject = {
-  version: 4,
+  version: 5,
   room: { widthCm: 400, depthCm: 320, heightCm: 240 },
   obstacles: [validObstacle],
   wallElements: [],
@@ -129,6 +129,7 @@ describe("project schemas", () => {
       productId: "product_northstar_half_rack",
     } as const;
     const placement = {
+      locked: false,
       id: "placement_rack",
       projectItemId: "project-item_rack",
       position: { xCm: 20, zCm: 30 },
@@ -152,6 +153,7 @@ describe("project schemas", () => {
       productId: "product_northstar_half_rack",
     } as const;
     const placement = {
+      locked: false,
       id: "placement_rack",
       projectItemId: "project-item_rack",
       position: { xCm: 20, zCm: 30 },

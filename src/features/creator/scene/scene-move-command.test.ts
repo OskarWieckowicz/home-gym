@@ -48,7 +48,7 @@ describe("scene move commands", () => {
     const pose = snapWallMountedPlacement(pointer, product.dimensions, project.room)!;
     expect(pose.rotation).toBe(rotation);
     project.projectItems = [{ id: "project-item_test", productId: product.id }];
-    project.placements = [{ id: "placement_test", projectItemId: "project-item_test", ...pose }];
+    project.placements = [{ locked: false, id: "placement_test", projectItemId: "project-item_test", ...pose }];
     const result = createSceneMoveCommand(project, "placement_test", start, { xCm: start.xCm + 20, zCm: start.zCm + 30 });
     expect(result).toMatchObject({ ok: true, command: { type: "PLACEMENT_UPDATED" } });
     if (!result.ok || result.command?.type !== "PLACEMENT_UPDATED") throw new Error("Missing move");
@@ -63,9 +63,13 @@ describe("scene move commands", () => {
   it("moves free-standing equipment and rejects a missing catalog relationship", () => {
     const project = createDefaultProject();
     project.projectItems = [{ id: "project-item_test", productId: "product_forge_kettlebell_16kg" }];
-    project.placements = [{ id: "placement_test", projectItemId: "project-item_test", position: { xCm: 30, zCm: 40 }, rotation: 270 }];
+    project.placements = [{ locked: false, id: "placement_test", projectItemId: "project-item_test", position: { xCm: 30, zCm: 40 }, rotation: 270 }];
     expect(createSceneMoveCommand(project, "placement_test", start, { xCm: 88, zCm: 71 }))
       .toMatchObject({ ok: true, command: { payload: { patch: { position: { xCm: 50, zCm: 70 } } } } });
+    project.placements[0].locked = true;
+    expect(createSceneMoveCommand(project, "placement_test", start, { xCm: 88, zCm: 71 }))
+      .toMatchObject({ ok: false, error: expect.stringContaining("locked") });
+    project.placements[0].locked = false;
     project.projectItems = [];
     expect(createSceneMoveCommand(project, "placement_test", start, start).ok).toBe(false);
   });

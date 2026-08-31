@@ -18,7 +18,7 @@ afterEach(cleanup);
 function renderEquipment(productId: string, rotation: Placement["rotation"] = 0) {
   const product = findProductById(productId);
   if (!product) throw new Error(`Missing test product: ${productId}`);
-  const placement: Placement = {
+  const placement: Placement = { locked: false,
     id: "placement_test",
     projectItemId: "project-item_test",
     position: { xCm: 20, zCm: 30 },
@@ -152,7 +152,7 @@ describe("EquipmentEntity top views", () => {
   it("uses a warned state instead of an error for use-zone overlap", () => {
     const product = findProductById("product_arc_adjustable_bench");
     if (!product) throw new Error("Missing test product");
-    const placement: Placement = {
+    const placement: Placement = { locked: false,
       id: "placement_test",
       projectItemId: "project-item_test",
       position: { xCm: 20, zCm: 30 },

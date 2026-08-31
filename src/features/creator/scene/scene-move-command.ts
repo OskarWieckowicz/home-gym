@@ -20,6 +20,7 @@ function samePosition(first: Position, second: Position): boolean {
 }
 
 function movePlacement(project: GymProject, placement: Placement, delta: Position): SceneMoveResult {
+  if (placement.locked) return { ok: false, error: "This equipment is locked. Unlock its position in the inspector to move it." };
   const product = productForPlacement(project, placement);
   if (!product) return { ok: false, error: "This catalog product is unavailable." };
   let position = movedPosition(placement.position, delta);

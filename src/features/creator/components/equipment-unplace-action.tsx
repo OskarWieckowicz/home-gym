@@ -9,6 +9,7 @@ export function EquipmentUnplaceAction({ placementId, name, onUnplaced }: {
   readonly onUnplaced: () => void;
 }) {
   const dispatch = useProjectStore((state) => state.dispatch);
+  const locked = useProjectStore((state) => state.project.placements.find((placement) => placement.id === placementId)?.locked ?? false);
   const [error, setError] = useState("");
   const hintId = useId();
 
@@ -19,10 +20,10 @@ export function EquipmentUnplaceAction({ placementId, name, onUnplaced }: {
   }
 
   return <div className="creator-equipment-unplace">
-    <button type="button" onClick={unplace} aria-describedby={hintId}>
+    <button type="button" disabled={locked} onClick={unplace} aria-describedby={hintId}>
       Remove from room, keep on list<span className="visually-hidden">: {name}</span>
     </button>
-    <p id={hintId}>Total cost stays the same.</p>
+    <p id={hintId}>{locked ? "Unlock position before removing." : "Total cost stays the same."}</p>
     {error ? <p role="alert" className="creator-form-error">{error}</p> : null}
   </div>;
 }

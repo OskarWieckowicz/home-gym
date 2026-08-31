@@ -305,7 +305,7 @@ describe("scene controller gesture ownership and history", () => {
     const pose = snapWallMountedPlacement(target, product.dimensions, project.room)!;
     const placed: GymProject = { ...project,
       projectItems: [{ id: "project-item_mounted", productId: product.id }],
-      placements: [{ id: "placement_mounted", projectItemId: "project-item_mounted", ...pose }],
+      placements: [{ locked: false, id: "placement_mounted", projectItemId: "project-item_mounted", ...pose }],
     };
     const { controller, store, capture } = setup({ selectedId: "placement_mounted" }, placed);
     controller.pointerDown(pointer(), hit(target.xCm, target.zCm, "placement_mounted"), capture);

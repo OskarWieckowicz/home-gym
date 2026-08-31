@@ -119,7 +119,7 @@ describe("Project settings dialog", () => {
   it("preserves equipment selection, view and the inspector when settings open and close", () => {
     const project = createDefaultProject();
     project.projectItems = [{ id: "project-item_bench", productId: "product_arc_adjustable_bench" }];
-    project.placements = [{ id: "placement_bench", projectItemId: "project-item_bench", position: { xCm: 100, zCm: 100 }, rotation: 0 }];
+    project.placements = [{ locked: false, id: "placement_bench", projectItemId: "project-item_bench", position: { xCm: 100, zCm: 100 }, rotation: 0 }];
     render(<CreatorEditor initialProject={project} />);
     click("Select first equipment");
     const position = screen.getByRole("spinbutton", { name: "X (cm)" });
@@ -132,7 +132,7 @@ describe("Project settings dialog", () => {
     changeBudget("14000");
     click("Apply settings");
     expect(probe).toHaveBeenLastCalledWith(expect.objectContaining({ selectedId: "placement_bench" }));
-    expect(screen.getByRole("heading", { name: "Selected equipment" })).toBeTruthy();
+    expect(screen.getByText("Selected equipment")).toBeTruthy();
     expect(screen.getByRole("button", { name: "3D" }).getAttribute("aria-pressed")).toBe("true");
     click("2D");
     click("Set training goals");

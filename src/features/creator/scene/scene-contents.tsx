@@ -13,10 +13,11 @@ export type SceneContentsProps = {
   readonly selectedId: string | null;
   readonly issues: readonly PlanIssueRef[];
   readonly showAllUseZones?: boolean;
+  readonly presentationView?: boolean;
 };
 
 /** Visuals never own interaction. Picking uses independent domain-derived targets. */
-export function SceneContents({ project, selectedId, issues, showAllUseZones = true }: SceneContentsProps) {
+export function SceneContents({ project, selectedId, issues, showAllUseZones = true, presentationView = false }: SceneContentsProps) {
   const room = roomToScene(project.room);
   return <>
     <color attach="background" args={[SCENE_ROOM_COLORS.background]} />
@@ -28,15 +29,15 @@ export function SceneContents({ project, selectedId, issues, showAllUseZones = t
     </mesh>
     <SceneWalls room={project.room} />
     {project.obstacles.map((obstacle) => {
-      const appearance = sceneEntityAppearance(obstacle.id, selectedId, issues);
+      const appearance = sceneEntityAppearance(obstacle.id, selectedId, issues, { presentationView });
       const box = obstacleToScene(obstacle, project.room);
-      if (obstacle.kind === "unavailable-zone") return <UnavailableZone key={obstacle.id} box={box} appearance={appearance} />;
+      if (obstacle.kind === "unavailable-zone") return presentationView ? null : <UnavailableZone key={obstacle.id} box={box} appearance={appearance} />;
       return <group key={obstacle.id}>
         <Box box={box} color="#475569" appearance={appearance} />
         <SelectionOutline box={box} color={appearance.outline} />
       </group>;
     })}
-    {project.wallElements.map((element) => <WallMarker appearance={sceneEntityAppearance(element.id, selectedId, issues)} element={element} key={element.id} project={project} />)}
-    {project.placements.map((placement) => <PlacementModel appearance={sceneEntityAppearance(placement.id, selectedId, issues, showAllUseZones)} key={placement.id} placement={placement} project={project} />)}
+    {project.wallElements.map((element) => <WallMarker appearance={sceneEntityAppearance(element.id, selectedId, issues, { presentationView })} element={element} key={element.id} project={project} />)}
+    {project.placements.map((placement) => <PlacementModel appearance={sceneEntityAppearance(placement.id, selectedId, issues, { showAllUseZones, presentationView })} key={placement.id} placement={placement} project={project} />)}
   </>;
 }

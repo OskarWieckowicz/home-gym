@@ -1,3 +1,4 @@
+import { EQUIPMENT_LOCKED_MESSAGE } from "../commands/placement-command-handlers";
 import type { ProjectCommandDependencies } from "../commands/project-command-dependencies";
 import type { Position, Rotation } from "../schemas/geometry";
 import type { GymProject } from "../schemas/project";
@@ -24,7 +25,7 @@ export type PlacementCandidate = {
 };
 
 export class PlacementSuggestionError extends Error {
-  constructor(readonly code: "ENTITY_NOT_FOUND" | "INVALID_COMMAND" | "INVALID_INPUT", message: string) {
+  constructor(readonly code: "ENTITY_NOT_FOUND" | "ENTITY_LOCKED" | "INVALID_COMMAND" | "INVALID_INPUT", message: string) {
     super(message);
     this.name = "PlacementSuggestionError";
   }
@@ -59,6 +60,10 @@ function safePrefix(project: GymProject, prefix: string): string {
 }
 
 function validateReference(project: GymProject, request: PlacementSuggestionRequest, dependencies: PlacementSuggestionDependencies) {
+  if ("projectItemId" in request && project.placements.some((placement) =>
+    placement.projectItemId === request.projectItemId && placement.locked)) {
+    throw new PlacementSuggestionError("ENTITY_LOCKED", EQUIPMENT_LOCKED_MESSAGE);
+  }
   const productId = "productId" in request ? request.productId
     : project.projectItems.find((item) => item.id === request.projectItemId)?.productId;
   const product = productId ? dependencies.resolveProduct?.(productId) : undefined;

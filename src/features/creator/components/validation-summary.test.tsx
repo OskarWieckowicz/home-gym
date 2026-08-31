@@ -33,14 +33,29 @@ function ValidationCommands() {
 }
 
 describe("ValidationSummary", () => {
+  it("counts only spatial issues and presents missing access separately from budget", () => {
+    renderSummary({
+      ...createDefaultProject(), budget: 0,
+      ...toProjectItemsAndPlacements([{ id: "placement_bench", productId: "product_arc_adjustable_bench",
+        position: { xCm: 40, zCm: 40 }, rotation: 0 }]),
+      obstacles: [{ id: "obstacle_outside", kind: "obstacle", name: "Cabinet",
+        position: { xCm: 390, zCm: 0 }, dimensions: { widthCm: 100, depthCm: 40, heightCm: 100 }, rotation: 0, locked: false }],
+    });
+    expect(screen.getAllByText("1 error")).toHaveLength(1);
+    expect(screen.getAllByText("Add a door to check access.")).toHaveLength(1);
+    expect(screen.queryByText(/warning/)).toBeNull();
+    expect(screen.queryByText(/budget/i)).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Layout checks" }));
+    expect(screen.getByRole("status").textContent).toContain("Add a door to check access.");
+  });
   it("starts expanded and keeps live counts visible while collapsed across project changes and undo", () => {
     render(<ProjectStoreProvider initialProject={createDefaultProject()}>
       <ValidationSummary /><ValidationCommands />
     </ProjectStoreProvider>);
     const toggle = screen.getByRole("button", { name: "Layout checks" });
     expect(toggle.getAttribute("aria-expanded")).toBe("true");
-    expect(screen.getByText(/Access cannot be evaluated until the room has a door/)).toBeTruthy();
-    expect(screen.getByRole("status").textContent).toContain("Door needed for access check");
+    expect(screen.getByText("Add a door to check access.")).toBeTruthy();
+    expect(screen.getByRole("status").textContent).toContain("Add a door to check access.");
     fireEvent.click(toggle);
     expect(toggle.getAttribute("aria-expanded")).toBe("false");
     fireEvent.click(screen.getByRole("button", { name: "Add outside obstacle" }));
@@ -53,7 +68,7 @@ describe("ValidationSummary", () => {
     fireEvent.click(toggle);
     fireEvent.click(screen.getByRole("button", { name: "Undo test change" }));
     expect(screen.getByRole("status").textContent).not.toContain("1 error");
-    expect(screen.getByRole("status").textContent).toContain("Door needed for access check");
+    expect(screen.getByRole("status").textContent).toContain("Add a door to check access.");
     expect(toggle.getAttribute("aria-expanded")).toBe("false");
   });
 
@@ -74,7 +89,7 @@ describe("ValidationSummary", () => {
 
   it("states the no-door case as missing input rather than a layout warning", () => {
     renderSummary(createDefaultProject());
-    expect(screen.getByText(/Access cannot be evaluated until the room has a door/)).toBeTruthy();
+    expect(screen.getByText("Add a door to check access.")).toBeTruthy();
     expect(screen.queryByRole("heading", { name: "Warnings" })).toBeNull();
     expect(screen.queryByText("No layout conflicts found.")).toBeNull();
   });
@@ -109,7 +124,7 @@ describe("ValidationSummary", () => {
     });
 
     expect(screen.queryByText("No layout conflicts found.")).toBeNull();
-    expect(screen.getByText("No errors, 1 warning")).toBeTruthy();
+    expect(screen.getByText("1 warning")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Warnings" })).toBeTruthy();
     expect(screen.queryByRole("heading", { name: "Errors" })).toBeNull();
     expect(screen.getByText(/share a use zone/)).toBeTruthy();
@@ -129,7 +144,7 @@ describe("ValidationSummary", () => {
       }],
     });
 
-    expect(screen.getByText("1 error, 1 warning")).toBeTruthy();
+    expect(screen.getByText("1 error")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Errors" })).toBeTruthy();
     expect(screen.getByText(/is outside the room/)).toBeTruthy();
   });

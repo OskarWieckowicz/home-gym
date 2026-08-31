@@ -75,9 +75,9 @@ export function EquipmentEntity({
 
   return (
     <g
-      aria-label={`${product.name}, ${wallMounted ? "wall-mounted equipment" : "equipment"}, ${placement.rotation} degrees${entityIssueAriaSuffix(issueState)}`}
+      aria-label={`${product.name}, ${wallMounted ? "wall-mounted equipment" : "equipment"}, ${placement.rotation} degrees${placement.locked ? ", locked" : ""}${entityIssueAriaSuffix(issueState)}`}
       aria-pressed={selected}
-      className={["creator-plan-equipment", wallMounted && "is-wall-mounted", topViewSrc && "has-top-view", selected && "is-selected", entityIssueClassName(issueState), !interactive && "is-placement-disabled"].filter(Boolean).join(" ")}
+      className={["creator-plan-equipment", placement.locked && "is-locked", wallMounted && "is-wall-mounted", topViewSrc && "has-top-view", selected && "is-selected", entityIssueClassName(issueState), !interactive && "is-placement-disabled"].filter(Boolean).join(" ")}
       onKeyDown={(event) => onKeySelect(event, placement.id)}
       onLostPointerCapture={onCancelDrag}
       onPointerCancel={onCancelDrag}
@@ -133,6 +133,7 @@ export function EquipmentEntity({
           {product.name}
         </text>
       )}
+      {placement.locked ? <text aria-hidden="true" className="creator-equipment-lock-mark" x={physical.x + 4} y={physical.y + 14}>Locked</text> : null}
       {issueState ? (
         <text aria-hidden="true" className="creator-entity-mark" x={physical.x + physical.width - 15} y={physical.y + physical.height - 7}>!</text>
       ) : null}

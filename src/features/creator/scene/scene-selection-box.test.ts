@@ -8,7 +8,7 @@ import { WALL_OPENING_INSET_M } from "./scene-transform";
 function placedProject(productId: string, rotation: 0 | 90 | 180 | 270 = 0): GymProject {
   return { ...createDefaultProject(),
     projectItems: [{ id: "project-item_focus", productId }],
-    placements: [{ id: "placement_focus", projectItemId: "project-item_focus", position: { xCm: 30, zCm: 40 }, rotation }],
+    placements: [{ locked: false, id: "placement_focus", projectItemId: "project-item_focus", position: { xCm: 30, zCm: 40 }, rotation }],
   };
 }
 

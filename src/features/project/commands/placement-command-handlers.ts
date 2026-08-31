@@ -2,6 +2,8 @@ import { placementSchema, type GymProject, type Placement } from "../schemas/pro
 import type { ProjectCommand } from "../schemas/project-command";
 import type { CommandErrorCode } from "./command-results";
 
+export const EQUIPMENT_LOCKED_MESSAGE = "This equipment is locked. Unlock it before moving, rotating, unplacing, or removing it.";
+
 export type PlacementCommand = Extract<
   ProjectCommand,
   { type: "PLACEMENT_UPDATED" | "PLACEMENT_REMOVED" }
@@ -25,7 +27,8 @@ function placementsEqual(first: Placement, second: Placement): boolean {
     first.projectItemId === second.projectItemId &&
     first.position.xCm === second.position.xCm &&
     first.position.zCm === second.position.zCm &&
-    first.rotation === second.rotation
+    first.rotation === second.rotation &&
+    first.locked === second.locked
   );
 }
 
@@ -38,6 +41,12 @@ export function applyPlacementCommand(
   );
   if (!current) {
     return { ok: false, code: "ENTITY_NOT_FOUND" };
+  }
+
+  const isUnlockOnly = command.type === "PLACEMENT_UPDATED" &&
+    Object.keys(command.payload.patch).length === 1 && command.payload.patch.locked === false;
+  if (current.locked && !isUnlockOnly) {
+    return { ok: false, code: "ENTITY_LOCKED", message: EQUIPMENT_LOCKED_MESSAGE };
   }
 
   if (command.type === "PLACEMENT_REMOVED") {

@@ -111,6 +111,7 @@ export function serializePlacement(placement: Placement, project: GymProject) {
     productId,
     position: { ...placement.position },
     rotation: placement.rotation,
+    locked: placement.locked,
     mounting: product ? getEffectiveMounting(product) : { kind: "floor" as const },
   };
 }

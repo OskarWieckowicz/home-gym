@@ -6,6 +6,23 @@ import { placementSuggestionRequestSchema } from "./request-schema";
 import { suggestionDependencies, suggestionProject } from "./test-fixtures";
 
 describe("placement candidate generation", () => {
+  it("rejects a locked target before allocating even an oversized search", () => {
+    const project = suggestionProject();
+    project.room.widthCm = 1_000_000_000;
+    project.projectItems.push({ id: "project-item_locked", productId: "product_test" });
+    project.placements.push({
+      id: "placement_locked", projectItemId: "project-item_locked", locked: true,
+      position: { xCm: 0, zCm: 0 }, rotation: 0,
+    });
+    try {
+      generatePlacementCandidates(project, { projectItemId: "project-item_locked" }, suggestionDependencies);
+      throw new Error("Expected a lock error.");
+    } catch (error) {
+      expect(error).toMatchObject({ code: "ENTITY_LOCKED" });
+    }
+    expect(project.placements[0].locked).toBe(true);
+  });
+
   it("scans z, x, cardinal rotation on an origin-aligned 10cm grid", () => {
     const candidates = generatePlacementCandidates(suggestionProject(), {
       productId: "product_test", rotations: [270, 90, 90],
@@ -23,7 +40,7 @@ describe("placement candidate generation", () => {
     project.projectItems.push({ id: "project-item_test", productId: "product_test" });
     const request = { projectItemId: "project-item_test", rotations: [0 as const] };
     expect(generatePlacementCandidates(project, request, suggestionDependencies)[0].command.type).toBe("PROJECT_ITEM_PLACED");
-    project.placements.push({ id: "placement_test", projectItemId: "project-item_test", position: { xCm: 20, zCm: 20 }, rotation: 0 });
+    project.placements.push({ locked: false, id: "placement_test", projectItemId: "project-item_test", position: { xCm: 20, zCm: 20 }, rotation: 0 });
     expect(generatePlacementCandidates(project, request, suggestionDependencies)[0].command).toEqual({
       type: "PLACEMENT_UPDATED", payload: { placementId: "placement_test", patch: { position: { xCm: 0, zCm: 0 }, rotation: 0 } },
     });

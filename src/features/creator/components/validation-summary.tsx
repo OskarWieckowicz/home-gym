@@ -24,7 +24,7 @@ function issueList(
   return (
     <div>
       <h3>{title}</h3>
-      <ul aria-live="polite">
+      <ul role="list">
         {issues.map((issue) => (
           <li
             className={`creator-issue ${severityClass} creator-issue-${issue.code.toLowerCase()}`}
@@ -58,17 +58,14 @@ export function ValidationSummary() {
       productForPlacement(project, placement)?.name ?? "Unavailable product",
     ] as const),
   ]);
-  const errors = validation.issues.filter((issue) => issue.severity === "error");
-  const accessNotEvaluated = validation.issues.find(
-    (issue) => issue.code === "ACCESS_NOT_EVALUATED",
-  );
-  const warnings = validation.issues.filter(
-    (issue) => issue.severity === "warning" && issue.code !== "ACCESS_NOT_EVALUATED",
-  );
+  // Budget has one dedicated presentation in ProjectCost. Missing access input is
+  // not a spatial conflict; all layout badges and lists use this same collection.
   const layoutIssues = validation.issues.filter(
-    (issue) => issue.code !== "ACCESS_NOT_EVALUATED",
+    (issue) => issue.code !== "ACCESS_NOT_EVALUATED" && issue.code !== "BUDGET_EXCEEDED",
   );
-  const counts = `${countLabel(validation.errorCount, "error", "errors")}, ${countLabel(validation.warningCount, "warning", "warnings")}`;
+  const errors = layoutIssues.filter((issue) => issue.severity === "error");
+  const warnings = layoutIssues.filter((issue) => issue.severity === "warning");
+  const accessNotEvaluated = validation.issues.some((issue) => issue.code === "ACCESS_NOT_EVALUATED");
 
   return (
     <section className="creator-validation" aria-labelledby="validation-title">
@@ -76,39 +73,17 @@ export function ValidationSummary() {
         aria-expanded={expanded} aria-controls="validation-details" onClick={() => setExpanded((value) => !value)}>
         <span>Layout checks</span><ChevronDown aria-hidden="true" size={16} />
       </button></h2>
-      <div className="creator-validation-badges" role="status" aria-live="polite">
-        {validation.errorCount > 0 ? <span className="is-error">{countLabel(validation.errorCount, "error", "errors")}</span> : null}
-        {warnings.length > 0 ? <span className="is-warning">{countLabel(warnings.length, "warning", "warnings")}</span> : null}
-        {accessNotEvaluated ? <span className="is-missing">Door needed for access check</span> : null}
-        {validation.issues.length === 0 ? <span className="is-clear">No conflicts</span> : null}
+      <div role="status" aria-live="polite" aria-atomic="true">
+        <div className="creator-validation-badges">
+          {errors.length > 0 ? <span className="is-error">{countLabel(errors.length, "error", "errors")}</span> : null}
+          {warnings.length > 0 ? <span className="is-warning">{countLabel(warnings.length, "warning", "warnings")}</span> : null}
+          {layoutIssues.length === 0 && !accessNotEvaluated ? <span className="is-clear">No layout conflicts found.</span> : null}
+        </div>
+        {accessNotEvaluated ? <p className="creator-validation-missing-input">Add a door to check access.</p> : null}
       </div>
       <div id="validation-details" hidden={!expanded}>
-      {validation.issues.length === 0 ? (
-        <p className="creator-valid"><span aria-hidden="true">✓</span> No layout conflicts found.</p>
-      ) : (
-        <>
-          {layoutIssues.length === 0 && accessNotEvaluated ? (
-            <p className="creator-validation-missing-input">
-              Access cannot be evaluated until the room has a door. Add a door to check
-              that equipment and openings can be reached.
-            </p>
-          ) : (
-            <p className={validation.errorCount === 0 ? "creator-validation-warnings-only" : "creator-validation-counts"}>
-              {validation.errorCount === 0
-                ? `No errors, ${countLabel(validation.warningCount, "warning", "warnings")}`
-                : counts}
-            </p>
-          )}
-          {accessNotEvaluated && layoutIssues.length > 0 ? (
-            <p className="creator-validation-missing-input">
-              Access cannot be evaluated until the room has a door. Add a door to check
-              that equipment and openings can be reached.
-            </p>
-          ) : null}
-          {issueList("Errors", errors, names, "creator-issue-error")}
-          {issueList("Warnings", warnings, names, "creator-issue-warning")}
-        </>
-      )}
+        {issueList("Errors", errors, names, "creator-issue-error")}
+        {issueList("Warnings", warnings, names, "creator-issue-warning")}
       </div>
     </section>
   );

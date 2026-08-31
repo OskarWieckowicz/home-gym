@@ -37,7 +37,7 @@ describe("local project storage", () => {
     ["corrupt", "not json", "invalid-json"],
     [
       "unsupported",
-      JSON.stringify({ ...createDefaultProject(), version: 5 }),
+      JSON.stringify({ ...createDefaultProject(), version: createDefaultProject().version + 1 }),
       "unsupported-version",
     ],
   ])("contains and classifies %s stored content", (_label, json, code) => {

@@ -17,7 +17,7 @@ describe("projectVisualAssetSources", () => {
       { id: "fallback", productId: "product_foundry_wall_rack" },
       { id: "unplaced", productId: "product_summit_power_cage" },
     ];
-    project.placements = ["rack-one", "rack-two", "bench", "fallback"].map((id) => ({
+    project.placements = ["rack-one", "rack-two", "bench", "fallback"].map((id) => ({ locked: false,
       id: `placement_${id}`, projectItemId: id,
       position: { xCm: 0, zCm: 0 }, rotation: 0,
     }));

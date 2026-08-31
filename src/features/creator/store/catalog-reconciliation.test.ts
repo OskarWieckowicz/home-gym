@@ -13,7 +13,7 @@ function legacyProject(): GymProject {
     budget: 12_345,
     trainingGoals: ["strength"],
     projectItems: productIds.map((productId, index) => ({ id: `project-item_${index}`, productId })),
-    placements: productIds.map((_, index) => ({
+    placements: productIds.map((_, index) => ({ locked: false,
       id: `placement_${index}`, projectItemId: `project-item_${index}`,
       position: { xCm: 100 + index * 50, zCm: 140 }, rotation: 0,
     })),

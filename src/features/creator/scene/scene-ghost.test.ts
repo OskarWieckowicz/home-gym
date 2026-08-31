@@ -104,7 +104,7 @@ describe("command-aligned scene ghosts", () => {
   it.each([0, 90, 180, 270] as const)("previews moved/rotated equipment and its asymmetric use zone (%s°)", (rotation) => {
     const product = catalogProducts.find((product) => product.id === "product_northstar_half_rack")!;
     const project: GymProject = { ...createDefaultProject(), projectItems: [{ id: "project-item_existing", productId: product.id }],
-      placements: [{ id: "placement_existing", projectItemId: "project-item_existing", position: { xCm: 20, zCm: 30 }, rotation: 0 }],
+      placements: [{ locked: false, id: "placement_existing", projectItemId: "project-item_existing", position: { xCm: 20, zCm: 30 }, rotation: 0 }],
     };
     const command = { type: "PLACEMENT_UPDATED", payload: { placementId: "placement_existing", patch: { position: { xCm: 100, zCm: 80 }, rotation } } } as const;
     const ghosts = sceneCommandGhost(command, project);

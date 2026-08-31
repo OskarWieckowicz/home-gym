@@ -105,7 +105,7 @@ describe("room read handlers", () => {
       canUndo: true,
       canRedo: false,
       project: {
-        version: 4,
+        version: 5,
         placements: [],
         wallElements: [],
         budget: 12_500,

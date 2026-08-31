@@ -79,9 +79,11 @@ function Host({ store, onFallback, initialTool = null }: {
   const [productId, setProductId] = useState<string | null>(null);
   const [selection, setSelection] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [presentationView, setPresentationView] = useState(false);
   const [preset, setPreset] = useState<SceneCameraPreset>({ kind: "fit", sequence: 0 });
   const cancel = () => { setTool(null); setProductId(null); };
   return <>
+    <button onClick={() => setPresentationView((value) => !value)}>Presentation view</button>
     <button onClick={() => setPreset((previous) => ({ kind: "fit", sequence: previous.sequence + 1 }))}>Fit view</button>
     <button onClick={() => setPreset((previous) => ({ kind: "top", sequence: previous.sequence + 1 }))}>Top view</button>
     <button onClick={() => { cancel(); setTool("obstacle"); }}>Choose obstacle</button>
@@ -89,7 +91,7 @@ function Host({ store, onFallback, initialTool = null }: {
     <label htmlFor="exact-field">Exact position</label><input id="exact-field" />
     <p data-testid="selected-id">{selection}</p>
     <ScenePreview project={state.project} store={store} selectedId={selection} issues={[]}
-      cameraPreset={preset}
+      cameraPreset={preset} presentationView={presentationView}
       activeTool={tool} activeProductId={productId} activeProjectItemId={null} placementError={error}
       onSelect={setSelection} onCancelPlacement={cancel} onPlacementError={setError} onFallback={onFallback}
       onPlacementComplete={(id) => { setSelection(id); cancel(); }} />
@@ -123,6 +125,41 @@ const select = (target: Element) => {
 };
 
 describe("scene DOM event integration", () => {
+  it("does not expose placement actions when presentation is requested with an active tool", () => {
+    const { target, store } = mount({ empty: true, tool: "obstacle" });
+    fireEvent.click(screen.getByRole("button", { name: "Presentation view" }));
+    expect(screen.queryByRole("button", { name: "Place at centre" })).toBeNull();
+    expect(screen.queryByRole("group", { name: "Placement controls" })).toBeNull();
+    expect(scene.camera.placing).toBe(false);
+    down(target); move(target); up(target);
+    fireEvent.keyDown(target, { key: "Enter" });
+    expect(store.getState()).toMatchObject({ revision: 0, canUndo: false });
+  });
+  it("cancels active edits and passes drags to the camera in presentation view without changing selection or state", () => {
+    const { target, store, release, capture } = mount();
+    select(target);
+    down(target); move(target);
+    fireEvent.click(screen.getByRole("button", { name: "Presentation view" }));
+    expect(release).toHaveBeenCalledOnce();
+    up(target);
+    const canvas = screen.getByTestId("scene-renderer");
+    const navigate = vi.fn();
+    canvas.addEventListener("pointerdown", navigate);
+    down(canvas); move(canvas); up(canvas);
+    expect(navigate).toHaveBeenCalledOnce();
+    expect(capture).toHaveBeenCalledOnce();
+    expect(screen.getByTestId("selected-id").textContent).toBe("obstacle_box");
+    fireEvent.drop(target, { dataTransfer: { getData: () => "product_northstar_half_rack" }, clientX: 200, clientY: 160 });
+    fireEvent.keyDown(target, { key: "Enter" });
+    expect(store.getState()).toMatchObject({ revision: 0, canUndo: false });
+    expect(screen.queryByRole("group", { name: "Use zone legend" })).toBeNull();
+    expect(screen.getByRole("group", { name: "3D room presentation view" })).toBe(target);
+    expect(screen.queryByRole("group", { name: "Editable 3D room" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Presentation view" }));
+    expect(screen.getByRole("group", { name: "Use zone legend" })).toBeTruthy();
+    down(target); move(target); up(target);
+    expect(store.getState().revision).toBe(1);
+  });
   it("focuses the editing surface, selects IDs, and commits a captured drag once", () => {
     const { target, store, capture, release } = mount();
     const focus = vi.spyOn(target, "focus");

@@ -80,6 +80,7 @@ describe("applyProjectCommand", () => {
     ]);
     expect(placed.project.placements).toEqual([
       {
+        locked: false,
         id: "placement_generated",
         projectItemId: "project-item_generated",
         position: { xCm: 10, zCm: 20 },
@@ -151,6 +152,7 @@ describe("applyProjectCommand", () => {
       ...project,
       projectItems: [{ id: "project-item_generated", productId: "product_rack" }],
       placements: [{
+        locked: false,
         id: "placement_generated",
         projectItemId: "project-item_generated",
         position: { xCm: 0, zCm: 0 },
@@ -212,6 +214,7 @@ describe("applyProjectCommand", () => {
     );
     expect(placed.project.placements).toEqual([
       {
+        locked: false,
         id: "placement_generated",
         projectItemId: "project-item_generated",
         position: { xCm: 40, zCm: 50 },

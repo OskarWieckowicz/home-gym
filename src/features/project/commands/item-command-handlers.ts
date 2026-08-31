@@ -8,6 +8,7 @@ import {
 import type { ProjectCommand } from "../schemas/project-command";
 import type { CommandErrorCode } from "./command-results";
 import type { ResolvedProjectCommandDependencies } from "./project-command-dependencies";
+import { EQUIPMENT_LOCKED_MESSAGE } from "./placement-command-handlers";
 import { findPlacementForItem, findProjectItem } from "../project-lookups";
 
 export type ItemCommand = Extract<
@@ -179,6 +180,9 @@ function applyRemoveItem(
     return { ok: false, code: "ENTITY_NOT_FOUND" };
   }
   const placement = findPlacementForItem(project, item.id);
+  if (placement?.locked) {
+    return { ok: false, code: "ENTITY_LOCKED", message: EQUIPMENT_LOCKED_MESSAGE };
+  }
   const affectedEntityIds = placement ? [item.id, placement.id] : [item.id];
   return {
     ok: true,

@@ -4,12 +4,12 @@ import { createDefaultProject } from "./defaults";
 import { gymProjectSchema } from "./schemas/project";
 
 describe("createDefaultProject", () => {
-  it("returns a valid version 4 empty project", () => {
+  it("returns a valid version 5 empty project", () => {
     const project = createDefaultProject();
 
     expect(gymProjectSchema.parse(project)).toEqual(project);
     expect(project).toMatchObject({
-      version: 4,
+      version: 5,
       obstacles: [],
       wallElements: [],
       projectItems: [],

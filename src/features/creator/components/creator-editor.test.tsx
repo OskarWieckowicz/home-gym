@@ -49,6 +49,68 @@ function change(name: string, value: string) {
 }
 
 describe("CreatorEditor", () => {
+  it("locks equipment through the shared store and keeps manual controls, list actions and undo consistent", () => {
+    const project = createDefaultProject();
+    project.projectItems = [{ id: "project-item_rack", productId: "product_northstar_half_rack" }];
+    project.placements = [{ id: "placement_rack", projectItemId: "project-item_rack", locked: false,
+      position: { xCm: 80, zCm: 80 }, rotation: 0 }];
+    render(<CreatorEditor initialProject={project} />);
+    fireEvent.click(screen.getByRole("button", { name: "Scene select first" }));
+    expect(screen.getByRole("heading", { name: "Northstar Half Rack" })).toBeTruthy();
+    const before = sceneProps.mock.lastCall![0] as ScenePreviewProps;
+    const lock = screen.getByRole("button", { name: "Lock position" });
+    fireEvent.click(lock);
+    expect(screen.getByRole("button", { name: "Lock position" }).getAttribute("aria-pressed")).toBe("true");
+    expect(before.store.getState().project.placements[0].locked).toBe(true);
+    expect(screen.getByRole("spinbutton", { name: "X (cm)" })).toHaveProperty("disabled", true);
+    for (const name of ["Apply changes", "Rotate 90°", "Remove from project"]) {
+      expect(screen.getByRole("button", { name })).toHaveProperty("disabled", true);
+    }
+    expect(screen.getByRole("button", { name: "Focus selected" })).toHaveProperty("disabled", false);
+    const revision = before.store.getState().revision;
+    act(() => { expect(before.store.getState().dispatch({ type: "PLACEMENT_UPDATED", payload: {
+      placementId: "placement_rack", patch: { position: { xCm: 120, zCm: 120 } },
+    } })).toMatchObject({ ok: false, error: { code: "ENTITY_LOCKED" } }); });
+    expect(before.store.getState().revision).toBe(revision);
+    fireEvent.click(screen.getByRole("tab", { name: "Project items" }));
+    expect(screen.getByText("Placed · 0° · Locked")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Remove Northstar Half Rack from project" })).toHaveProperty("disabled", true);
+    for (const button of screen.getAllByRole("button", { name: /Remove from room, keep on list/ })) {
+      expect(button).toHaveProperty("disabled", true);
+    }
+    fireEvent.click(screen.getByRole("button", { name: "Undo" }));
+    expect(before.store.getState().project.placements[0].locked).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: "Redo" }));
+    expect(before.store.getState().project.placements[0].locked).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "Lock position" }));
+    expect(before.store.getState().project.placements[0].locked).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: "Rotate 90°" }));
+    expect(before.store.getState().project.placements[0].rotation).toBe(90);
+  });
+  it("keeps selection, validation, camera and layer choice across presentation view without editing history", () => {
+    const project = createDefaultProject();
+    project.obstacles = [{ id: "obstacle_box", name: "Box", kind: "obstacle", rotation: 0, locked: false,
+      position: { xCm: 100, zCm: 80 }, dimensions: { widthCm: 80, depthCm: 50, heightCm: 100 } }];
+    render(<CreatorEditor initialProject={project} />);
+    fireEvent.click(screen.getByRole("button", { name: "Scene select first" }));
+    fireEvent.click(screen.getByRole("button", { name: "Show all use zones" }));
+    const before = sceneProps.mock.lastCall![0] as ScenePreviewProps;
+    const state = before.store.getState();
+    const toggle = screen.getByRole("button", { name: "Presentation view" });
+    fireEvent.click(toggle);
+    expect(toggle.getAttribute("aria-pressed")).toBe("true");
+    expect(sceneProps.mock.lastCall![0]).toMatchObject({ presentationView: true,
+      selectedId: before.selectedId, issues: before.issues, cameraPreset: before.cameraPreset, showAllUseZones: true });
+    expect(screen.getByRole("button", { name: "Show all use zones" })).toHaveProperty("disabled", true);
+    expect(screen.getByText("Add a door to check access.")).toBeTruthy();
+    expect(before.store.getState()).toBe(state);
+    fireEvent.click(toggle);
+    expect(sceneProps.mock.lastCall![0]).toMatchObject({ presentationView: false, showAllUseZones: true });
+    fireEvent.click(toggle);
+    fireEvent.click(screen.getByRole("button", { name: "Place Northstar Half Rack" }));
+    expect(sceneProps.mock.lastCall![0]).toMatchObject({ presentationView: false, activeProductId: "product_northstar_half_rack" });
+    expect(before.store.getState()).toBe(state);
+  });
   it("toggles all use zones without changing the project, selection, camera or history", () => {
     render(<CreatorEditor initialProject={createDefaultProject()} />);
     const initial = sceneProps.mock.lastCall![0] as ScenePreviewProps;
@@ -177,7 +239,7 @@ describe("CreatorEditor", () => {
       { id: "project-item_rack", productId: "product_northstar_half_rack" },
       { id: "project-item_bench", productId: "product_arc_adjustable_bench" },
     ];
-    project.placements = project.projectItems.map((item, index) => ({
+    project.placements = project.projectItems.map((item, index) => ({ locked: false,
       id: index === 0 ? "placement_rack" : "placement_bench",
       projectItemId: item.id, position: { xCm: 100, zCm: 100 }, rotation: 0,
     }));
@@ -305,7 +367,7 @@ describe("CreatorEditor", () => {
     fireEvent.click(screen.getByRole("button", { name: "Place Northstar Half Rack" }));
     fireEvent.pointerDown(plan, { button: 0, clientX: 300, clientY: 230 });
 
-    expect(screen.getByRole("heading", { name: "Selected equipment" })).toBeTruthy();
+    expect(screen.getByText("Selected equipment")).toBeTruthy();
     expect(screen.getByRole("button", { name: /Northstar Half Rack, equipment/ })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Rotate 90°" }));
     expect(screen.getByRole("button", { name: /Northstar Half Rack, equipment, 90 degrees/ })).toBeTruthy();

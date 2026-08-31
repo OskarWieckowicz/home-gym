@@ -49,6 +49,7 @@ function EditorWorkspace() {
   const [viewMode, setViewMode] = useState<"2d" | "3d">("3d");
   const [cameraPreset, setCameraPreset] = useState<SceneCameraPreset>({ kind: "fit", sequence: 0 });
   const [showAllUseZones, setShowAllUseZones] = useState(false);
+  const [presentationView, setPresentationView] = useState(false);
   const obstacles = useProjectStore((state) => state.project.obstacles);
   const placements = useProjectStore((state) => state.project.placements);
   const wallElements = useProjectStore((state) => state.project.wallElements);
@@ -77,7 +78,13 @@ function EditorWorkspace() {
     setPlacementError("");
   }
 
+  function changePresentationView(value: boolean) {
+    clearPlacementMode();
+    setPresentationView(value);
+  }
+
   function changeView(mode: "2d" | "3d") {
+    setPresentationView(false);
     clearPlacementMode();
     setCameraPreset((previous) => ({ kind: "fit", sequence: previous.sequence + 1 }));
     setViewMode(mode);
@@ -109,6 +116,7 @@ function EditorWorkspace() {
   }
 
   function changeTool(tool: PlacementTool) {
+    setPresentationView(false);
     setActiveProductId(null);
     setActiveProjectItemId(null);
     setSelectedId(null);
@@ -118,6 +126,7 @@ function EditorWorkspace() {
   }
 
   function changeProduct(productId: string) {
+    setPresentationView(false);
     setActiveTool(null);
     setActiveProjectItemId(null);
     setSelectedId(null);
@@ -142,6 +151,7 @@ function EditorWorkspace() {
   }
 
   function placeItem(projectItemId: string) {
+    setPresentationView(false);
     setActiveTool(null);
     setActiveProductId(null);
     setSelectedId(null);
@@ -177,6 +187,7 @@ function EditorWorkspace() {
         <div className="creator-viewport">
         <CreatorViewportToolbar viewMode={viewMode} onViewModeChange={changeView}
           canFocusSelection={selectionBox !== null} onCameraPreset={changeCamera}
+          presentationView={presentationView} onPresentationViewChange={changePresentationView}
           showAllUseZones={showAllUseZones} onShowAllUseZonesChange={setShowAllUseZones} />
         {viewMode === "2d" ? <RoomPlan
           activeProductId={activeProductId}
@@ -190,14 +201,14 @@ function EditorWorkspace() {
           selectedId={visibleSelectedId}
         /> : <ScenePreview project={project} selectedId={visibleSelectedId} issues={issues} store={store}
           cameraPreset={cameraPreset}
-          showAllUseZones={showAllUseZones}
+          showAllUseZones={showAllUseZones} presentationView={presentationView}
           activeTool={activeTool} activeProductId={activeProductId} activeProjectItemId={activeProjectItemId}
           placementError={placementError} onSelect={select} onPlacementComplete={finishPlacement}
           onPlacementError={setPlacementError} onCancelPlacement={clearPlacementMode} onFallback={() => changeView("2d")} />}
         </div>
         <aside className="creator-side creator-properties" aria-label="Properties and validation" ref={propertiesRef} tabIndex={-1}>
           <ProjectCost onEditBudget={(trigger) => openSettings("budget", trigger)} onEditGoals={(trigger) => openSettings("goals", trigger)} />
-          <h2 className="creator-properties-title">Properties</h2>
+          <p className="creator-properties-title">Properties</p>
           {displayedPanel === "room" ? <RoomForm /> : null}
           {displayedPanel === "selected" && selectedObstacle ? <ObstacleForm obstacle={selectedObstacle} onRemoved={() => select(null)} /> : null}
           {displayedPanel === "selected" && selectedWallElement ? <WallElementForm element={selectedWallElement} onRemoved={() => select(null)} /> : null}

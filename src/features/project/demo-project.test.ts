@@ -9,9 +9,9 @@ import { analyzeProject } from "./validation/analyze-project";
 import { buildProjectSummary } from "./summary/project-summary";
 
 describe("bundled demo project", () => {
-  it("provides the v4 strength room with four placed catalog products", () => {
+  it("provides the current-format strength room with four placed catalog products", () => {
     const project = createDemoProject();
-    expect(project.version).toBe(4);
+    expect(project.version).toBe(5);
     expect(project.room).toEqual({ widthCm: 400, depthCm: 320, heightCm: 240 });
     expect(project.budget).toBe(10_000);
     expect(project.trainingGoals).toEqual(["strength", "muscle-gain"]);

@@ -133,7 +133,7 @@ describe("buildProjectSummary", () => {
   it("excludes overhead mounts but counts floor-reserving mounts and unavailable zones", () => {
     const project = createDefaultProject();
     project.projectItems = [{ id: "project-item_test", productId: "product_test" }];
-    project.placements = [{ id: "placement_test", projectItemId: "project-item_test", position: { xCm: 0, zCm: 0 }, rotation: 90 }];
+    project.placements = [{ locked: false, id: "placement_test", projectItemId: "project-item_test", position: { xCm: 0, zCm: 0 }, rotation: 90 }];
     project.obstacles = [{ id: "obstacle_zone", kind: "unavailable-zone", name: "Reserved", position: { xCm: 300, zCm: 0 }, dimensions: { widthCm: 20, depthCm: 20 }, rotation: 0, locked: false }];
     const resolve: SummaryProductResolver = () => ({ name: "Mounted", dimensions: { widthCm: 100, depthCm: 50, heightCm: 20 }, placementMode: "floor", trainingGoals: ["strength"], exercises: ["Pull-up"], mounting: { kind: "wall", bottomHeightCm: 200 } });
     const analysis = createProjectAnalysis([]);

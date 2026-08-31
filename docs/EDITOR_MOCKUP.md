@@ -17,7 +17,11 @@ The creator omits the marketing header/footer. All editor labels are English.
 The **2D / 3D** switch, undo/redo and room dimensions live in a separate toolbar directly above
 the viewport. **Fit view** frames the room; **Focus selected** frames a selected placed object,
 and is disabled for no selection or an unplaced purchase. **Top view** is secondary under Camera
-views. **Show all use zones** reveals the full zone layer. These controls stay mounted while the
+views. **Show all use zones** reveals the full zone layer. **Presentation view** hides all use
+zones, unavailable zones, selection outlines and diagnostic colors. It makes the scene camera-only
+while panel checks and inspector editing stay available. It preserves selection and the prior
+use-zone layer choice. Starting placement or switching to 2D exits presentation view.
+These controls stay mounted while the
 3D scene loads or fails, and change only presentation state, never project history.
 
 ### Element panel
@@ -102,10 +106,24 @@ Below the cost section, the panel shows parameters of the selected element:
 
 Changes made in the form immediately update both views.
 
-The inspector has a persistent Properties heading, a contextual form and a selected-product
-thumbnail. Clearing selection returns to room properties. Layout checks start expanded;
-live error/warning badges and an explicit missing-door message remain visible when collapsed.
+The inspector has a quiet Properties label, a contextual form and a selected-product
+thumbnail with the equipment name as its main heading. Clearing selection returns to room properties.
+Layout checks start expanded. Their badges and short issue lists use the same spatial issue set:
+budget overrun appears only in Project cost, and missing access input is separate from conflicts.
+The single **Add a door to check access.** message and error/warning badges remain visible when collapsed.
 Missing access information is not presented as a completed or successful access check.
+Domain validation and WebMCP results still include all issues, including budget and missing doors.
+
+Selected placed equipment shows **Distances to surroundings**: signed gaps to the four room
+walls (named as in 2D) and the nearest physical obstacle. Measurements use rotated physical
+footprints in centimeters, not GLBs. Obstacle distance is the shortest planar edge distance,
+with touching and overlapping footprints identified explicitly. Unavailable zones, equipment
+use zones and height are excluded. These measurements are not access or safety clearance claims.
+
+**Lock position** persists a placement lock shared by manual and agent edits. Locked equipment
+remains selectable and focusable, but cannot move, rotate, unplace or be removed from the project.
+The inspector and project list disable those actions and explain how to unlock. 2D also marks
+locked equipment. Lock/unlock uses the same domain command and undo/redo history as other edits.
 
 The panel is an inspector for an existing selection, not a creation wizard. The displayed fields depend on the selected kind: physical obstacles include height, unavailable zones do not, and doors/windows expose only their minimal wall properties.
 
@@ -137,7 +155,7 @@ zones for selected and flagged equipment by default; **Show all use zones** reve
 Warnings/errors stay visible when the all-zones layer is off. The legend names use zones, warnings
 and errors, and states which layer is visible. Placement previews remain distinct purple outlines,
 not a claim that a draft has passed validation. The read-only summary retains all use zones.
-Unavailable zones are always-visible flat areas with a neutral gray fill, clipped diagonal
+Outside presentation view, unavailable zones are flat areas with a neutral gray fill, clipped diagonal
 hatching and a solid perimeter, distinct from dashed equipment use zones. Selection emphasizes
 their perimeter; issue colors remain available. Their legend entry explains the pattern. This
 presentation does not change their footprint or blocked-area checks.

@@ -1,7 +1,7 @@
 import { PROJECT_VERSION } from "../schemas/project";
 import { projectItemIdFromPlacementId } from "./project-item-ids";
 
-export const SUPPORTED_PROJECT_VERSIONS = [1, 2, 3, PROJECT_VERSION] as const;
+export const SUPPORTED_PROJECT_VERSIONS = [1, 2, 3, 4, PROJECT_VERSION] as const;
 export const CURRENT_PROJECT_VERSION = PROJECT_VERSION;
 
 export type ProjectMigrationError = {
@@ -19,6 +19,7 @@ const migrations = new Map<number, ProjectMigration>([
   [1, migrateV1ToV2],
   [2, migrateV2ToV3],
   [3, migrateV3ToV4],
+  [4, migrateV4ToV5],
 ]);
 
 function migrateV1ToV2(project: unknown): unknown {
@@ -89,6 +90,26 @@ function migrateV3ToV4(project: unknown): unknown {
     version: 4,
     projectItems,
     placements: migratedPlacements,
+  };
+}
+
+function migrateV4ToV5(project: unknown): unknown {
+  if (typeof project !== "object" || project === null || Array.isArray(project)) {
+    throw new Error("Invalid version 4 project.");
+  }
+  const placements = Reflect.get(project, "placements");
+  if (!Array.isArray(placements)) {
+    throw new Error("Version 4 project must include placements.");
+  }
+  return {
+    ...project,
+    version: 5,
+    placements: placements.map((placement) => {
+      if (typeof placement !== "object" || placement === null || Array.isArray(placement)) {
+        throw new Error("Version 4 placements must be objects.");
+      }
+      return { ...placement, locked: false };
+    }),
   };
 }
 

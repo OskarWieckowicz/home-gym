@@ -50,7 +50,7 @@ describe("suggestPlacements", () => {
   it("can retain an already optimal pose or propose a move without duplicating the existing item", () => {
     const project = suggestionProject();
     project.projectItems.push({ id: "project-item_existing", productId: "product_test" });
-    project.placements.push({ id: "placement_existing", projectItemId: "project-item_existing",
+    project.placements.push({ locked: false, id: "placement_existing", projectItemId: "project-item_existing",
       position: { xCm: 0, zCm: 0 }, rotation: 0 });
     const request = { projectItemId: "project-item_existing", rotations: [0 as const], limit: 1 };
     const current = suggestPlacements(project, request, suggestionDependencies).candidates[0];
@@ -108,7 +108,7 @@ describe("suggestPlacements", () => {
     const project = suggestionProject();
     project.room.widthCm = 100;
     project.projectItems.push({ id: "project-item_existing", productId: "product_test" });
-    project.placements.push({ id: "placement_existing", projectItemId: "project-item_existing", position: { xCm: 0, zCm: 0 }, rotation: 0 });
+    project.placements.push({ locked: false, id: "placement_existing", projectItemId: "project-item_existing", position: { xCm: 0, zCm: 0 }, rotation: 0 });
     const result = suggestPlacements(project, {
       productId: "product_test", rotations: [0], limit: 10,
       region: { minXCm: 20, maxXCm: 80, minZCm: 0, maxZCm: 0 },

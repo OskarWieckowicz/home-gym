@@ -106,7 +106,7 @@ function project(
   } = {},
 ): GymProject {
   return {
-    version: 4,
+    version: 5,
     room: {
       widthCm: extras.widthCm ?? 300,
       depthCm: extras.depthCm ?? 400,
@@ -415,7 +415,7 @@ describe("mounted use zones and ceiling", () => {
 describe("supplied mounted-bar project", () => {
   it("loads, validates clean, and reports the catalog bar as mounted", () => {
     const supplied: GymProject = {
-      version: 4,
+      version: 5,
       room: { widthCm: 300, depthCm: 400, heightCm: 250 },
       obstacles: [],
       wallElements: [door("bottom", 100)],

@@ -85,7 +85,7 @@ describe("catalog placement commands", () => {
       .toEqual({ ok: false, error: "This project item is unavailable." });
     expect(createPlaceProjectItemCommand(items[0].id, "product_anchor_pullup_bar", target, project))
       .toEqual({ ok: false, error: "This project item is unavailable." });
-    const placed: GymProject = { ...project, placements: [{
+    const placed: GymProject = { ...project, placements: [{ locked: false,
       id: "placement_existing", projectItemId: items[0].id, position: { xCm: 0, zCm: 0 }, rotation: 0,
     }] };
     expect(createPlaceProjectItemCommand(items[0].id, productId, target, placed))

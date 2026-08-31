@@ -1,9 +1,11 @@
 "use client";
-import { ChevronDown, Focus, Layers, Maximize, Redo2, Undo2 } from "lucide-react";
+import { ChevronDown, Focus, Image as ImageIcon, Layers, Maximize, Redo2, Undo2 } from "lucide-react";
 import { useProjectStore } from "../store/project-store-context";
 import { EditorPopover } from "./editor-popover";
 
-export function CreatorViewportToolbar({ viewMode, onViewModeChange, onCameraPreset, canFocusSelection, showAllUseZones, onShowAllUseZonesChange }: {
+export function CreatorViewportToolbar({ viewMode, onViewModeChange, onCameraPreset, canFocusSelection, showAllUseZones, onShowAllUseZonesChange, presentationView, onPresentationViewChange }: {
+  readonly presentationView: boolean;
+  readonly onPresentationViewChange: (show: boolean) => void;
   readonly viewMode: "2d" | "3d";
   readonly onViewModeChange: (mode: "2d" | "3d") => void;
   readonly onCameraPreset: (kind: "fit" | "top" | "selection") => void;
@@ -22,9 +24,13 @@ export function CreatorViewportToolbar({ viewMode, onViewModeChange, onCameraPre
         <button aria-pressed={viewMode === "2d"} onClick={() => onViewModeChange("2d")} type="button">2D</button>
         <button aria-pressed={viewMode === "3d"} onClick={() => onViewModeChange("3d")} type="button">3D</button>
       </div>
-      {viewMode === "3d" ? <button type="button" className="creator-zone-toggle" aria-pressed={showAllUseZones}
+      {viewMode === "3d" ? <button type="button" className="creator-zone-toggle" disabled={presentationView} aria-pressed={showAllUseZones}
         onClick={() => onShowAllUseZonesChange(!showAllUseZones)}>
         <Layers aria-hidden="true" size={16} /> Show all use zones
+      </button> : null}
+      {viewMode === "3d" ? <button type="button" className="creator-zone-toggle" aria-pressed={presentationView}
+        onClick={() => onPresentationViewChange(!presentationView)}>
+        <ImageIcon aria-hidden="true" size={16} /> Presentation view
       </button> : null}
       <div className="creator-history" role="group" aria-label="Edit history">
         <button aria-label="Undo" title="Undo" disabled={!canUndo} onClick={undo} type="button"><Undo2 aria-hidden="true" size={18} /></button>

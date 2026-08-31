@@ -76,7 +76,7 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "get_project_state",
       title: "Get current room project state",
       description:
-        "Read the live version-4 room project, settings, floor obstacles, wall elements, project items, catalog equipment placements, deterministic validation, revision, and manual undo/redo availability. Canonical room IDs from this result can be used by the currently registered update and remove tools. Selection-only products appear as items without placements. " + ACCESS_NOTE,
+        "Read the live version-5 room project, settings, floor obstacles, wall elements, project items, catalog equipment placements, deterministic validation, revision, and manual undo/redo availability. Canonical room IDs from this result can be used by the currently registered update and remove tools. Selection-only products appear as items without placements. " + ACCESS_NOTE,
       inputSchema: getProjectStateJsonSchema,
       annotations: { readOnlyHint: true },
       execute: createGetProjectStateHandler(store),
@@ -176,8 +176,8 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
     },
     {
       name: "update_placement",
-      title: "Move or rotate placed equipment",
-      description: `Update one canonical placement ID using a non-empty position and/or rotation patch. The product identity is immutable. ${SPATIAL_INPUT_NOTE} ${POST_MUTATION_VALIDATION_NOTE}`,
+      title: "Move, rotate, or lock placed equipment",
+      description: `Update one canonical placement ID using a non-empty position, rotation, and/or locked patch. The product identity is immutable. Locked equipment accepts only the exact patch { locked: false }; unlock explicitly in a separate operation before changing its pose. ${SPATIAL_INPUT_NOTE} ${POST_MUTATION_VALIDATION_NOTE}`,
       inputSchema: updatePlacementJsonSchema,
       execute: createUpdatePlacementHandler(store),
     },
@@ -185,7 +185,7 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "unplace_product",
       title: "Remove equipment from the floor without deleting it",
       description:
-        "Remove one floor placement by canonical placement ID. The project item stays in the project, shopping list, and budget. Use remove_product to delete the item itself.",
+        "Remove one floor placement by canonical placement ID. The project item stays in the project, shopping list, and budget. Use remove_product to delete the item itself. Locked equipment must be explicitly unlocked first.",
       inputSchema: unplaceProductJsonSchema,
       execute: createUnplaceProductHandler(store),
     },
@@ -193,7 +193,7 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "remove_product",
       title: "Remove a project item and any floor placement",
       description:
-        "Remove one project item using its canonical projectItemId returned by get_project_state, add_product_to_project, or place_product. If the item is placed, that placement is removed in the same command. The result enumerates the cascade. This does not remove or modify the catalog product.",
+        "Remove one project item using its canonical projectItemId returned by get_project_state, add_product_to_project, or place_product. If the item is placed, that placement is removed in the same command. Locked equipment must be explicitly unlocked before removing its project item. The result enumerates the cascade. This does not remove or modify the catalog product.",
       inputSchema: removeProductJsonSchema,
       execute: createRemoveProductHandler(store),
     },
@@ -201,7 +201,7 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "suggest_placements",
       title: "Suggest safe equipment placements",
       description:
-        "Read deterministic placement suggestions without changing the project or history. Supply exactly one productId or projectItemId; an already placed item is repositioned in memory, and its current pose may be returned if it is already a best fit (applying that pose is a no-op). Scan minimum-corner positions on a 10 cm grid in z, x, then 0/90/180/270 order, filtered by optional rotations and inclusive region bounds. Return the best 3 candidates by default (maximum 10), exact commands, warning penalties, and rejection counts. Errors and any unreachable entity reject a candidate; warnings increase its score. No door means access was not evaluated. Searches above 20,000 candidates are rejected; with doors, at most 20,000 room grid cells and 30 million candidate-cell evaluations are allowed. Narrow region or rotations for large searches. Apply a chosen command explicitly with apply_layout_changes; suggestions are never accepted automatically.",
+        "Read deterministic placement suggestions without changing the project or history. Supply exactly one productId or projectItemId; an already placed unlocked item is repositioned in memory, and its current pose may be returned if it is already a best fit (applying that pose is a no-op). Scan minimum-corner positions on a 10 cm grid in z, x, then 0/90/180/270 order, filtered by optional rotations and inclusive region bounds. Return the best 3 candidates by default (maximum 10), exact commands, warning penalties, and rejection counts. Errors and any unreachable entity reject a candidate; warnings increase its score. No door means access was not evaluated. Searches above 20,000 candidates are rejected; with doors, at most 20,000 room grid cells and 30 million candidate-cell evaluations are allowed. Narrow region or rotations for large searches. Apply a chosen command explicitly with apply_layout_changes; suggestions are never accepted automatically. A locked project item returns ENTITY_LOCKED; suggestions never unlock equipment.",
       inputSchema: suggestPlacementsJsonSchema,
       annotations: { readOnlyHint: true },
       execute: createSuggestPlacementsHandler(store),

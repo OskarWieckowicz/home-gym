@@ -34,7 +34,7 @@ describe("buildProjectShopping", () => {
       { id: "project-item_roller", productId: "product_groundwork_foam_roller" },
       { id: "project-item_retired", productId: "product_cove_folding_bench" },
     ];
-    project.placements = [{ id: "placement_bag1", projectItemId: "project-item_bag1", position: { xCm: 0, zCm: 0 }, rotation: 0 }];
+    project.placements = [{ locked: false, id: "placement_bag1", projectItemId: "project-item_bag1", position: { xCm: 0, zCm: 0 }, rotation: 0 }];
     const result = shopping(project);
     const bagPrice = result.items[0].price!;
     const benchPrice = result.items[3].price!;
