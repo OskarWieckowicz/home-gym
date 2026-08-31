@@ -61,9 +61,13 @@ production work; do not claim they passed unless observed on the submitted build
 - Record the deployed revision and verify it contains the final landing, catalog, creator and
   summary changes. Start in a private window without prior local storage; the live URL works
   logged out.
-- Check landing CTAs and `/creator?start=demo` / `?start=new`. Explicit starts replace the project
-  and are consumed to `/creator`; edit/reload resumes those edits, while reopening an explicit
-  start link resets again. Ordinary Creator/Open creator links preserve the saved project.
+- Check landing CTAs and `/creator?start=demo` / `?start=new`. With saved data, both explicit
+  starts require confirmation before any replacement or editor/tool mounting. Keep/Escape resume
+  the latest saved state without writing; also save from a second tab while the dialog is open
+  and confirm cancellation uses that newer state. A fresh session starts directly. After the
+  decision, only `start` is consumed; edit/reload resumes those edits, while reopening an explicit
+  start asks again. Ordinary Creator/Open creator links preserve the saved project. Unreadable
+  storage must show recovery feedback without a startup overwrite.
 - Check catalog filters, empty state, cards, a detail page and creator return; switch 2D/3D,
   manually edit, validate, undo and redo. Exercise native export/import/reset and removal flows
   in disposable state, rather than relying only on automated coverage.
@@ -85,6 +89,8 @@ production work; do not claim they passed unless observed on the submitted build
   Once an accessible URL is authorized and confirmed, add Repository to the shared footer and
   update [its regression test](../src/components/site-footer.test.tsx), retaining prototype caveats.
 - Check Start planning, Explore sample project, manual edits, refresh and Open creator resume.
+  Verify initial focus on Keep my project, keyboard containment, Escape cancellation and reload
+  while replacement confirmation is open. Include direct URLs and hero/guide/footer entry paths.
   Check How it works / Agent guide anchors from landing and catalog, and creator-to-home navigation.
 - At 320px phone width, wider phones, tablet and desktop, check touch controls, keyboard focus,
   prompt-copy success and fallback, setup disclosure, sticky-header offsets, image stability and

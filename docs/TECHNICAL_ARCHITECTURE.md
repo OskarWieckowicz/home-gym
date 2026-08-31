@@ -636,9 +636,15 @@ Features:
 - one-shot URL initialization; generic creator links and reload restore the current saved project.
 
 `/creator` and generic Creator links restore the saved project. Explicit `?start=demo` and
-`?start=new` replace it with the bundled demo or empty baseline, writing once to
-`home-gym-creator.project` before the editor/tools mount. A client entry under Suspense handles
-same-route query changes while retaining a prerendered loading shell.
+`?start=new` first read local storage. With a valid saved project, the persistence boundary shows
+a native replacement dialog before the editor, autosave or WebMCP tools mount. Focus starts on
+**Keep my project**; Keep, Escape and native dismissal re-read and reconcile the latest saved
+state, including changes saved by another tab while the dialog was open, without a startup write.
+Confirm replaces it with the bundled demo or empty baseline in one write to
+`home-gym-creator.project`. A missing save starts directly. Failed reads, decoding failures and
+unknown products follow the existing fallback/status path without an automatic replacement write.
+A client entry under Suspense handles same-route query changes while retaining a prerendered
+loading shell. All explicit start URLs use this guard, not just landing links.
 
 Catalog cards and detail pages use `creatorProductRoute` to pass `?product=<active product id>`.
 Exactly one active ID is accepted; missing, malformed, repeated and retired values have no effect.
@@ -651,11 +657,15 @@ and fragments. Refresh does not replay it. An explicit valid `start` remains an 
 to replace the baseline before applying the product intent. This does not add persisted undo
 history across routes.
 
-Start is consumed once using native `history.replaceState`: remove only `start`, retaining other
-parameters and fragments. URL cleanup preserves the mounted store/history. Reopening an explicit
-start URL deliberately starts again; repeated or invalid start values use ordinary restore.
-On save failure, the requested project stays editable in memory with a visible warning; the URL
-is still consumed. An older durable project may reappear on reload/navigation. New project uses
+Start is consumed once using native `history.replaceState` after confirmation, cancellation or
+the direct-start/recovery decision: remove only `start`, retaining other parameters and fragments.
+Reloading an unresolved confirmation shows it again and leaves the saved project untouched. URL
+cleanup preserves the mounted store/history. Reopening an explicit start URL asks again when a
+saved project exists; repeated or invalid start values use ordinary restore. Cancellation retains
+an independent product intent, which can select/focus equipment but cannot purchase it by navigation.
+On a confirmed/direct start save failure, the requested project stays editable in memory with a
+visible warning; the URL is still consumed. An older durable project may reappear on
+reload/navigation. New project uses
 one baseline write, not clear-then-write; there is no recovery copy or multi-project storage.
 
 The [demo fixture](../src/features/project/fixtures/demo-project.json) and

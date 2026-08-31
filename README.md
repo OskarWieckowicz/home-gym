@@ -20,9 +20,13 @@ The [active queue](plans/README.md) tracks the remaining catalog, asset and subm
 | `/catalog` | Equipment catalog with filters |
 | `/catalog/[slug]` | Product details |
 | `/creator` | Resume the locally saved project |
-| `/creator?start=demo` | Replace the current project with the sample layout |
-| `/creator?start=new` | Replace the current project with an empty room |
+| `/creator?start=demo` | Open the sample layout; confirm before replacing a saved project |
+| `/creator?start=new` | Start an empty room; confirm before replacing a saved project |
 | `/summary` | Read-only summary of the locally saved project |
+
+When a saved project exists, Keep my project or Escape resumes its latest saved state without
+replacing it. A fresh session starts directly. Confirmed starts are consumed once, so refreshing
+after edits restores those edits rather than resetting the room.
 
 ## Requirements
 

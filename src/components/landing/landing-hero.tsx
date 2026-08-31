@@ -6,7 +6,7 @@ import { LandingActions, ProjectEntryNote } from "./landing-actions";
 export function LandingHero() {
   return (
     <section aria-labelledby="landing-title" className="border-b border-line bg-linear-to-b from-canvas to-surface">
-      <div className="mx-auto grid w-full max-w-7xl gap-9 px-4 py-10 sm:px-6 sm:py-14 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-10 lg:px-8 lg:py-16">
+      <div className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-8 sm:gap-8 sm:px-6 sm:py-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-10 lg:px-8 lg:py-14">
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand">
             Your space. Your training. Your budget.
@@ -15,18 +15,24 @@ export function LandingHero() {
             What to buy.{" "}
             <span className="text-brand">Where it fits.</span>
           </h1>
-          <p className="mt-6 max-w-lg text-lg leading-8 text-ink-muted">
-            Create your room, describe how you train, and set a budget. An AI
-            agent helps you choose equipment and arrange it to fit.
+          <p className="mt-5 max-w-lg text-lg leading-7 text-ink-muted sm:leading-8">
+            Plan your home gym with an AI agent. Edit the same room together,
+            while the app checks space and budget.
           </p>
-          <div className="mt-7"><LandingActions /></div>
-          <p className="mt-5 text-sm text-ink-muted">
-            Build it yourself or let your agent guide you.
+          <div className="mt-6"><LandingActions /></div>
+          <p className="mt-4 max-w-lg text-sm leading-6 text-ink-muted">
+            AI planning needs an external agent in a WebMCP-capable environment.{" "}
+            <Link href="/#agent-guide" className="rounded-sm text-brand underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
+              Agent guide
+            </Link>
+          </p>
+          <p className="mt-2 text-sm leading-6 text-ink-muted">
+            Prefer to work manually? The editor works without an agent.
           </p>
           <div className="mt-3"><ProjectEntryNote /></div>
-          <nav aria-label="Planning guide" className="mt-5 flex flex-wrap gap-5 text-sm text-brand md:hidden">
-            <Link href="/#how-it-works" className="rounded-sm underline underline-offset-4 focus-visible:outline-2">How it works</Link>
-            <Link href="/#agent-guide" className="rounded-sm underline underline-offset-4 focus-visible:outline-2">Agent guide</Link>
+          <nav aria-label="Planning guide" className="mt-2 flex flex-wrap gap-x-5 text-sm text-brand md:hidden">
+            <Link href="/#how-it-works" className="inline-flex min-h-11 items-center rounded-sm underline underline-offset-4 focus-visible:outline-2">How it works</Link>
+            <Link href="/#agent-guide" className="inline-flex min-h-11 items-center rounded-sm underline underline-offset-4 focus-visible:outline-2">Agent guide</Link>
           </nav>
         </div>
         <figure className="min-w-0 overflow-hidden rounded-2xl border border-line bg-surface shadow-lg shadow-slate-200/50">

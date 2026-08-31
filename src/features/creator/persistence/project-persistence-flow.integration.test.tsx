@@ -5,6 +5,9 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-libra
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { CreatorEditor } from "../components/creator-editor";
+import { mockNativeDialog } from "../components/test-dialog";
+
+mockNativeDialog();
 import type { ScenePreviewProps } from "../scene/scene-preview";
 import { createDefaultProject } from "@/features/project/defaults";
 import { createDemoProject } from "@/features/project/demo-project";
@@ -57,6 +60,11 @@ describe("persistent manual and agent editing flow", () => {
       } satisfies WebMcpModelContext,
     });
     const first = render(<CreatorEditor startMode="demo" storage={memory.adapter} />);
+    const confirm = await screen.findByRole("button", { name: "Replace with sample" });
+    expect(tools.size).toBe(0);
+    expect(sceneRestores).not.toHaveBeenCalled();
+    expect(memory.storage.setItem).not.toHaveBeenCalled();
+    fireEvent.click(confirm);
     await waitFor(() => expect(tools.size).toBe(21));
     expect(sceneRestores.mock.lastCall![0]).toMatchObject({ project: createDemoProject() });
     expect(await executeTool(tools, "get_project_state", {})).toMatchObject({

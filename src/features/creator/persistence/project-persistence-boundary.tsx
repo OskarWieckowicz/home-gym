@@ -31,6 +31,7 @@ import {
   type LocalProjectStorage,
   type ProjectStorageError,
 } from "./local-project-storage";
+import { ReplaceProjectDialog } from "./replace-project-dialog";
 
 export type PersistenceStatus = {
   readonly kind:
@@ -72,7 +73,14 @@ export function ProjectPersistenceBoundary({
   startMode,
 }: ProjectPersistenceBoundaryProps) {
   const [session, setSession] = useState<RestoredSession | null>(null);
+  const [pendingStart, setPendingStart] = useState<{
+    mode: CreatorStartMode;
+    storage: LocalProjectStorage;
+    fallback: GymProject;
+    resolveProduct: ProductResolver;
+  } | null>(null);
   const initialized = useRef(false);
+  const resolvedStart = useRef(false);
 
   useEffect(() => {
     let active = true;
@@ -81,11 +89,17 @@ export function ProjectPersistenceBoundary({
       const adapter = storage ?? createBrowserStorageAdapter();
       const fallback = fallbackProject ?? createDefaultProject();
       const resolveProduct = dependencies?.resolveProduct ?? catalogProductResolver;
-      const restored = startMode
-        ? startSession(startMode, adapter, resolveProduct)
-        : restoreSession(adapter.load(), fallback, adapter, resolveProduct);
+      const loaded = adapter.load();
+      const restored = restoreSession(loaded, fallback, adapter, resolveProduct);
       initialized.current = true;
-      setSession((current) => current ?? restored);
+      if (startMode && loaded.status === "loaded" && restored.status.kind !== "invalid-saved-project") {
+        setPendingStart({ mode: startMode, storage: adapter, fallback, resolveProduct });
+        return;
+      }
+      // Unknown/unreadable saves must never be overwritten by URL initialization.
+      setSession(startMode && loaded.status === "missing"
+        ? startSession(startMode, adapter, resolveProduct)
+        : restored);
       if (startMode) consumeStartMode(startMode);
     });
 
@@ -93,6 +107,24 @@ export function ProjectPersistenceBoundary({
       active = false;
     };
   }, [dependencies?.resolveProduct, fallbackProject, storage, startMode]);
+
+  function resolveStart(replace: boolean) {
+    if (!pendingStart || resolvedStart.current) return;
+    resolvedStart.current = true;
+    const { mode, storage: adapter, fallback, resolveProduct } = pendingStart;
+    // Another tab may have saved while this dialog was open. Keep its latest state.
+    setSession(replace
+      ? startSession(mode, adapter, resolveProduct)
+      : restoreSession(adapter.load(), fallback, adapter, resolveProduct));
+    setPendingStart(null);
+    consumeStartMode(mode);
+  }
+
+  if (pendingStart) {
+    return <main className="creator-editor grid place-items-center" id="creator-content">
+      <ReplaceProjectDialog mode={pendingStart.mode} onResolve={resolveStart} />
+    </main>;
+  }
 
   if (!session) {
     return (

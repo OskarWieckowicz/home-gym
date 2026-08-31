@@ -14,8 +14,8 @@ describe("process-first landing", () => {
     );
     expect(Array.from(container.querySelectorAll("h2"), (h) => h.textContent)).toEqual([
       "From an empty room to your home gym.",
-      "Let your agent guide you.",
       "You edit. The agent continues.",
+      "Let your agent guide you.",
       "AI plans. The application checks.",
       "Ready to plan your space?",
     ]);
@@ -40,7 +40,23 @@ describe("process-first landing", () => {
     expect(screen.getAllByRole("link", { name: "Open creator" }).every(
       (link) => link.getAttribute("href") === "/creator",
     )).toBe(true);
-    expect(screen.getAllByText(/replace.*saved project/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/asked before replacing a saved project/i)).toBeTruthy();
+    expect(screen.queryByText(/Starting fresh or exploring the sample replaces/)).toBeNull();
+  });
+
+  it("explains shared editing and the external-agent requirement beside the hero actions", () => {
+    render(<Home />);
+    const hero = screen.getByRole("region", { name: "What to buy. Where it fits." });
+    expect(within(hero).getByText(/Edit the same room together/)).toBeTruthy();
+    expect(within(hero).getByText(/AI planning needs an external agent in a WebMCP-capable environment/)).toBeTruthy();
+    expect(within(hero).getAllByRole("link", { name: "Agent guide" }).every(
+      (link) => link.getAttribute("href") === "/#agent-guide",
+    )).toBe(true);
+    expect(within(hero).getByText(/The editor works without an agent/)).toBeTruthy();
+    const guide = screen.getByRole("region", { name: "Let your agent guide you." });
+    const disclosure = guide.querySelector("details")!;
+    const clarification = within(guide).getByText(/There is no in-app chatbot/);
+    expect(disclosure.contains(clarification)).toBe(false);
   });
 
   it("renders a selectable from-scratch prompt and honest agent/photo instructions", () => {
@@ -52,7 +68,7 @@ describe("process-first landing", () => {
     expect(guide.textContent).toContain("agent");
     expect(screen.getByText(/reference measurements and review the model/)).toBeTruthy();
     expect(guide.querySelector('a[href="https://learn.chatgpt.com/docs/webmcp"]')).not.toBeNull();
-    expect(guide.textContent).toContain("replaces your saved project");
+    expect(guide.textContent).toContain("asked before replacing a saved project");
     expect(guide.textContent).toContain("Room → Room dimensions");
     expect(guide.textContent).toContain("Project → Settings");
     expect(guide.textContent).not.toContain("Room → Project settings");

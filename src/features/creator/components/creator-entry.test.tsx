@@ -9,6 +9,9 @@ import { createDemoProject } from "@/features/project/demo-project";
 import type { WebMcpModelContext, WebMcpTool } from "@/features/webmcp/types";
 import { createLocalProjectStorage, LOCAL_PROJECT_STORAGE_KEY } from "../persistence/local-project-storage";
 import { CreatorEntry } from "./creator-entry";
+import { mockNativeDialog } from "./test-dialog";
+
+mockNativeDialog();
 
 // Model Next's documented native-history -> useSearchParams subscription.
 vi.mock("next/navigation", () => ({
@@ -61,6 +64,9 @@ function editWidth(value: string) {
   fireEvent.change(screen.getByRole("spinbutton", { name: "Width (cm)" }), { target: { value } });
   fireEvent.click(screen.getByRole("button", { name: "Apply room" }));
 }
+async function confirmStart() {
+  fireEvent.click(await screen.findByRole("button", { name: /^Replace with/ }));
+}
 async function ready() { await screen.findByRole("button", { name: "Apply room" }); }
 function storedProject() {
   const loaded = adapter.load();
@@ -68,7 +74,150 @@ function storedProject() {
   return loaded.project;
 }
 
-describe("creator start navigation", () => {
+describe("saved project start protection", () => {
+  it.each(["new", "demo"])("protects the saved project across a pending %s start and reload, with safe cancellation", async (mode) => {
+    const saved = { ...createDefaultProject(), room: { widthCm: 485, depthCm: 320, heightCm: 240 } };
+    adapter.save(saved);
+    const oldJson = memory.getItem(LOCAL_PROJECT_STORAGE_KEY);
+    const save = vi.spyOn(memory, "setItem");
+    const clear = vi.spyOn(memory, "removeItem");
+    const registerTool = vi.fn<WebMcpModelContext["registerTool"]>(async () => {});
+    Object.defineProperty(document, "modelContext", { configurable: true, value: { registerTool } });
+    navigate(`/creator?start=${mode}&campaign=keep#creator-content`);
+    const first = render(<StrictMode><CreatorEntry /></StrictMode>);
+    const keep = await screen.findByRole("button", { name: "Keep my project" });
+    expect(document.activeElement).toBe(keep);
+    expect(screen.queryByRole("button", { name: "Apply room" })).toBeNull();
+    expect(registerTool).not.toHaveBeenCalled();
+    expect(save).not.toHaveBeenCalled();
+    expect(clear).not.toHaveBeenCalled();
+    expect(memory.getItem(LOCAL_PROJECT_STORAGE_KEY)).toBe(oldJson);
+    expect(window.location.search).toBe(`?start=${mode}&campaign=keep`);
+
+    // Reload before making a decision must still protect the durable project.
+    first.unmount();
+    render(<StrictMode><CreatorEntry /></StrictMode>);
+    fireEvent.click(await screen.findByRole("button", { name: "Keep my project" }));
+    await ready();
+    expect(screen.getByRole("spinbutton", { name: "Width (cm)" })).toHaveProperty("value", "485");
+    expect(window.location.search).toBe("?campaign=keep");
+    expect(window.location.hash).toBe("#creator-content");
+    expect(save).not.toHaveBeenCalled();
+    expect(clear).not.toHaveBeenCalled();
+    expect(memory.getItem(LOCAL_PROJECT_STORAGE_KEY)).toBe(oldJson);
+    await waitFor(() => expect(registerTool).toHaveBeenCalledTimes(21));
+  });
+
+  it.each(["keydown", "cancel"])("treats %s dismissal as keeping the saved project for a same-route start", async (eventType) => {
+    adapter.save(createDefaultProject());
+    render(<CreatorEntry />);
+    await ready();
+    editWidth("490");
+    const oldJson = memory.getItem(LOCAL_PROJECT_STORAGE_KEY);
+    const save = vi.spyOn(memory, "setItem");
+    navigate("/creator?start=demo&other=keep#room");
+    const dialog = await screen.findByRole("dialog", { name: "Replace your saved project?" });
+    if (eventType === "keydown") fireEvent.keyDown(dialog, { key: "Escape" });
+    else fireEvent(dialog, new Event("cancel", { bubbles: true, cancelable: true }));
+    await ready();
+    expect(screen.getByRole("spinbutton", { name: "Width (cm)" })).toHaveProperty("value", "490");
+    expect(window.location.search).toBe("?other=keep");
+    expect(window.location.hash).toBe("#room");
+    expect(save).not.toHaveBeenCalled();
+    expect(memory.getItem(LOCAL_PROJECT_STORAGE_KEY)).toBe(oldJson);
+  });
+
+  it.each(["new", "demo"])("does not overwrite corrupt storage for a %s start", async (mode) => {
+    memory.setItem(LOCAL_PROJECT_STORAGE_KEY, "not valid JSON");
+    const save = vi.spyOn(memory, "setItem");
+    const clear = vi.spyOn(memory, "removeItem");
+    navigate(`/creator?start=${mode}&other=keep#room`);
+    render(<CreatorEntry />);
+    await ready();
+    expect(screen.getByText(/saved project is invalid/i)).toBeTruthy();
+    expect(window.location.search).toBe("?other=keep");
+    expect(window.location.hash).toBe("#room");
+    expect(save).not.toHaveBeenCalled();
+    expect(clear).not.toHaveBeenCalled();
+    expect(memory.getItem(LOCAL_PROJECT_STORAGE_KEY)).toBe("not valid JSON");
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("does not write when an explicit start cannot read the saved project", async () => {
+    adapter.save(createDefaultProject());
+    vi.spyOn(memory, "getItem").mockImplementation(() => { throw new DOMException("denied"); });
+    const save = vi.spyOn(memory, "setItem");
+    navigate("/creator?start=demo");
+    render(<CreatorEntry />);
+    await ready();
+    expect(screen.getByText(/local saving is unavailable/i)).toBeTruthy();
+    expect(window.location.search).toBe("");
+    expect(save).not.toHaveBeenCalled();
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+});
+
+describe("saved project changes during confirmation", () => {
+  it.each(["keep", "escape"])("reloads the latest saved project on %s before allowing edits", async (dismissal) => {
+    adapter.save(createDefaultProject());
+    navigate("/creator?start=demo&other=keep#room");
+    render(<StrictMode><CreatorEntry /></StrictMode>);
+    const dialog = await screen.findByRole("dialog", { name: "Replace your saved project?" });
+    const latest = { ...createDefaultProject(), budget: 12345, room: { widthCm: 485, depthCm: 320, heightCm: 240 } };
+    adapter.save(latest);
+    const save = vi.spyOn(memory, "setItem");
+    if (dismissal === "escape") fireEvent.keyDown(dialog, { key: "Escape" });
+    else fireEvent.click(screen.getByRole("button", { name: "Keep my project" }));
+    await ready();
+    expect(screen.getByRole("spinbutton", { name: "Width (cm)" })).toHaveProperty("value", "485");
+    expect(storedProject()).toEqual(latest);
+    expect(save).not.toHaveBeenCalled();
+    expect(window.location.search).toBe("?other=keep");
+    expect(window.location.hash).toBe("#room");
+    editWidth("490");
+    expect(storedProject()).toEqual({ ...latest, room: { ...latest.room, widthCm: 490 } });
+  });
+
+  it.each(["unreadable", "invalid", "removed"])("uses the normal recovery path when a saved project becomes %s before cancellation", async (change) => {
+    adapter.save({ ...createDefaultProject(), room: { widthCm: 485, depthCm: 320, heightCm: 240 } });
+    navigate("/creator?start=demo");
+    render(<CreatorEntry />);
+    const keep = await screen.findByRole("button", { name: "Keep my project" });
+    if (change === "unreadable") vi.spyOn(memory, "getItem").mockImplementation(() => { throw new DOMException("denied"); });
+    else if (change === "invalid") memory.setItem(LOCAL_PROJECT_STORAGE_KEY, "not JSON");
+    else memory.removeItem(LOCAL_PROJECT_STORAGE_KEY);
+    const save = vi.spyOn(memory, "setItem");
+    const clear = vi.spyOn(memory, "removeItem");
+    fireEvent.click(keep);
+    await ready();
+    const message = change === "unreadable" ? /local saving is unavailable/i
+      : change === "invalid" ? /saved project is invalid/i : /Local saving ready/i;
+    expect(screen.getByText(message)).toBeTruthy();
+    expect(screen.getByRole("spinbutton", { name: "Width (cm)" })).toHaveProperty("value", String(createDefaultProject().room.widthCm));
+    expect(window.location.search).toBe("");
+    expect(save).not.toHaveBeenCalled();
+    expect(clear).not.toHaveBeenCalled();
+  });
+});
+
+describe("creator catalog navigation", () => {
+  it("keeps the saved project and only activates a nonmutating product intent after cancelling a start", async () => {
+    const saved = { ...createDefaultProject(), budget: 12345 };
+    adapter.save(saved);
+    const save = vi.spyOn(memory, "setItem");
+    navigate("/creator?start=demo&product=product_arc_adjustable_bench&other=keep#room");
+    render(<StrictMode><CreatorEntry /></StrictMode>);
+    fireEvent.click(await screen.findByRole("button", { name: "Keep my project" }));
+    const cancelPlacement = await screen.findByRole("button", { name: "Cancel placing Arc Adjustable Bench" });
+    expect(document.activeElement).toBe(cancelPlacement);
+    expect(storedProject()).toEqual(saved);
+    expect(save).not.toHaveBeenCalled();
+    expect(window.location.search).toBe("?other=keep");
+    expect(window.location.hash).toBe("#room");
+    expect(screen.getByRole("button", { name: "Undo" })).toHaveProperty("disabled", true);
+  });
+
   it("restores before selecting a product, keeps history/tools and consumes repeated intents under StrictMode", async () => {
     const project = { ...createDefaultProject(), budget: 12345 };
     adapter.save(project);
@@ -131,6 +280,7 @@ describe("creator start navigation", () => {
     const save = vi.spyOn(memory, "setItem");
     navigate(`/creator?start=${mode}&product=product_arc_adjustable_bench&other=keep#room`);
     render(<StrictMode><CreatorEntry /></StrictMode>);
+    await confirmStart();
     await screen.findByRole("button", { name: "Cancel placing Arc Adjustable Bench" });
     expect(window.location.search).toBe("?other=keep");
     expect(window.location.hash).toBe("#room");
@@ -151,6 +301,9 @@ describe("creator start navigation", () => {
     },
   );
 
+});
+
+describe("creator start navigation", () => {
   it("replaces the live WebMCP tools on explicit starts but not when consuming the URL", async () => {
     const active = new Map<string, WebMcpTool>();
     const registerTool = vi.fn<WebMcpModelContext["registerTool"]>(async (tool, options) => {
@@ -165,6 +318,7 @@ describe("creator start navigation", () => {
     for (const [index, mode] of ["demo", "new", "demo"].entries()) {
       const previousSignals = registerTool.mock.calls.slice(-21).map(([, options]) => options?.signal);
       navigate(`/creator?start=${mode}`);
+      if (index > 0) await confirmStart();
       await waitFor(() => expect(window.location.search).toBe(""));
       await waitFor(() => expect(registerTool).toHaveBeenCalledTimes((index + 2) * 21));
       expect(previousSignals.every((signal) => signal?.aborted)).toBe(true);
@@ -187,8 +341,9 @@ describe("creator start navigation", () => {
     const save = vi.spyOn(memory, "setItem");
     const load = vi.spyOn(memory, "getItem");
     const first = render(<StrictMode><CreatorEntry /></StrictMode>);
+    if (existing) await confirmStart();
     await ready();
-    expect(load).not.toHaveBeenCalled();
+    expect(load).toHaveBeenCalledTimes(1);
     expect(save).toHaveBeenCalledTimes(1);
     expect(window.location.search).toBe("?campaign=example");
     expect(window.location.hash).toBe("#creator-content");
@@ -205,7 +360,7 @@ describe("creator start navigation", () => {
     render(<CreatorEntry />);
     await ready();
     expect(screen.getByRole("spinbutton", { name: "Width (cm)" })).toHaveProperty("value", "450");
-    expect(storedProject().placements).toHaveLength(4);
+    expect(storedProject().placements).toEqual(createDemoProject().placements);
   });
 
   it("handles restore -> demo -> new -> demo -> demo without retaining an old store or history", async () => {
@@ -215,6 +370,7 @@ describe("creator start navigation", () => {
     expect(screen.getByRole("spinbutton", { name: "Width (cm)" })).toHaveProperty("value", "500");
     for (const mode of ["demo", "new", "demo", "demo"]) {
       navigate(`/creator?start=${mode}`);
+      await confirmStart();
       await waitFor(() => expect(window.location.search).toBe(""));
       await ready();
       expect(storedProject()).toEqual(mode === "demo" ? createDemoProject() : createDefaultProject());
@@ -242,6 +398,7 @@ describe("creator start navigation", () => {
     vi.spyOn(memory, "setItem").mockImplementation(() => { throw new DOMException("quota"); });
     navigate(`/creator?start=${mode}`);
     render(<CreatorEntry />);
+    await confirmStart();
     await ready();
     expect(await screen.findByText(/latest project could not be saved/i)).toBeTruthy();
     expect(window.location.search).toBe("");
@@ -257,7 +414,7 @@ describe("creator start navigation", () => {
     navigate("/creator?start=new");
     render(<CreatorEntry />);
     await ready();
-    expect(await screen.findByText(/latest project could not be saved/i)).toBeTruthy();
+    expect(await screen.findByText(/local saving is unavailable/i)).toBeTruthy();
     expect(window.location.search).toBe("");
     editWidth("430");
     expect(screen.getByRole("button", { name: /Undo/ })).toHaveProperty("disabled", false);

@@ -15,13 +15,15 @@ Keep this sequence unless the user explicitly reprioritizes work.
 | Order | Plan | Remaining outcome |
 |---|---|---|
 | 1 | [Creator polish](phase-24-creator-polish.md) | Finish the creator visually, tighten ordinary editing, and remove flicker in overlays, panels and scene chrome. |
-| 2 | [Landing polish](phase-25-landing-polish.md) | Replace landing images with current creator captures and refine the English copy. |
+| 2 | [Landing visuals](phase-25-landing-polish.md) | Deferred: refresh creator captures, add a real collaboration recording where practical, then an optional labelled AI before/after pair. |
 | 3 | [Premium look](phase-27-premium-look.md) | Optional: a small shared visual-system pass toward a more premium look. Cut this if it would delay tests or submission. |
 | 4 | [Submission](phase-28-submission.md) | Final manual tests on the live build, then judge-facing README, description, video and submission. |
 
 Creator polish comes first so later landing captures and public checks use the finished editor.
-Landing polish is editorial imagery and copy, not a new product-asset production queue. The active
-catalog already has 23 mapped photos, for 21 placeable products and two selection-only accessories.
+Remaining landing work is editorial media, not a new product-asset production queue. Implemented
+copy, hierarchy and safe entry are documented in the landing specification. Real creator captures
+demonstrate functionality; optional AI room imagery must be labelled as illustration, never an app render. The active catalog
+already has 23 mapped photos, for 21 placeable products and two selection-only accessories.
 Per-model browser recognizability, kettlebell silhouette refinement and complete-room runtime
 metrics are not remaining production work; do not claim them from general editor checks.
 
@@ -33,8 +35,9 @@ metrics are not remaining production work; do not claim them from general editor
   submission blocker; disclose any limits in submission claims.
 - Manual editing and WebMCP share one model, command path, validation and undo history.
   3D is primary; 2D and geometric asset fallbacks remain available.
-- Use the implemented demo for screenshots and stated figures. Keep unverified device and
-  deployment behavior explicit, and tie release evidence to the submitted revision.
+- Use real implemented project states for product screenshots and stated figures. Illustrative
+  AI room concepts are not evidence of rendering, reconstruction or layout validation. Keep
+  unverified device and deployment behavior explicit, and tie release evidence to the submitted revision.
 - Keep product dimensions and validation independent of visuals; preserve asset provenance.
 - Do not reopen cut scope: activity feed, named access requirements, visible derived paths,
   `check_access`, special rack/bench collision exemptions, summary PDF/print/share export, or
