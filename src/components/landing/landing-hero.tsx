@@ -12,8 +12,7 @@ export function LandingHero() {
             Your space. Your training. Your budget.
           </p>
           <h1 id="landing-title" className="mt-4 text-4xl font-bold leading-[1.14] tracking-tight text-ink sm:text-5xl lg:text-[3.25rem]">
-            What to buy.{" "}
-            <span className="text-brand">Where it fits.</span>
+            What to buy. Where it fits<span className="text-brand">.</span>
           </h1>
           <p className="mt-5 max-w-lg text-lg leading-7 text-ink-muted sm:leading-8">
             Plan your home gym with an AI agent. Edit the same room together,
@@ -35,7 +34,7 @@ export function LandingHero() {
             <Link href="/#agent-guide" className="inline-flex min-h-11 items-center rounded-sm underline underline-offset-4 focus-visible:outline-2">Agent guide</Link>
           </nav>
         </div>
-        <figure className="min-w-0 overflow-hidden rounded-2xl border border-line bg-surface shadow-lg shadow-slate-200/50">
+        <figure className="min-w-0 overflow-hidden rounded-2xl border border-line bg-surface shadow-lg shadow-black/10">
           <Image
             src="/images/landing/hero-room-concept.webp"
             alt="A compact bedroom and office sharing space with a weight bench, rack, punching bag, dumbbells, and a kettlebell."

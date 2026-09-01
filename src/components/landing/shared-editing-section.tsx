@@ -32,13 +32,13 @@ export function SharedEditingSection() {
                 <p className="mt-1 text-sm leading-6 text-ink-muted">{step.description}</p>
               </div>
               {index < editingSteps.length - 1 && (
-                <ArrowRight className="absolute -right-7 top-1/2 hidden -translate-y-1/2 text-slate-400 md:block" aria-hidden="true" size={22} />
+                <ArrowRight className="absolute -right-7 top-1/2 hidden -translate-y-1/2 text-ink-subtle md:block" aria-hidden="true" size={22} />
               )}
             </li>
           ))}
         </ol>
         <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
-          <blockquote className="flex gap-3 rounded-xl border border-brand-muted bg-brand-soft p-4 font-mono text-sm leading-6">
+          <blockquote className="flex gap-3 rounded-xl border border-line bg-surface-muted p-4 font-mono text-sm leading-6">
             <Quote className="shrink-0 text-brand" aria-hidden="true" size={24} />
             <p>Keep the rack here. Adjust the rest of the layout.</p>
           </blockquote>

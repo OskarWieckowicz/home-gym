@@ -35,7 +35,7 @@ export function PlanningSteps() {
           <li key={step.title} className="grid min-w-0 grid-cols-[5.5rem_minmax(0,1fr)] items-start gap-x-4 md:block">
             <div className="col-span-2 mb-2 flex items-center justify-between md:mb-3">
               <span className="text-2xl font-semibold tracking-tight text-brand md:text-3xl" aria-hidden="true">0{index + 1}</span>
-              {index < steps.length - 1 && <ArrowRight className="hidden text-slate-400 md:block" aria-hidden="true" size={26} />}
+              {index < steps.length - 1 && <ArrowRight className="hidden text-ink-subtle md:block" aria-hidden="true" size={26} />}
             </div>
             <Image
               src={`/images/landing/${step.image}.webp`}

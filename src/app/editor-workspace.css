@@ -55,7 +55,7 @@
 .creator-scene-help, .creator-plan-shell > .creator-help { flex-shrink: 0; margin: 0; padding: 0.8rem 0.2rem; color: var(--ink-subtle); font-size: 0.72rem; line-height: 1.5; text-align: center; }
 .creator-zone-legend { display: flex; flex-shrink: 0; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.4rem 1rem; padding: 0.7rem 0.2rem 0; color: var(--ink-muted); font-size: 0.75rem; }
 .creator-zone-legend > span { display: inline-flex; align-items: center; gap: 0.4rem; }
-.creator-zone-legend i { inline-size: 1.4rem; block-size: 0.65rem; border: 1px dashed var(--use-zone); background: rgb(59 130 246 / 0.06); }
+.creator-zone-legend i { inline-size: 1.4rem; block-size: 0.65rem; border: 1px dashed var(--use-zone); background: rgb(98 105 103 / 0.08); }
 .creator-zone-legend .is-warning { border-color: var(--caution); background: rgb(217 119 6 / 0.1); }
 .creator-zone-legend .is-unavailable { border: 1px solid #596365; background: repeating-linear-gradient(135deg, transparent 0 3px, rgb(89 99 101 / 0.4) 3px 4px); }
 .creator-zone-legend .is-error { border-color: #dc2626; background: rgb(220 38 38 / 0.1); }
@@ -80,8 +80,8 @@
 .creator-project-cost-over { color: #991b1b; }
 .creator-project-goals { margin-block-start: 0.85rem; padding-block-start: 0.65rem; border-block-start: 1px solid var(--line); }
 .creator-project-goals p { margin: 0; color: var(--ink-muted); font-size: 0.78rem; line-height: 1.5; }
-.creator-settings-dialog { margin: auto; inline-size: min(30rem, calc(100vw - 2rem)); max-block-size: calc(100dvh - 2rem); overflow-y: auto; overscroll-behavior: contain; padding: 1.5rem; border: 1px solid var(--line); border-radius: 1rem; color: var(--ink); background: var(--surface); box-shadow: 0 20px 60px rgb(15 23 42 / 0.2); }
-.creator-settings-dialog::backdrop { background: rgb(15 23 42 / 0.4); }
+.creator-settings-dialog { margin: auto; inline-size: min(30rem, calc(100vw - 2rem)); max-block-size: calc(100dvh - 2rem); overflow-y: auto; overscroll-behavior: contain; padding: 1.5rem; border: 1px solid var(--line); border-radius: 1rem; color: var(--ink); background: var(--surface); box-shadow: 0 20px 60px rgb(17 17 17 / 0.2); }
+.creator-settings-dialog::backdrop { background: rgb(17 17 17 / 0.42); }
 .creator-settings-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .creator-settings-heading h2 { margin: 0; font-size: 1.15rem; }
 .creator-settings-heading button { padding: 0.5rem; }
@@ -106,7 +106,7 @@
 .creator-distance-method summary { cursor: pointer; }
 .creator-equipment-lock[aria-pressed="true"] { border-color: var(--brand); background: var(--brand-soft); color: var(--brand-strong); }
 .creator-plan-equipment.is-locked { cursor: pointer; }
-.creator-equipment-lock-mark { fill: #334155; stroke: white; stroke-width: 3px; paint-order: stroke; font-size: 10px; font-weight: 700; pointer-events: none; }
+.creator-equipment-lock-mark { fill: var(--footprint); stroke: var(--surface); stroke-width: 3px; paint-order: stroke; font-size: 10px; font-weight: 700; pointer-events: none; }
 .creator-selected-product .creator-entity-type { font-size: 0.9rem; font-weight: 650; line-height: 1.4; }
 .creator-product-facts { padding-block-end: 1rem; border-block-end: 1px solid var(--line); }
 .creator-product-facts div { font-size: 0.74rem; }
@@ -130,7 +130,7 @@
 .creator-validation .creator-issue-warning { border-inline-start-color: #b45309; }
 .editor-popover { position: relative; }
 .editor-popover > button { padding-inline: 0.75rem; }
-.editor-popover-content { position: absolute; inset-block-start: calc(100% + 0.5rem); inset-inline-end: 0; z-index: 20; inline-size: 18rem; max-inline-size: calc(100vw - 2rem); padding: 0.75rem; border: 1px solid var(--line); border-radius: 0.75rem; background: var(--surface); box-shadow: 0 10px 30px rgb(15 23 42 / 0.12); color: var(--ink-muted); font-size: 0.8rem; line-height: 1.6; }
+.editor-popover-content { position: absolute; inset-block-start: calc(100% + 0.5rem); inset-inline-end: 0; z-index: 20; inline-size: 18rem; max-inline-size: calc(100vw - 2rem); padding: 0.75rem; border: 1px solid var(--line); border-radius: 0.75rem; background: var(--surface); box-shadow: 0 10px 30px rgb(17 17 17 / 0.14); color: var(--ink-muted); font-size: 0.8rem; line-height: 1.6; }
 .editor-popover-content p { margin-block-start: 0.6rem; }
 .creator-equipment-unplace { min-inline-size: 0; }
 .creator-equipment-unplace button { white-space: normal; inline-size: 100%; line-height: 1.45; }

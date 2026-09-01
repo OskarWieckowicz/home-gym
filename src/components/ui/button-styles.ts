@@ -1,7 +1,8 @@
 export const BUTTON_VARIANTS = {
-  primary: "bg-brand text-white hover:bg-brand-strong",
+  primary:
+    "border border-ink border-r-4 border-r-brand bg-ink text-surface hover:bg-ink-muted",
   secondary:
-    "border border-line bg-surface text-ink hover:border-brand hover:text-brand",
+    "border border-ink bg-surface text-ink hover:border-brand hover:text-brand-strong",
   quiet: "text-ink-muted hover:text-ink",
 } as const;
 

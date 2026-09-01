@@ -9,7 +9,7 @@ export function LandingActions() {
       <LinkButton href={siteLinks.startEmpty.href} className="min-h-11">
         {siteLinks.startEmpty.label}
       </LinkButton>
-      <LinkButton href={siteLinks.runDemo.href} variant="quiet" className="min-h-11">
+      <LinkButton href={siteLinks.runDemo.href} variant="secondary" className="min-h-11">
         {siteLinks.runDemo.label}
       </LinkButton>
     </div>

@@ -131,6 +131,12 @@ The panel is an inspector for an existing selection, not a creation wizard. The 
 
 The switch changes how the same project is presented. The views do not have separate data — they use a shared geometric model.
 
+The editor chrome follows the application-wide warm neutral system: off-white/stone surfaces,
+near-black text and controls, fine neutral dividers and signal red for focus, selection and primary
+action accents. Green success, amber warnings and deeper red errors remain semantic rather than
+decorative. The 2D plan uses neutral equipment footprints and use zones so those states do not
+compete with selection or validation colors.
+
 ### 2D view
 
 The 2D view is the precise alternative and graphics-failure fallback. It shows the room from above and allows:

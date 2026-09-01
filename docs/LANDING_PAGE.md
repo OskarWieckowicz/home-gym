@@ -23,9 +23,12 @@ Explain shared editing in the hero, then the process from scratch and a concrete
 handoff before the agent setup instructions.
 The prepared demo is an optional shortcut to a result, not the narrative of the page.
 
-Use English throughout. Keep the existing light slate/white surfaces, navy text, blue actions,
-green budget indicators and amber warnings. Avoid sales sections, pricing plans, testimonials,
-fake endorsements and a dominant catalog presentation.
+Use English throughout. The shared visual system uses warm off-white and stone surfaces, near-black
+type and controls, restrained signal-red accents, fine neutral rules and low black shadows. Primary
+actions are near-black with a red edge; secondary actions stay light and outlined. Reserve green,
+amber and deeper red for success, warning and error meaning so validation remains unambiguous.
+Avoid sales sections, pricing plans, testimonials, fake endorsements and a dominant catalog
+presentation.
 
 ## Page structure and copy
 

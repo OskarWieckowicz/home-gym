@@ -14,7 +14,6 @@ Keep this sequence unless the user explicitly reprioritizes work.
 
 | Order | Plan                                     | Remaining outcome                                                                                                       |
 | ----- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| 3     | [Premium look](phase-27-premium-look.md) | Optional: a small shared visual-system pass toward a more premium look. Cut this if it would delay tests or submission. |
 | 4     | [Submission](phase-28-submission.md)     | Final manual tests on the live build, then judge-facing README, description, video and submission.                      |
 
 Creator polish comes first so later landing captures and public checks use the finished editor.

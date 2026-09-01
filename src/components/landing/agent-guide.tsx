@@ -53,7 +53,7 @@ function AgentSetupGuide() {
 
 export function AgentGuide() {
   return (
-    <section id="agent-guide" aria-labelledby="agent-guide-title" className="grid scroll-mt-24 gap-5 rounded-2xl border border-brand-muted bg-linear-to-br from-brand-soft to-canvas p-5 sm:gap-7 sm:p-8 lg:scroll-mt-28 lg:grid-cols-[0.8fr_1.2fr] lg:gap-10">
+    <section id="agent-guide" aria-labelledby="agent-guide-title" className="grid scroll-mt-24 gap-5 rounded-2xl border border-line bg-canvas p-5 sm:gap-7 sm:p-8 lg:scroll-mt-28 lg:grid-cols-[0.8fr_1.2fr] lg:gap-10">
       <div>
         <h2 id="agent-guide-title" className="text-2xl font-bold tracking-tight sm:text-3xl">Let your agent guide you.</h2>
         <p className="mt-3 max-w-sm leading-7 text-ink-muted">
