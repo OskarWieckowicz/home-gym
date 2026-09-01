@@ -39,6 +39,15 @@ function closeProjectSettings() {
 }
 
 describe("ProjectFileActions", () => {
+  it("offers a guarded new-project start from the Project menu", () => {
+    render(<CreatorEditor initialProject={createDefaultProject()} />);
+
+    openProjectActions();
+
+    expect(screen.getByRole("link", { name: "New project" }).getAttribute("href"))
+      .toBe("/creator?start=new");
+  });
+
   it("exports the canonical project and revokes its object URL", () => {
     const createObjectURL = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:project");
     const revokeObjectURL = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
@@ -117,6 +126,9 @@ describe("ProjectFileActions", () => {
     confirm.mockReturnValueOnce(false);
     openProjectActions();
     fireEvent.click(screen.getByRole("button", { name: /Reset/ }));
+    expect(confirm).toHaveBeenLastCalledWith(
+      "Reset this project to the default room, budget, and training goals? You can undo the reset.",
+    );
     openProjectSettings();
     expect(screen.getByRole("spinbutton", { name: "Budget" })).toHaveProperty(
       "value",
@@ -127,6 +139,8 @@ describe("ProjectFileActions", () => {
     confirm.mockReturnValueOnce(true);
     openProjectActions();
     fireEvent.click(screen.getByRole("button", { name: /Reset/ }));
+    expect(screen.getByText("Project reset, including budget and training goals. Undo is available."))
+      .toBeTruthy();
     openProjectSettings();
     expect(screen.getByRole("spinbutton", { name: "Budget" })).toHaveProperty(
       "value",

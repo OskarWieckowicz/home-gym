@@ -132,10 +132,11 @@ body {
 .creator-persistence-status { margin: 0.25rem 0 0; color: var(--ink-muted); font-size: 0.75rem; }
 .creator-persistence-status:is(.is-storage-unavailable, .is-invalid-saved-project, .is-save-failed) { color: #92400e; }
 .creator-toolbar-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 0.5rem; }
+.creator-toolbar-actions:has(.creator-file-message, .creator-file-error) { align-items: flex-start; }
 .creator-toolbar-actions > button { padding-inline: 0.8rem; }
 .creator-file-actions { display: grid; justify-items: end; gap: 0.2rem; }
 .creator-file-action-buttons { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.35rem; }
-.creator-file-action-buttons button { padding-inline: 0.7rem; }
+.creator-file-action-buttons :is(a, button) { padding-inline: 0.7rem; }
 .creator-file-message,
 .creator-file-error { margin: 0; font-size: 0.72rem; }
 .creator-file-message { color: var(--ink-muted); }

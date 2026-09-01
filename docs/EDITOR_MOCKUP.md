@@ -11,7 +11,10 @@ The mockup shows a simple 2.5D editor for planning a home gym. It is not a profe
 ### Top bar
 
 The compact project header contains a home/brand link, the project title and actual local-save
-status. **Project** reveals Export, Import and Reset; a help disclosure explains editing.
+status. **Project** reveals New project, Settings, Export, Import and Reset; a help disclosure
+explains editing. **New project** uses the guarded explicit-start flow, replaces the durable project
+and starts with empty history. **Reset** is undoable and restores the default room, budget and
+training goals together.
 The creator omits the marketing header/footer. All editor labels are English.
 
 The **2D / 3D** switch, undo/redo and room dimensions live in a separate toolbar directly above

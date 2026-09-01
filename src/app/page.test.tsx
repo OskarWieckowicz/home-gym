@@ -74,7 +74,7 @@ describe("process-first landing", () => {
   it("renders a selectable from-scratch prompt and honest agent/photo instructions", () => {
     const { container } = render(<Home />);
     const guide = container.querySelector("#agent-guide")!;
-    expect(within(guide as HTMLElement).getByText(STARTER_PROMPT)).toBeTruthy();
+    expect(guide.querySelector("blockquote")?.textContent).toBe(STARTER_PROMPT);
     expect(within(guide as HTMLElement).getByRole("button", { name: "Copy prompt" })).toBeTruthy();
     expect(guide.querySelector("details summary")?.textContent).toContain("Agent setup guide");
     expect(guide.textContent).toContain("agent");
@@ -89,6 +89,16 @@ describe("process-first landing", () => {
       .toBe("/#agent-guide");
     expect(within(mobileGuide).getByRole("link", { name: "How it works" }).getAttribute("href"))
       .toBe("/#how-it-works");
+  });
+
+  it("keeps the starter prompt within the supported planning scope", () => {
+    expect(STARTER_PROMPT).toContain("Home Gym Creator WebMCP tools");
+    expect(STARTER_PROMPT).toContain("photo or description of my room");
+    expect(STARTER_PROMPT).toContain("wait for my approval");
+    expect(STARTER_PROMPT).toContain("training goals");
+    expect(STARTER_PROMPT).toContain("budget before choosing and placing equipment");
+    expect(STARTER_PROMPT).not.toMatch(/equipment I already own|existing equipment/i);
+    expect(STARTER_PROMPT).not.toMatch(/flooring|protective surface/i);
   });
 
   it("reserves image dimensions and loads only the hero eagerly", () => {

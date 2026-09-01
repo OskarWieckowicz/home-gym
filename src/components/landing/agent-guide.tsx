@@ -69,7 +69,7 @@ export function AgentGuide() {
       <div className="min-w-0">
         <div className="rounded-xl border border-line bg-surface p-4 sm:p-5">
           <p className="text-xs font-semibold uppercase tracking-wider text-brand">Starter prompt</p>
-          <blockquote className="mt-3 select-text font-mono text-sm leading-6 text-ink" aria-label="Starter prompt">
+          <blockquote className="mt-3 whitespace-pre-wrap select-text font-mono text-sm leading-6 text-ink" aria-label="Starter prompt">
             {STARTER_PROMPT}
           </blockquote>
           <CopyPromptButton />

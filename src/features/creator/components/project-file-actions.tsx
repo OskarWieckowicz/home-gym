@@ -1,12 +1,14 @@
 "use client";
 
-import { Download, RotateCcw, Settings, Upload } from "lucide-react";
+import { Download, FilePlus2, RotateCcw, Settings, Upload } from "lucide-react";
 import { useRef, useState, type ChangeEvent } from "react";
 
+import { LinkButton } from "@/components/ui/link-button";
 import { createDefaultProject } from "@/features/project/defaults";
 import {
   decodeProjectJson,
 } from "@/features/project/serialization/project-codec";
+import { creatorRoute } from "@/lib/navigation";
 
 import { useProjectPersistence } from "../persistence/project-persistence-boundary";
 import { useProjectStore } from "../store/project-store-context";
@@ -80,7 +82,7 @@ export function ProjectFileActions({ onOpenSettings }: { readonly onOpenSettings
   }
 
   function resetProject() {
-    if (!window.confirm("Reset this project to the default room? You can undo the reset.")) {
+    if (!window.confirm("Reset this project to the default room, budget, and training goals? You can undo the reset.")) {
       return;
     }
 
@@ -97,7 +99,7 @@ export function ProjectFileActions({ onOpenSettings }: { readonly onOpenSettings
     setMessage({
       kind: !result.changed && cleared === false ? "error" : "success",
       text: result.changed
-        ? "Project reset. Undo is available."
+        ? "Project reset, including budget and training goals. Undo is available."
         : cleared === true
           ? "Saved project cleared."
           : cleared === false
@@ -115,6 +117,9 @@ export function ProjectFileActions({ onOpenSettings }: { readonly onOpenSettings
         onOpenSettings(menuTrigger.current);
       }} type="button"><Settings aria-hidden="true" size={17} /> Settings</button>
       <div aria-label="Project file actions" className="creator-file-action-buttons" role="group">
+        <LinkButton href={creatorRoute("new")} variant="quiet">
+          <FilePlus2 aria-hidden="true" size={17} /> New project
+        </LinkButton>
         <button onClick={exportProject} type="button">
           <Download aria-hidden="true" size={17} /> Export
         </button>

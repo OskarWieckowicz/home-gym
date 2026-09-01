@@ -105,8 +105,15 @@ in-app chatbot.** Do not hide this condition inside the setup disclosure.
 
 Always-visible, selectable starter prompt with a **Copy prompt** button:
 
-> Help me plan a home gym from scratch. Guide me through defining my room, training goals, and budget.
-> Ask for any missing information before choosing and placing equipment.
+Use the concise prompt exported as `STARTER_PROMPT` in
+[`src/components/landing/landing-content.ts`](../src/components/landing/landing-content.ts). It must:
+
+- tell the agent to collaborate through Home Gym Creator's WebMCP tools,
+- ask for a room photo or description, dimensions and fixed obstacles,
+- create an approximate room model and obtain approval before equipment selection,
+- collect goals, exercises, routine, budget and anchoring preferences,
+- exclude existing-equipment intake and protective-flooring planning until those capabilities exist,
+- ask for the missing information before choosing and placing equipment.
 
 Instructions:
 
