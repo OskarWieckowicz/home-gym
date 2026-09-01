@@ -5,20 +5,20 @@ const steps = [
   {
     title: "Create your room",
     description: "Set your room dimensions and obstacles, or ask your agent to help from a description or photo.",
-    image: "room",
-    alt: "An empty room in the creator, with its fixed obstacle and room geometry defined.",
+    image: "room-with-obstacles",
+    alt: "An empty room in the creator, with a door, window and fixed obstacles defined.",
   },
   {
     title: "Set your goals and budget",
     description: "Choose your training goals, preferred exercises and spending limit.",
-    image: "goals",
-    alt: "The same room with the creator’s real project settings for training goals and a budget in USD.",
+    image: "goals-budget-symbolic",
+    alt: "The same room with an illustrative card representing training goals and a confirmed budget.",
   },
   {
     title: "Choose and arrange equipment",
     description: "Choose equipment together. The agent arranges it, and the app checks space and cost.",
-    image: "layout",
-    alt: "The same room furnished with gym equipment and visible exercise clearance zones.",
+    image: "equipment-arrangement",
+    alt: "The same room furnished with strength equipment, a punching bag, kettlebell and dumbbells.",
   },
 ] as const;
 

@@ -4,7 +4,7 @@ import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 
 describe("landing capture files", () => {
-  it.each(["hero-room-concept", "room", "goals", "layout", "shared-editing"])("ships the documented %s asset with correct dimensions", async (name) => {
+  it.each(["hero-room-concept", "room-with-obstacles", "goals-budget-symbolic", "equipment-arrangement"])("ships the documented %s asset with correct dimensions", async (name) => {
     const file = path.join(process.cwd(), "public/images/landing", `${name}.webp`);
     const image = await sharp(file).metadata();
     expect(image).toMatchObject({ format: "webp", width: 1040, height: 780 });

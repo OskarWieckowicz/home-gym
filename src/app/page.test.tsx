@@ -61,6 +61,16 @@ describe("process-first landing", () => {
     expect(disclosure.contains(clarification)).toBe(false);
   });
 
+  it("explains the shared-editing handoff without an obsolete editor capture", () => {
+    render(<Home />);
+    const sharedEditing = screen.getByRole("region", { name: "You edit. The agent continues." });
+    expect(within(sharedEditing).queryByRole("img")).toBeNull();
+    expect(within(sharedEditing).getByRole("heading", { name: "You make a change" })).toBeTruthy();
+    expect(within(sharedEditing).getByRole("heading", { name: "The room stays shared" })).toBeTruthy();
+    expect(within(sharedEditing).getByRole("heading", { name: "The agent continues" })).toBeTruthy();
+    expect(within(sharedEditing).getByText(/Keep the rack here/)).toBeTruthy();
+  });
+
   it("renders a selectable from-scratch prompt and honest agent/photo instructions", () => {
     const { container } = render(<Home />);
     const guide = container.querySelector("#agent-guide")!;
@@ -84,7 +94,7 @@ describe("process-first landing", () => {
   it("reserves image dimensions and loads only the hero eagerly", () => {
     render(<Home />);
     const images = screen.getAllByRole("img") as HTMLImageElement[];
-    expect(images).toHaveLength(5);
+    expect(images).toHaveLength(4);
     expect(images[0].getAttribute("loading")).toBe("eager");
     expect(images[0].getAttribute("fetchpriority")).toBe("high");
     for (const img of images) {

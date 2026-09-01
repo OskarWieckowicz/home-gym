@@ -65,9 +65,10 @@ Subline: **Start with your space. Build the plan together.**
 One note below the steps: **Using a photo? Share it with your external agent, not the editor.
 Provide reference measurements and review the model.**
 
-Illustrate the same room and fixed obstacle across all three steps: empty geometry, goals/budget,
-then furnished layout with clearance visualization. Use captures/crops of real product states;
-editorial labels may explain them, but must not invent controls. This is a conceptual sequence, not a new mandatory wizard.
+Illustrate the same room and fixed obstacles across all three steps: empty geometry, goals/budget,
+then furnished layout. Steps 1 and 3 use captures/crops of real product states. Step 2 uses the
+clearly symbolic editorial goals/budget overlay requested on 1 September 2026; it must not be
+presented as product controls. This is a conceptual sequence, not a new mandatory wizard.
 
 A photo goes to the external agent; do not imply built-in photo upload or accurate automatic
 reconstruction. The agent can gather several inputs in one exchange or ask for missing ones.
@@ -83,7 +84,8 @@ Introduction: **Move a piece of equipment. Your agent picks up from the room as 
 
 Example follow-up: **Keep the rack here. Adjust the rest of the layout.**
 Caption: **One shared room model, whether you or the agent makes the change.**
-Use a real editor capture with a selected item; any added directional cue is explanatory artwork,
+Present the handoff as a compact three-step flow without an editor capture: the user changes the
+room, the room stays shared, and the agent continues. Directional cues are explanatory artwork,
 not a claim that an activity feed or path visualization exists in the product.
 
 ### 4. Agent guide
@@ -179,6 +181,5 @@ separate preview mode, extra persistence slot or new onboarding route is introdu
 - Use existing primitives/tokens; no new layout library, WebGL scene or agent runtime on the landing.
 - Production images need dimensions, responsive sizing, descriptive alt text and provenance.
 - The approved full-page mockup is documentation, never the shipped page or hero image.
-- The process and shared-editing captures still show the older creator, including the obsolete
-  settings sidebar. Refresh them separately and preserve provenance rather than implying they show
-  the latest controls. The hero concept is intentionally illustrative and labeled as such.
+- The hero concept and the symbolic goals/budget step are intentionally illustrative rather than
+  product-interface evidence.

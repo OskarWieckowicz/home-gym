@@ -17,9 +17,26 @@ or safety certification.
 
 ## Product captures
 
+The `room-with-obstacles.webp` and `equipment-arrangement.webp` process captures were refreshed on 1 September 2026
+from screenshots supplied by the user specifically for the landing page:
+
+- `Zrzut ekranu 2026-09-1 o 09.01.50.png` (1752 × 1172) is the empty-room state.
+- `Zrzut ekranu 2026-09-1 o 09.01.36.png` (1744 × 1166) is the arranged-equipment state.
+
+Both sources were centre-cropped to 4:3, resized to 1040 × 780, stripped of metadata and
+encoded as WebP at quality 88. They are own application screenshots; no controls, objects or
+validation states were added.
+
+`goals-budget-symbolic.webp` was generated on 1 September 2026 with the built-in Codex image
+generation tool, using `room-with-obstacles.webp` as the edit target. The prompt required the room,
+camera, door, window and obstacles to remain recognizable while adding a restrained editorial card
+with goal and budget symbols. The result was centre-cropped to 4:3, resized to 1040 × 780 and encoded
+as WebP at quality 88. It is an illustrative planning bridge, not a capture of product controls.
+
 Captured 30 August 2026 from the running local Home Gym Creator at `http://localhost:3100/creator`.
 Base revision: `6f9c16c2298a0e37d13150624c0515d52df42ddc`; working-tree changes at capture time
-only affect landing/shared marketing chrome, not the creator or geometry.
+only affect landing/shared marketing chrome, not the creator or geometry. This capture context
+continues to apply to the historical, currently unused `goals.webp`.
 
 ## Source and permitted use
 
@@ -36,10 +53,10 @@ or replacement equipment imagery was added.
 
 | File | Actual state and crop (left, top, width, height) |
 | --- | --- |
-| `layout.webp` | Bundled demo in default editable 3D; crop (304, 136, 1040, 780), quality 88. |
-| `room.webp` | New empty project, same dimensions/wardrobe/door reconstructed through WebMCP; crop (304, 136, 1040, 780), quality 88. |
+| `equipment-arrangement.webp` | User-supplied arranged room screenshot; centred 4:3 crop, resized to 1040 × 780, quality 88. |
+| `room-with-obstacles.webp` | User-supplied empty room screenshot; centred 4:3 crop, resized to 1040 × 780, quality 88. |
+| `goals-budget-symbolic.webp` | AI-generated editorial overlay on the empty-room capture; centred 4:3 crop, resized to 1040 × 780, quality 88. |
 | `goals.webp` | Same empty room with budget 10000 and strength/muscle-gain goals, Room → Project settings visible; crop (800, 136, 864, 648), resized to 1040 × 780, quality 90. |
-| `shared-editing.webp` | Bundled demo switched to 2D, Northstar Half Rack selected manually; crop (304, 169, 1040, 780), quality 88. |
 
 Empty state recipe: room 400 × 320 × 240 cm; locked Wardrobe 80 × 60 × 220 cm at x=300, z=0,
 rotation 0; Entry door on top wall at offset 195 cm, width 90 cm. No project items or placements.
@@ -50,10 +67,10 @@ Project → Settings or the direct budget/goals actions. The capture provenance 
 
 ## Truthfulness and limitations
 
-The furnished scene has no validation errors and five warnings in the current engine. Amber zones
-are genuine overlapping exercise areas. Existing geometric equipment fallbacks and simplified
-wardrobe/door rendering are visible; this work does not reopen Phase 16 model production.
-The screenshots show actual prototype capability. The separate hero concept is not prototype evidence.
+The arranged-room capture does not show validation overlays and should not be read as evidence that
+the visible arrangement passes geometry checks. Existing geometric equipment fallbacks and simplified
+room-object rendering are visible; this work does not reopen Phase 16 model production. The screenshots
+show actual prototype output. The separate hero concept is not prototype evidence.
 
 The hero concept loads eagerly with high fetch priority; ordinary below-fold product captures use
 lazy loading at normal priority, following the modern-web-guidance image-priority guide and installed

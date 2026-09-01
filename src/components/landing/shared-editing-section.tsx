@@ -1,10 +1,18 @@
-import { Quote } from "lucide-react";
-import Image from "next/image";
+import { ArrowRight, Quote } from "lucide-react";
 
 const editingSteps = [
-  "Move equipment yourself.",
-  "The agent reads your change and adapts the layout.",
-  "Review the checks. Undo any change.",
+  {
+    title: "You make a change",
+    description: "Move equipment yourself.",
+  },
+  {
+    title: "The room stays shared",
+    description: "The agent reads the room as it is now.",
+  },
+  {
+    title: "The agent continues",
+    description: "It adapts the layout. Review the checks or undo.",
+  },
 ];
 
 export function SharedEditingSection() {
@@ -14,30 +22,27 @@ export function SharedEditingSection() {
       <p className="mt-3 max-w-2xl leading-7 text-ink-muted">
         Move a piece of equipment. Your agent picks up from the room as it is now.
       </p>
-      <div className="mt-5 grid items-center gap-5 md:grid-cols-2 lg:gap-12">
-        <Image
-          src="/images/landing/shared-editing.webp"
-          alt="The real top-down editor with one piece of equipment selected for manual editing."
-          width={1040}
-          height={780}
-          sizes="(min-width: 1280px) 580px, (min-width: 768px) 47vw, (min-width: 640px) calc(100vw - 48px), calc(100vw - 32px)"
-          loading="lazy"
-          className="h-auto w-full rounded-xl border border-line bg-canvas"
-        />
-        <div>
-          <ol className="space-y-3">
-            {editingSteps.map((step, index) => (
-              <li key={step} className="flex items-center gap-3 text-sm leading-6">
-                <span aria-hidden="true" className="flex size-7 shrink-0 items-center justify-center rounded-full border border-brand text-brand">{index + 1}</span>
-                {step}
-              </li>
-            ))}
-          </ol>
-          <blockquote className="mt-5 flex gap-3 rounded-xl border border-brand-muted bg-brand-soft p-4 font-mono text-sm leading-6">
+      <div className="mt-5 rounded-xl border border-line bg-surface p-5 sm:p-6">
+        <ol className="grid gap-3 md:grid-cols-3 md:gap-8">
+          {editingSteps.map((step, index) => (
+            <li key={step.title} className="relative flex gap-3 rounded-lg bg-canvas p-4 md:block">
+              <span aria-hidden="true" className="flex size-7 shrink-0 items-center justify-center rounded-full border border-brand text-sm text-brand">{index + 1}</span>
+              <div className="min-w-0 md:mt-4">
+                <h3 className="font-semibold tracking-tight">{step.title}</h3>
+                <p className="mt-1 text-sm leading-6 text-ink-muted">{step.description}</p>
+              </div>
+              {index < editingSteps.length - 1 && (
+                <ArrowRight className="absolute -right-7 top-1/2 hidden -translate-y-1/2 text-slate-400 md:block" aria-hidden="true" size={22} />
+              )}
+            </li>
+          ))}
+        </ol>
+        <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+          <blockquote className="flex gap-3 rounded-xl border border-brand-muted bg-brand-soft p-4 font-mono text-sm leading-6">
             <Quote className="shrink-0 text-brand" aria-hidden="true" size={24} />
             <p>Keep the rack here. Adjust the rest of the layout.</p>
           </blockquote>
-          <p className="mt-4 text-sm leading-6 text-ink-muted">
+          <p className="max-w-md text-sm leading-6 text-ink-muted">
             One shared room model, whether you or the agent makes the change.
           </p>
         </div>
