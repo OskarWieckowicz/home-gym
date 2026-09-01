@@ -53,6 +53,8 @@ describe("process-first landing", () => {
       (link) => link.getAttribute("href") === "/#agent-guide",
     )).toBe(true);
     expect(within(hero).getByText(/The editor works without an agent/)).toBeTruthy();
+    expect(within(hero).getByText(/AI-generated room concept/)).toBeTruthy();
+    expect(within(hero).getByText(/illustrative, not an app render/)).toBeTruthy();
     const guide = screen.getByRole("region", { name: "Let your agent guide you." });
     const disclosure = guide.querySelector("details")!;
     const clarification = within(guide).getByText(/There is no in-app chatbot/);

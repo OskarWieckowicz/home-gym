@@ -37,8 +37,8 @@ export function LandingHero() {
         </div>
         <figure className="min-w-0 overflow-hidden rounded-2xl border border-line bg-surface shadow-lg shadow-slate-200/50">
           <Image
-            src="/images/landing/layout.webp"
-            alt="The real 3D creator with equipment arranged in a room and exercise clearance zones visible."
+            src="/images/landing/hero-room-concept.webp"
+            alt="A compact bedroom and office sharing space with a weight bench, rack, punching bag, dumbbells, and a kettlebell."
             width={1040}
             height={780}
             sizes="(min-width: 1280px) 668px, (min-width: 1024px) 54vw, (min-width: 640px) calc(100vw - 48px), calc(100vw - 32px)"
@@ -47,7 +47,9 @@ export function LandingHero() {
             className="h-auto w-full"
           />
           <figcaption className="border-t border-line px-4 py-3 text-xs leading-5 text-ink-muted">
-            A real project in the creator. Check the warnings as you refine your layout.
+            <strong className="font-semibold text-ink">AI-generated room concept</strong>
+            {" — "}illustrative, not an app render. Model your measurements in the creator
+            and review its space and budget checks.
           </figcaption>
         </figure>
       </div>

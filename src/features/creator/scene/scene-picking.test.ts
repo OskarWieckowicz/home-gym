@@ -4,8 +4,10 @@ import { catalogProducts } from "@/data/products";
 import { createDefaultProject } from "@/features/project/defaults";
 import type { GymProject, Wall } from "@/features/project/schemas/project";
 import { createProjectStore } from "../store/project-store";
-import { pickSceneEntity, scenePickBoxes } from "./scene-picking";
+import { pickSceneEntity, projectSceneRay, scenePickBoxes } from "./scene-picking";
 import { positionToScene } from "./scene-transform";
+import { getScenePlacementTarget } from "./scene-targeting";
+import { sceneWallVisibility } from "./scene-wall-visibility";
 
 function downward(project: GymProject, xCm: number, zCm: number) {
   const point = positionToScene({ xCm, zCm }, project.room, 600);
@@ -18,6 +20,28 @@ describe("asset-independent scene picking", () => {
     expect(scenePickBoxes(project)).toEqual([]);
     expect(pickSceneEntity(downward(project, 200, 160), project)).toBeNull();
     expect(pickSceneEntity(downward(project, 0, 160), project)).toBeNull();
+  });
+
+  it("switches opening placement from the floor plane to the visible wall surface", () => {
+    const project = createDefaultProject();
+    const camera = new Vector3(4, 4, 5);
+    const wallPoint = new Vector3(0, 1.2, -project.room.depthCm / 200);
+    const ray = new Ray(camera, wallPoint.clone().sub(camera).normalize());
+    const floorProjection = projectSceneRay(ray, project, "floor");
+    expect(getScenePlacementTarget(
+      floorProjection.point ? positionToScene(floorProjection.point, project.room) : null,
+      project.room,
+      "wall",
+    )).toBeNull();
+    const wallProjection = projectSceneRay(ray, project, "wall", sceneWallVisibility(camera));
+    expect(wallProjection.entityId).toBeNull();
+    expect(wallProjection.point?.xCm).toBeCloseTo(200);
+    expect(wallProjection.point?.zCm).toBeCloseTo(0);
+    expect(getScenePlacementTarget(
+      wallProjection.point ? positionToScene(wallProjection.point, project.room) : null,
+      project.room,
+      "wall",
+    )).toEqual({ kind: "wall", wall: "top", offsetCm: 200 });
   });
 
   it.each([0, 90, 180, 270] as const)("uses quarter-turn domain bounds for equipment (%s°), without loaded meshes", (rotation) => {

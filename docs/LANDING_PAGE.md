@@ -3,7 +3,8 @@
 > Updated: 31 August 2026. Process-first hackathon introduction, not a sales page or
 > a walkthrough of the bundled demo. Copy, section order, mobile layout and guarded project entry
 > are implemented locally; public-build acceptance is tracked in the [submission plan](../plans/phase-28-submission.md).
-> Image replacement and recording remain deferred in the [landing plan](../plans/phase-25-landing-polish.md).
+> The labeled hero concept was added on 31 August 2026. Current product captures and a possible
+> recording remain in the [landing plan](../plans/phase-25-landing-polish.md).
 
 ## Visual reference
 
@@ -45,9 +46,10 @@ environment.** Include an **Agent guide** link to `/#agent-guide` and the visibl
 The compact saved-project note links **Open creator** to resume; replacement protection lives at
 the creator entry boundary, not in landing-only click handlers.
 
-Use a real primary-3D editor capture as the result preview. Retain visible, truthful warnings rather
-than depicting a universally valid or safety-certified plan. No separate sample statistics strip,
-prescribed room dimensions, equipment count, fixed budget or demo scenario section.
+Use the user-provided AI-generated small-room concept as the emotional preview. Label it visibly as
+illustrative and not an app render; it is not evidence of automatic reconstruction, geometry checks
+or safety certification. Real creator evidence begins in **How it works** below. No separate sample
+statistics strip, prescribed room dimensions, equipment count, fixed budget or demo scenario section.
 
 ### 2. How it works
 
@@ -177,6 +179,6 @@ separate preview mode, extra persistence slot or new onboarding route is introdu
 - Use existing primitives/tokens; no new layout library, WebGL scene or agent runtime on the landing.
 - Production images need dimensions, responsive sizing, descriptive alt text and provenance.
 - The approved full-page mockup is documentation, never the shipped page or hero image.
-- The current assets still show the older creator, including the obsolete settings sidebar.
-  No images or recordings were replaced in the text/layout/entry-protection slice; refresh them
-  separately and preserve provenance rather than implying they show the latest controls.
+- The process and shared-editing captures still show the older creator, including the obsolete
+  settings sidebar. Refresh them separately and preserve provenance rather than implying they show
+  the latest controls. The hero concept is intentionally illustrative and labeled as such.

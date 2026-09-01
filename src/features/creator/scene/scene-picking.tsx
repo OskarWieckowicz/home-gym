@@ -1,12 +1,13 @@
-import { useEffect, type RefObject } from "react";
-import { useThree } from "@react-three/fiber";
+import { useEffect, useRef, type RefObject } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
 import { Box3, Ray, Raycaster, Vector2, Vector3 } from "three";
 import { getEffectiveMounting } from "@/features/catalog/queries/catalog";
 import type { GymProject } from "@/features/project/schemas/project";
 import { productForPlacement } from "../placement-product";
 import { equipmentBoxToScene, obstacleToScene, scenePointToPosition, wallElementToScene, type SceneBox } from "./scene-transform";
-import { projectRayToFloor } from "./scene-targeting";
-import type { SceneProjectPointer } from "./scene-editor-types";
+import { projectRayToFloor, projectRayToRoomWall } from "./scene-targeting";
+import type { SceneProjectPointer, SceneProjection } from "./scene-editor-types";
+import { ALL_SCENE_WALLS, sceneWallVisibility, type SceneWallVisibility } from "./scene-wall-visibility";
 
 export function scenePickBoxes(project: GymProject): { id: string; box: SceneBox }[] {
   const boxes = project.obstacles.map((item) => ({ id: item.id, box: obstacleToScene(item, project.room) }));
@@ -45,11 +46,29 @@ export function pickSceneEntity(ray: Ray, project: GymProject): string | null {
   return selected;
 }
 
-export function ScenePicking({ projectPointerRef, getProject }: {
+export function projectSceneRay(
+  ray: Ray,
+  project: GymProject,
+  targetKind: "floor" | "wall",
+  visibleWalls: SceneWallVisibility = ALL_SCENE_WALLS,
+): SceneProjection {
+  const hit = targetKind === "wall"
+    ? projectRayToRoomWall(ray, project.room, visibleWalls)
+    : projectRayToFloor(ray);
+  return {
+    point: hit ? scenePointToPosition(hit, project.room) : null,
+    entityId: pickSceneEntity(ray, project),
+  };
+}
+
+export function ScenePicking({ projectPointerRef, getProject, targetKind }: {
   readonly projectPointerRef: RefObject<SceneProjectPointer | null>;
   readonly getProject: () => GymProject;
+  readonly targetKind: "floor" | "wall";
 }) {
   const { camera, gl } = useThree();
+  const visibleWalls = useRef(ALL_SCENE_WALLS);
+  useFrame(() => { visibleWalls.current = sceneWallVisibility(camera.position, visibleWalls.current); });
   useEffect(() => {
     const raycaster = new Raycaster();
     projectPointerRef.current = (pointer) => {
@@ -60,11 +79,10 @@ export function ScenePicking({ projectPointerRef, getProject }: {
         ((pointer.clientX - bounds.left) / bounds.width) * 2 - 1,
         -((pointer.clientY - bounds.top) / bounds.height) * 2 + 1,
       ), camera);
-      const hit = projectRayToFloor(raycaster.ray);
       const project = getProject();
-      return { point: hit ? scenePointToPosition(hit, project.room) : null, entityId: pickSceneEntity(raycaster.ray, project) };
+      return projectSceneRay(raycaster.ray, project, targetKind, visibleWalls.current);
     };
     return () => { projectPointerRef.current = null; };
-  }, [camera, gl, getProject, projectPointerRef]);
+  }, [camera, gl, getProject, projectPointerRef, targetKind]);
   return null;
 }

@@ -174,14 +174,16 @@ The main interaction rule: **both views edit one room, through one command path 
   clears selection. Dragging an already-selected entity moves it. Dragging elsewhere, including
   an unselected entity, orbits without changing selection. Ownership is fixed at pointer-down.
   Scroll zoom remains available outside active edits; placement tools temporarily own primary input.
-- Click/tap a floor or highlighted wall edge to create once; Escape/Cancel discards the preview.
+- Click/tap the floor for floor-bound elements or a highlighted visible wall surface for doors/windows
+  to create once; Escape/Cancel discards the preview.
   Enter on the scene or Place at centre offers the keyboard creation path.
 - Drag equipment/areas on the floor. Doors/windows and mounted equipment retain their wall and
   move along it. A changed release commits once; cancellation, camera movement and previews do not.
 - Near-side wall surfaces disappear as the camera moves. A floor-perimeter slab remains on a
   cut-away wall and is omitted while that wall is shown, so the two never share a volume.
   Presentation walls sit outside the room interior so wall-mounted plates stay visible. Wall
-  markers and four wall-edge placement targets stay independent of that cutaway. Fit view, Top view
+  markers and wall-surface placement targets stay independent of that cutaway; floor-perimeter slabs
+  are presentation details, not placement targets. Fit view, Top view
   and Focus selected are explicit camera actions and never edit the room. Initial/Fit framing
   centers all eight projected room corners with 6% edge margins, at a near-frontal 12° azimuth and
   29° elevation. Focus selected uses domain-derived physical bounds, including mounting height,

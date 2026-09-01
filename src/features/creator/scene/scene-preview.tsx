@@ -14,15 +14,26 @@ import { ScenePicking } from "./scene-picking";
 import { projectVisualAssetSources } from "./scene-preload";
 import { useSceneEditing } from "./use-scene-editing";
 import type { SceneEditorProps } from "./scene-editor-types";
+import type { PlacementTool } from "../editor-types";
 
 export type ScenePreviewProps = SceneEditorProps;
 const INITIAL_PRESET: SceneCameraPreset = { kind: "fit", sequence: 0 };
+
+function placementSurface(tool: PlacementTool | null) {
+  const wall = tool === "door" || tool === "window";
+  return {
+    wall,
+    targetKind: wall ? "wall" as const : "floor" as const,
+    instruction: wall ? "Choose a highlighted wall surface." : "Choose a floor position.",
+  };
+}
 
 export function ScenePreview(props: ScenePreviewProps) {
   const { project, selectedId, issues, store, presentationView = false } = props;
   const preset = props.cameraPreset ?? INITIAL_PRESET;
   const [contextLost, setContextLost] = useState(false);
   const placing = !presentationView && Boolean(props.activeTool || props.activeProductId || props.activeProjectItemId);
+  const surface = placementSurface(props.activeTool);
   const { controller, projectPointerRef, snapshot } = useSceneEditing(store, props);
   const getProject = useCallback(() => store.getState().project, [store]);
   const loseContext = useCallback(() => { controller.dispose(); setContextLost(true); }, [controller]);
@@ -57,7 +68,7 @@ export function ScenePreview(props: ScenePreviewProps) {
   return <section className="creator-scene-shell" aria-labelledby="scene-title">
     <h2 id="scene-title" className="visually-hidden">{presentationView ? "3D room presentation" : "3D room editor"}</h2>
     {placing ? <div className="creator-scene-controls" role="group" aria-label="Placement controls">
-      <span>Choose a floor or highlighted wall edge.</span>
+      <span>{surface.instruction}</span>
       <button type="button" onClick={controller.placeCenter}>Place at centre</button>
       <button type="button" onClick={controller.cancelPlacement}>Cancel placement</button>
     </div> : null}
@@ -76,9 +87,9 @@ export function ScenePreview(props: ScenePreviewProps) {
         {contextLost ? <SceneRecovery onFallback={props.onFallback} message="The graphics context was lost. Continue editing the same project in 2D." /> :
           <Canvas camera={{ position: [4.8, 4.4, 5.2], fov: 45 }} dpr={[1, 1.5]} shadows={{ type: PCFShadowMap }} fallback={<SceneRecovery onFallback={props.onFallback} />}>
             <SceneContents project={project} selectedId={selectedId} issues={issues} showAllUseZones={props.showAllUseZones ?? false} presentationView={presentationView} />
-            <ScenePicking projectPointerRef={projectPointerRef} getProject={getProject} />
+            <ScenePicking projectPointerRef={projectPointerRef} getProject={getProject} targetKind={surface.targetKind} />
             {!presentationView ? <SceneGhost command={snapshot.command} project={project} /> : null}
-            {!presentationView ? <SceneWallTargets project={project} active={props.activeTool === "door" || props.activeTool === "window"} /> : null}
+            {!presentationView ? <SceneWallTargets project={project} active={surface.wall} /> : null}
             <SceneCameraControls room={project.room} placing={placing} gestureActive={snapshot.gestureActive} preset={preset} />
             <SceneContextLoss onContextLost={loseContext} />
           </Canvas>}

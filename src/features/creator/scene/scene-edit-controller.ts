@@ -81,9 +81,15 @@ export class SceneEditController {
       this.options.activeTool === "door" || this.options.activeTool === "window" ? "wall" : "floor");
   }
 
+  private targetError() {
+    return this.options.activeTool === "door" || this.options.activeTool === "window"
+      ? "Choose a visible wall surface."
+      : "Choose a target inside the room.";
+  }
+
   private creation(point: Position) {
     const target = this.target(point);
-    if (!target) return { ok: false as const, error: "Choose a target inside the room or directly on its wall edge." };
+    if (!target) return { ok: false as const, error: this.targetError() };
     return createSceneCreationCommand(this.options, target, this.store.getState().project);
   }
 
@@ -157,7 +163,7 @@ export class SceneEditController {
     if (!release) return;
     if (this.isPlacing()) {
       if (release.kind === "click" && hit?.point) this.placePoint(hit.point);
-      else if (release.kind === "click") this.options.onPlacementError("Choose a target inside the room or directly on its wall edge.");
+      else if (release.kind === "click") this.options.onPlacementError(this.targetError());
       return;
     }
     if (release.kind === "drag" && editing && release.entityId && canMove) {

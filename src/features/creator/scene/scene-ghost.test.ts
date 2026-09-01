@@ -6,11 +6,21 @@ import type { GymProject } from "@/features/project/schemas/project";
 import { createRoomElementCommand } from "../plan/create-room-element-command";
 import { createPlaceProductCommand, createPlaceProjectItemCommand } from "../plan/place-equipment";
 import { createProjectStore } from "../store/project-store";
-import { sceneCommandGhost } from "./scene-ghost";
+import { sceneCommandGhost, sceneWallTargetBoxes } from "./scene-ghost";
 import { createSceneMoveCommand } from "./scene-move-command";
 import { equipmentBoxToScene, obstacleToScene, scenePointToPosition } from "./scene-transform";
 
 describe("command-aligned scene ghosts", () => {
+  it("highlights wall surfaces instead of drawing placement strips on the floor perimeter", () => {
+    const project = createDefaultProject();
+    const targets = sceneWallTargetBoxes(project);
+    expect(targets.map((target) => target.wall)).toEqual(["top", "right", "bottom", "left"]);
+    for (const target of targets) {
+      expect(target.position[1]).toBe(project.room.heightCm / 200);
+      expect(target.dimensions[1]).toBe(project.room.heightCm / 100);
+    }
+  });
+
   it.each(["obstacle", "unavailable-zone"] as const)("previews the real %s dimensions and centred target without mutating", (tool) => {
     const project = createDefaultProject();
     const result = createRoomElementCommand(tool, { kind: "floor", position: { xCm: 180, zCm: 160 } }, project);

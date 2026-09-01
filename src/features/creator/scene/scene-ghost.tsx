@@ -1,11 +1,16 @@
 import { getEffectiveMounting } from "@/features/catalog/queries/catalog";
+import { useFrame } from "@react-three/fiber";
+import { useRef } from "react";
+import type { Group } from "three";
 import { findProjectProductById } from "@/features/catalog/queries/project-products";
 import type { Product } from "@/features/catalog/schemas/product";
-import type { GymProject, WallElement } from "@/features/project/schemas/project";
+import type { GymProject, Wall, WallElement } from "@/features/project/schemas/project";
 import type { ProjectCommand } from "@/features/project/schemas/project-command";
 import { productForPlacement } from "../placement-product";
-import { equipmentBoxToScene, equipmentUseZoneToScene, obstacleToScene, wallElementToScene, type PlacementPose, type SceneBox } from "./scene-transform";
+import { equipmentBoxToScene, equipmentUseZoneToScene, obstacleToScene, roomToScene, sceneWallSlab, wallElementToScene, type PlacementPose, type SceneBox } from "./scene-transform";
 import { SelectionOutline } from "./scene-entities";
+import { ignoreSceneRaycast } from "./scene-walls";
+import { ALL_SCENE_WALLS, sceneWallVisibility } from "./scene-wall-visibility";
 
 function wallGhost(element: WallElement, project: GymProject): SceneBox[] {
   const horizontal = element.wall === "top" || element.wall === "bottom";
@@ -67,14 +72,29 @@ export function SceneGhost({ command, project }: { readonly command: ProjectComm
     <SelectionOutline key={index} box={box} color="#7c3aed" />);
 }
 
-export function SceneWallTargets({ project, active }: { readonly project: GymProject; readonly active: boolean }) {
-  if (!active) return null;
-  return (["top", "right", "bottom", "left"] as const).map((wall) => {
-    const horizontal = wall === "top" || wall === "bottom";
-    const sign = wall === "top" || wall === "left" ? -1 : 1;
-    return <mesh key={wall} position={[horizontal ? 0 : sign * project.room.widthCm / 200, 0.025, horizontal ? sign * project.room.depthCm / 200 : 0]}>
-      <boxGeometry args={horizontal ? [project.room.widthCm / 100, 0.04, 0.18] : [0.18, 0.04, project.room.depthCm / 100]} />
-      <meshBasicMaterial color="#7c3aed" transparent opacity={0.6} depthWrite={false} />
-    </mesh>;
+const WALLS = ["top", "right", "bottom", "left"] as const;
+
+export function sceneWallTargetBoxes(project: GymProject) {
+  const size = roomToScene(project.room);
+  return WALLS.map((wall) => {
+    const slab = sceneWallSlab(wall, size, size.y, size.y / 2);
+    return { wall, position: slab.position, dimensions: slab.args };
   });
+}
+
+export function SceneWallTargets({ project, active }: { readonly project: GymProject; readonly active: boolean }) {
+  const targets = useRef<Group>(null);
+  const visibleWalls = useRef(ALL_SCENE_WALLS);
+  useFrame(({ camera }) => {
+    visibleWalls.current = sceneWallVisibility(camera.position, visibleWalls.current);
+    if (!targets.current) return;
+    for (const surface of targets.current.children) surface.visible = visibleWalls.current[surface.name as Wall];
+  });
+  if (!active) return null;
+  return <group ref={targets}>{sceneWallTargetBoxes(project).map(({ wall, position, dimensions }) =>
+    <mesh key={wall} name={wall} raycast={ignoreSceneRaycast} position={position}>
+      <boxGeometry args={dimensions} />
+      <meshBasicMaterial color="#7c3aed" transparent opacity={0.14} depthWrite={false}
+        polygonOffset polygonOffsetFactor={-2} polygonOffsetUnits={-2} />
+    </mesh>)}</group>;
 }

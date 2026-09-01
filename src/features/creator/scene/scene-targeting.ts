@@ -19,6 +19,47 @@ export function projectRayToFloor(ray: SceneRay, heightM = 0): SceneVector3 | nu
   return Object.values(point).every(Number.isFinite) ? point : null;
 }
 
+type VisibleSceneWalls = Readonly<Record<Wall, boolean>>;
+
+/** Project onto the first visible vertical room boundary hit within the wall height. */
+export function projectRayToRoomWall(
+  ray: SceneRay,
+  room: Pick<Room, "widthCm" | "depthCm" | "heightCm">,
+  visibleWalls: VisibleSceneWalls,
+): SceneVector3 | null {
+  const halfWidthM = room.widthCm / 200;
+  const halfDepthM = room.depthCm / 200;
+  const heightM = room.heightCm / 100;
+  const epsilon = 1e-8;
+  const boundaries = [
+    { wall: "top", axis: "z", value: -halfDepthM, crossLimit: halfWidthM },
+    { wall: "right", axis: "x", value: halfWidthM, crossLimit: halfDepthM },
+    { wall: "bottom", axis: "z", value: halfDepthM, crossLimit: halfWidthM },
+    { wall: "left", axis: "x", value: -halfWidthM, crossLimit: halfDepthM },
+  ] as const;
+  let nearest: { readonly distance: number; readonly point: SceneVector3 } | null = null;
+
+  for (const boundary of boundaries) {
+    if (!visibleWalls[boundary.wall]) continue;
+    const direction = ray.direction[boundary.axis];
+    if (Math.abs(direction) < epsilon) continue;
+    const distance = (boundary.value - ray.origin[boundary.axis]) / direction;
+    if (!Number.isFinite(distance) || distance < 0) continue;
+    const point = {
+      x: ray.origin.x + distance * ray.direction.x,
+      y: ray.origin.y + distance * ray.direction.y,
+      z: ray.origin.z + distance * ray.direction.z,
+    };
+    const cross = boundary.axis === "x" ? point.z : point.x;
+    if (!Object.values(point).every(Number.isFinite)
+      || point.y < -epsilon || point.y > heightM + epsilon
+      || cross < -boundary.crossLimit - epsilon || cross > boundary.crossLimit + epsilon) continue;
+    if (!nearest || distance < nearest.distance) nearest = { distance, point };
+  }
+
+  return nearest?.point ?? null;
+}
+
 export function getScenePlacementTarget(
   point: Pick<SceneVector3, "x" | "z"> | null,
   room: Pick<Room, "widthCm" | "depthCm">,

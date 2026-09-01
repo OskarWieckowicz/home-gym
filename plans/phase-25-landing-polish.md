@@ -1,15 +1,16 @@
 # Phase 25 — Landing visuals
 
-> Order 2 in the [active queue](README.md). New images and recordings were explicitly deferred
-> by the user on 31 August 2026. Capture them after creator polish. Current copy, hierarchy,
-> responsive layout and guarded entry are documented in the [landing specification](../docs/LANDING_PAGE.md).
+> Order 2 in the [active queue](README.md). The user supplied and approved a labeled illustrative
+> hero concept on 31 August 2026. Capture the remaining real product states after creator polish.
+> Current copy, hierarchy, responsive layout and guarded entry are documented in the
+> [landing specification](../docs/LANDING_PAGE.md).
 > Public-build and real-agent-host acceptance remain in the [submission plan](phase-28-submission.md).
 
 ## Scope and boundaries
 
-Refresh the visual evidence without reopening the implemented text/layout/entry work. Keep the
-process-first introduction and shared human–agent editing as the main story. Real product captures
-prove functionality; optional generated room concepts are illustration only. Do not reopen catalog
+Refresh the remaining visual evidence without reopening the implemented text/layout/entry work.
+Keep the process-first introduction and shared human–agent editing as the main story. Real product
+captures prove functionality; the delivered hero room concept is illustration only. Do not reopen catalog
 photos, GLB production, product geometry, an activity feed or a new landing scene/agent runtime.
 
 ## Remaining outcomes
@@ -18,8 +19,6 @@ photos, GLB production, product geometry, an activity feed or a new landing scen
 
 - Use disposable state based on the current demo after creator polish, never the user's working
   project. Keep the same room and fixed obstacles across the process images.
-- Hero: a clear real 3D creator view with enough interface context to identify the product, less
-  empty background, and legible room/equipment. Keep truthful warnings; do not imply safety certification.
 - How it works: give each capture a distinct purpose. Replace the obsolete budget/goals sidebar
   with the actual current settings modal at a readable size; retain the real empty and furnished states.
 - Shared editing: replace the old selected-item capture with the current editor. Preserve a useful
@@ -45,7 +44,8 @@ photos, GLB production, product geometry, an activity feed or a new landing scen
   with a plausible gym concept. Keep camera, proportions, doors, windows and fixed furniture
   consistent; align it with the room shown in product captures.
 - Use a compact before/after element around the process introduction, replacing repetitive imagery
-  rather than adding another long section. Keep editing/settings and main hero proof as real captures.
+  rather than adding another long section. Keep editing/settings as real product captures, and keep
+  the delivered hero concept visibly labeled as illustrative if it remains in the final composition.
 - Label it visibly: **AI-generated room concept — illustrative, not an app render.** Do not imply
   built-in photorealistic rendering, photo upload or accurate automatic reconstruction. Photos go
   to the external agent; reference measurements and review remain necessary.
