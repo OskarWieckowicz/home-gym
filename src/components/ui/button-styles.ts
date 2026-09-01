@@ -1,13 +1,12 @@
 export const BUTTON_VARIANTS = {
-  primary:
-    "border border-action bg-action text-action-contrast shadow-card hover:border-action-strong hover:bg-action-strong hover:shadow-elevated",
+  primary: "bg-brand text-white hover:bg-brand-strong",
   secondary:
-    "border border-line-strong bg-surface text-ink shadow-card hover:border-brand hover:bg-surface-muted hover:text-brand",
-  quiet: "text-brand hover:bg-brand-soft hover:text-brand-strong",
+    "border border-line bg-surface text-ink hover:border-brand hover:text-brand",
+  quiet: "text-ink-muted hover:text-ink",
 } as const;
 
 const BUTTON_BASE =
-  "inline-flex items-center justify-center rounded-md px-4 py-2.5 text-sm font-semibold transition-[color,background-color,border-color,box-shadow] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand";
+  "inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand";
 
 export type ButtonVariant = keyof typeof BUTTON_VARIANTS;
 

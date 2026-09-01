@@ -1,6 +1,6 @@
 import type { ComponentProps } from "react";
 
-const CARD_CLASSES = "rounded-xl border border-line bg-surface shadow-card";
+const CARD_CLASSES = "rounded-2xl border border-line bg-surface shadow-card";
 
 type CardProps = ComponentProps<"div">;
 

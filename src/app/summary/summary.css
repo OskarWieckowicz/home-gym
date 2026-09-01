@@ -1,6 +1,6 @@
 .summary-page { min-block-size: 100dvh; background: var(--canvas); }
 .summary-page :where(a, button, [tabindex]):focus-visible { outline: 3px solid var(--brand); outline-offset: 4px; }
-.summary-toolbar { position: relative; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.25rem; padding: 1rem clamp(1rem, 3vw, 2.5rem); background: var(--surface); border-block-end: 1px solid var(--line); box-shadow: 0 1px 8px rgb(66 55 42 / 0.04); }
+.summary-toolbar { position: relative; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.25rem; padding: 1rem clamp(1rem, 3vw, 2.5rem); background: var(--surface); border-block-end: 1px solid var(--line); }
 .summary-toolbar nav, .summary-toolbar-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
 .summary-toolbar nav { font-size: 0.9rem; }
 .summary-toolbar nav a { padding-block: 0.5rem; }
@@ -47,7 +47,7 @@
 .summary-table tfoot { font-weight: 700; }
 .summary-table .summary-price { white-space: nowrap; }
 .summary-cost { display: flex; justify-content: space-between; align-items: center; gap: 1rem; font-size: 0.84rem; }
-.summary-cost strong { display: block; margin-block: 0.3rem; color: var(--action); font-size: 1.65rem; font-weight: 750; }
+.summary-cost strong { display: block; margin-block: 0.3rem; color: var(--brand); font-size: 1.65rem; font-weight: 750; }
 .summary-cost > p { max-inline-size: 11rem; font-size: 1rem; font-weight: 650; text-align: end; }
 .summary-budget { display: block; inline-size: 100%; block-size: 0.6rem; margin-block: 1.1rem 1.3rem; overflow: hidden; border: 0; border-radius: 1rem; background: var(--line); accent-color: var(--brand); }
 .summary-budget::-webkit-progress-bar { background: var(--line); }

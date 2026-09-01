@@ -5,10 +5,10 @@ import { LandingActions, ProjectEntryNote } from "./landing-actions";
 
 export function LandingHero() {
   return (
-    <section aria-labelledby="landing-title" className="border-b border-line bg-canvas">
+    <section aria-labelledby="landing-title" className="border-b border-line bg-linear-to-b from-canvas to-surface">
       <div className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-8 sm:gap-8 sm:px-6 sm:py-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-10 lg:px-8 lg:py-14">
         <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brass-strong">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand">
             Your space. Your training. Your budget.
           </p>
           <h1 id="landing-title" className="mt-4 text-4xl font-bold leading-[1.14] tracking-tight text-ink sm:text-5xl lg:text-[3.25rem]">
@@ -35,7 +35,7 @@ export function LandingHero() {
             <Link href="/#agent-guide" className="inline-flex min-h-11 items-center rounded-sm underline underline-offset-4 focus-visible:outline-2">Agent guide</Link>
           </nav>
         </div>
-        <figure className="min-w-0 overflow-hidden rounded-xl border border-line-strong bg-surface shadow-elevated">
+        <figure className="min-w-0 overflow-hidden rounded-2xl border border-line bg-surface shadow-lg shadow-slate-200/50">
           <Image
             src="/images/landing/hero-room-concept.webp"
             alt="A compact bedroom and office sharing space with a weight bench, rack, punching bag, dumbbells, and a kettlebell."
@@ -46,7 +46,7 @@ export function LandingHero() {
             fetchPriority="high"
             className="h-auto w-full"
           />
-          <figcaption className="border-t border-line bg-surface px-4 py-3 text-xs leading-5 text-ink-muted">
+          <figcaption className="border-t border-line px-4 py-3 text-xs leading-5 text-ink-muted">
             <strong className="font-semibold text-ink">AI-generated room concept</strong>
             {" — "}illustrative, not an app render. Model your measurements in the creator
             and review its space and budget checks.

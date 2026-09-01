@@ -56,7 +56,7 @@ export default async function CatalogPage({
   const filterLabels = activeFilterLabels(filters);
 
   return (
-    <main className="flex-1 bg-canvas">
+    <main className="flex-1 bg-surface">
       <section className="mx-auto w-full max-w-[96rem] px-4 py-8 sm:px-6 lg:px-8">
         <nav aria-label="Breadcrumb" className="text-sm text-ink-muted">
           <Link className="font-medium text-brand hover:underline" href={routes.home}>
@@ -80,7 +80,7 @@ export default async function CatalogPage({
 
         <div className="mt-7 grid items-start gap-7 lg:grid-cols-[15rem_minmax(0,1fr)]">
           <aside aria-label="Catalog filters">
-            <Card className="p-4">
+            <Card className="rounded-lg p-4">
               <CatalogFiltersDisclosure>
                 <CatalogFilterForm
                   exerciseOptions={getCatalogExerciseOptions()}
@@ -108,7 +108,7 @@ export default async function CatalogPage({
                   Search equipment
                 </label>
                 <input
-                  className="min-h-11 w-full rounded-md border border-line-strong bg-surface py-2.5 pl-11 pr-4 text-base text-ink shadow-card outline-none transition placeholder:text-ink-subtle focus:border-brand focus:ring-2 focus:ring-brand-muted"
+                  className="min-h-11 w-full rounded-md border border-line bg-surface py-2.5 pl-11 pr-4 text-base text-ink outline-none transition placeholder:text-ink-subtle focus:border-brand focus:ring-2 focus:ring-brand-muted"
                   defaultValue={filters.query}
                   form={CATALOG_FILTER_FORM_ID}
                   id="catalog-query"
@@ -135,7 +135,7 @@ export default async function CatalogPage({
               <ul aria-label="Active filters" className="mt-3 flex flex-wrap gap-2">
                 {filterLabels.map((label) => (
                   <li
-                    className="rounded-full border border-brand-muted bg-brand-soft px-3 py-1 text-xs font-medium text-brand-strong"
+                    className="rounded-full bg-brand-soft px-3 py-1 text-xs font-medium text-brand-strong"
                     key={label}
                   >
                     {label}
@@ -151,7 +151,7 @@ export default async function CatalogPage({
                 ))}
               </div>
             ) : (
-              <Card className="mt-5 px-6 py-14 text-center">
+              <Card className="mt-5 rounded-lg px-6 py-14 text-center">
                 <h2 className="text-2xl font-bold tracking-tight text-ink">
                   No equipment matches these filters
                 </h2>

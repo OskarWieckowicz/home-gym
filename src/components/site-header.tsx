@@ -7,7 +7,7 @@ import { siteLinks } from "@/lib/navigation";
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-20 border-b border-line bg-surface/95 shadow-card backdrop-blur-sm">
+    <header className="sticky top-0 z-20 border-b border-line bg-surface">
       <nav
         aria-label="Main"
         className="mx-auto grid w-full max-w-[96rem] grid-cols-[auto_1fr_auto] items-center gap-3 px-4 py-3 sm:px-6 lg:px-8"

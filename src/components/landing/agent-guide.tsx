@@ -15,7 +15,7 @@ function AgentSetupGuide() {
       <summary className="w-fit cursor-pointer rounded-sm font-medium text-brand underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
         Agent setup guide
       </summary>
-      <div className="mt-4 space-y-3 rounded-md border border-line-strong bg-surface p-4 shadow-card">
+      <div className="mt-4 space-y-3 rounded-xl border border-brand-muted bg-surface p-4">
         <ol className="list-decimal space-y-3 pl-5">
           <li>
             Copy the starter prompt. Open this website in your agent&apos;s WebMCP-capable browser.
@@ -53,7 +53,7 @@ function AgentSetupGuide() {
 
 export function AgentGuide() {
   return (
-    <section id="agent-guide" aria-labelledby="agent-guide-title" className="grid scroll-mt-24 gap-5 rounded-xl border border-line-strong bg-surface-muted p-5 shadow-card sm:gap-7 sm:p-8 lg:scroll-mt-28 lg:grid-cols-[0.8fr_1.2fr] lg:gap-10">
+    <section id="agent-guide" aria-labelledby="agent-guide-title" className="grid scroll-mt-24 gap-5 rounded-2xl border border-brand-muted bg-linear-to-br from-brand-soft to-canvas p-5 sm:gap-7 sm:p-8 lg:scroll-mt-28 lg:grid-cols-[0.8fr_1.2fr] lg:gap-10">
       <div>
         <h2 id="agent-guide-title" className="text-2xl font-bold tracking-tight sm:text-3xl">Let your agent guide you.</h2>
         <p className="mt-3 max-w-sm leading-7 text-ink-muted">
@@ -64,12 +64,12 @@ export function AgentGuide() {
           Use your external agent on the open creator page. There is no in-app chatbot.
         </p>
         <AgentSetupGuide />
-        <MessageCircle className="mt-5 hidden text-brass-strong lg:block" size={44} strokeWidth={1.25} aria-hidden="true" />
+        <MessageCircle className="mt-5 hidden text-brand lg:block" size={44} strokeWidth={1.25} aria-hidden="true" />
       </div>
       <div className="min-w-0">
-        <div className="rounded-lg border border-line-strong bg-surface p-4 shadow-elevated sm:p-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brass-strong">Starter prompt</p>
-          <blockquote className="mt-3 select-text font-mono text-sm leading-6 text-ink">
+        <div className="rounded-xl border border-line bg-surface p-4 sm:p-5">
+          <p className="text-xs font-semibold uppercase tracking-wider text-brand">Starter prompt</p>
+          <blockquote className="mt-3 select-text font-mono text-sm leading-6 text-ink" aria-label="Starter prompt">
             {STARTER_PROMPT}
           </blockquote>
           <CopyPromptButton />

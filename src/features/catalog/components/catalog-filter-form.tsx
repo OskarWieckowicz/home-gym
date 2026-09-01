@@ -20,9 +20,9 @@ type CatalogFilterFormProps = {
 };
 
 const FIELD_CLASSES =
-  "mt-2 min-h-11 w-full rounded-md border border-line-strong bg-surface px-3 py-2.5 text-sm text-ink shadow-card outline-none transition focus:border-brand focus:ring-2 focus:ring-brand-muted";
+  "mt-2 min-h-11 w-full rounded-md border border-line bg-surface px-3 py-2.5 text-sm text-ink outline-none transition focus:border-brand focus:ring-2 focus:ring-brand-muted";
 
-const SECTION_CLASSES = "border-b border-line-strong pb-5";
+const SECTION_CLASSES = "border-b border-line pb-5";
 
 type NumberFieldProps = {
   readonly defaultValue?: number;
