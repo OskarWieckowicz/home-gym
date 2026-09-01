@@ -41,9 +41,7 @@ export type RoomToolName =
   | "update_placement"
   | "unplace_product"
   | "remove_product"
-  | "suggest_placements"
-  | "evaluate_layout_changes"
-  | "apply_layout_changes";
+  | "suggest_placements";
 
 export type RoomToolErrorCode = "INVALID_INPUT" | CommandErrorCode;
 
@@ -356,5 +354,18 @@ export function serializeValidation(analysis: ProjectAnalysis) {
       uncovered: [...analysis.coverage.uncovered],
     },
     issues: clonedIssues,
+  };
+}
+
+export function serializeValidationSummary(analysis: ProjectAnalysis) {
+  return {
+    valid: analysis.errorCount === 0,
+    errorCount: analysis.errorCount,
+    warningCount: analysis.warningCount,
+    issueCount: analysis.issues.length,
+    access: {
+      evaluated: analysis.access.evaluated,
+      reason: analysis.access.reason,
+    },
   };
 }

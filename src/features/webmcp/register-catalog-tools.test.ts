@@ -2,7 +2,9 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   catalogWebMcpTools,
+  getProductDetailsWebMcpTool,
   registerCatalogTools,
+  searchProductsWebMcpTool,
 } from "./register-catalog-tools";
 import type { WebMcpModelContext } from "./types";
 
@@ -19,6 +21,7 @@ describe("catalog WebMCP tool definitions", () => {
     expect(new Set(catalogWebMcpTools.map(({ name }) => name))).toHaveLength(2);
     for (const tool of catalogWebMcpTools) {
       expect(tool.description.length).toBeGreaterThan(20);
+      expect(tool.description.length).toBeLessThanOrEqual(500);
       expect(tool.annotations).toEqual({ readOnlyHint: true });
       expect(tool.inputSchema).toMatchObject({
         type: "object",
@@ -26,6 +29,13 @@ describe("catalog WebMCP tool definitions", () => {
       });
       expect(tool.execute).toBeTypeOf("function");
     }
+  });
+
+  it("exports both reusable catalog descriptors", () => {
+    expect(catalogWebMcpTools).toEqual([
+      searchProductsWebMcpTool,
+      getProductDetailsWebMcpTool,
+    ]);
   });
 });
 

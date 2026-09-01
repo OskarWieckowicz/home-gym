@@ -13,23 +13,24 @@ export const searchProductsWebMcpTool: WebMcpTool = {
   name: "search_products",
   title: "Search home gym equipment",
   description:
-    "Search home gym equipment by text, category, price, stored dimensions, training goal, exact exercise, available ceiling height, and effective anchoring requirement. All supplied filters are combined.",
+    "Search catalog equipment using combined filters. Returns the first 5 matches by default (up to 10), compact product summaries, the total match count, and truncation metadata.",
   inputSchema: searchProductsJsonSchema,
   annotations: { readOnlyHint: true },
   execute: createSearchProductsHandler(),
 };
 
+export const getProductDetailsWebMcpTool: WebMcpTool = {
+  name: "get_product_details",
+  title: "Get home gym equipment details",
+  description: "Get the complete catalog record for one product ID returned by search_products.",
+  inputSchema: getProductDetailsJsonSchema,
+  annotations: { readOnlyHint: true },
+  execute: createGetProductDetailsHandler(),
+};
+
 export const catalogWebMcpTools: readonly WebMcpTool[] = [
   searchProductsWebMcpTool,
-  {
-    name: "get_product_details",
-    title: "Get home gym equipment details",
-    description:
-      "Get the complete validated catalog record for one canonical product ID returned by search_products.",
-    inputSchema: getProductDetailsJsonSchema,
-    annotations: { readOnlyHint: true },
-    execute: createGetProductDetailsHandler(),
-  },
+  getProductDetailsWebMcpTool,
 ];
 
 export type CatalogRegistrationResult = ToolSetRegistrationResult;

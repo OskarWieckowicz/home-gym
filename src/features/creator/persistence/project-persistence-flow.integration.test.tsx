@@ -65,7 +65,7 @@ describe("persistent manual and agent editing flow", () => {
     expect(sceneRestores).not.toHaveBeenCalled();
     expect(memory.storage.setItem).not.toHaveBeenCalled();
     fireEvent.click(confirm);
-    await waitFor(() => expect(tools.size).toBe(21));
+    await waitFor(() => expect(tools.size).toBe(20));
     expect(sceneRestores.mock.lastCall![0]).toMatchObject({ project: createDemoProject() });
     expect(await executeTool(tools, "get_project_state", {})).toMatchObject({
       revision: 0, canUndo: false, project: { budget: 2500 },
@@ -87,7 +87,7 @@ describe("persistent manual and agent editing flow", () => {
     first.unmount();
     tools.clear();
     render(<CreatorEditor storage={memory.adapter} />);
-    await waitFor(() => expect(tools.size).toBe(21));
+    await waitFor(() => expect(tools.size).toBe(20));
     expect(sceneRestores.mock.lastCall![0]).toMatchObject({
       project: { ...createDemoProject(), budget: 12000, room: { widthCm: 450, depthCm: 400, heightCm: 240 } },
     });
@@ -119,7 +119,7 @@ describe("persistent manual and agent editing flow", () => {
         storage={memory.adapter}
       />,
     );
-    await waitFor(() => expect(tools.size).toBe(21));
+    await waitFor(() => expect(tools.size).toBe(20));
     expect(screen.getByRole("button", { name: "3D" }).getAttribute("aria-pressed")).toBe("true");
     expect(sceneRestores.mock.lastCall![0]).toMatchObject({ project: seeded });
     // Preserve this existing SVG visibility scenario as an explicit 2D workflow.
@@ -174,7 +174,7 @@ describe("persistent manual and agent editing flow", () => {
         storage={memory.adapter}
       />,
     );
-    await waitFor(() => expect(tools.size).toBe(21));
+    await waitFor(() => expect(tools.size).toBe(20));
 
     const restored = await executeTool<{
       revision: number;
@@ -200,7 +200,7 @@ describe("persistent manual and agent editing flow", () => {
     });
   });
 
-  it("registers one real twenty-one-tool set after a Strict Mode restore", async () => {
+  it("registers one real twenty-tool set after a Strict Mode restore", async () => {
     const registerTool = vi.fn<WebMcpModelContext["registerTool"]>(async () => undefined);
     Object.defineProperty(document, "modelContext", {
       configurable: true,
@@ -214,9 +214,9 @@ describe("persistent manual and agent editing flow", () => {
       </StrictMode>,
     );
 
-    await waitFor(() => expect(registerTool).toHaveBeenCalledTimes(21));
+    await waitFor(() => expect(registerTool).toHaveBeenCalledTimes(20));
     await act(async () => Promise.resolve());
-    expect(registerTool).toHaveBeenCalledTimes(21);
+    expect(registerTool).toHaveBeenCalledTimes(20);
     expect(memory.storage.setItem).not.toHaveBeenCalled();
   });
 
@@ -243,7 +243,7 @@ describe("persistent manual and agent editing flow", () => {
     };
 
     let mounted = render(<CreatorEditor persistence storage={memory.adapter} />);
-    await waitFor(() => expect(tools.size).toBe(21));
+    await waitFor(() => expect(tools.size).toBe(20));
     fireEvent.click(screen.getByRole("button", { name: "2D" }));
     fireEvent.click(screen.getByRole("button", { name: "Project" }));
     fireEvent.click(screen.getByRole("button", { name: "Import" }));
@@ -274,7 +274,7 @@ describe("persistent manual and agent editing flow", () => {
     mounted.unmount();
     tools.clear();
     mounted = render(<CreatorEditor persistence storage={memory.adapter} />);
-    await waitFor(() => expect(tools.size).toBe(21));
+    await waitFor(() => expect(tools.size).toBe(20));
     expect(await executeTool(tools, "get_project_state", {})).toMatchObject({
       revision: 0,
       project: {
@@ -297,7 +297,7 @@ describe("persistent manual and agent editing flow", () => {
     mounted.unmount();
     tools.clear();
     render(<CreatorEditor persistence storage={memory.adapter} />);
-    await waitFor(() => expect(tools.size).toBe(21));
+    await waitFor(() => expect(tools.size).toBe(20));
     expect(await executeTool(tools, "get_project_state", {})).toMatchObject({
       revision: 0,
       project: { budget: 2_500 },

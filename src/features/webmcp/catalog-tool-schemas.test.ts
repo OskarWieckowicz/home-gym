@@ -5,6 +5,7 @@ import {
   getProductDetailsInputSchema,
   getProductDetailsJsonSchema,
   mapInputIssues,
+  SEARCH_PRODUCTS_MAX_LIMIT,
   searchProductsInputSchema,
   searchProductsJsonSchema,
 } from "./catalog-tool-schemas";
@@ -34,6 +35,7 @@ describe("catalog tool input schemas", () => {
         exercise: "  dumbbell   press ",
         availableCeilingHeightCm: 220,
         anchoring: "none",
+        limit: SEARCH_PRODUCTS_MAX_LIMIT,
       }),
     ).toEqual({
       query: "adjustable dumbbells",
@@ -46,6 +48,7 @@ describe("catalog tool input schemas", () => {
       exercise: "dumbbell   press",
       availableCeilingHeightCm: 220,
       anchoring: "none",
+      limit: SEARCH_PRODUCTS_MAX_LIMIT,
     });
   });
 
@@ -63,6 +66,10 @@ describe("catalog tool input schemas", () => {
     { exercise: "   " },
     { availableCeilingHeightCm: -1 },
     { anchoring: "optional" },
+    { limit: 0 },
+    { limit: 1.5 },
+    { limit: SEARCH_PRODUCTS_MAX_LIMIT + 1 },
+    { limit: "5" },
     { unexpected: true },
   ])("rejects invalid search input: %j", (input) => {
     expect(searchProductsInputSchema.safeParse(input).success).toBe(false);
@@ -97,6 +104,11 @@ describe("catalog tool input schemas", () => {
         exercise: { type: "string", maxLength: 120 },
         availableCeilingHeightCm: { type: "integer", minimum: 0 },
         anchoring: { type: "string" },
+        limit: {
+          type: "integer",
+          minimum: 1,
+          maximum: SEARCH_PRODUCTS_MAX_LIMIT,
+        },
       },
     });
     expect(searchProductsJsonSchema).not.toHaveProperty("required");
@@ -108,13 +120,21 @@ describe("catalog tool input schemas", () => {
   });
 
   it("maps Zod failures to stable project-authored issues", () => {
-    const parsed = searchProductsInputSchema.safeParse({ maxPrice: -1, extra: true });
+    const parsed = searchProductsInputSchema.safeParse({
+      maxPrice: -1,
+      limit: SEARCH_PRODUCTS_MAX_LIMIT + 1,
+      extra: true,
+    });
     if (parsed.success) throw new Error("Expected invalid input.");
 
     expect(mapInputIssues(parsed.error)).toEqual([
       {
         path: "maxPrice",
         message: "Maximum price must be a non-negative integer in USD.",
+      },
+      {
+        path: "limit",
+        message: `Limit must be an integer from 1 to ${SEARCH_PRODUCTS_MAX_LIMIT}.`,
       },
       { path: "extra", message: "This field is not supported." },
     ]);

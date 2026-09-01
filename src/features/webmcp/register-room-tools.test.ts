@@ -33,7 +33,7 @@ describe("room WebMCP tool definitions", () => {
       expect(branch.properties?.limit).toMatchObject({ default: 3, minimum: 1, maximum: 10 });
     }
   });
-  it("defines exactly twenty-one unique, strict and correctly annotated tools", () => {
+  it("defines exactly twenty concise, unique, strict and correctly annotated tools", () => {
     const tools = createRoomWebMcpTools(createProjectStore(createDefaultProject()));
 
     expect(tools.map(({ name }) => name)).toEqual([
@@ -49,6 +49,7 @@ describe("room WebMCP tool definitions", () => {
       "remove_wall_element",
       "validate_layout",
       "search_products",
+      "get_product_details",
       "place_product",
       "add_product_to_project",
       "place_project_item",
@@ -56,16 +57,15 @@ describe("room WebMCP tool definitions", () => {
       "unplace_product",
       "remove_product",
       "suggest_placements",
-      "evaluate_layout_changes",
-      "apply_layout_changes",
     ]);
-    expect(new Set(tools.map(({ name }) => name))).toHaveLength(21);
+    expect(new Set(tools.map(({ name }) => name))).toHaveLength(20);
     for (const tool of tools) {
       expect(tool.description.length).toBeGreaterThan(40);
+      expect(tool.description.length).toBeLessThanOrEqual(500);
       expectStrictObjectSchema(tool.inputSchema);
       expect(tool.execute).toBeTypeOf("function");
       expect(tool.annotations).toEqual(
-        ["get_project_summary", "get_project_state", "validate_layout", "search_products", "suggest_placements", "evaluate_layout_changes"].includes(tool.name)
+        ["get_project_summary", "get_project_state", "validate_layout", "search_products", "get_product_details", "suggest_placements"].includes(tool.name)
           ? { readOnlyHint: true }
           : undefined,
       );
@@ -84,17 +84,25 @@ describe("room WebMCP tool definitions", () => {
     expect(tools.find(({ name }) => name === "get_project_state")?.description)
       .toContain("equipment placements");
     expect(tools.find(({ name }) => name === "validate_layout")?.description)
-      .toContain("errors and warnings");
-    expect(tools.find(({ name }) => name === "validate_layout")?.description)
       .toContain("100 cm");
-    expect(tools.find(({ name }) => name === "get_project_state")?.description)
-      .toContain("reachability");
-    expect(tools.find(({ name }) => name === "place_product")?.description)
-      .toContain("Unreachable");
     expect(tools.find(({ name }) => name === "place_product")?.description)
       .toContain("flush");
     expect(tools.find(({ name }) => name === "remove_product")?.description)
       .toContain("projectItemId");
+  });
+
+  it("keeps complete product details available without leaving the creator", async () => {
+    const tool = createRoomWebMcpTools(createProjectStore(createDefaultProject()))
+      .find(({ name }) => name === "get_product_details");
+    expect(await tool?.execute({ productId: "product_northstar_half_rack" }))
+      .toMatchObject({
+        ok: true,
+        product: {
+          id: "product_northstar_half_rack",
+          useZone: expect.any(Object),
+          requirements: expect.any(Object),
+        },
+      });
   });
 });
 
@@ -116,7 +124,7 @@ describe("registerRoomTools", () => {
         createProjectStore(createDefaultProject()),
       ),
     ).resolves.toEqual({ status: "ready" });
-    expect(registered).toHaveLength(21);
+    expect(registered).toHaveLength(20);
   });
 
   it("preserves unsupported and all-or-unavailable lifecycle behavior", async () => {

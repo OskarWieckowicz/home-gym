@@ -8,6 +8,8 @@ import {
 } from "@/features/catalog/schemas";
 
 const QUERY_MAX_LENGTH = 120;
+export const SEARCH_PRODUCTS_DEFAULT_LIMIT = 5;
+export const SEARCH_PRODUCTS_MAX_LIMIT = 10;
 
 export const searchProductsInputSchema = z
   .object({
@@ -52,6 +54,15 @@ export const searchProductsInputSchema = z
       .enum(ANCHORING_FILTER_VALUES)
       .describe("Exact effective anchoring requirement.")
       .optional(),
+    limit: z
+      .number()
+      .int()
+      .min(1)
+      .max(SEARCH_PRODUCTS_MAX_LIMIT)
+      .describe(
+        `Maximum products to return, from 1 to ${SEARCH_PRODUCTS_MAX_LIMIT}; defaults to ${SEARCH_PRODUCTS_DEFAULT_LIMIT}.`,
+      )
+      .optional(),
   })
   .strict();
 
@@ -87,6 +98,7 @@ const ISSUE_MESSAGES: Readonly<Record<string, string>> = {
   availableCeilingHeightCm:
     "Available ceiling height must be a non-negative integer in centimetres.",
   anchoring: "Anchoring must be none, recommended, or required.",
+  limit: `Limit must be an integer from 1 to ${SEARCH_PRODUCTS_MAX_LIMIT}.`,
   productId: "Product ID must use the canonical product ID format.",
 };
 

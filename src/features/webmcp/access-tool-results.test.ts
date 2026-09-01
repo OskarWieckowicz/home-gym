@@ -80,9 +80,13 @@ describe("access serialization", () => {
       },
       validation: {
         valid: false,
-        issueCounts: { doorUnreachable: 1 },
+        errorCount: 1,
         access: { evaluated: true, reason: null },
       },
+    });
+    expect(createValidateLayoutHandler(store)({})).toMatchObject({
+      issueCounts: { doorUnreachable: 1 },
+      access: { evaluated: true, reason: null },
     });
     if (!blocked || !blocked.ok) throw new Error("Expected mutation.");
     const impact = blocked.accessImpact;
@@ -93,7 +97,25 @@ describe("access serialization", () => {
     expect(store.getState().dispatch).toBeTypeOf("function");
   });
 
-  it("keeps get_project_state and adding a door on the same contract", () => {
+  it("keeps missing-door access status visible in compact mutation validation", () => {
+    const result = createAddObstacleHandler(createStore())({
+      kind: "obstacle",
+      name: "Column",
+      position: { xCm: 10, zCm: 10 },
+      dimensions: { widthCm: 20, depthCm: 20, heightCm: 200 },
+      rotation: 0,
+      locked: false,
+    });
+    expect(result).toMatchObject({
+      ok: true,
+      validation: {
+        valid: true,
+        access: { evaluated: false, reason: "no-door" },
+      },
+    });
+  });
+
+  it("keeps state reads compact and exposes door access through validation", () => {
     const store = createStore();
     const added = createAddWallElementHandler(store)({
       kind: "door",
@@ -107,12 +129,11 @@ describe("access serialization", () => {
       accessImpact: { madeUnreachable: [], restored: [] },
     });
     const state = createGetProjectStateHandler(store)({});
-    expect(state).toMatchObject({
-      ok: true,
-      validation: {
-        access: { evaluated: true, reason: null },
-        issueCounts: { accessNotEvaluated: 0 },
-      },
+    expect(state).toMatchObject({ ok: true });
+    expect(state).not.toHaveProperty("validation");
+    expect(createValidateLayoutHandler(store)({})).toMatchObject({
+      access: { evaluated: true, reason: null },
+      issueCounts: { accessNotEvaluated: 0 },
     });
   });
 });

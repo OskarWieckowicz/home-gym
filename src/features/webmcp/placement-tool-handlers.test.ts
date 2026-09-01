@@ -12,6 +12,7 @@ import {
   createUnplaceProductHandler,
   createUpdatePlacementHandler,
 } from "./placement-tool-handlers";
+import { createValidateLayoutHandler } from "./room-tool-handlers";
 
 const productId = "product_northstar_half_rack";
 const itemId = "project-item_agent-rack";
@@ -274,12 +275,15 @@ describe("placement WebMCP handlers", () => {
       },
       validation: {
         valid: false,
-        issueCounts: { wallMountOffWall: 1 },
-        issues: [{
-          code: "WALL_MOUNT_OFF_WALL",
-          details: { wall: "right", gapCm: 46 },
-        }],
+        errorCount: 1,
       },
+    });
+    expect(createValidateLayoutHandler(store)({})).toMatchObject({
+      issueCounts: { wallMountOffWall: 1 },
+      issues: [{
+        code: "WALL_MOUNT_OFF_WALL",
+        details: { wall: "right", gapCm: 46 },
+      }],
     });
   });
 });

@@ -105,7 +105,7 @@ describe("saved project start protection", () => {
     expect(save).not.toHaveBeenCalled();
     expect(clear).not.toHaveBeenCalled();
     expect(memory.getItem(LOCAL_PROJECT_STORAGE_KEY)).toBe(oldJson);
-    await waitFor(() => expect(registerTool).toHaveBeenCalledTimes(21));
+    await waitFor(() => expect(registerTool).toHaveBeenCalledTimes(20));
   });
 
   it.each(["keydown", "cancel"])("treats %s dismissal as keeping the saved project for a same-route start", async (eventType) => {
@@ -232,7 +232,7 @@ describe("creator catalog navigation", () => {
     expect(window.location.hash).toBe("#creator-content");
     expect(storedProject()).toEqual(project);
     expect(save).not.toHaveBeenCalled();
-    expect(registerTool).toHaveBeenCalledTimes(21);
+    expect(registerTool).toHaveBeenCalledTimes(20);
     fireEvent.click(cancel);
     expect(save).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("tab", { name: "Room" }));
@@ -248,7 +248,7 @@ describe("creator catalog navigation", () => {
     expect(screen.getByRole("combobox", { name: "Equipment category" })).toHaveProperty("value", "");
     expect(storedProject().room.widthCm).toBe(470);
     expect(storedProject().projectItems).toHaveLength(0);
-    expect(registerTool).toHaveBeenCalledTimes(21);
+    expect(registerTool).toHaveBeenCalledTimes(20);
     expect(screen.getByRole("button", { name: "Undo" })).toHaveProperty("disabled", false);
     fireEvent.click(screen.getByRole("button", { name: "Undo" }));
     expect(storedProject().room.widthCm).toBe(project.room.widthCm);
@@ -314,15 +314,15 @@ describe("creator start navigation", () => {
     });
     Object.defineProperty(document, "modelContext", { configurable: true, value: { registerTool } });
     render(<StrictMode><CreatorEntry /></StrictMode>);
-    await waitFor(() => expect(registerTool).toHaveBeenCalledTimes(21));
+    await waitFor(() => expect(registerTool).toHaveBeenCalledTimes(20));
     for (const [index, mode] of ["demo", "new", "demo"].entries()) {
-      const previousSignals = registerTool.mock.calls.slice(-21).map(([, options]) => options?.signal);
+      const previousSignals = registerTool.mock.calls.slice(-20).map(([, options]) => options?.signal);
       navigate(`/creator?start=${mode}`);
       if (index > 0) await confirmStart();
       await waitFor(() => expect(window.location.search).toBe(""));
-      await waitFor(() => expect(registerTool).toHaveBeenCalledTimes((index + 2) * 21));
+      await waitFor(() => expect(registerTool).toHaveBeenCalledTimes((index + 2) * 20));
       expect(previousSignals.every((signal) => signal?.aborted)).toBe(true);
-      expect(active.size).toBe(21);
+      expect(active.size).toBe(20);
       expect(await active.get("get_project_state")!.execute({})).toMatchObject({
         revision: 0, canUndo: false,
         project: { projectItems: mode === "demo" ? createDemoProject().projectItems : [] },
@@ -331,7 +331,7 @@ describe("creator start navigation", () => {
       expect(await active.get("get_project_state")!.execute({})).toMatchObject({
         revision: 1, project: { room: { widthCm: 450 } },
       });
-      expect(registerTool).toHaveBeenCalledTimes((index + 2) * 21);
+      expect(registerTool).toHaveBeenCalledTimes((index + 2) * 20);
     }
   });
 

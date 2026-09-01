@@ -64,18 +64,18 @@ that an invalid layout is acceptable.
 Each route registers tools on the client after its required state is ready. Registration uses the
 imperative API through `document.modelContext.registerTool(...)`. Tool inputs are validated at
 runtime with Zod-compatible JSON Schemas. Mutations call the same project commands used by the UI
-and return structured results containing the resulting state, revision, validation, and readable
-errors.
+and return structured results containing the affected state, revision, compact validation counts,
+and readable errors. Detailed validation is available on demand.
 
-The app exposes 26 route-scoped tool registrations with 22 unique names. Shared read tools are
+The app exposes 23 route-scoped tool registrations with 20 unique names. Shared read tools are
 intentionally available on more than one surface.
 
-### Creator — 21 tools
+### Creator — 20 tools
 
 | Tool | Purpose |
 | --- | --- |
 | `get_project_summary` | Read the deterministic summary shown by the application. |
-| `get_project_state` | Read the live room, settings, items, placements, validation, and history state. |
+| `get_project_state` | Read the live room, settings, items, placements, and history state. |
 | `configure_room` | Set room width, depth, and height. |
 | `update_project_settings` | Update budget and training goals. |
 | `add_obstacle` | Add a physical obstacle or explicit unavailable floor zone. |
@@ -85,7 +85,8 @@ intentionally available on more than one surface.
 | `update_wall_element` | Edit an existing door or window. |
 | `remove_wall_element` | Remove a door or window. |
 | `validate_layout` | Read deterministic validation without changing the project. |
-| `search_products` | Search the catalog by query, dimensions, price, category, goal, and requirements. |
+| `search_products` | Search the catalog with bounded results and truncation metadata. |
+| `get_product_details` | Read complete spatial, commercial, and training data for one product. |
 | `place_product` | Buy and place a catalog product in one undoable operation. |
 | `add_product_to_project` | Add a product to the shopping list without placing it. |
 | `place_project_item` | Place an existing unplaced project item. |
@@ -93,8 +94,6 @@ intentionally available on more than one surface.
 | `unplace_product` | Remove equipment from the room while keeping it on the shopping list. |
 | `remove_product` | Remove a project item and its placement. |
 | `suggest_placements` | Generate deterministic placement candidates without mutation. |
-| `evaluate_layout_changes` | Preview an ordered batch of changes in memory. |
-| `apply_layout_changes` | Validate and apply a batch atomically as one undo step. |
 
 ### Catalog — 2 read-only tools
 
@@ -103,13 +102,11 @@ intentionally available on more than one surface.
 | `search_products` | Search the same fictional catalog shown in the UI. |
 | `get_product_details` | Read complete commercial, spatial, and training data for one product. |
 
-### Summary — 3 read-only tools
+### Summary — 1 read-only tool
 
 | Tool | Purpose |
 | --- | --- |
 | `get_project_summary` | Read the same cost, goals, checks, recommendations, and floor figures shown on the page. |
-| `get_project_state` | Read the locally saved project represented by the summary. |
-| `validate_layout` | Read the summary project's deterministic validation. |
 
 The concrete registration adapter is in
 [`src/features/webmcp/register-tool-set.ts`](src/features/webmcp/register-tool-set.ts), with

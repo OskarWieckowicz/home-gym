@@ -7,7 +7,6 @@ import { CreatorEditor } from "@/features/creator/components/creator-editor";
 import { mockNativeDialog } from "@/features/creator/components/test-dialog";
 import type { ScenePreviewProps } from "@/features/creator/scene/scene-preview";
 import { createDefaultProject } from "@/features/project/defaults";
-import type { ProjectCommand } from "@/features/project/schemas/project-command";
 
 import type { WebMcpModelContext, WebMcpTool } from "./types";
 
@@ -44,18 +43,17 @@ function setNumber(name: string, value: string) {
 }
 
 describe("creator WebMCP shared editing flow", () => {
-  it("suggests and evaluates without mutation, applies four placements visibly, and undoes the whole batch", async () => {
+  it("suggests without mutation, applies the chosen placement visibly, and shares undo", async () => {
     const tools = new Map<string, WebMcpTool>();
     Object.defineProperty(document, "modelContext", {
       configurable: true,
       value: { registerTool: async (tool: WebMcpTool) => { tools.set(tool.name, tool); } },
     });
-    let nextId = 0;
     render(<CreatorEditor initialProject={createDefaultProject()} dependencies={{
-      generatePlacementId: () => `placement_batch_${++nextId}`,
-      generateProjectItemId: () => `project-item_batch_${++nextId}`,
+      generatePlacementId: () => "placement_agent_mat",
+      generateProjectItemId: () => "project-item_agent_mat",
     }} />);
-    await waitFor(() => expect(tools.size).toBe(21));
+    await waitFor(() => expect(tools.size).toBe(20));
     const execute = async (name: string, input: unknown) => {
       let result: unknown;
       await act(async () => { result = await tools.get(name)!.execute(input); });
@@ -65,22 +63,21 @@ describe("creator WebMCP shared editing flow", () => {
     const suggestion = await execute("suggest_placements", {
       productId: "product_groundwork_exercise_mat", rotations: [0], limit: 1,
       region: { minXCm: 0, minZCm: 0, maxXCm: 0, maxZCm: 0 },
-    }) as { ok: boolean; candidates: { command: ProjectCommand }[] };
+    }) as { ok: boolean; candidates: { position: { xCm: number; zCm: number }; rotation: number }[] };
     expect(suggestion.ok).toBe(true);
     expect(suggestion.candidates).toHaveLength(1);
-    const changes = [suggestion.candidates[0].command, ...[80, 160, 240].map((xCm) => ({
-      type: "PRODUCT_PLACED",
-      payload: { productId: "product_groundwork_exercise_mat", position: { xCm, zCm: 0 }, rotation: 0 },
-    }))];
-    expect(await execute("evaluate_layout_changes", { changes })).toMatchObject({ ok: true, applies: true, revision: 0 });
     expect(await execute("get_project_state", {})).toEqual(before);
     fireEvent.click(screen.getByRole("tab", { name: "Project items" }));
     expect(screen.getByText("No equipment in the project yet.")).toBeTruthy();
-    expect(await execute("apply_layout_changes", { changes })).toMatchObject({ ok: true, changed: true, revision: 1 });
+    expect(await execute("place_product", {
+      productId: "product_groundwork_exercise_mat",
+      position: suggestion.candidates[0].position,
+      rotation: suggestion.candidates[0].rotation,
+    })).toMatchObject({ ok: true, changed: true, revision: 1 });
     expect(screen.getByRole("button", { name: "3D" }).getAttribute("aria-pressed")).toBe("true");
     expect(screen.getByLabelText("Agent scene revision").textContent).toBe("1");
-    expect((sceneState.mock.lastCall![0] as ScenePreviewProps).project.placements).toHaveLength(4);
-    expect(screen.getAllByRole("button", { name: /Groundwork Exercise MatPlaced · 0°/ })).toHaveLength(4);
+    expect((sceneState.mock.lastCall![0] as ScenePreviewProps).project.placements).toHaveLength(1);
+    expect(screen.getByRole("button", { name: /Groundwork Exercise MatPlaced · 0°/ })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: /Undo/ }));
     expect(screen.getByText("No equipment in the project yet.")).toBeTruthy();
     expect(await execute("get_project_state", {})).toMatchObject({
@@ -108,7 +105,7 @@ describe("existing creator WebMCP shared editing flow", () => {
       />,
     );
     fireEvent.click(screen.getByRole("button", { name: "2D" }));
-    await waitFor(() => expect(tools.size).toBe(21));
+    await waitFor(() => expect(tools.size).toBe(20));
 
     fireEvent.click(screen.getByRole("button", { name: "Edit budget" }));
     setNumber("Budget", "12500");
@@ -235,7 +232,7 @@ describe("existing creator WebMCP shared editing flow", () => {
       value: { registerTool: async (tool: WebMcpTool) => { tools.set(tool.name, tool); } },
     });
     render(<CreatorEditor initialProject={createDefaultProject()} />);
-    await waitFor(() => expect(tools.size).toBe(21));
+    await waitFor(() => expect(tools.size).toBe(20));
 
     await act(async () => {
       await tools.get("get_project_state")!.execute({});
@@ -271,7 +268,7 @@ describe("existing creator WebMCP shared editing flow", () => {
         initialProject={createDefaultProject()}
       />,
     );
-    await waitFor(() => expect(tools.size).toBe(21));
+    await waitFor(() => expect(tools.size).toBe(20));
 
     const execute = async <T,>(name: string, input: unknown): Promise<T> => {
       const tool = tools.get(name);

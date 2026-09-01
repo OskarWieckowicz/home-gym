@@ -243,21 +243,17 @@ evaluated, not that the layout is known to be reachable.
 
 We will not build a global solver that optimizes all products at once in the MVP. The agent will iteratively choose products, fetch candidates, place them, and re-validate the project.
 
-### Atomic layout changes
+### Internal atomic layout changes
 
-`evaluate_layout_changes` and `apply_layout_changes` share a strict `{ changes: ProjectCommand[] }`
-schema accepting 1–25 ordered commands. `applyProjectCommands` folds them in memory and returns
-the final analysis, merged affected IDs and per-change outcomes, or the failing zero-based index
-and original command error. Intermediate invalid layouts are permitted; no intermediate state is
-published. `dispatchBatch` rejects final errors and unreachable facts using the same scoring policy,
-then records one history snapshot and one revision increment. Warnings may remain on success.
-Rejected and net-unchanged batches do not change history. Existing single-command dispatch is unchanged.
+The domain store retains `previewBatch` and `dispatchBatch` for internal deterministic composition
+and tests. They are not advertised as WebMCP tools: exposing the complete `ProjectCommand` union
+duplicated every named mutation schema and made agent tool selection ambiguous. The MVP agent uses
+the precise room, obstacle, opening, shopping and placement tools iteratively instead.
 
-The store's read-only `previewBatch` and `suggestPlacements` use the same injected product resolver
-and analyzer as mutations. Preview IDs are temporary and do not consume the real ID generators;
-commands should reference existing canonical IDs, not guessed IDs for entities created in the batch.
-Evaluation reports hypothetical validation and error/warning deltas without changing project,
-revision, undo/redo or autosave. Application rechecks the live state rather than trusting a preview.
+`applyProjectCommands` still folds 1–25 ordered commands in memory and returns final analysis,
+affected IDs and per-change outcomes, or the failing index and command error. `dispatchBatch`
+publishes only valid final state as one history snapshot; rejected and net-unchanged batches do not
+change history. `suggestPlacements` continues to share the same resolver and analyzer.
 
 ## 10. 2D plan and React Three Fiber scene
 
@@ -507,8 +503,8 @@ after callback return or reliably identify which supported host/inspector initia
 start action. It never dispatches or saves on entry. Its equipment, budget, coverage, validation
 and floor figures come from the pure `buildProjectSummary(project, analysis, resolveProduct)`;
 `get_project_summary` returns exactly that payload (plus tool name and store revision).
-The summary registers only `get_project_summary`, `get_project_state` and `validate_layout`.
-The creator also registers `get_project_summary` in its full tool set. The catalog remains unchanged.
+The summary route registers only `get_project_summary`. Editing-specific state and validation reads
+remain on the creator, which also registers `get_project_summary`. The catalog remains unchanged.
 
 The lightweight `buildProjectShopping(project, analysis, resolveProduct)` derives shared cost
 totals, individual purchase prices/statuses, per-product quantities and pending placement count/cost.
@@ -545,17 +541,18 @@ undo history is introduced. PDF/print export, cloud/share URLs and commerce rema
 
 ### Route-scoped tool sets
 
-Creator registers 21 tools: the six read tools below and fifteen mutations. Catalog registers
-`search_products` and `get_product_details`; the latter is not a creator tool. Summary registers
-only the three read tools described above. Registration files and their tests are authoritative.
+Creator registers 20 tools: the six read tools below and fourteen mutations. Catalog registers
+`search_products` and `get_product_details`; both are also available in the creator so the agent does
+not leave the live editor. Summary registers only `get_project_summary`. Registration files and
+their tests are authoritative.
 
 #### Creator read tools
 
 - `get_project_state`
 - `search_products`
+- `get_product_details`
 - `validate_layout`
 - `suggest_placements`
-- `evaluate_layout_changes`
 - `get_project_summary` — implemented; shared shopping list, budget, goals, checks and floor summary
 
 #### Creator mutations
@@ -574,7 +571,6 @@ only the three read tools described above. Registration files and their tests ar
 - `update_placement`
 - `unplace_product`
 - `remove_product`
-- `apply_layout_changes`
 
 `configure_room` changes dimensions only; budget and goals use `update_project_settings`.
 Every successful changed single mutation creates one shared undo step.
@@ -587,7 +583,11 @@ Each handler:
 2. calls catalog logic or a domain command,
 3. re-validates the project,
 4. returns the operation result and the most important fragment of the new state,
-5. reports warnings and possible next steps.
+5. returns compact validation counts for mutations; `validate_layout` returns full issues on demand.
+
+`get_project_state` returns canonical project data, revision and undo/redo availability without
+duplicating validation. `search_products` returns at most five products by default (ten when
+requested), while preserving the total match count, returned count and truncation flag.
 
 Read tools receive `readOnlyHint`. Tool descriptions must clearly distinguish reading, proposing, and applying a change.
 
@@ -613,8 +613,8 @@ sequenceDiagram
     A->>W: suggest_placements
     W->>D: candidate calculation
     D-->>A: best positions
-    A->>W: place_product / apply_layout_changes
-    W->>D: placement commands
+    A->>W: place_product
+    W->>D: PRODUCT_PLACED
     D->>S: scene, budget, and validation
     U->>S: manual rack move
     U->>A: Keep this position and fix the rest

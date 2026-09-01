@@ -10,6 +10,7 @@ import { createEquipmentFootprints } from "@/features/geometry/equipment-footpri
 import { createDefaultProject } from "@/features/project/defaults";
 import { createSearchProductsHandler } from "@/features/webmcp/catalog-tool-handlers";
 import { createPlaceProductHandler, createUpdatePlacementHandler } from "@/features/webmcp/placement-tool-handlers";
+import { createValidateLayoutHandler } from "@/features/webmcp/room-tool-handlers";
 
 const productId = "product_olympic_bench";
 const product = findProductById(productId)!;
@@ -83,9 +84,12 @@ describe("Olympic Bench Set integration", () => {
     const result = createPlaceProductHandler(store)({ productId, position, rotation });
     expect(result).toMatchObject({
       ok: true, changed: true,
-      validation: { issues: expect.arrayContaining([
+      validation: { valid: false },
+    });
+    expect(createValidateLayoutHandler(store)({})).toMatchObject({
+      issues: expect.arrayContaining([
         expect.objectContaining({ code: "OUTSIDE_ROOM", details: expect.objectContaining({ axes: [axis] }) }),
-      ]) },
+      ]),
     });
     expect(store.getState().project.placements).toHaveLength(1);
   });

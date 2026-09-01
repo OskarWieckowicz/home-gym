@@ -9,6 +9,10 @@ import {
   createSearchProductsHandler,
   type CatalogToolService,
 } from "./catalog-tool-handlers";
+import {
+  SEARCH_PRODUCTS_DEFAULT_LIMIT,
+  SEARCH_PRODUCTS_MAX_LIMIT,
+} from "./catalog-tool-schemas";
 
 const options = () => ({ signal: new AbortController().signal });
 
@@ -18,7 +22,10 @@ describe("search_products handler", () => {
     if (!result.ok) throw new Error("Expected successful category search.");
     const expected = searchProducts({ category });
     expect(result.matchCount).toBe(expected.length);
-    expect(result.products.map(({ productId }) => productId)).toEqual(expected.map(({ id }) => id));
+    expect(result.returnedCount).toBe(Math.min(expected.length, SEARCH_PRODUCTS_DEFAULT_LIMIT));
+    expect(result.products.map(({ productId }) => productId)).toEqual(
+      expected.slice(0, SEARCH_PRODUCTS_DEFAULT_LIMIT).map(({ id }) => id),
+    );
     expect(result.products.every((product) => product.category === category)).toBe(true);
   });
 
@@ -27,20 +34,25 @@ describe("search_products handler", () => {
       ok: true,
       tool: "search_products",
       matchCount: catalogProducts.length,
+      returnedCount: SEARCH_PRODUCTS_DEFAULT_LIMIT,
+      truncated: true,
     });
     expect(createSearchProductsHandler()({}, {})).toMatchObject({ ok: true });
   });
 
-  it("returns the complete starter catalog with compact summaries", () => {
+  it("returns the default bounded starter catalog with compact summaries", () => {
     const result = createSearchProductsHandler()({}, options());
 
     expect(result).toMatchObject({
       ok: true,
       tool: "search_products",
-      filters: {},
+      filters: { limit: SEARCH_PRODUCTS_DEFAULT_LIMIT },
       matchCount: catalogProducts.length,
+      returnedCount: SEARCH_PRODUCTS_DEFAULT_LIMIT,
+      truncated: true,
     });
     if (!result.ok) throw new Error("Expected a successful result.");
+    expect(result.products).toHaveLength(SEARCH_PRODUCTS_DEFAULT_LIMIT);
     expect(result.products[0]).toEqual({
       productId: catalogProducts[0].id,
       slug: catalogProducts[0].slug,
@@ -62,6 +74,49 @@ describe("search_products handler", () => {
     expect(() => JSON.stringify(result)).not.toThrow();
   });
 
+  it("applies an explicit limit after searching while preserving total matches and order", () => {
+    const service: CatalogToolService = {
+      searchProducts: vi.fn(() => catalogProducts),
+      findProductById: vi.fn(),
+    };
+    const result = createSearchProductsHandler(service)(
+      { query: "rack", limit: 2 },
+      options(),
+    );
+
+    expect(service.searchProducts).toHaveBeenCalledWith({ query: "rack" });
+    expect(result).toMatchObject({
+      ok: true,
+      filters: { query: "rack", limit: 2 },
+      matchCount: catalogProducts.length,
+      returnedCount: 2,
+      truncated: true,
+    });
+    if (!result.ok) throw new Error("Expected a successful result.");
+    expect(result.products.map(({ productId }) => productId)).toEqual(
+      catalogProducts.slice(0, 2).map(({ id }) => id),
+    );
+  });
+
+  it("returns up to the maximum requested products without reporting false truncation", () => {
+    const matches = catalogProducts.slice(0, SEARCH_PRODUCTS_MAX_LIMIT);
+    const service: CatalogToolService = {
+      searchProducts: vi.fn(() => matches),
+      findProductById: vi.fn(),
+    };
+    const result = createSearchProductsHandler(service)(
+      { limit: SEARCH_PRODUCTS_MAX_LIMIT },
+      options(),
+    );
+
+    expect(result).toMatchObject({
+      ok: true,
+      matchCount: matches.length,
+      returnedCount: matches.length,
+      truncated: false,
+    });
+  });
+
   it("uses manual catalog semantics for combined filters and preserves order", () => {
     const product = catalogProducts.find(
       ({ category, requirements }) =>
@@ -81,6 +136,7 @@ describe("search_products handler", () => {
       availableCeilingHeightCm:
         product.requirements.minimumCeilingHeightCm ?? product.dimensions.heightCm,
       anchoring: "none" as const,
+      limit: SEARCH_PRODUCTS_MAX_LIMIT,
     };
     const result = createSearchProductsHandler()(
       input,
@@ -97,7 +153,13 @@ describe("search_products handler", () => {
 
   it("returns a successful explicit empty product list", () => {
     const result = createSearchProductsHandler()({ query: "underwater treadmill" }, options());
-    expect(result).toMatchObject({ ok: true, matchCount: 0, products: [] });
+    expect(result).toMatchObject({
+      ok: true,
+      matchCount: 0,
+      returnedCount: 0,
+      truncated: false,
+      products: [],
+    });
   });
 
   it("returns stable invalid-input issues", () => {

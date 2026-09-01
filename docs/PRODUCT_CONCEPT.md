@@ -156,9 +156,9 @@ The agent should not decide for itself whether the geometry is valid. A determin
 
 ## WebMCP capabilities
 
-The creator exposes current state and summary reads, catalog search, room/settings changes,
-obstacle/opening operations, shopping-item and placement commands, layout validation,
-deterministic placement suggestions, batch evaluation and atomic application. Each changed
+The creator exposes current state and summary reads, bounded catalog search and product details,
+room/settings changes, obstacle/opening operations, shopping-item and placement commands, layout
+validation, and deterministic placement suggestions. Each changed
 mutation uses the same domain commands and history as manual editing.
 
 The catalog's reuse behavior is a UI convenience, not a change to the agent contract:
@@ -166,7 +166,7 @@ The catalog's reuse behavior is a UI convenience, not a change to the agent cont
 purchase. Explicit item placement never silently falls back to buying a new copy.
 
 The [architecture tool contract](TECHNICAL_ARCHITECTURE.md#route-scoped-tool-sets) records the
-exact route split: 21 tools in the creator, two catalog reads and three summary reads. Keep tools
+exact route split: 20 tools in the creator, two catalog reads and one summary read. Keep tools
 precise and avoid overlapping operations or a separate backend-only planning path.
 
 ## Project summary
@@ -180,8 +180,8 @@ the existing JSON format. A project without equipment gets an empty state instea
 The page and `get_project_summary` share one deterministic derivation. Free floor measures the room
 minus the union of floor-occupying and reserved footprints, not the space available for every
 exercise. Use-zone and access checks remain separate. The summary is local to this browser, not a
-shareable cloud link or a checkout. It registers only three read-only tools: summary, state and
-validation. See the [summary contract](TECHNICAL_ARCHITECTURE.md#project-summary).
+shareable cloud link or a checkout. It registers only `get_project_summary`; editing-specific state
+and validation reads remain scoped to the creator. See the [summary contract](TECHNICAL_ARCHITECTURE.md#project-summary).
 
 ## Example agent conversation
 

@@ -6,8 +6,6 @@ import type { WebMcpTool } from "./types";
 
 const SUMMARY_TOOLS = new Set([
   "get_project_summary",
-  "get_project_state",
-  "validate_layout",
 ]);
 
 export function createSummaryWebMcpTools(store: ProjectStore): readonly WebMcpTool[] {

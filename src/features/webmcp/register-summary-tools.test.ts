@@ -7,13 +7,11 @@ import { createSummaryWebMcpTools, registerSummaryTools } from "./register-summa
 import type { WebMcpModelContext } from "./types";
 
 describe("summary WebMCP tool set", () => {
-  it("exposes exactly three strict read-only tools and executing all leaves the store unchanged", async () => {
+  it("exposes only the deterministic summary read and leaves the store unchanged", async () => {
     const store = createProjectStore(createDemoProject());
     const before = store.getState();
     const tools = createSummaryWebMcpTools(store);
-    expect(tools.map(({ name }) => name)).toEqual([
-      "get_project_summary", "get_project_state", "validate_layout",
-    ]);
+    expect(tools.map(({ name }) => name)).toEqual(["get_project_summary"]);
     for (const tool of tools) {
       expect(tool.annotations).toEqual({ readOnlyHint: true });
       expect(tool.inputSchema).toMatchObject({
@@ -35,7 +33,7 @@ describe("summary WebMCP tool set", () => {
       documentValue, controller, createProjectStore(createDemoProject()),
     )).resolves.toEqual({ status: "ready" });
     expect(registerTool.mock.calls.map(([tool]) => tool.name)).toEqual([
-      "get_project_summary", "get_project_state", "validate_layout",
+      "get_project_summary",
     ]);
     expect(registerTool.mock.calls.every(([, options]) => options?.signal === controller.signal))
       .toBe(true);
@@ -43,7 +41,6 @@ describe("summary WebMCP tool set", () => {
 
   it("rolls back the subset on failed registration", async () => {
     const registerTool = vi.fn<WebMcpModelContext["registerTool"]>()
-      .mockResolvedValueOnce(undefined)
       .mockRejectedValueOnce(new Error("registration unavailable"));
     const controller = new AbortController();
     await expect(registerSummaryTools(

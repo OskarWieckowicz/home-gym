@@ -111,9 +111,9 @@ describe("room read handlers", () => {
         budget: 12_500,
         trainingGoals: ["strength"],
       },
-      validation: { valid: true, issueCount: 1, issues: [{ code: "ACCESS_NOT_EVALUATED" }] },
     });
     if (!result.ok) throw new Error("Expected successful state read.");
+    expect(result).not.toHaveProperty("validation");
     result.project.room.widthCm = 1;
     result.project.trainingGoals.push("mobility");
     expect(store.getState().project).toMatchObject({
@@ -147,11 +147,12 @@ describe("room read handlers", () => {
           rotation: 90,
         }],
       },
-      validation: {
-        issues: expect.arrayContaining([
-          expect.objectContaining({ code: "USE_ZONE_OUTSIDE_ROOM" }),
-        ]),
-      },
+    });
+    expect(result).not.toHaveProperty("validation");
+    expect(createValidateLayoutHandler(store)({})).toMatchObject({
+      issues: expect.arrayContaining([
+        expect.objectContaining({ code: "USE_ZONE_OUTSIDE_ROOM" }),
+      ]),
     });
   });
 
@@ -508,7 +509,8 @@ describe("wall element WebMCP handlers", () => {
       },
       validation: {
         valid: false,
-        issueCounts: { outsideWall: 1, wallElementOverlap: 0 },
+        errorCount: 1,
+        issueCount: 1,
       },
     });
     expect(store.getState().project.obstacles).toEqual([]);

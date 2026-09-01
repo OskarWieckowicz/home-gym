@@ -9,6 +9,7 @@ import type { Product } from "@/features/catalog/schemas";
 import {
   getProductDetailsInputSchema,
   mapInputIssues,
+  SEARCH_PRODUCTS_DEFAULT_LIMIT,
   searchProductsInputSchema,
 } from "./catalog-tool-schemas";
 import {
@@ -44,8 +45,14 @@ export function createSearchProductsHandler(service: CatalogToolService = defaul
     }
 
     try {
-      const filters = normalizeCatalogFilters(parsed.data);
-      return createSearchResult(filters, service.searchProducts(parsed.data));
+      const { limit: requestedLimit, ...catalogFilters } = parsed.data;
+      const limit = requestedLimit ?? SEARCH_PRODUCTS_DEFAULT_LIMIT;
+      const filters = normalizeCatalogFilters(catalogFilters);
+      return createSearchResult(
+        filters,
+        service.searchProducts(catalogFilters),
+        limit,
+      );
     } catch {
       return createToolError(
         "search_products",

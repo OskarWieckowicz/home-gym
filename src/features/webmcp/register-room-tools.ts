@@ -1,12 +1,13 @@
 import type { ProjectStore } from "@/features/creator/store/project-store";
 import {
-  createApplyLayoutChangesHandler,
-  createEvaluateLayoutChangesHandler,
   createSuggestPlacementsHandler,
 } from "./batch-tool-handlers";
-import { layoutChangesJsonSchema, suggestPlacementsJsonSchema } from "./batch-tool-schemas";
+import { suggestPlacementsJsonSchema } from "./batch-tool-schemas";
 
-import { searchProductsWebMcpTool } from "./register-catalog-tools";
+import {
+  getProductDetailsWebMcpTool,
+  searchProductsWebMcpTool,
+} from "./register-catalog-tools";
 import {
   createAddProductToProjectHandler,
   createPlaceProductHandler,
@@ -51,16 +52,10 @@ import { registerToolSet, type ToolSetRegistrationResult } from "./register-tool
 import type { WebMcpExecutionObserver } from "./execution-activity";
 import type { WebMcpTool } from "./types";
 
-const SPATIAL_INPUT_NOTE =
-  "Positions are the minimum corner of the rotated footprint. Dimensions and positions use integer centimeters; rotation is 0, 90, 180, or 270 degrees. Spatially invalid layouts may still be applied and returned with validation issues.";
-const ACCESS_NOTE =
-  "The application computes reachability from doors and equipment use zones from catalog data; do not draw generic walking paths or equipment use zones as unavailable zones. A walking path must stay at least 75 cm wide, and a path narrower than 100 cm is reported as tight; both widths are application conventions, not building codes. Unreachable doors and equipment are errors, not trade-offs. ACCESS_NOT_EVALUATED means the room has no door, so access was not judged. Inspect validation.access, validation.valid, and accessImpact on mutations.";
-const FLOOR_ZONE_NOTE =
-  "Use kind obstacle for physical furniture or obstructions. Use kind unavailable-zone only for a specific additional floor restriction supported by room evidence or an explicit user request; explain each reserve and mark estimated dimensions. An unavailable zone remains walkable but forbids equipment footprints and equipment use zones from overlapping it. Do not invent generic circulation corridors, doorway buffers, or substitutes for equipment use zones; rely on validate_layout for automatic access checks.";
-const OPENING_ACCESS_NOTE =
-  "Doors seed automatic access checks; windows are not access targets. Swing arcs and furniture opening space are not modeled. No unavailable zone is required just because an opening exists; add a reserve only for a specific supported extra restriction.";
-const POST_MUTATION_VALIDATION_NOTE =
-  `The call succeeds even when the resulting layout is invalid; read validation.valid, validation.errorCount, and validation.warningCount and report them to the user. ${ACCESS_NOTE}`;
+const SPATIAL_NOTE =
+  "Positions are minimum footprint corners. Use integer centimeters and rotation 0, 90, 180, or 270.";
+const VALIDATION_NOTE =
+  "The mutation may leave an invalid layout. Inspect validation counts and call validate_layout for details.";
 
 export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[] {
   return [
@@ -68,7 +63,7 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "get_project_summary",
       title: "Get the project summary",
       description:
-        "Read the same deterministic summary shown on the project summary page: room dimensions, equipment and placement status, prices and budget, training-goal coverage, layout checks, recommendations, and free floor area. Reads the live project without changing it or its undo history. Prices use USD and dimensions use centimeters. Invalid layouts are summarized with errors and warnings; inspect summary.valid, summary.errorCount, and summary.warningCount.",
+        "Read the live deterministic summary: room, equipment and placement status, USD cost and budget, goal coverage, layout checks, recommendations, and free floor area. Does not change project history.",
       inputSchema: getProjectSummaryJsonSchema,
       annotations: { readOnlyHint: true },
       execute: createGetProjectSummaryHandler(store),
@@ -77,7 +72,7 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "get_project_state",
       title: "Get current room project state",
       description:
-        "Read the live version-5 room project, settings, floor obstacles, wall elements, project items, catalog equipment placements, deterministic validation, revision, and manual undo/redo availability. Canonical room IDs from this result can be used by the currently registered update and remove tools. Selection-only products appear as items without placements. " + ACCESS_NOTE,
+        "Read the live version-5 project, settings, obstacles, wall elements, project items, equipment placements, revision, and undo/redo availability. Use returned canonical IDs with update and remove tools. Call validate_layout when validation details are needed.",
       inputSchema: getProjectStateJsonSchema,
       annotations: { readOnlyHint: true },
       execute: createGetProjectStateHandler(store),
@@ -85,7 +80,7 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
     {
       name: "configure_room",
       title: "Configure room dimensions",
-      description: `Set the room width, depth, and height in positive integer centimeters. ${SPATIAL_INPUT_NOTE} ${POST_MUTATION_VALIDATION_NOTE}`,
+      description: `Set room width, depth, and height in positive integer centimeters. ${VALIDATION_NOTE}`,
       inputSchema: configureRoomJsonSchema,
       execute: createConfigureRoomHandler(store),
     },
@@ -93,21 +88,21 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "update_project_settings",
       title: "Update room project settings",
       description:
-        "Update a non-empty patch containing the non-negative integer USD budget and/or up to five canonical training goals. This creates one shared manual undo step when values change.",
+        "Update a non-empty patch with a non-negative integer USD budget and/or up to five canonical training goals. A change creates one shared undo step.",
       inputSchema: updateProjectSettingsJsonSchema,
       execute: createUpdateProjectSettingsHandler(store),
     },
     {
       name: "add_obstacle",
       title: "Add a room obstacle or unavailable zone",
-      description: `Add a physical obstacle or unavailable zone. ${FLOOR_ZONE_NOTE} The canonical obstacle ID is generated by the project and returned; callers must not supply an ID. ${SPATIAL_INPUT_NOTE} ${POST_MUTATION_VALIDATION_NOTE}`,
+      description: `Add physical furniture as kind obstacle, or a supported floor restriction as unavailable-zone. Do not invent circulation or equipment use zones; access is computed from doors. The project returns the canonical ID. ${SPATIAL_NOTE} ${VALIDATION_NOTE}`,
       inputSchema: addObstacleJsonSchema,
       execute: createAddObstacleHandler(store),
     },
     {
       name: "update_obstacle",
       title: "Update a room obstacle or unavailable zone",
-      description: `Update one canonical obstacle ID using a non-empty patch; its kind is immutable. ${FLOOR_ZONE_NOTE} A locked obstacle accepts only the exact patch { locked: false } until unlocked. ${SPATIAL_INPUT_NOTE} ${POST_MUTATION_VALIDATION_NOTE}`,
+      description: `Update an obstacle by canonical ID with a non-empty patch; kind is immutable. A locked obstacle accepts only { locked: false } until unlocked. ${SPATIAL_NOTE} ${VALIDATION_NOTE}`,
       inputSchema: updateObstacleJsonSchema,
       execute: createUpdateObstacleHandler(store),
     },
@@ -115,7 +110,7 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "remove_obstacle",
       title: "Remove a room obstacle or unavailable zone",
       description:
-        "Remove the obstacle or unavailable zone with a canonical ID returned by get_project_state or add_obstacle. Locked obstacles must be unlocked first.",
+        "Remove an obstacle or unavailable zone by canonical ID. Locked obstacles must be unlocked first.",
       inputSchema: removeObstacleJsonSchema,
       execute: createRemoveObstacleHandler(store),
     },
@@ -123,7 +118,7 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "add_wall_element",
       title: "Add a door or window",
       description:
-        `Add a minimal door or window to a wall using its offset and width in integer centimeters. The project generates and returns its canonical ID. No unavailable zone is created or implied. ${OPENING_ACCESS_NOTE}`,
+        "Add a door or window using wall, offset, and width in integer centimeters. The project returns its canonical ID. Doors seed access checks; windows do not. No unavailable zone is implied.",
       inputSchema: addWallElementJsonSchema,
       execute: createAddWallElementHandler(store),
     },
@@ -131,7 +126,7 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "update_wall_element",
       title: "Update a door or window",
       description:
-        `Update one door or window by canonical wall-element ID using a non-empty patch of name, wall, offset, or width. Its kind is immutable. This never creates or changes an unavailable zone. ${OPENING_ACCESS_NOTE}`,
+        "Update a door or window by canonical ID with a non-empty name, wall, offset, or width patch. Kind is immutable. This never changes unavailable zones.",
       inputSchema: updateWallElementJsonSchema,
       execute: createUpdateWallElementHandler(store),
     },
@@ -139,7 +134,7 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "remove_wall_element",
       title: "Remove a door or window",
       description:
-        "Remove a door or window using a canonical wall-element ID returned by get_project_state or add_wall_element. Removing it does not remove or otherwise change any unavailable zone.",
+        "Remove a door or window by canonical ID. This does not change unavailable zones.",
       inputSchema: removeWallElementJsonSchema,
       execute: createRemoveWallElementHandler(store),
     },
@@ -147,16 +142,17 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "validate_layout",
       title: "Validate the current room layout",
       description:
-        "Read the live deterministic layout validation and its revision without changing state or history. Reports errors and warnings separately: valid is true when errorCount is 0 even if warningCount is greater than 0. Physical collisions, room and wall bounds, unavailable-zone conflicts, use zones leaving the room or hitting obstacles, ceiling height, budget, blocked doors, disconnected doors, and unreachable equipment remain errors. Equipment occupying another item's use zone, or two overlapping use zones, are warnings. An unapproachable physical obstacle is a warning. Access facts distinguish reachable, tight, and unreachable: a walking path must stay at least 75 cm wide, and a path narrower than 100 cm is reported as tight (application conventions, not building codes). Geometry no taller than 20 cm, such as a bare barbell or a walking pad, is stepped over rather than walked around, so it never divides the room; it still occupies floor area for collision, bounds, and reach checks. Unreachable entities are errors, not trade-offs. A project with no door reports ACCESS_NOT_EVALUATED and does not judge targets; that is missing input, not an accepted layout. Inspect validation.valid, validation.errorCount, validation.warningCount, and validation.access.",
+        "Read detailed deterministic validation without changing state. Errors cover collisions, bounds, unavailable zones, use zones, ceiling, budget, wall mounting, blocked doors, and unreachable equipment. Warnings include overlapping use zones and tight access. valid means zero errors. No door reports ACCESS_NOT_EVALUATED. Access uses 75 cm minimum and reports paths below 100 cm as tight application conventions.",
       inputSchema: validateLayoutJsonSchema,
       annotations: { readOnlyHint: true },
       execute: createValidateLayoutHandler(store),
     },
     searchProductsWebMcpTool,
+    getProductDetailsWebMcpTool,
     {
       name: "place_product",
       title: "Place catalog equipment in the room",
-      description: `Create one project item and place it on the floor in a single undo step. Use add_product_to_project for selection-only accessories or to add a floor product without placing it. The project generates and returns placement and item IDs; callers must not supply them. Wall-mounted products must sit flush against the wall implied by rotation: 0 top, 90 right, 180 bottom, 270 left. They must not cross a door or window on that wall. The call does not snap or correct an off-wall position; read WALL_MOUNT_OFF_WALL and WALL_MOUNT_OVERLAPS_OPENING on the returned validation. Selection-only products are rejected without mutation. ${SPATIAL_INPUT_NOTE} ${POST_MUTATION_VALIDATION_NOTE}`,
+      description: `Buy and place one floor-capable catalog product in one undo step. Use add_product_to_project for an unplaced or selection-only item. Wall-mounted products must be flush with the rotation wall (0 top, 90 right, 180 bottom, 270 left) and cannot cross openings. IDs are generated. ${SPATIAL_NOTE} ${VALIDATION_NOTE}`,
       inputSchema: placeProductJsonSchema,
       execute: createPlaceProductHandler(store),
     },
@@ -164,21 +160,21 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "add_product_to_project",
       title: "Add a catalog product to the project without placing it",
       description:
-        "Add one canonical catalog product as an unplaced project item. It counts toward budget and training-goal coverage immediately. Use place_project_item later for floor-capable products. Selection-only products cannot be placed. The project generates and returns a project item ID.",
+        "Add a catalog product as an unplaced project item. It immediately affects budget and goal coverage. Use place_project_item for floor-capable items; selection-only items cannot be placed. Returns a generated item ID.",
       inputSchema: addProductToProjectJsonSchema,
       execute: createAddProductToProjectHandler(store),
     },
     {
       name: "place_project_item",
       title: "Place an existing project item on the floor",
-      description: `Place one unplaced floor-capable project item. Selection-only items and already placed items are rejected without mutation. ${SPATIAL_INPUT_NOTE} ${POST_MUTATION_VALIDATION_NOTE}`,
+      description: `Place an existing unplaced floor-capable project item. Selection-only or already placed items are rejected. ${SPATIAL_NOTE} ${VALIDATION_NOTE}`,
       inputSchema: placeProjectItemJsonSchema,
       execute: createPlaceProjectItemHandler(store),
     },
     {
       name: "update_placement",
       title: "Move, rotate, or lock placed equipment",
-      description: `Update one canonical placement ID using a non-empty position, rotation, and/or locked patch. The product identity is immutable. Locked equipment accepts only the exact patch { locked: false }; unlock explicitly in a separate operation before changing its pose. ${SPATIAL_INPUT_NOTE} ${POST_MUTATION_VALIDATION_NOTE}`,
+      description: `Update position, rotation, or lock state by canonical placement ID. Product identity is immutable. Locked equipment accepts only { locked: false }; unlock it before changing pose. ${SPATIAL_NOTE} ${VALIDATION_NOTE}`,
       inputSchema: updatePlacementJsonSchema,
       execute: createUpdatePlacementHandler(store),
     },
@@ -186,7 +182,7 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "unplace_product",
       title: "Remove equipment from the floor without deleting it",
       description:
-        "Remove one floor placement by canonical placement ID. The project item stays in the project, shopping list, and budget. Use remove_product to delete the item itself. Locked equipment must be explicitly unlocked first.",
+        "Remove a floor placement by canonical ID while keeping its project item, cost, and shopping entry. Use remove_product to delete the item. Unlock equipment first.",
       inputSchema: unplaceProductJsonSchema,
       execute: createUnplaceProductHandler(store),
     },
@@ -194,7 +190,7 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "remove_product",
       title: "Remove a project item and any floor placement",
       description:
-        "Remove one project item using its canonical projectItemId returned by get_project_state, add_product_to_project, or place_product. If the item is placed, that placement is removed in the same command. Locked equipment must be explicitly unlocked before removing its project item. The result enumerates the cascade. This does not remove or modify the catalog product.",
+        "Remove a project item by canonical projectItemId and remove its placement in the same command. Unlock placed equipment first. The catalog product is unchanged.",
       inputSchema: removeProductJsonSchema,
       execute: createRemoveProductHandler(store),
     },
@@ -202,27 +198,10 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "suggest_placements",
       title: "Suggest safe equipment placements",
       description:
-        "Read deterministic placement suggestions without changing the project or history. Supply exactly one productId or projectItemId; an already placed unlocked item is repositioned in memory, and its current pose may be returned if it is already a best fit (applying that pose is a no-op). Scan minimum-corner positions on a 10 cm grid in z, x, then 0/90/180/270 order, filtered by optional rotations and inclusive region bounds. Return the best 3 candidates by default (maximum 10), exact commands, warning penalties, and rejection counts. Errors and any unreachable entity reject a candidate; warnings increase its score. No door means access was not evaluated. Searches above 20,000 candidates are rejected; with doors, at most 20,000 room grid cells and 30 million candidate-cell evaluations are allowed. Narrow region or rotations for large searches. Apply a chosen command explicitly with apply_layout_changes; suggestions are never accepted automatically. A locked project item returns ENTITY_LOCKED; suggestions never unlock equipment.",
+        "Read deterministic placement candidates without mutation. Supply exactly one productId or projectItemId, with optional rotations, region, and limit. Candidates use a 10 cm grid; errors and unreachable entities reject them, while warnings affect score. Apply a returned pose with place_product, place_project_item, or update_placement. Suggestions never unlock equipment.",
       inputSchema: suggestPlacementsJsonSchema,
       annotations: { readOnlyHint: true },
       execute: createSuggestPlacementsHandler(store),
-    },
-    {
-      name: "evaluate_layout_changes",
-      title: "Evaluate hypothetical layout changes",
-      description:
-        `Evaluate an ordered changes array of 1–25 existing project commands in memory. Never mutates the project, revision, or undo history. Returns applies, full hypothetical validation and error/warning count deltas; command failures identify their zero-based index. Errors and any unreachable entity make applies false, while warnings are allowed. Generated preview IDs are temporary, not IDs to reference in later commands. Use the same payload with apply_layout_changes after inspection; the live state is checked again at apply time. ${FLOOR_ZONE_NOTE}`,
-      inputSchema: layoutChangesJsonSchema,
-      annotations: { readOnlyHint: true },
-      execute: createEvaluateLayoutChangesHandler(store),
-    },
-    {
-      name: "apply_layout_changes",
-      title: "Apply an atomic layout change batch",
-      description:
-        `Apply an ordered changes array of 1–25 project commands atomically and undoable as one step. Any command failure or final layout error/unreachable entity rejects the entire batch without changing state or history. Intermediate layouts are never committed. A successful apply can still leave warnings: inspect validation and accessImpact. Returns per-change outcomes and generated IDs. Commands may reference existing canonical IDs, not guessed IDs for entities created earlier in this batch. Uses the same input as evaluate_layout_changes, with final validation against the live project. ${FLOOR_ZONE_NOTE}`,
-      inputSchema: layoutChangesJsonSchema,
-      execute: createApplyLayoutChangesHandler(store),
     },
   ];
 }

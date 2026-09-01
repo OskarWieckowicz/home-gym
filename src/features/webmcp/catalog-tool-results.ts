@@ -58,13 +58,18 @@ export function createProductSummary(product: Product) {
 export function createSearchResult(
   filters: NormalizedCatalogFilters,
   products: readonly Product[],
+  limit: number,
 ) {
+  const returnedProducts = products.slice(0, limit);
+
   return {
     ok: true as const,
     tool: "search_products" as const,
-    filters: { ...filters },
+    filters: { ...filters, limit },
     matchCount: products.length,
-    products: products.map(createProductSummary),
+    returnedCount: returnedProducts.length,
+    truncated: returnedProducts.length < products.length,
+    products: returnedProducts.map(createProductSummary),
   };
 }
 
