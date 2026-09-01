@@ -477,6 +477,30 @@ are recorded in [WebMCP sources](WEBMCP_SOURCES.md#local-adapter-contract).
 
 Handlers must read the current state at execution time. They must not work on a project copy closed over in a stale closure.
 
+### Creator execution activity
+
+The creator passes an optional execution observer to `registerToolSet`. Only in that case the
+descriptors handed to `document.modelContext.registerTool` receive a shallow wrapper around
+`execute`; catalog and summary registration remain unobserved. The wrapper snapshots input before
+calling the original handler exactly once, then records a fulfilled result or thrown/rejected error
+before preserving the original return/error behavior. Observer and snapshot failures are isolated
+from tool execution. The registration-lifecycle signal and optional execution signal retain their
+existing meanings.
+
+Activity events correlate `started` with `returned` or `threw`, carry descriptor name/title and
+`readOnlyHint`, timestamps, duration and bounded JSON snapshots. Application success/error is
+derived only from an explicit boolean `result.ok`; `{ ok: false }` remains a fulfilled WebMCP
+callback with a domain/tool error. Snapshotting does not mutate the value returned to the host. It
+handles non-JSON diagnostic values, redacts common credential keys and caps each displayed input or
+result at 128 KiB.
+
+`WebMcpActivityProvider` is creator-scoped and separate from the project store. Its stable recorder
+context prevents activity renders from re-registering tools. The UI retains the latest 50 calls in
+memory, clears on request or creator-session remount and never enters localStorage, project export,
+autosave or undo/redo. The non-modal inspector shows the application-side callback boundary while
+the room stays visible. It cannot observe host failures before callback entry, host serialization
+after callback return or reliably identify which supported host/inspector initiated a call.
+
 ### Project summary
 
 `/summary` restores the single local project through `ProjectPersistenceBoundary` without a

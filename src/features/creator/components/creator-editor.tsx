@@ -7,6 +7,8 @@ import { findProjectProductById } from "@/features/catalog/queries/project-produ
 import type { ProjectCommandDependencies } from "@/features/project/commands/apply-project-command";
 import type { GymProject } from "@/features/project/schemas/project";
 import { CreatorWebMcpBridge } from "@/features/webmcp/components/creator-webmcp-bridge";
+import { WebMcpActivityProvider } from "@/features/webmcp/components/webmcp-activity-context";
+import { WebMcpActivityPanel } from "@/features/webmcp/components/webmcp-activity-panel";
 import type { CreatorStartMode } from "@/lib/navigation";
 
 import type { EditorPanel, PlacementTool } from "../editor-types";
@@ -251,6 +253,7 @@ function EditorWorkspace({ catalogProductId }: { readonly catalogProductId?: str
         </aside>
       </div>
       {settingsDialog ? <ProjectSettingsDialog {...settingsDialog} onClose={() => setSettingsDialog(null)} /> : null}
+      <WebMcpActivityPanel />
     </main>
   );
 }
@@ -279,8 +282,7 @@ export function CreatorEditor({
   const persistenceEnabled =
     persistence ?? (storage !== undefined || initialProject === undefined);
 
-  if (persistenceEnabled) {
-    return (
+  const editor = persistenceEnabled ? (
       <ProjectPersistenceBoundary
         dependencies={dependencies}
         fallbackProject={initialProject}
@@ -289,12 +291,13 @@ export function CreatorEditor({
       >
         {workspace}
       </ProjectPersistenceBoundary>
+    ) : (
+      <ProjectStoreProvider dependencies={dependencies} initialProject={initialProject}>
+        {workspace}
+      </ProjectStoreProvider>
     );
-  }
 
   return (
-    <ProjectStoreProvider dependencies={dependencies} initialProject={initialProject}>
-      {workspace}
-    </ProjectStoreProvider>
+    <WebMcpActivityProvider>{editor}</WebMcpActivityProvider>
   );
 }

@@ -13,6 +13,7 @@ export type WebMcpBridgeState = "checking" | "ready" | "unavailable";
 
 export function useWebMcpBridgeState(
   register: WebMcpRegistration,
+  onStateChange?: (state: WebMcpBridgeState) => void,
 ): WebMcpBridgeState {
   const [state, setState] = useState<WebMcpBridgeState>("checking");
 
@@ -25,11 +26,14 @@ export function useWebMcpBridgeState(
       void register(document, controller).then(
         (result) => {
           if (!mounted || result.status === "aborted") return;
-          setState(result.status === "ready" ? "ready" : "unavailable");
+          const next = result.status === "ready" ? "ready" : "unavailable";
+          setState(next);
+          onStateChange?.(next);
         },
         () => {
           if (!mounted || controller.signal.aborted) return;
           setState("unavailable");
+          onStateChange?.("unavailable");
         },
       );
     });
@@ -38,7 +42,7 @@ export function useWebMcpBridgeState(
       mounted = false;
       controller.abort();
     };
-  }, [register]);
+  }, [onStateChange, register]);
 
   return state;
 }

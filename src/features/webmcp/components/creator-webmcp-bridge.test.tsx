@@ -8,6 +8,7 @@ import { ProjectStoreProvider } from "@/features/creator/store/project-store-con
 
 import { registerRoomTools } from "../register-room-tools";
 import { CreatorWebMcpBridge } from "./creator-webmcp-bridge";
+import { WebMcpActivityProvider } from "./webmcp-activity-context";
 
 vi.mock("../register-room-tools", () => ({ registerRoomTools: vi.fn() }));
 
@@ -19,7 +20,11 @@ afterEach(() => {
 });
 
 function renderBridge(node = <CreatorWebMcpBridge />) {
-  return render(<ProjectStoreProvider>{node}</ProjectStoreProvider>);
+  return render(
+    <WebMcpActivityProvider>
+      <ProjectStoreProvider>{node}</ProjectStoreProvider>
+    </WebMcpActivityProvider>,
+  );
 }
 
 describe("CreatorWebMcpBridge", () => {
@@ -79,9 +84,11 @@ describe("CreatorWebMcpBridge", () => {
 
     render(
       <StrictMode>
-        <ProjectStoreProvider>
-          <CreatorWebMcpBridge />
-        </ProjectStoreProvider>
+        <WebMcpActivityProvider>
+          <ProjectStoreProvider>
+            <CreatorWebMcpBridge />
+          </ProjectStoreProvider>
+        </WebMcpActivityProvider>
       </StrictMode>,
     );
     await waitFor(() => expect(controllers).toHaveLength(1));

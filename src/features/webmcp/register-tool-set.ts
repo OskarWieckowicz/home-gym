@@ -1,4 +1,8 @@
 import type { WebMcpDocument, WebMcpModelContext, WebMcpTool } from "./types";
+import {
+  observeWebMcpTool,
+  type WebMcpExecutionObserver,
+} from "./execution-activity";
 
 export type ToolSetRegistrationResult =
   | { readonly status: "ready" }
@@ -15,6 +19,7 @@ export async function registerToolSet(
   documentValue: Document,
   controller: AbortController,
   tools: readonly WebMcpTool[],
+  observer?: WebMcpExecutionObserver,
 ): Promise<ToolSetRegistrationResult> {
   if (controller.signal.aborted) return { status: "aborted" };
 
@@ -23,7 +28,10 @@ export async function registerToolSet(
     if (!modelContext) return { status: "unsupported" };
     await Promise.all(
       tools.map((tool) =>
-        modelContext.registerTool(tool, { signal: controller.signal }),
+        modelContext.registerTool(
+          observer === undefined ? tool : observeWebMcpTool(tool, observer),
+          { signal: controller.signal },
+        ),
       ),
     );
     return controller.signal.aborted ? { status: "aborted" } : { status: "ready" };

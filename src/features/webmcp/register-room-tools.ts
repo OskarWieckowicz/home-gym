@@ -48,6 +48,7 @@ import {
   validateLayoutJsonSchema,
 } from "./room-tool-schemas";
 import { registerToolSet, type ToolSetRegistrationResult } from "./register-tool-set";
+import type { WebMcpExecutionObserver } from "./execution-activity";
 import type { WebMcpTool } from "./types";
 
 const SPATIAL_INPUT_NOTE =
@@ -230,6 +231,7 @@ export function registerRoomTools(
   documentValue: Document,
   controller: AbortController,
   store: ProjectStore,
+  observer?: WebMcpExecutionObserver,
 ): Promise<ToolSetRegistrationResult> {
-  return registerToolSet(documentValue, controller, createRoomWebMcpTools(store));
+  return registerToolSet(documentValue, controller, createRoomWebMcpTools(store), observer);
 }

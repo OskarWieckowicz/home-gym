@@ -225,6 +225,30 @@ describe("existing creator WebMCP shared editing flow", () => {
       },
       canRedo: false,
     });
+
+  });
+
+  it("shows actual registered read and mutation inputs and results beside the creator", async () => {
+    const tools = new Map<string, WebMcpTool>();
+    Object.defineProperty(document, "modelContext", {
+      configurable: true,
+      value: { registerTool: async (tool: WebMcpTool) => { tools.set(tool.name, tool); } },
+    });
+    render(<CreatorEditor initialProject={createDefaultProject()} />);
+    await waitFor(() => expect(tools.size).toBe(21));
+
+    await act(async () => {
+      await tools.get("get_project_state")!.execute({});
+      await tools.get("configure_room")!.execute({ widthCm: 420, depthCm: 330, heightCm: 250 });
+    });
+    expect(screen.getByRole("spinbutton", { name: "Width (cm)" })).toHaveProperty("value", "420");
+    fireEvent.click(screen.getByRole("button", { name: /WebMCP activity, Ready, 2 new calls/ }));
+    const activity = screen.getByRole("complementary", { name: "WebMCP activity" });
+    const calls = within(activity).getByRole("list", { name: "Recent WebMCP calls" });
+    expect(within(calls).getByText("get_project_state")).toBeTruthy();
+    fireEvent.click(within(calls).getByText("configure_room").closest("button")!);
+    expect(within(activity).getByRole("region", { name: "Input payload" }).textContent).toContain("420");
+    expect(within(activity).getByRole("region", { name: "Returned result" }).textContent).toContain("revision");
   });
 
   it("searches, places, moves, rotates and removes equipment in the live editor", async () => {

@@ -4,6 +4,7 @@ import { CircleHelp } from "lucide-react";
 import { BrandMark } from "@/components/brand-mark";
 import { LinkButton } from "@/components/ui/link-button";
 import { siteLinks } from "@/lib/navigation";
+import { WebMcpActivityTrigger } from "@/features/webmcp/components/webmcp-activity-panel";
 
 import { useProjectPersistence } from "../persistence/project-persistence-boundary";
 import { ProjectFileActions } from "./project-file-actions";
@@ -32,6 +33,7 @@ export function CreatorToolbar({ onOpenSettings }: { readonly onOpenSettings: (t
       <div className="creator-toolbar-actions" aria-label="Project controls" role="group">
         <ProjectFileActions onOpenSettings={onOpenSettings} />
         <LinkButton href={siteLinks.viewSummary.href}>{siteLinks.viewSummary.label}</LinkButton>
+        <WebMcpActivityTrigger />
         <EditorPopover label="Editor help" icon={<CircleHelp aria-hidden="true" size={19} />}>
           <strong>Make room for your training</strong>
           <p>Choose equipment or a room tool, then click to place it. You can also use Place at centre.</p>

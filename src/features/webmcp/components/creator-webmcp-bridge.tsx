@@ -6,15 +6,17 @@ import { useProjectStoreApi } from "@/features/creator/store/project-store-conte
 
 import { registerRoomTools } from "../register-room-tools";
 import { useWebMcpBridgeState } from "./use-webmcp-bridge-state";
+import { useWebMcpActivityRecorder } from "./webmcp-activity-context";
 
 export function CreatorWebMcpBridge() {
   const store = useProjectStoreApi();
+  const { observeExecution, setRegistrationState } = useWebMcpActivityRecorder();
   const register = useCallback(
     (documentValue: Document, controller: AbortController) =>
-      registerRoomTools(documentValue, controller, store),
-    [store],
+      registerRoomTools(documentValue, controller, store, observeExecution),
+    [observeExecution, store],
   );
-  const state = useWebMcpBridgeState(register);
+  const state = useWebMcpBridgeState(register, setRegistrationState);
 
   if (state !== "unavailable") return null;
 

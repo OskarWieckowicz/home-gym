@@ -15,6 +15,19 @@ function documentWith(modelContext?: WebMcpModelContext): Document {
 }
 
 describe("registerToolSet", () => {
+  it("registers the original descriptor and options when no observer is supplied", async () => {
+    const registerTool = vi.fn<WebMcpModelContext["registerTool"]>(() => Promise.resolve());
+    const controller = new AbortController();
+
+    await expect(
+      registerToolSet(documentWith({ registerTool }), controller, [tool]),
+    ).resolves.toEqual({ status: "ready" });
+
+    expect(registerTool).toHaveBeenCalledOnce();
+    expect(registerTool.mock.calls[0]?.[0]).toBe(tool);
+    expect(registerTool.mock.calls[0]?.[1]).toEqual({ signal: controller.signal });
+  });
+
   it("does not register anything when the lifecycle is already aborted", async () => {
     const registerTool = vi.fn<WebMcpModelContext["registerTool"]>();
     const controller = new AbortController();

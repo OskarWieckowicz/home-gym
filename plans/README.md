@@ -1,6 +1,6 @@
 # Home Gym Creator — remaining work
 
-> Updated: 31 August 2026.
+> Updated: 1 September 2026.
 > Recorded submission deadline: 3 September 2026, 22:00 CEST; recheck official requirements before release.
 > Deployment URL: <https://home-gym-coral.vercel.app/> — verify the submitted revision.
 
@@ -12,9 +12,9 @@ Git preserves history; routine verification belongs in the task, PR or CI record
 
 Keep this sequence unless the user explicitly reprioritizes work.
 
-| Order | Plan                                     | Remaining outcome                                                                                                       |
-| ----- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| 4     | [Submission](phase-28-submission.md)     | Final manual tests on the live build, then judge-facing README, description, video and submission.                      |
+| Order | Plan                                 | Remaining outcome                                                                                  |
+| ----- | ------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| 4     | [Submission](phase-28-submission.md) | Final manual tests on the live build, then judge-facing README, description, video and submission. |
 
 Creator polish comes first so later landing captures and public checks use the finished editor.
 Remaining landing work is editorial media, not a new product-asset production queue. Implemented
@@ -36,7 +36,7 @@ metrics are not remaining production work; do not claim them from general editor
   AI room concepts are not evidence of rendering, reconstruction or layout validation. Keep
   unverified device and deployment behavior explicit, and tie release evidence to the submitted revision.
 - Keep product dimensions and validation independent of visuals; preserve asset provenance.
-- Do not reopen cut scope: activity feed, named access requirements, visible derived paths,
+- Do not reopen cut scope: named access requirements, visible derived paths,
   `check_access`, special rack/bench collision exemptions, summary PDF/print/share export, or
   catalog sidebar polish (static project-summary panel).
 

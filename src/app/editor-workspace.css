@@ -142,6 +142,51 @@
 .creator-camera-actions .editor-popover-content { inline-size: 10rem; }
 .creator-camera-actions .editor-popover-content button { inline-size: 100%; }
 
+.webmcp-activity-trigger { position: relative; gap: 0.45rem; padding-inline: 0.7rem; white-space: nowrap; }
+.webmcp-registration-state { display: inline-flex; align-items: center; gap: 0.3rem; color: var(--ink-muted); font-size: 0.68rem; }
+.webmcp-registration-state::before { content: ""; inline-size: 0.45rem; block-size: 0.45rem; border-radius: 50%; background: var(--ink-subtle); }
+.webmcp-registration-state.is-ready::before { background: #047857; }
+.webmcp-registration-state.is-unavailable::before { background: #b45309; }
+.webmcp-unread-count { display: grid; place-items: center; min-inline-size: 1.15rem; block-size: 1.15rem; padding-inline: 0.25rem; border-radius: 999px; background: var(--brand); color: white; font-size: 0.62rem; font-weight: 800; }
+
+.webmcp-activity-panel { position: fixed; z-index: 40; inset-block: 0; inset-inline-end: 0; display: grid; grid-template-rows: auto auto minmax(0, 1fr); inline-size: min(42rem, calc(100vw - 1rem)); color: var(--ink); background: var(--surface); border-inline-start: 1px solid var(--line); box-shadow: -18px 0 48px rgb(17 17 17 / 0.18); }
+.webmcp-activity-panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 1rem 1.1rem 0.8rem; border-block-end: 1px solid var(--line); }
+.webmcp-activity-panel-heading h2 { margin: 0.1rem 0 0; font-size: 1.15rem; }
+.webmcp-activity-panel-heading p:last-child { margin: 0.25rem 0 0; color: var(--ink-muted); font-size: 0.75rem; }
+.webmcp-panel-actions { display: flex; align-items: center; gap: 0.4rem; }
+.webmcp-panel-actions button { min-block-size: 2.25rem; padding: 0.4rem 0.55rem; font-size: 0.72rem; }
+.webmcp-panel-actions button:last-child { inline-size: 2.25rem; padding: 0; }
+.webmcp-activity-explainer { margin: 0; padding: 0.65rem 1.1rem; color: var(--ink-muted); background: var(--canvas); border-block-end: 1px solid var(--line); font-size: 0.72rem; line-height: 1.5; }
+.webmcp-activity-empty { align-self: center; justify-self: center; max-inline-size: 25rem; padding: 2rem; color: var(--ink-muted); text-align: center; }
+.webmcp-activity-empty h3 { margin: 0.65rem 0 0.35rem; color: var(--ink); font-size: 1rem; }
+.webmcp-activity-empty p { margin: 0; font-size: 0.8rem; line-height: 1.55; }
+.webmcp-activity-content { display: grid; grid-template-columns: minmax(12rem, 0.72fr) minmax(0, 1.28fr); min-block-size: 0; }
+.webmcp-activity-list { min-block-size: 0; margin: 0; padding: 0.65rem; overflow-y: auto; border-inline-end: 1px solid var(--line); list-style: none; }
+.webmcp-activity-list li + li { margin-block-start: 0.4rem; }
+.creator-editor .webmcp-activity-row { display: grid; align-items: stretch; justify-content: stretch; gap: 0.4rem; inline-size: 100%; padding: 0.65rem; text-align: start; }
+.webmcp-activity-row[aria-pressed="true"] { border-color: var(--brand); background: var(--brand-soft); }
+.webmcp-activity-row-heading { min-inline-size: 0; }
+.webmcp-activity-row-heading strong { display: block; min-inline-size: 0; overflow-wrap: anywhere; font-size: 0.75rem; line-height: 1.35; }
+.webmcp-activity-row-footer { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 0.45rem; min-inline-size: 0; }
+.webmcp-call-status { flex-shrink: 0; padding: 0.15rem 0.3rem; border-radius: 0.3rem; background: var(--surface-muted); color: var(--ink-muted); font-size: 0.6rem; font-weight: 800; white-space: nowrap; text-wrap: nowrap; }
+.webmcp-call-status.is-returned.is-success { color: #065f46; background: var(--success-soft); }
+.webmcp-call-status.is-returned.is-error, .webmcp-call-status.is-threw { color: #991b1b; background: #fef2f2; }
+.webmcp-call-status.is-started { color: var(--brand-strong); background: var(--brand-soft); }
+.webmcp-activity-row-meta { color: var(--ink-subtle); font-size: 0.62rem; font-variant-numeric: tabular-nums; white-space: nowrap; text-wrap: nowrap; }
+.webmcp-activity-detail { min-block-size: 0; padding: 1rem; overflow-y: auto; }
+.webmcp-activity-detail > header { padding-block-end: 0.9rem; border-block-end: 1px solid var(--line); }
+.webmcp-activity-detail > header > p:first-child { margin: 0 0 0.25rem; color: var(--ink-muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.webmcp-activity-detail h3 { margin: 0; font-size: 1rem; line-height: 1.35; overflow-wrap: anywhere; }
+.webmcp-activity-detail > header > code { display: inline-block; margin-block-start: 0.3rem; color: var(--ink-muted); font-size: 0.7rem; overflow-wrap: anywhere; }
+.webmcp-detail-status { margin: 0.45rem 0 0; color: var(--ink-muted); font-size: 0.72rem; font-variant-numeric: tabular-nums; }
+.webmcp-json-section { margin-block-start: 1rem; }
+.webmcp-json-heading { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-block-end: 0.4rem; }
+.webmcp-json-heading h4 { margin: 0; font-size: 0.76rem; }
+.webmcp-copy-action { min-block-size: 1.8rem; padding: 0.2rem 0.4rem; border-color: transparent; background: transparent; font-size: 0.65rem; }
+.webmcp-json-section pre { max-block-size: 18rem; margin: 0; padding: 0.75rem; overflow: auto; border: 1px solid var(--line); border-radius: 0.55rem; color: var(--ink); background: var(--canvas); font-size: 0.68rem; line-height: 1.5; tab-size: 2; }
+.webmcp-json-section pre:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
+.webmcp-truncation { margin: 0.35rem 0 0; color: #92400e; font-size: 0.68rem; }
+
 @media (max-width: 74rem) {
   .creator-project-cost { position: static; }
   .creator-editor { block-size: auto; min-block-size: 100dvh; }
@@ -167,4 +212,8 @@
   .creator-viewport-secondary { gap: 0.4rem; }
   .creator-viewport-secondary > span { font-size: 0.65rem; }
   .creator-scene-shell, .creator-plan-shell { padding-inline: 0.75rem; }
+  .webmcp-trigger-label, .webmcp-registration-state { position: absolute; clip-path: inset(50%); inline-size: 1px; block-size: 1px; overflow: hidden; white-space: nowrap; }
+  .webmcp-activity-panel { inline-size: 100vw; }
+  .webmcp-activity-content { grid-template-columns: 1fr; grid-template-rows: minmax(8rem, 34%) minmax(0, 1fr); }
+  .webmcp-activity-list { border-inline-end: 0; border-block-end: 1px solid var(--line); }
 }

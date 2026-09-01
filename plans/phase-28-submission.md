@@ -1,6 +1,6 @@
 # Phase 28 — Submission
 
-> Order 5 in the [active queue](README.md). Start after creator, landing and catalog polish; the
+> Order 4 in the [active queue](README.md). The WebMCP activity inspector is implemented; the
 > premium-look pass is optional and should be cut rather than delaying this phase.
 > Catalog sidebar polish is cut; do not reopen it.
 > Recorded deadline: 3 September 2026, 22:00 CEST. Start recording no later than 2 September.
@@ -14,12 +14,12 @@ and complete the submission.
 The MIT license exists; public repository access and the deployed revision still require
 confirmation.
 
-Creator, landing and catalog implementation polish belong to the earlier queue items. This plan
+Creator, landing, catalog and WebMCP activity implementation are complete product work. This plan
 owns final manual testing plus landing, demo, 3D editor, workspace and summary release acceptance
 on the live URL. Past local checks do not certify the submitted build. The only planned behavior
 change here is adding the verified public Repository footer link and its regression test. If
 acceptance finds a real defect, create a separate scoped fix plan rather than folding unrelated
-changes into submission. Do not introduce an activity feed, PDF/print export, shareable summary
+changes into submission. Do not introduce PDF/print export, shareable summary
 URL or other cut scope.
 
 Do not change repository visibility without authorization. Use the authorized deployment workflow;
@@ -37,7 +37,8 @@ production work; do not claim they passed unless observed on the submitted build
    Include a manual edit, agent read of that new state, an agent change, deterministic validation,
    correction of a conflict and shared undo. A manual edit may introduce the conflict; the agent
    need not create one deliberately. End with View summary and matching `get_project_summary`
-   results. Show actual tool calls in the external agent host alongside visible editor changes.
+   results. Show actual tool calls in the creator's WebMCP activity inspector alongside visible
+   editor changes; the external agent host may remain visible when the recording layout permits it.
 3. **Finalize the root README after live acceptance.** The judge-facing product/problem, live demo,
    real product captures, human/agent shared-state explanation, complete route-scoped tool list,
    sample prompts, fresh-session steps, development commands, architecture summary, limitations,

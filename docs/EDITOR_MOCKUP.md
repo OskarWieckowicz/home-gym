@@ -14,8 +14,31 @@ The compact project header contains a home/brand link, the project title and act
 status. **Project** reveals New project, Settings, Export, Import and Reset; a help disclosure
 explains editing. **New project** uses the guarded explicit-start flow, replaces the durable project
 and starts with empty history. **Reset** is undoable and restores the default room, budget and
-training goals together.
+training goals together. **WebMCP activity** reports Checking, Ready or Unavailable and counts new
+tool calls. It opens the creator's session-only activity inspector without navigating away or
+blocking the room editor.
 The creator omits the marketing header/footer. All editor labels are English.
+
+### WebMCP activity inspector
+
+The inspector is a non-modal panel over the right side of the desktop creator, leaving the room
+visible while an external agent works. On narrow screens it uses the full viewport width. The
+toolbar trigger remains available in supported and unsupported browsers; the existing manual-editing
+fallback remains visible when registration is unavailable.
+
+The panel lists up to 50 most recent calls made through the creator's actually registered WebMCP
+tool descriptors. Each entry identifies the tool, read-only or state-changing intent, start time,
+duration and one of Running, Returned, Tool error or Exception. Selecting an entry shows the
+application-side input payload and returned result as copyable JSON. A fulfilled `{ ok: false }`
+result is a Tool error, distinct from a thrown or rejected callback. Registration itself and manual
+UI commands do not create entries.
+
+Activity is diagnostic UI, not project data: it is never persisted, autosaved, exported, added to
+undo/redo or exposed as another tool. Clear removes the session log. Snapshots redact common secret
+keys and explicitly mark data truncated at the display limit. The panel does not claim to expose
+the host's internal transport, caller identity or failures occurring outside the page callback.
+Its trigger uses `aria-expanded` and `aria-controls`; Escape and Close return focus to that trigger,
+and scrollable JSON blocks remain keyboard focusable.
 
 The **2D / 3D** switch, undo/redo and room dimensions live in a separate toolbar directly above
 the viewport. **Fit view** frames the room; **Focus selected** frames a selected placed object,
