@@ -8,8 +8,9 @@
 
 ## Scope and boundaries
 
-Run final manual tests on the submitted build at <https://home-gym-coral.vercel.app/>, finish
-judge-facing README, prepare the English description and video, and complete the submission.
+Run final manual tests on the submitted build at <https://home-gym-coral.vercel.app/>, finalize
+the judge-facing README with observed live-host details, prepare the English description and video,
+and complete the submission.
 The MIT license exists; public repository access and the deployed revision still require
 confirmation.
 
@@ -37,13 +38,11 @@ production work; do not claim they passed unless observed on the submitted build
    correction of a conflict and shared undo. A manual edit may introduce the conflict; the agent
    need not create one deliberately. End with View summary and matching `get_project_summary`
    results. Show actual tool calls in the external agent host alongside visible editor changes.
-3. **Finish the root README for judges.** Include the product/problem; live demo near the top;
-   screenshot or short GIF; explanation of human/agent shared state; complete tool list grouped by
-   surface with purposes; runnable sample prompts; observed WebMCP setup for both target hosts;
-   fresh-session checklist; local development and tests; short architecture/module map and
-   deterministic-geometry invariant; documentation links, license, fictional brands and provenance.
-   Link architecture for depth, but keep the summary in README. Run every advertised prompt on
-   the live build. Do not reintroduce phase status tables or claim unverified capabilities.
+3. **Finalize the root README after live acceptance.** The judge-facing product/problem, live demo,
+   real product captures, human/agent shared-state explanation, complete route-scoped tool list,
+   sample prompts, fresh-session steps, development commands, architecture summary, limitations,
+   license and asset provenance are present. Run every advertised prompt on the live build, then
+   record the observed WebMCP host/browser versions and setup without claiming unverified support.
 4. **Write the English Devpost description.** Answer why WebMCP fits, how it improves the experience,
    what humans and agents can each do, and how it is implemented. Cover the problem, scenario,
    feature list, agent scope and honest limitations. Explain that geometry, collision, clearance
