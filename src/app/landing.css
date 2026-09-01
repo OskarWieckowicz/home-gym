@@ -1,0 +1,57 @@
+.landing-hero-copy,
+.landing-technical-section {
+  position: relative;
+}
+
+.landing-hero-caption {
+  position: relative;
+  padding-inline-start: 4rem;
+}
+
+.landing-hero-caption::before {
+  position: absolute;
+  inset-block-start: 1.15rem;
+  inset-inline-start: 1rem;
+  inline-size: 1.25rem;
+  border-block-start: 2px solid var(--brand);
+  content: "";
+}
+
+.landing-support {
+  position: relative;
+  padding-inline-start: 1.75rem;
+}
+
+.landing-support::before {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+.landing-support-agent::before { content: "⌖"; }
+.landing-support-manual::before { content: "—"; }
+.landing-support-saved::before { content: "□"; }
+
+@media (min-width: 80rem) {
+  .landing-hero-copy::before {
+    position: absolute;
+    inset-block: -2.5rem -2rem;
+    inset-inline-start: -2.75rem;
+    border-inline-start: 1px dashed var(--line);
+    content: "";
+  }
+
+  .landing-hero-copy::after,
+  .landing-technical-section::before {
+    position: absolute;
+    inset-inline-start: -3.1rem;
+    color: var(--brand);
+    content: "+";
+    font: 1.5rem/1 var(--font-sans);
+  }
+
+  .landing-hero-copy::after { inset-block-start: -3.25rem; }
+  .landing-technical-section::before { inset-block-start: 2.3rem; }
+}

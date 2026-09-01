@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <main className="flex-1 bg-surface">
       <LandingHero />
-      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-[90rem] px-4 sm:px-6 lg:px-8 xl:px-0">
         <PlanningSteps />
         <SharedEditingSection />
         <AgentGuide />

@@ -7,6 +7,7 @@ import { SiteChrome } from "@/components/site-chrome";
 
 import "./globals.css";
 import "./editor-workspace.css";
+import "./landing.css";
 
 const inter = Inter({
   subsets: ["latin"],

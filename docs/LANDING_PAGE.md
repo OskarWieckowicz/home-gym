@@ -14,6 +14,9 @@
 The reference establishes layout, hierarchy and style; this specification governs behavior and copy.
 Generated editor views, controls and status labels are illustrative, not implementation evidence.
 The earlier v1 reference is historical and is not the implementation target.
+Keep the product's dumbbell brand mark and the full-color landing imagery. Use the reference's
+editorial proportions and restrained technical accents, but do not add decorative measurement
+frames or dimension labels around the hero and process images.
 
 ## Page goal
 
