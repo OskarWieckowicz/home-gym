@@ -68,7 +68,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const image = getProductImage(product.id);
 
   return (
-    <main className="flex-1">
+    <main className="flex-1 bg-canvas">
       <article className="mx-auto w-full max-w-6xl px-6 py-12 sm:py-16">
         <Link
           className="text-sm font-semibold text-brand hover:text-brand-strong hover:underline"
@@ -79,7 +79,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(19rem,0.65fr)]">
           <div>
-            <figure className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-line bg-surface-muted">
+            <figure className="relative aspect-[4/3] overflow-hidden rounded-xl border border-line-strong bg-surface-muted shadow-elevated">
               {image ? (
                 <Image
                   alt={`${product.name} catalog image`}
@@ -97,7 +97,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 </div>
               )}
             </figure>
-            <p className="mt-8 text-xs font-semibold uppercase tracking-[0.18em] text-brand">
+            <p className="mt-8 text-xs font-semibold uppercase tracking-[0.18em] text-brass-strong">
               {formatCatalogLabel(product.category)} · {product.brand}
             </p>
             <h1 className="mt-3 text-4xl font-bold tracking-tight text-ink sm:text-5xl">
@@ -163,7 +163,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   <h3 className="font-semibold text-ink">Exercises</h3>
                   <ul className="mt-2 flex flex-wrap gap-2">
                     {product.exercises.map((exercise) => (
-                      <li className="rounded-full bg-brand-soft px-3 py-1.5 text-sm text-brand-strong" key={exercise}>
+                      <li className="rounded-full border border-brand-muted bg-brand-soft px-3 py-1.5 text-sm text-brand-strong" key={exercise}>
                         {formatCatalogLabel(exercise)}
                       </li>
                     ))}
@@ -184,7 +184,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </div>
 
           <aside>
-            <Card className="p-6 lg:sticky lg:top-24">
+            <Card className="p-6 shadow-elevated lg:sticky lg:top-24">
               <p className="text-3xl font-bold text-ink">
                 {formatPrice(product.price)}
               </p>

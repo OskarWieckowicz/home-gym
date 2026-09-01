@@ -5,9 +5,10 @@ import { Button } from "./button";
 
 describe("buttonClassName", () => {
   it("applies the shared focus ring and each visual variant", () => {
-    expect(buttonClassName("primary")).toContain("bg-brand");
-    expect(buttonClassName("secondary")).toContain("border-line");
-    expect(buttonClassName("quiet")).toContain("text-ink-muted");
+    expect(buttonClassName("primary")).toContain("bg-action");
+    expect(buttonClassName("primary")).toContain("text-action-contrast");
+    expect(buttonClassName("secondary")).toContain("border-line-strong");
+    expect(buttonClassName("quiet")).toContain("text-brand");
     expect(buttonClassName("primary")).toContain("focus-visible:outline-brand");
   });
 
@@ -26,6 +27,6 @@ describe("Button", () => {
 
     expect(tree.type).toBe("button");
     expect(tree.props.type).toBe("button");
-    expect(tree.props.className).toContain("bg-brand");
+    expect(tree.props.className).toContain("bg-action");
   });
 });

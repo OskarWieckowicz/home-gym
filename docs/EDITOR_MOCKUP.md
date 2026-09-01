@@ -6,6 +6,11 @@
 
 The mockup shows a simple 2.5D editor for planning a home gym. It is not a professional CAD program or a realistic interior simulator. The interface is for conveniently placing simple geometric objects and checking whether equipment and required use zones fit in the room.
 
+The implemented chrome follows the shared **Warm Architectural** system: warm ivory and limestone
+surfaces, charcoal primary actions, muted cobalt interaction states and restrained brass details.
+This is a visual treatment only; layout, command paths, status semantics and editor behavior remain
+defined by this document.
+
 ## Interface layout
 
 ### Top bar
@@ -148,7 +153,7 @@ uses simplified generated GLB families with permanent geometric fallbacks. Neith
 fallbacks define placement geometry. Domain-sized envelopes provide stable selection even while
 a model is loading or unavailable.
 
-Room presentation uses a warm neutral background, off-white walls and a medium-gray matte floor.
+Room presentation uses a warm limestone background, plaster-toned walls and a warm stone matte floor.
 These materials are shared with the summary's 3D view; the 2D palette and domain geometry remain
 unchanged. Equipment use zones have a light fill and a thin dashed perimeter. The editor shows
 zones for selected and flagged equipment by default; **Show all use zones** reveals other zones.

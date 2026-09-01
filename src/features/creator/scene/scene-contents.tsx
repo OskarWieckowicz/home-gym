@@ -21,8 +21,8 @@ export function SceneContents({ project, selectedId, issues, showAllUseZones = t
   const room = roomToScene(project.room);
   return <>
     <color attach="background" args={[SCENE_ROOM_COLORS.background]} />
-    <ambientLight intensity={1.8} />
-    <directionalLight castShadow intensity={2.2} position={[4, 6, 3]} />
+    <ambientLight color="#fff4e6" intensity={1.8} />
+    <directionalLight castShadow color="#ffe8cf" intensity={2.2} position={[4, 6, 3]} />
     <mesh raycast={ignoreSceneRaycast} position={[0, -0.008, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
       <planeGeometry args={[room.x + SCENE_WALL_THICKNESS_M * 2, room.z + SCENE_WALL_THICKNESS_M * 2]} />
       <meshStandardMaterial color={SCENE_ROOM_COLORS.floor} roughness={1} metalness={0} polygonOffset polygonOffsetFactor={1} polygonOffsetUnits={1} />
@@ -33,7 +33,7 @@ export function SceneContents({ project, selectedId, issues, showAllUseZones = t
       const box = obstacleToScene(obstacle, project.room);
       if (obstacle.kind === "unavailable-zone") return presentationView ? null : <UnavailableZone key={obstacle.id} box={box} appearance={appearance} />;
       return <group key={obstacle.id}>
-        <Box box={box} color="#475569" appearance={appearance} />
+        <Box box={box} color={SCENE_ROOM_COLORS.obstacle} appearance={appearance} />
         <SelectionOutline box={box} color={appearance.outline} />
       </group>;
     })}

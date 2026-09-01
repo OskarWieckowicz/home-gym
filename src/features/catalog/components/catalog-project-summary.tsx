@@ -55,9 +55,9 @@ export function CatalogProjectSummary() {
   const message = snapshot?.kind === "saved" ? "loading" : snapshot?.kind ?? "loading";
 
   return (
-    <section aria-labelledby="catalog-project-heading" className="flex min-w-0 flex-col gap-4 rounded-lg border border-line bg-surface-muted p-4 sm:flex-row sm:items-center sm:justify-between">
+    <section aria-labelledby="catalog-project-heading" className="flex min-w-0 flex-col gap-4 rounded-lg border border-line-strong bg-surface-muted p-4 shadow-card sm:flex-row sm:items-center sm:justify-between">
       <div className="flex min-w-0 items-start gap-3">
-        <DoorOpen aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-ink-subtle" />
+        <DoorOpen aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-brass-strong" />
         <div className="min-w-0">
           <h2 className="text-sm font-semibold text-ink" id="catalog-project-heading">
             {project ? "Your saved project" : "Plan around your room"}

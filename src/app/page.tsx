@@ -7,7 +7,7 @@ import { WebMcpExplainer } from "@/components/landing/webmcp-explainer";
 
 export default function Home() {
   return (
-    <main className="flex-1 bg-surface">
+    <main className="flex-1 bg-canvas">
       <LandingHero />
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <PlanningSteps />

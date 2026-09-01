@@ -1,19 +1,18 @@
 # Home Gym Creator — landing page
 
-> Updated: 31 August 2026. Process-first hackathon introduction, not a sales page or
+> Updated: 1 September 2026. Process-first hackathon introduction, not a sales page or
 > a walkthrough of the bundled demo. Copy, section order, mobile layout and guarded project entry
 > are implemented locally; public-build acceptance is tracked in the [submission plan](../plans/phase-28-submission.md).
-> The labeled hero concept was added on 31 August 2026. Current product captures and a possible
-> recording remain in the [landing plan](../plans/phase-25-landing-polish.md).
+> The labeled hero concept was added on 31 August 2026. Final public captures and recording
+> acceptance remain in the submission plan.
 
-## Visual reference
+## Visual direction
 
-![Accepted process-first landing reference](./mockups/home-gym-landing-page-v2.png)
-
-[Reference provenance and generation brief](./mockups/home-gym-landing-page-v2.md).
-The reference establishes layout, hierarchy and style; this specification governs behavior and copy.
-Generated editor views, controls and status labels are illustrative, not implementation evidence.
-The earlier v1 reference is historical and is not the implementation target.
+The implemented **Warm Architectural** system preserves the accepted process-first layout and
+hierarchy while replacing the earlier generic SaaS palette. Use warm ivory and limestone
+surfaces, charcoal primary actions, muted cobalt links and focus states, restrained brass
+editorial accents, fine separators and soft low-contrast depth. Generated editor views,
+controls and status labels remain illustrative, not implementation evidence.
 
 ## Page goal
 
@@ -23,9 +22,10 @@ Explain shared editing in the hero, then the process from scratch and a concrete
 handoff before the agent setup instructions.
 The prepared demo is an optional shortcut to a result, not the narrative of the page.
 
-Use English throughout. Keep the existing light slate/white surfaces, navy text, blue actions,
-green budget indicators and amber warnings. Avoid sales sections, pricing plans, testimonials,
-fake endorsements and a dominant catalog presentation.
+Use English throughout. Keep the Warm Architectural visual system consistent with the catalog
+and creator while preserving green budget indicators, amber warnings and red errors as semantic
+status colors. Avoid sales sections, pricing plans, testimonials, fake endorsements and a
+dominant catalog presentation.
 
 ## Page structure and copy
 

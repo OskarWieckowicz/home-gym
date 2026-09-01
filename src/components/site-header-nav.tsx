@@ -24,7 +24,7 @@ export function SiteHeaderNav() {
         return (
           <Link
             aria-current={isActive ? "page" : undefined}
-            className="relative flex min-h-12 items-center px-5 text-sm font-medium text-ink-muted transition hover:text-ink aria-[current=page]:text-brand after:absolute after:inset-x-4 after:bottom-[-0.8rem] after:h-0.5 after:rounded-full after:bg-transparent aria-[current=page]:after:bg-brand"
+            className="relative flex min-h-12 items-center rounded-sm px-5 text-sm font-medium text-ink-muted transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand aria-[current=page]:text-brand after:absolute after:inset-x-5 after:bottom-[-0.8rem] after:h-px after:bg-transparent aria-[current=page]:after:bg-brass-strong"
             href={link.href}
             key={link.href}
           >

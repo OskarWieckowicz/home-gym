@@ -9,19 +9,19 @@ const stages = [
 export function WebMcpExplainer() {
   return (
     <section aria-labelledby="webmcp-title" className="mt-8 border-t border-line py-8 sm:mt-10 sm:py-10">
-      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand">Powered by WebMCP</p>
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brass-strong">Powered by WebMCP</p>
       <h2 id="webmcp-title" className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">AI plans. The application checks.</h2>
       <ol className="mt-7 grid gap-6 lg:grid-cols-3">
         {stages.map(({ title, description, icon: Icon }, index) => (
           <li key={title} className="flex items-start gap-4">
-            <div className="flex size-14 shrink-0 items-center justify-center rounded-full border border-brand-muted bg-brand-soft text-brand">
+            <div className="flex size-14 shrink-0 items-center justify-center rounded-full border border-brass bg-surface text-brass-strong shadow-card">
               <Icon size={27} strokeWidth={1.5} aria-hidden="true" />
             </div>
             <div className="min-w-0 flex-1">
               <h3 className="text-sm font-semibold">{title}</h3>
               <p className="mt-2 text-sm leading-6 text-ink-muted">{description}</p>
             </div>
-            {index < stages.length - 1 && <ArrowRight size={22} aria-hidden="true" className="mt-4 hidden shrink-0 text-slate-400 lg:block" />}
+            {index < stages.length - 1 && <ArrowRight size={22} aria-hidden="true" className="mt-4 hidden shrink-0 text-line-strong lg:block" />}
           </li>
         ))}
       </ol>

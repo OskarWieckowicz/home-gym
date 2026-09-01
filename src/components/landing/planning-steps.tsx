@@ -25,7 +25,7 @@ const steps = [
 export function PlanningSteps() {
   return (
     <section id="how-it-works" aria-labelledby="planning-steps-title" className="scroll-mt-24 py-8 sm:py-10 lg:scroll-mt-28">
-      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand">How it works</p>
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brass-strong">How it works</p>
       <h2 id="planning-steps-title" className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">
         From an empty room to your home gym.
       </h2>
@@ -34,8 +34,8 @@ export function PlanningSteps() {
         {steps.map((step, index) => (
           <li key={step.title} className="grid min-w-0 grid-cols-[5.5rem_minmax(0,1fr)] items-start gap-x-4 md:block">
             <div className="col-span-2 mb-2 flex items-center justify-between md:mb-3">
-              <span className="text-2xl font-semibold tracking-tight text-brand md:text-3xl" aria-hidden="true">0{index + 1}</span>
-              {index < steps.length - 1 && <ArrowRight className="hidden text-slate-400 md:block" aria-hidden="true" size={26} />}
+              <span className="text-2xl font-semibold tracking-tight text-brass-strong md:text-3xl" aria-hidden="true">0{index + 1}</span>
+              {index < steps.length - 1 && <ArrowRight className="hidden text-line-strong md:block" aria-hidden="true" size={26} />}
             </div>
             <Image
               src={`/images/landing/${step.image}.webp`}
@@ -44,7 +44,7 @@ export function PlanningSteps() {
               height={780}
               sizes="(min-width: 1280px) 389px, (min-width: 768px) 31vw, 88px"
               loading="lazy"
-              className="h-auto w-full rounded-xl border border-line bg-canvas"
+              className="h-auto w-full rounded-lg border border-line-strong bg-surface-muted shadow-card"
             />
             <div className="min-w-0">
               <h3 className="text-base font-semibold tracking-tight md:mt-4 md:text-lg">{step.title}</h3>
