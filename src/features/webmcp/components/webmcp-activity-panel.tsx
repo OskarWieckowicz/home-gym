@@ -65,15 +65,16 @@ function JsonSnapshot({ label, snapshot }: { readonly label: string; readonly sn
   );
 }
 
-function ActivityListItem({ entry, selected, onSelect }: {
+function ActivityListItem({ entry, expanded, onToggle }: {
   readonly entry: WebMcpActivityEntry;
-  readonly selected: boolean;
-  readonly onSelect: () => void;
+  readonly expanded: boolean;
+  readonly onToggle: () => void;
 }) {
   const label = executionLabel(entry);
+  const detailId = `webmcp-activity-detail-${entry.executionId}`;
   return (
     <li>
-      <button aria-pressed={selected} className="webmcp-activity-row" onClick={onSelect} type="button">
+      <button aria-controls={detailId} aria-expanded={expanded} className="webmcp-activity-row" onClick={onToggle} type="button">
         <span className="webmcp-activity-row-heading">
           <strong>{entry.toolName}</strong>
         </span>
@@ -87,6 +88,7 @@ function ActivityListItem({ entry, selected, onSelect }: {
           </span>
         </span>
       </button>
+      {expanded ? <div className="webmcp-activity-disclosure" id={detailId}><ActivityDetail entry={entry} /></div> : null}
     </li>
   );
 }
@@ -141,8 +143,8 @@ export function WebMcpActivityTrigger() {
 export function WebMcpActivityPanel() {
   const activity = useWebMcpActivity();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const selected = activity.entries.find((entry) => entry.executionId === activity.selectedId)
-    ?? activity.entries[0];
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const selected = activity.entries.find((entry) => entry.executionId === expandedId);
   const closeAndRestoreFocus = useCallback(() => {
     activity.closePanel();
     document.getElementById(TRIGGER_ID)?.focus({ preventScroll: true });
@@ -193,19 +195,20 @@ export function WebMcpActivityPanel() {
           <p>Calls appear when an agent or browser inspector executes a registered WebMCP tool on this page.</p>
         </div>
       ) : (
-        <div className="webmcp-activity-content">
-          <ol aria-label="Recent WebMCP calls" className="webmcp-activity-list">
-            {activity.entries.map((entry) => (
-              <ActivityListItem
-                entry={entry}
-                key={entry.executionId}
-                onSelect={() => activity.selectEntry(entry.executionId)}
-                selected={entry.executionId === selected?.executionId}
-              />
-            ))}
-          </ol>
-          {selected ? <ActivityDetail entry={selected} /> : null}
-        </div>
+        <ol aria-label="Recent WebMCP calls" className="webmcp-activity-list">
+          {activity.entries.map((entry) => (
+            <ActivityListItem
+              entry={entry}
+              expanded={entry.executionId === selected?.executionId}
+              key={entry.executionId}
+              onToggle={() => {
+                const nextId = entry.executionId === expandedId ? null : entry.executionId;
+                setExpandedId(nextId);
+                if (nextId) activity.selectEntry(nextId);
+              }}
+            />
+          ))}
+        </ol>
       )}
     </aside>
   );

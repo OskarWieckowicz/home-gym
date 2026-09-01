@@ -85,6 +85,7 @@ describe("WebMCP activity inspector", () => {
     expect(trigger.getAttribute("aria-expanded")).toBe("true");
     expect(screen.getByRole("heading", { name: "WebMCP activity" })).toBeTruthy();
     expect(document.activeElement).toBe(screen.getByRole("button", { name: "Close WebMCP activity" }));
+    fireEvent.click(screen.getByRole("button", { name: /get_project_state/ }));
     expect(screen.getByText("Returned in 12 ms")).toBeTruthy();
     expect(within(screen.getByRole("region", { name: "Input payload" })).getByText(/includeValidation/)).toBeTruthy();
     expect(within(screen.getByRole("region", { name: "Returned result" })).getByText(/revision/)).toBeTruthy();
@@ -101,6 +102,7 @@ describe("WebMCP activity inspector", () => {
       view.recorder().observeExecution(returned("call-error", "error"));
     });
     fireEvent.click(screen.getByRole("button", { name: /WebMCP activity/ }));
+    fireEvent.click(screen.getByRole("button", { name: /configure_room/ }));
 
     expect(screen.getAllByText("Tool error").length).toBeGreaterThan(0);
     expect(screen.getByText(/INVALID_INPUT/)).toBeTruthy();
@@ -120,7 +122,7 @@ describe("WebMCP activity inspector", () => {
     fireEvent.click(screen.getByRole("button", { name: /50 new calls/ }));
     const list = screen.getByRole("list", { name: "Recent WebMCP calls" });
     expect(within(list).getAllByRole("listitem")).toHaveLength(50);
-    expect(within(list).getByText("tool-50")).toBeTruthy();
+    expect(within(list).getByRole("button", { name: /tool-50/ })).toBeTruthy();
     expect(within(list).queryByText("tool-0")).toBeNull();
   });
 });

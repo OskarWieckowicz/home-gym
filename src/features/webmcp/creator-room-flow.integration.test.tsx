@@ -243,7 +243,7 @@ describe("existing creator WebMCP shared editing flow", () => {
     const activity = screen.getByRole("complementary", { name: "WebMCP activity" });
     const calls = within(activity).getByRole("list", { name: "Recent WebMCP calls" });
     expect(within(calls).getByText("get_project_state")).toBeTruthy();
-    fireEvent.click(within(calls).getByText("configure_room").closest("button")!);
+    fireEvent.click(within(calls).getByRole("button", { name: /configure_room/ }));
     expect(within(activity).getByRole("region", { name: "Input payload" }).textContent).toContain("420");
     expect(within(activity).getByRole("region", { name: "Returned result" }).textContent).toContain("revision");
   });
