@@ -95,7 +95,8 @@ describe("command-aligned scene ghosts", () => {
   it("previews floor and wall moves using committed geometry plus the candidate command", () => {
     const project: GymProject = { ...createDefaultProject(),
       obstacles: [{ id: "obstacle_box", name: "Box", kind: "obstacle", locked: false, rotation: 90,
-        position: { xCm: 50, zCm: 40 }, dimensions: { widthCm: 80, depthCm: 40, heightCm: 100 } }],
+        position: { xCm: 50, zCm: 40 }, dimensions: { widthCm: 80, depthCm: 40, heightCm: 100 },
+        functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 } }],
       wallElements: [{ id: "wall-element_door", name: "Door", kind: "door", wall: "left", offsetCm: 20, widthCm: 90 }],
     };
     for (const entityId of ["obstacle_box", "wall-element_door"]) {

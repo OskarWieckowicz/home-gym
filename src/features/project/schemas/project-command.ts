@@ -3,6 +3,7 @@ import { z } from "zod";
 import { productIdSchema } from "@/shared/schemas/product-id";
 
 import {
+  clearanceMarginsSchema,
   dimensionsSchema,
   footprintDimensionsSchema,
   positionSchema,
@@ -61,10 +62,25 @@ const obstacleDimensionsSchema = z.union([
   footprintDimensionsSchema,
 ]);
 
+const functionalClearancePatchFields = {
+  frontCm: clearanceMarginsSchema.shape.frontCm.optional(),
+  backCm: clearanceMarginsSchema.shape.backCm.optional(),
+  leftCm: clearanceMarginsSchema.shape.leftCm.optional(),
+  rightCm: clearanceMarginsSchema.shape.rightCm.optional(),
+};
+
+export const functionalClearancePatchSchema = z.union([
+  z.object({ ...functionalClearancePatchFields, frontCm: clearanceMarginsSchema.shape.frontCm }).strict(),
+  z.object({ ...functionalClearancePatchFields, backCm: clearanceMarginsSchema.shape.backCm }).strict(),
+  z.object({ ...functionalClearancePatchFields, leftCm: clearanceMarginsSchema.shape.leftCm }).strict(),
+  z.object({ ...functionalClearancePatchFields, rightCm: clearanceMarginsSchema.shape.rightCm }).strict(),
+]);
+
 const obstaclePatchFields = {
   name: physicalObstacleSchema.shape.name.optional(),
   position: positionSchema.optional(),
   dimensions: obstacleDimensionsSchema.optional(),
+  functionalClearance: functionalClearancePatchSchema.optional(),
   rotation: rotationSchema.optional(),
   locked: z.boolean().optional(),
 };
@@ -73,6 +89,7 @@ export const obstaclePatchSchema = z.union([
   z.object({ ...obstaclePatchFields, name: physicalObstacleSchema.shape.name }).strict(),
   z.object({ ...obstaclePatchFields, position: positionSchema }).strict(),
   z.object({ ...obstaclePatchFields, dimensions: obstacleDimensionsSchema }).strict(),
+  z.object({ ...obstaclePatchFields, functionalClearance: functionalClearancePatchSchema }).strict(),
   z.object({ ...obstaclePatchFields, rotation: rotationSchema }).strict(),
   z.object({ ...obstaclePatchFields, locked: z.boolean() }).strict(),
 ]);

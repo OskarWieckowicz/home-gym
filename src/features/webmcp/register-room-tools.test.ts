@@ -80,9 +80,11 @@ describe("room WebMCP tool definitions", () => {
       );
     }
     expect(tools.find(({ name }) => name === "get_project_state")?.description)
-      .toContain("version-5");
+      .toContain("version-6");
     expect(tools.find(({ name }) => name === "get_project_state")?.description)
       .toContain("equipment placements");
+    expect(tools.find(({ name }) => name === "add_obstacle")?.description)
+      .toContain("never infer clearance from a name");
     expect(tools.find(({ name }) => name === "validate_layout")?.description)
       .toContain("100 cm");
     expect(tools.find(({ name }) => name === "place_product")?.description)

@@ -6,6 +6,10 @@ import {
   createRectangleFootprint,
   type RectangleFootprint,
 } from "@/features/geometry/rectangles";
+import {
+  expandFootprintByDirectionalMargins,
+  hasDirectionalMargins,
+} from "@/features/geometry/directional-clearance";
 import type { GymProject, Obstacle, Placement, ProjectItem } from "@/features/project/schemas/project";
 
 import type { ValidationIssue } from "./validation-issues";
@@ -18,6 +22,8 @@ import type {
 export type ObstacleWithFootprint = {
   readonly obstacle: Obstacle;
   readonly footprint: RectangleFootprint;
+  readonly functionalFootprint: RectangleFootprint;
+  readonly hasFunctionalClearance: boolean;
 };
 
 export type ResolvedPlacement = {
@@ -37,14 +43,26 @@ export function compareIssues(first: ValidationIssue, second: ValidationIssue): 
 }
 
 export function collectObstacles(project: GymProject): ObstacleWithFootprint[] {
-  return project.obstacles.map((obstacle) => ({
-    obstacle,
-    footprint: createRectangleFootprint(
+  return project.obstacles.map((obstacle) => {
+    const footprint = createRectangleFootprint(
       obstacle.position,
       obstacle.dimensions,
       obstacle.rotation,
-    ),
-  }));
+    );
+    const functionalClearance = obstacle.kind === "obstacle"
+      ? obstacle.functionalClearance
+      : { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 };
+    return {
+      obstacle,
+      footprint,
+      functionalFootprint: expandFootprintByDirectionalMargins(
+        footprint,
+        functionalClearance,
+        obstacle.rotation,
+      ),
+      hasFunctionalClearance: hasDirectionalMargins(functionalClearance),
+    };
+  });
 }
 
 export function resolvePlacements(

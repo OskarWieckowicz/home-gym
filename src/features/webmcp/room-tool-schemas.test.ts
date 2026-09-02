@@ -41,6 +41,7 @@ const validObstacle = {
   name: "Column",
   position: { xCm: 0, zCm: 0 },
   dimensions: { widthCm: 1, depthCm: 1, heightCm: 1 },
+  functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
   rotation: 270,
   locked: false,
 } as const;
@@ -106,6 +107,7 @@ describe("room tool input schemas", () => {
       { ...validObstacle, kind: "equipment" },
       { ...validObstacle, position: { xCm: -1, zCm: 0 } },
       { ...validObstacle, dimensions: { widthCm: 0, depthCm: 1, heightCm: 1 } },
+      { ...validObstacle, functionalClearance: { frontCm: -1, backCm: 0, leftCm: 0, rightCm: 0 } },
       { ...validObstacle, rotation: 45 },
     ]) {
       expect(addObstacleInputSchema.safeParse(input).success).toBe(false);
@@ -118,13 +120,22 @@ describe("room tool input schemas", () => {
       kind: "unavailable-zone",
       dimensions: { widthCm: 50, depthCm: 70 },
     } as const;
-    expect(addObstacleInputSchema.parse(zone)).toEqual(zone);
+    const zoneWithoutClearance = {
+      kind: zone.kind,
+      name: zone.name,
+      position: zone.position,
+      dimensions: zone.dimensions,
+      rotation: zone.rotation,
+      locked: zone.locked,
+    };
+    expect(addObstacleInputSchema.parse(zoneWithoutClearance)).toEqual(zoneWithoutClearance);
     expect(
       addObstacleInputSchema.safeParse({
-        ...zone,
-        dimensions: { ...zone.dimensions, heightCm: 200 },
+        ...zoneWithoutClearance,
+        dimensions: { ...zoneWithoutClearance.dimensions, heightCm: 200 },
       }).success,
     ).toBe(false);
+    expect(addObstacleInputSchema.safeParse(zone).success).toBe(false);
   });
 
   it("requires canonical IDs and non-empty strict update patches", () => {
@@ -134,6 +145,13 @@ describe("room tool input schemas", () => {
         patch: { locked: false },
       }),
     ).toEqual({ obstacleId: "obstacle_column", patch: { locked: false } });
+    expect(updateObstacleInputSchema.parse({
+      obstacleId: "obstacle_column",
+      patch: { functionalClearance: { frontCm: 60 } },
+    })).toEqual({
+      obstacleId: "obstacle_column",
+      patch: { functionalClearance: { frontCm: 60 } },
+    });
     expect(
       removeObstacleInputSchema.parse({ obstacleId: "obstacle_column" }),
     ).toEqual({ obstacleId: "obstacle_column" });

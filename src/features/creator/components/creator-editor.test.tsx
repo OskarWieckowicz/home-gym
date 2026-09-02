@@ -121,7 +121,8 @@ describe("CreatorEditor", () => {
   it("keeps selection, validation, camera and layer choice across presentation view without editing history", () => {
     const project = createDefaultProject();
     project.obstacles = [{ id: "obstacle_box", name: "Box", kind: "obstacle", rotation: 0, locked: false,
-      position: { xCm: 100, zCm: 80 }, dimensions: { widthCm: 80, depthCm: 50, heightCm: 100 } }];
+      position: { xCm: 100, zCm: 80 }, dimensions: { widthCm: 80, depthCm: 50, heightCm: 100 },
+      functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 } }];
     render(<CreatorEditor initialProject={project} />);
     fireEvent.click(screen.getByRole("button", { name: "Scene select first" }));
     fireEvent.click(screen.getByRole("button", { name: "Show all use zones" }));
@@ -156,7 +157,8 @@ describe("CreatorEditor", () => {
     expect(toggle.getAttribute("aria-pressed")).toBe("true");
     expect(initial.store.getState()).toBe(state);
     fireEvent.click(screen.getByRole("button", { name: "2D" }));
-    expect(screen.queryByRole("button", { name: "Show all use zones" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Show all use zones" }).getAttribute("aria-pressed"))
+      .toBe("true");
     fireEvent.click(screen.getByRole("button", { name: "3D" }));
     expect(sceneProps.mock.lastCall![0]).toMatchObject({ showAllUseZones: true });
     fireEvent.click(screen.getByRole("button", { name: "Show all use zones" }));
@@ -167,7 +169,8 @@ describe("CreatorEditor", () => {
   it("focuses a selected scene object explicitly and disables focus after it is removed", () => {
     const project = createDefaultProject();
     project.obstacles = [{ id: "obstacle_box", name: "Box", kind: "obstacle", rotation: 0, locked: false,
-      position: { xCm: 100, zCm: 80 }, dimensions: { widthCm: 80, depthCm: 50, heightCm: 100 } }];
+      position: { xCm: 100, zCm: 80 }, dimensions: { widthCm: 80, depthCm: 50, heightCm: 100 },
+      functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 } }];
     render(<CreatorEditor initialProject={project} />);
     const initial = sceneProps.mock.lastCall![0] as ScenePreviewProps;
     const state = initial.store.getState();

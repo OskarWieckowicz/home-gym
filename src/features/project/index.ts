@@ -20,12 +20,14 @@ export {
   productIdForPlacement,
 } from "./project-lookups";
 export {
+  clearanceMarginsSchema,
   centimetersSchema,
   dimensionsSchema,
   footprintDimensionsSchema,
   positionSchema,
   positiveCentimetersSchema,
   rotationSchema,
+  type ClearanceMargins,
   type Dimensions,
   type FootprintDimensions,
   type Position,
@@ -64,6 +66,7 @@ export {
   type WallElementKind,
 } from "./schemas/project";
 export {
+  functionalClearancePatchSchema,
   obstacleInputSchema,
   obstaclePatchSchema,
   placementPatchSchema,
@@ -119,6 +122,7 @@ export type {
   CollisionIssue,
   DoorBlockedIssue,
   DoorUnreachableIssue,
+  FunctionalZoneOverlapIssue,
   ObstacleUnreachableIssue,
   OutsideWallIssue,
   OutsideRoomAxis,

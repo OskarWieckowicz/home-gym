@@ -18,6 +18,7 @@ const obstacle = {
   name: "Wardrobe",
   position: { xCm: 20, zCm: 30 },
   dimensions: { widthCm: 100, depthCm: 50, heightCm: 200 },
+  functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
   rotation: 0,
   locked: false,
 } as const;

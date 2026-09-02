@@ -142,6 +142,7 @@ describe("persistent manual and agent editing flow", () => {
       name: "Agent rack",
       position: { xCm: 20, zCm: 20 },
       dimensions: { widthCm: 100, depthCm: 80, heightCm: 210 },
+      functionalClearance: { frontCm: 60, backCm: 0, leftCm: 0, rightCm: 0 },
       rotation: 0,
       locked: false,
     });

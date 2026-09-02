@@ -72,7 +72,7 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "get_project_state",
       title: "Get current room project state",
       description:
-        "Read the live version-5 project, settings, obstacles, wall elements, project items, equipment placements, revision, and undo/redo availability. Use returned canonical IDs with update and remove tools. Call validate_layout when validation details are needed.",
+        "Read the live version-6 project, settings, obstacles with canonical functional clearance, wall elements, project items, equipment placements, revision, and undo/redo availability. Use returned canonical IDs with update and remove tools. Call validate_layout when validation details are needed.",
       inputSchema: getProjectStateJsonSchema,
       annotations: { readOnlyHint: true },
       execute: createGetProjectStateHandler(store),
@@ -95,14 +95,14 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
     {
       name: "add_obstacle",
       title: "Add a room obstacle or unavailable zone",
-      description: `Add physical furniture as kind obstacle, or a supported floor restriction as unavailable-zone. Do not invent circulation or equipment use zones; access is computed from doors. The project returns the canonical ID. ${SPATIAL_NOTE} ${VALIDATION_NOTE}`,
+      description: `Add physical furniture as kind obstacle with measured directional functionalClearance, or a supported floor restriction as unavailable-zone. Use measurements supplied by the user; never infer clearance from a name. The project returns canonical rotated state. ${SPATIAL_NOTE} ${VALIDATION_NOTE}`,
       inputSchema: addObstacleJsonSchema,
       execute: createAddObstacleHandler(store),
     },
     {
       name: "update_obstacle",
       title: "Update a room obstacle or unavailable zone",
-      description: `Update an obstacle by canonical ID with a non-empty patch; kind is immutable. A locked obstacle accepts only { locked: false } until unlocked. ${SPATIAL_NOTE} ${VALIDATION_NOTE}`,
+      description: `Update an obstacle by canonical ID with a non-empty patch, including partial measured functionalClearance for physical furniture; kind is immutable. Never infer clearance from a name. A locked obstacle accepts only { locked: false } until unlocked. ${SPATIAL_NOTE} ${VALIDATION_NOTE}`,
       inputSchema: updateObstacleJsonSchema,
       execute: createUpdateObstacleHandler(store),
     },

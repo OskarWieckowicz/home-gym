@@ -10,6 +10,7 @@ const obstacleInput = {
   name: "Wardrobe",
   position: { xCm: 0, zCm: 0 },
   dimensions: { widthCm: 180, depthCm: 60, heightCm: 220 },
+  functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
   rotation: 0,
   locked: false,
 } as const;

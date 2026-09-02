@@ -29,6 +29,7 @@ function lowObstacle(heightCm: number): PhysicalObstacle {
     id: "obstacle_low", name: "Low object", kind: "obstacle", locked: false,
     position: { xCm: 180, zCm: 8 }, rotation: 0,
     dimensions: { widthCm: 10, depthCm: 10, heightCm },
+    functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
   };
 }
 

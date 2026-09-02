@@ -9,6 +9,7 @@ const obstacle = {
   kind: "obstacle",
   name: "Small cabinet",
   dimensions: { widthCm: 30, depthCm: 30, heightCm: 100 },
+  functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
   rotation: 0,
   locked: false,
 } as const;

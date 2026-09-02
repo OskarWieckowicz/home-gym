@@ -1,6 +1,10 @@
 import type { Placement } from "@/features/project/schemas/project";
 
 import {
+  expandFootprintByDirectionalMargins,
+  getRotatedDirectionalInsets,
+} from "./directional-clearance";
+import {
   createRectangleFootprint,
   intersectRectangles,
   type RectangleBounds,
@@ -51,47 +55,11 @@ export function getUseZoneMarginRectangles(
   ].filter(hasArea);
 }
 
-type FootprintInsets = {
-  readonly minX: number;
-  readonly minZ: number;
-  readonly maxX: number;
-  readonly maxZ: number;
-};
-
 export function getRotatedUseZoneInsets(
   useZone: ProductUseZone,
   rotation: Placement["rotation"],
-): FootprintInsets {
-  switch (rotation) {
-    case 0:
-      return {
-        minX: useZone.leftCm,
-        minZ: useZone.backCm,
-        maxX: useZone.rightCm,
-        maxZ: useZone.frontCm,
-      };
-    case 90:
-      return {
-        minX: useZone.frontCm,
-        minZ: useZone.leftCm,
-        maxX: useZone.backCm,
-        maxZ: useZone.rightCm,
-      };
-    case 180:
-      return {
-        minX: useZone.rightCm,
-        minZ: useZone.frontCm,
-        maxX: useZone.leftCm,
-        maxZ: useZone.backCm,
-      };
-    case 270:
-      return {
-        minX: useZone.backCm,
-        minZ: useZone.rightCm,
-        maxX: useZone.frontCm,
-        maxZ: useZone.leftCm,
-      };
-  }
+): ReturnType<typeof getRotatedDirectionalInsets> {
+  return getRotatedDirectionalInsets(useZone, rotation);
 }
 
 export function createEquipmentFootprints(
@@ -103,21 +71,9 @@ export function createEquipmentFootprints(
     product.dimensions,
     placement.rotation,
   );
-  const insets = getRotatedUseZoneInsets(product.useZone, placement.rotation);
-  const minX = physical.minX - insets.minX;
-  const minZ = physical.minZ - insets.minZ;
-  const maxX = physical.maxX + insets.maxX;
-  const maxZ = physical.maxZ + insets.maxZ;
 
   return {
     physical,
-    useZone: {
-      minX,
-      minZ,
-      maxX,
-      maxZ,
-      widthCm: maxX - minX,
-      depthCm: maxZ - minZ,
-    },
+    useZone: expandFootprintByDirectionalMargins(physical, product.useZone, placement.rotation),
   };
 }

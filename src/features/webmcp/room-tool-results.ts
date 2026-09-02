@@ -78,6 +78,9 @@ export function serializeObstacle(obstacle: Obstacle) {
     ...obstacle,
     position: { ...obstacle.position },
     dimensions: { ...obstacle.dimensions },
+    ...(obstacle.kind === "obstacle"
+      ? { functionalClearance: { ...obstacle.functionalClearance } }
+      : {}),
   };
 }
 
@@ -219,6 +222,17 @@ export function serializeValidationIssue(issue: ValidationIssue): ValidationIssu
     };
   }
 
+  if (issue.code === "FUNCTIONAL_ZONE_OVERLAP") {
+    return {
+      ...issue,
+      entityIds: [...issue.entityIds] as [string, string],
+      details: {
+        ...issue.details,
+        overlap: { ...issue.details.overlap },
+      },
+    };
+  }
+
   if (issue.code === "ACCESS_NOT_EVALUATED") {
     return {
       ...issue,
@@ -318,6 +332,9 @@ export function serializeValidation(analysis: ProjectAnalysis) {
       ).length,
       useZoneOverlap: clonedIssues.filter(
         ({ code }) => code === "USE_ZONE_OVERLAP",
+      ).length,
+      functionalZoneOverlap: clonedIssues.filter(
+        ({ code }) => code === "FUNCTIONAL_ZONE_OVERLAP",
       ).length,
       ceilingTooLow: clonedIssues.filter(
         ({ code }) => code === "CEILING_TOO_LOW",

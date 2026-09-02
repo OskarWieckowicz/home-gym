@@ -73,6 +73,7 @@ function obstacle(
     name: id,
     position: { xCm: 0, zCm: 0 },
     dimensions: { widthCm: 50, depthCm: 50, heightCm: 200 },
+    functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
     rotation: 0,
     locked: false,
     ...overrides,
@@ -106,7 +107,7 @@ function project(
   } = {},
 ): GymProject {
   return {
-    version: 5,
+    version: 6,
     room: {
       widthCm: extras.widthCm ?? 300,
       depthCm: extras.depthCm ?? 400,
@@ -491,7 +492,7 @@ describe("mounted use zones and ceiling", () => {
 describe("supplied mounted-bar project", () => {
   it("loads, validates clean, and reports the catalog bar as mounted", () => {
     const supplied: GymProject = {
-      version: 5,
+      version: 6,
       room: { widthCm: 300, depthCm: 400, heightCm: 250 },
       obstacles: [],
       wallElements: [door("bottom", 100)],
@@ -516,7 +517,7 @@ describe("supplied mounted-bar project", () => {
 
   it("reports the low bed and TV console blocking the left-wall operational margin", () => {
     const supplied: GymProject = {
-      version: 5,
+      version: 6,
       room: { widthCm: 400, depthCm: 600, heightCm: 250 },
       obstacles: [
         obstacle("obstacle_bed", {

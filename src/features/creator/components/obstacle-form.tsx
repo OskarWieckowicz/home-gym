@@ -36,10 +36,19 @@ export function ObstacleForm({
           widthCm: readInteger(data, "widthCm"),
           depthCm: readInteger(data, "depthCm"),
         };
+    const functionalClearance = obstacle.kind === "obstacle"
+      ? {
+          frontCm: readInteger(data, "functionalFrontCm"),
+          backCm: readInteger(data, "functionalBackCm"),
+          leftCm: readInteger(data, "functionalLeftCm"),
+          rightCm: readInteger(data, "functionalRightCm"),
+        }
+      : undefined;
     const parsed = obstaclePatchSchema.safeParse({
       name: String(data.get("name") ?? "").trim(),
       position: { xCm: readInteger(data, "xCm"), zCm: readInteger(data, "zCm") },
       dimensions,
+      ...(functionalClearance ? { functionalClearance } : {}),
       rotation: readInteger(data, "rotation") as Rotation,
       locked: data.get("locked") === "on",
     });
@@ -86,6 +95,20 @@ export function ObstacleForm({
           </select>
         </div>
       </div>
+      {obstacle.kind === "obstacle" ? (
+        <fieldset className="creator-clearance-fields">
+          <legend>Space needed to use this furniture</legend>
+          <p className="creator-help">
+            Enter measured margins relative to the furniture’s current front. They rotate with it; zero means not specified.
+          </p>
+          <div className="creator-field-grid">
+            <NumberField defaultValue={obstacle.functionalClearance.frontCm} disabled={locked} id="selected-functional-front" label="Front (cm)" min="0" name="functionalFrontCm" step="1" />
+            <NumberField defaultValue={obstacle.functionalClearance.backCm} disabled={locked} id="selected-functional-back" label="Back (cm)" min="0" name="functionalBackCm" step="1" />
+            <NumberField defaultValue={obstacle.functionalClearance.leftCm} disabled={locked} id="selected-functional-left" label="Left (cm)" min="0" name="functionalLeftCm" step="1" />
+            <NumberField defaultValue={obstacle.functionalClearance.rightCm} disabled={locked} id="selected-functional-right" label="Right (cm)" min="0" name="functionalRightCm" step="1" />
+          </div>
+        </fieldset>
+      ) : null}
       <label className="creator-lock-check">
         <input defaultChecked={obstacle.locked} disabled={locked} name="locked" type="checkbox" /> Lock after applying
       </label>

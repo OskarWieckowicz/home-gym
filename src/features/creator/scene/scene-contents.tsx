@@ -1,12 +1,14 @@
 import type { GymProject } from "@/features/project/schemas/project";
 import type { PlanIssueRef } from "../plan/entity-issue-state";
 import { Box, SelectionOutline, WallMarker } from "./scene-entities";
+import { hasUseZoneMargins } from "@/features/geometry/access-targets";
 import { PlacementModel } from "./scene-equipment";
 import { sceneEntityAppearance } from "./scene-entity-state";
-import { obstacleToScene, roomToScene, SCENE_WALL_THICKNESS_M } from "./scene-transform";
+import { obstacleFunctionalClearanceToScene, obstacleToScene, roomToScene, SCENE_WALL_THICKNESS_M } from "./scene-transform";
 import { ignoreSceneRaycast, SceneWalls } from "./scene-walls";
 import { SCENE_ROOM_COLORS } from "./scene-presentation";
 import { UnavailableZone } from "./scene-unavailable-zone";
+import { UseZoneOverlay } from "./scene-use-zone";
 
 export type SceneContentsProps = {
   readonly project: GymProject;
@@ -33,6 +35,9 @@ export function SceneContents({ project, selectedId, issues, showAllUseZones = t
       const box = obstacleToScene(obstacle, project.room);
       if (obstacle.kind === "unavailable-zone") return presentationView ? null : <UnavailableZone key={obstacle.id} box={box} appearance={appearance} />;
       return <group key={obstacle.id}>
+        {appearance.useZoneVisible && hasUseZoneMargins(obstacle.functionalClearance) ? (
+          <UseZoneOverlay box={obstacleFunctionalClearanceToScene(obstacle, project.room)} appearance={appearance} />
+        ) : null}
         <Box box={box} color="#475569" appearance={appearance} />
         <SelectionOutline box={box} color={appearance.outline} />
       </group>;

@@ -12,6 +12,7 @@ const obstacleInput = {
   name: "Wardrobe",
   position: { xCm: 0, zCm: 0 },
   dimensions: { widthCm: 180, depthCm: 60, heightCm: 220 },
+  functionalClearance: { frontCm: 60, backCm: 0, leftCm: 10, rightCm: 10 },
   rotation: 0,
   locked: false,
 } as const;
@@ -55,6 +56,62 @@ function dependencies(id = "obstacle_generated"): ProjectCommandDependencies {
 }
 
 describe("applyProjectCommand", () => {
+  it("immutably merges partial functional clearance, preserves zero, and detects no-ops", () => {
+    const project = withObstacle();
+    const updated = applyProjectCommand(project, {
+      type: "OBSTACLE_UPDATED",
+      payload: {
+        obstacleId: "obstacle_existing",
+        patch: { functionalClearance: { frontCm: 0, leftCm: 25 } },
+      },
+    });
+
+    expect(updated.result).toMatchObject({ ok: true, changed: true });
+    expect(updated.project.obstacles[0]).toMatchObject({
+      functionalClearance: { frontCm: 0, backCm: 0, leftCm: 25, rightCm: 10 },
+    });
+    expect(project.obstacles[0]).toMatchObject({
+      functionalClearance: { frontCm: 60, backCm: 0, leftCm: 10, rightCm: 10 },
+    });
+
+    const noOp = applyProjectCommand(updated.project, {
+      type: "OBSTACLE_UPDATED",
+      payload: {
+        obstacleId: "obstacle_existing",
+        patch: { functionalClearance: { frontCm: 0 } },
+      },
+    });
+    expect(noOp.result).toMatchObject({ ok: true, changed: false });
+    expect(noOp.project).toBe(updated.project);
+  });
+
+  it("rejects functional clearance on unavailable zones", () => {
+    const project: GymProject = {
+      ...createDefaultProject(),
+      obstacles: [{
+        id: "obstacle_zone",
+        kind: "unavailable-zone",
+        name: "Reserved",
+        position: { xCm: 0, zCm: 0 },
+        dimensions: { widthCm: 20, depthCm: 20 },
+        rotation: 0,
+        locked: false,
+      }],
+    };
+    const execution = applyProjectCommand(project, {
+      type: "OBSTACLE_UPDATED",
+      payload: {
+        obstacleId: "obstacle_zone",
+        patch: { functionalClearance: { frontCm: 10 } },
+      },
+    });
+    expect(execution.result).toMatchObject({
+      ok: false,
+      error: { code: "INVALID_COMMAND" },
+    });
+    expect(execution.project).toBe(project);
+  });
+
   it("places, updates, and removes a known product", () => {
     const project = createDefaultProject();
     const placed = applyProjectCommand(
@@ -580,6 +637,13 @@ describe("applyProjectCommand preconditions and failures", () => {
         payload: {
           obstacleId: "obstacle_existing",
           patch: { dimensions: { widthCm: 100, depthCm: 80 } },
+        },
+      },
+      {
+        type: "OBSTACLE_UPDATED",
+        payload: {
+          obstacleId: "obstacle_existing",
+          patch: { functionalClearance: { frontCm: 0 } },
         },
       },
       {

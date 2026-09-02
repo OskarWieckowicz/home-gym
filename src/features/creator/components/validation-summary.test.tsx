@@ -26,7 +26,8 @@ function ValidationCommands() {
   return <>
     <button type="button" onClick={() => dispatch({ type: "OBSTACLE_ADDED", payload: {
       kind: "obstacle", name: "Outside cabinet", position: { xCm: 390, zCm: 0 },
-      dimensions: { widthCm: 100, depthCm: 40, heightCm: 100 }, rotation: 0, locked: false,
+      dimensions: { widthCm: 100, depthCm: 40, heightCm: 100 },
+      functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 }, rotation: 0, locked: false,
     } })}>Add outside obstacle</button>
     <button type="button" onClick={undo}>Undo test change</button>
   </>;
@@ -39,7 +40,8 @@ describe("ValidationSummary", () => {
       ...toProjectItemsAndPlacements([{ id: "placement_bench", productId: "product_arc_adjustable_bench",
         position: { xCm: 40, zCm: 40 }, rotation: 0 }]),
       obstacles: [{ id: "obstacle_outside", kind: "obstacle", name: "Cabinet",
-        position: { xCm: 390, zCm: 0 }, dimensions: { widthCm: 100, depthCm: 40, heightCm: 100 }, rotation: 0, locked: false }],
+        position: { xCm: 390, zCm: 0 }, dimensions: { widthCm: 100, depthCm: 40, heightCm: 100 },
+        functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 }, rotation: 0, locked: false }],
     });
     expect(screen.getAllByText("1 error")).toHaveLength(1);
     expect(screen.getAllByText("Add a door to check access.")).toHaveLength(1);
@@ -139,6 +141,7 @@ describe("ValidationSummary", () => {
         name: "Wardrobe",
         position: { xCm: 390, zCm: 0 },
         dimensions: { widthCm: 180, depthCm: 60, heightCm: 220 },
+        functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
         rotation: 0,
         locked: false,
       }],

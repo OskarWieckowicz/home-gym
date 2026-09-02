@@ -68,6 +68,7 @@ function fixture(): GymProject {
   return { ...createDefaultProject(), obstacles: [{
     id: "obstacle_box", name: "Box", kind: "obstacle", rotation: 0, locked: false,
     position: { xCm: 100, zCm: 80 }, dimensions: { widthCm: 80, depthCm: 50, heightCm: 100 },
+    functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
   }] };
 }
 
@@ -156,7 +157,7 @@ describe("scene DOM event integration", () => {
     expect(screen.getByRole("group", { name: "3D room presentation view" })).toBe(target);
     expect(screen.queryByRole("group", { name: "Editable 3D room" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Presentation view" }));
-    expect(screen.getByRole("group", { name: "Use zone legend" })).toBeTruthy();
+    expect(screen.getByRole("group", { name: "Use and functional zone legend" })).toBeTruthy();
     down(target); move(target); up(target);
     expect(store.getState().revision).toBe(1);
   });

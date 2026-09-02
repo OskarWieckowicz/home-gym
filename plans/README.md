@@ -14,13 +14,12 @@ Keep this sequence unless the user explicitly reprioritizes work.
 
 | Order | Plan                                                               | Remaining outcome                                                                                                      |
 | ----- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
-| 1     | [Furniture functional clearance](phase-30-furniture-functional-clearance.md) | Add versioned directional furniture access zones shared by validation, suggestions, UI and WebMCP.                    |
-| 2     | [Placement quality](phase-31-placement-quality.md)                 | Rank equally safe candidates by explainable perimeter, furniture and contiguous-open-space preferences.               |
-| 3     | [Submission](phase-28-submission.md)                               | Final manual tests on the live build, then judge-facing README, description, video and submission.                     |
+| 1     | [Placement quality](phase-31-placement-quality.md)                 | Rank equally safe candidates by explainable perimeter, furniture and contiguous-open-space preferences.               |
+| 2     | [Submission](phase-28-submission.md)                               | Final manual tests on the live build, then judge-facing README, description, video and submission.                     |
 
-Phase 29 fixed mounted use-zone false negatives and exact four-wall suggestions. Phases 30–31 add
-broader furniture semantics and placement quality; if release timing forces a cut, defer those
-larger phases rather than weakening the completed wall-placement contracts.
+Phases 29–30 fixed mounted use-zone false negatives, exact four-wall suggestions and versioned
+furniture functional clearance. Phase 31 adds placement quality; if release timing forces a cut,
+defer that larger phase rather than weakening the completed geometry contracts.
 
 Creator polish comes before final captures so later landing captures and public checks use the finished editor.
 Remaining landing work is editorial media, not a new product-asset production queue. Implemented

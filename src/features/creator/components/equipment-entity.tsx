@@ -49,6 +49,7 @@ export function EquipmentEntity({
   onFinishDrag,
   onKeySelect,
   onMoveDrag,
+  showAllUseZones = true,
 }: {
   readonly interactive: boolean;
   readonly issues: readonly PlanIssueRef[];
@@ -62,6 +63,7 @@ export function EquipmentEntity({
   readonly onFinishDrag: (event: PointerEvent<SVGGElement>) => void;
   readonly onKeySelect: (event: KeyboardEvent<SVGGElement>, id: string) => void;
   readonly onMoveDrag: (event: PointerEvent<SVGGElement>) => void;
+  readonly showAllUseZones?: boolean;
 }) {
   const footprints = createEquipmentFootprints({ ...placement, position }, product);
   const physical = toPlanRectangle(footprints.physical, transform);
@@ -87,14 +89,16 @@ export function EquipmentEntity({
       role="button"
       tabIndex={interactive ? 0 : -1}
     >
-      <rect
-        aria-hidden="true"
-        className="creator-equipment-use-zone"
-        height={useZone.height}
-        width={useZone.width}
-        x={useZone.x}
-        y={useZone.y}
-      />
+      {showAllUseZones || selected || issueState ? (
+        <rect
+          aria-hidden="true"
+          className="creator-equipment-use-zone"
+          height={useZone.height}
+          width={useZone.width}
+          x={useZone.x}
+          y={useZone.y}
+        />
+      ) : null}
       <rect
         className="creator-equipment-footprint"
         height={physical.height}

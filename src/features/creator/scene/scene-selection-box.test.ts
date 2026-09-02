@@ -56,7 +56,8 @@ describe("selected entity camera envelope", () => {
   it("frames rotated obstacles and flat unavailable zones at their domain extents", () => {
     const project: GymProject = { ...createDefaultProject(), obstacles: [
       { id: "obstacle_solid", name: "Solid", kind: "obstacle", locked: false, rotation: 90,
-        position: { xCm: 20, zCm: 30 }, dimensions: { widthCm: 100, depthCm: 40, heightCm: 150 } },
+        position: { xCm: 20, zCm: 30 }, dimensions: { widthCm: 100, depthCm: 40, heightCm: 150 },
+        functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 } },
       { id: "obstacle_zone", name: "Zone", kind: "unavailable-zone", locked: false, rotation: 90,
         position: { xCm: 200, zCm: 180 }, dimensions: { widthCm: 60, depthCm: 70 } },
     ] };

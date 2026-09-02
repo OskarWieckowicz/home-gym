@@ -37,6 +37,12 @@ export function createRoomElementCommand(
             name: defaults.name,
             position,
             dimensions: FLOOR_DEFAULTS.obstacle.dimensions,
+            functionalClearance: {
+              frontCm: 0,
+              backCm: 0,
+              leftCm: 0,
+              rightCm: 0,
+            },
             rotation: 0,
             locked: false,
           },

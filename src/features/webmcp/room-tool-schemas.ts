@@ -81,7 +81,9 @@ export const updateProjectSettingsJsonSchema = z.toJSONSchema(
   updateProjectSettingsInputSchema,
 );
 export const addObstacleJsonSchema = z.toJSONSchema(addObstacleInputSchema);
-export const updateObstacleJsonSchema = z.toJSONSchema(updateObstacleInputSchema);
+export const updateObstacleJsonSchema = z.toJSONSchema(updateObstacleInputSchema, {
+  reused: "ref",
+});
 export const removeObstacleJsonSchema = z.toJSONSchema(removeObstacleInputSchema);
 export const addWallElementJsonSchema = z.toJSONSchema(addWallElementInputSchema);
 export const updateWallElementJsonSchema = z.toJSONSchema(
@@ -134,6 +136,11 @@ const ISSUE_MESSAGES: Readonly<Record<string, string>> = {
   name: "Name must be non-empty text up to 80 characters.",
   position: "Position must use non-negative integer centimeter coordinates.",
   dimensions: "Dimensions must use positive integer centimeter values.",
+  functionalClearance: "Functional clearance must use non-negative integer centimeter margins.",
+  frontCm: "Front clearance must be a non-negative integer number of centimeters.",
+  backCm: "Back clearance must be a non-negative integer number of centimeters.",
+  leftCm: "Left clearance must be a non-negative integer number of centimeters.",
+  rightCm: "Right clearance must be a non-negative integer number of centimeters.",
   rotation: "Rotation must be 0, 90, 180, or 270 degrees.",
   locked: "Locked must be a boolean.",
   patch: "Patch must contain at least one supported field.",

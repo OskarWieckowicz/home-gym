@@ -78,6 +78,7 @@ function obstacle(
     name: id,
     position: { xCm: 0, zCm: 0 },
     dimensions: { widthCm: 50, depthCm: 50, heightCm: 200 },
+    functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
     rotation: 0,
     locked: false,
     ...overrides,
@@ -106,7 +107,7 @@ function project(
   placements: TestPlacementInput[] = [],
 ): GymProject {
   return {
-    version: 5,
+    version: 6,
     room: { widthCm: 400, depthCm: 400, heightCm: 250 },
     obstacles,
     wallElements: walls,
@@ -337,6 +338,7 @@ describe("validateAccess", () => {
           obstacle("obstacle_column", {
             position: { xCm: 40, zCm: 300 },
             dimensions: { widthCm: 40, depthCm: 40, heightCm: 200 },
+            functionalClearance: { frontCm: 40, backCm: 0, leftCm: 0, rightCm: 0 },
           }),
         ],
       ),
@@ -351,6 +353,21 @@ describe("validateAccess", () => {
     ]));
     expect(analysis.issues.some(({ code }) => code === "USE_ZONE_UNREACHABLE")).toBe(false);
     expect(analysis.valid).toBe(true);
+  });
+
+  it("treats functional clearance as walkable while retaining it as an access target", () => {
+    const analysis = analyzeProject(
+      project(twoDoors, [obstacle("obstacle_cabinet", {
+        position: { xCm: 180, zCm: 160 },
+        dimensions: { widthCm: 40, depthCm: 40, heightCm: 200 },
+        functionalClearance: { frontCm: 40, backCm: 40, leftCm: 180, rightCm: 180 },
+      })]),
+      dependencies,
+    );
+    expect(analysis.issues.some(({ code }) => code === "DOOR_UNREACHABLE")).toBe(false);
+    expect(analysis.access.facts).toEqual(expect.arrayContaining([
+      expect.objectContaining({ entityId: "obstacle_cabinet", kind: "obstacle" }),
+    ]));
   });
 
   it("leaves access clear when an unavailable zone or use zone covers the corridor", () => {
@@ -434,8 +451,7 @@ describe("validateAccess", () => {
       {
         resolveProduct: (productId) => {
           if (productId !== mountedBar.id) return productsById.get(productId);
-          const { mounting: _mounting, ...floorProduct } = mountedBar;
-          return floorProduct;
+          return { ...mountedBar, mounting: undefined };
         },
       },
     );

@@ -15,6 +15,7 @@ const obstacle = {
   name: "Power rack",
   position: { xCm: 20, zCm: 30 },
   dimensions: { widthCm: 120, depthCm: 100, heightCm: 220 },
+  functionalClearance: { frontCm: 60, backCm: 0, leftCm: 10, rightCm: 10 },
   rotation: 90,
   locked: false,
 } as const;
@@ -41,7 +42,7 @@ const project: GymProject = {
 };
 
 describe("project codec", () => {
-  it("round-trips a version-5 project through canonical pretty JSON", () => {
+  it("round-trips a version-6 project through canonical pretty JSON", () => {
     const serialized = serializeProject(project);
     const canonicalProject = gymProjectSchema.parse(project);
 
@@ -94,7 +95,7 @@ describe("project codec", () => {
     expect(decoded).toEqual({
       success: true,
       project: {
-        version: 5,
+        version: 6,
         room: { widthCm: 400, depthCm: 320, heightCm: 240 },
         obstacles: [
           {
@@ -139,7 +140,7 @@ describe("project codec", () => {
 
   it("rejects future versions before schema parsing", () => {
     expectErrorCode(
-      decodeProject({ ...createDefaultProject(), version: 6 }),
+      decodeProject({ ...createDefaultProject(), version: 7 }),
       "unsupported-version",
     );
   });

@@ -11,6 +11,7 @@ const obstacle = {
   name: "Storage",
   position: { xCm: 20, zCm: 20 },
   dimensions: { widthCm: 40, depthCm: 40, heightCm: 100 },
+  functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
   rotation: 0,
   locked: false,
 } as const;

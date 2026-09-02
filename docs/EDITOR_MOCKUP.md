@@ -89,7 +89,12 @@ Narrow layouts put the inspector below the scene; phone layouts stack all three 
 normal page scrolling and a bounded catalog. A compact use-zone legend and a short gesture hint
 sit beneath the 3D scene.
 
-A physical obstacle is a rectangular volume with width, depth, and height. An unavailable zone is a 2D floor constraint with width and depth only. Doors and windows are intentionally minimal wall elements described by a name, wall, offset along the wall, and width.
+A physical obstacle is a rectangular volume with width, depth, height and optional measured effect
+through four required functional-clearance values. The inspector groups them under **Space needed
+to use this furniture** and explains that front/back/left/right rotate with the obstacle; zero means
+not specified. An unavailable zone is a 2D floor constraint with width and depth only and has no
+functional-clearance controls. Doors and windows are intentionally minimal wall elements described
+by a name, wall, offset along the wall, and width.
 
 In this MVP phase, doors and windows have no hinge side, opening direction, swing arc, sill height, or opening height. Adding either one does not automatically add an unavailable zone, and wall elements do not block floor collision checks. If a real doorway needs free floor space, the user or agent adds an independent unavailable zone explicitly.
 
@@ -182,11 +187,13 @@ a model is loading or unavailable.
 
 Room presentation uses a warm neutral background, off-white walls and a medium-gray matte floor.
 These materials are shared with the summary's 3D view; the 2D palette and domain geometry remain
-unchanged. Equipment use zones have a light fill and a thin dashed perimeter. The editor shows
-zones for selected and flagged equipment by default; **Show all use zones** reveals other zones.
+unchanged. Equipment use zones and furniture functional zones have a light fill and a thin dashed
+perimeter. The editor shows zones for selected and flagged entities by default in both 2D and 3D;
+**Show all use zones** reveals other zones.
 Warnings/errors stay visible when the all-zones layer is off. The legend names use zones, warnings
 and errors, and states which layer is visible. Placement previews remain distinct purple outlines,
-not a claim that a draft has passed validation. The read-only summary retains all use zones.
+not a claim that a draft has passed validation. The read-only summary retains all use and furniture
+functional zones. These zones are user/agent-provided planning constraints, not regulations.
 Outside presentation view, unavailable zones are flat areas with a neutral gray fill, clipped diagonal
 hatching and a solid perimeter, distinct from dashed equipment use zones. Selection emphasizes
 their perimeter; issue colors remain available. Their legend entry explains the pattern. This

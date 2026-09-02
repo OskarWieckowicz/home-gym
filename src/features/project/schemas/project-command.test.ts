@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
 import {
+  functionalClearancePatchSchema,
   obstacleInputSchema,
   obstaclePatchSchema,
   placementPatchSchema,
@@ -16,6 +17,7 @@ const obstacleInput = {
   name: "Wardrobe",
   position: { xCm: 10, zCm: 20 },
   dimensions: { widthCm: 80, depthCm: 50, heightCm: 210 },
+  functionalClearance: { frontCm: 80, backCm: 0, leftCm: 10, rightCm: 10 },
   rotation: 0,
   locked: true,
 } as const;
@@ -51,8 +53,18 @@ describe("projectCommandSchema", () => {
   it("rejects empty settings and obstacle patches", () => {
     expect(projectSettingsPatchSchema.safeParse({}).success).toBe(false);
     expect(obstaclePatchSchema.safeParse({}).success).toBe(false);
+    expect(functionalClearancePatchSchema.safeParse({}).success).toBe(false);
     expect(wallElementPatchSchema.safeParse({}).success).toBe(false);
     expect(placementPatchSchema.safeParse({}).success).toBe(false);
+  });
+
+  it("accepts non-empty partial functional-clearance patches including zero", () => {
+    expect(functionalClearancePatchSchema.parse({ frontCm: 0 })).toEqual({ frontCm: 0 });
+    expect(
+      obstaclePatchSchema.parse({ functionalClearance: { leftCm: 0, rightCm: 25 } }),
+    ).toEqual({ functionalClearance: { leftCm: 0, rightCm: 25 } });
+    expect(functionalClearancePatchSchema.safeParse({ frontCm: -1 }).success).toBe(false);
+    expect(functionalClearancePatchSchema.safeParse({ frontCm: 1.5 }).success).toBe(false);
   });
 
   it("keeps obstacle and wall-element kinds immutable", () => {
@@ -62,11 +74,17 @@ describe("projectCommandSchema", () => {
 
   it("requires unavailable-zone inputs to use 2D dimensions", () => {
     const zone = {
-      ...obstacleInput,
       kind: "unavailable-zone",
+      name: obstacleInput.name,
+      position: obstacleInput.position,
+      rotation: obstacleInput.rotation,
+      locked: obstacleInput.locked,
       dimensions: { widthCm: 80, depthCm: 50 },
     } as const;
     expect(obstacleInputSchema.safeParse(zone).success).toBe(true);
+    expect(
+      obstacleInputSchema.safeParse({ ...zone, functionalClearance: obstacleInput.functionalClearance }).success,
+    ).toBe(false);
     expect(
       obstaclePatchSchema.safeParse({
         dimensions: { widthCm: 100, depthCm: 60 },
@@ -76,6 +94,24 @@ describe("projectCommandSchema", () => {
       obstacleInputSchema.safeParse({
         ...zone,
         dimensions: { ...zone.dimensions, heightCm: 1 },
+      }).success,
+    ).toBe(false);
+  });
+
+  it("requires complete functional clearance on physical-obstacle input", () => {
+    const withoutClearance = {
+      kind: obstacleInput.kind,
+      name: obstacleInput.name,
+      position: obstacleInput.position,
+      dimensions: obstacleInput.dimensions,
+      rotation: obstacleInput.rotation,
+      locked: obstacleInput.locked,
+    };
+    expect(obstacleInputSchema.safeParse(withoutClearance).success).toBe(false);
+    expect(
+      obstacleInputSchema.safeParse({
+        ...obstacleInput,
+        functionalClearance: { frontCm: 10 },
       }).success,
     ).toBe(false);
   });
@@ -138,6 +174,7 @@ describe("projectCommandSchema", () => {
   it("converts command inputs to unambiguous union JSON Schemas", () => {
     for (const schema of [
       projectSettingsPatchSchema,
+      functionalClearancePatchSchema,
       obstaclePatchSchema,
       wallElementPatchSchema,
       placementPatchSchema,

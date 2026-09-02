@@ -4,6 +4,7 @@ import { trainingGoalSchema } from "@/shared/schemas/training-goal";
 import { productIdSchema } from "@/shared/schemas/product-id";
 
 import {
+  clearanceMarginsSchema,
   centimetersSchema,
   dimensionsSchema,
   footprintDimensionsSchema,
@@ -12,7 +13,7 @@ import {
   rotationSchema,
 } from "./geometry";
 
-export const PROJECT_VERSION = 5 as const;
+export const PROJECT_VERSION = 6 as const;
 export const PROJECT_ENTITY_ID_PATTERN = /^obstacle_[a-z0-9]+(?:[-_][a-z0-9]+)*$/;
 export const WALL_ELEMENT_ID_PATTERN = /^wall-element_[a-z0-9]+(?:[-_][a-z0-9]+)*$/;
 export const PLACEMENT_ID_PATTERN = /^placement_[a-z0-9]+(?:[-_][a-z0-9]+)*$/;
@@ -42,6 +43,7 @@ export const physicalObstacleSchema = z
     ...obstacleBaseShape,
     kind: z.literal("obstacle"),
     dimensions: dimensionsSchema,
+    functionalClearance: clearanceMarginsSchema,
   })
   .strict();
 

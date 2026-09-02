@@ -4,6 +4,8 @@ import { Lock } from "lucide-react";
 import type { KeyboardEvent, PointerEvent } from "react";
 
 import type { Obstacle, WallElement } from "@/features/project/schemas/project";
+import { createEquipmentFootprints } from "@/features/geometry/equipment-footprints";
+import type { RectangleFootprint } from "@/features/geometry/rectangles";
 
 import {
   entityIssueAriaSuffix,
@@ -55,6 +57,15 @@ type EntityLayerProps = {
   readonly transform: PlanTransform;
 };
 
+function footprintToPlanRectangle(footprint: RectangleFootprint, transform: PlanTransform) {
+  return {
+    x: transform.offsetX + footprint.minX * transform.scale,
+    y: transform.offsetY + footprint.minZ * transform.scale,
+    width: footprint.widthCm * transform.scale,
+    height: footprint.depthCm * transform.scale,
+  };
+}
+
 export function ObstacleEntity({
   obstacle,
   interactive,
@@ -67,6 +78,7 @@ export function ObstacleEntity({
   onFinishDrag,
   onCancelDrag,
   onKeySelect,
+  showAllUseZones = false,
 }: EntityLayerProps & {
   readonly obstacle: Obstacle;
   readonly position: Obstacle["position"];
@@ -75,10 +87,20 @@ export function ObstacleEntity({
   readonly onFinishDrag: (event: PointerEvent<SVGGElement>) => void;
   readonly onCancelDrag: () => void;
   readonly onKeySelect: (event: KeyboardEvent<SVGGElement>, id: string) => void;
+  readonly showAllUseZones?: boolean;
 }) {
   const rectangle = obstacleToPlanRectangle({ ...obstacle, position }, transform);
   const selected = selectedId === obstacle.id;
   const issueState = entityIssueState(obstacle.id, issues);
+  const functionalZone = obstacle.kind === "obstacle"
+    ? footprintToPlanRectangle(createEquipmentFootprints(
+        { position, rotation: obstacle.rotation },
+        { dimensions: obstacle.dimensions, useZone: obstacle.functionalClearance },
+      ).useZone, transform)
+    : null;
+  const hasFunctionalClearance = obstacle.kind === "obstacle" && Object.values(
+    obstacle.functionalClearance,
+  ).some((value) => value > 0);
   const lockSpace = obstacle.locked ? LOCK_SIZE + LOCK_GAP : 0;
   const labelWidth = Math.max(0, rectangle.width - LABEL_INSET * 2 - lockSpace);
 
@@ -96,6 +118,16 @@ export function ObstacleEntity({
       role="button"
       tabIndex={interactive ? 0 : -1}
     >
+      {functionalZone && hasFunctionalClearance && (showAllUseZones || selected || issueState) ? (
+        <rect
+          aria-hidden="true"
+          className="creator-functional-clearance-zone"
+          height={functionalZone.height}
+          width={functionalZone.width}
+          x={functionalZone.x}
+          y={functionalZone.y}
+        />
+      ) : null}
       <rect className="creator-entity-shape" height={rectangle.height} width={rectangle.width} x={rectangle.x} y={rectangle.y} />
       <foreignObject
         className="creator-entity-label-container"

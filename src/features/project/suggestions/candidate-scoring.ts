@@ -8,6 +8,7 @@ import type { ValidationIssue } from "../validation/validation-issues";
 export const CANDIDATE_WARNING_WEIGHTS = {
   ACCESS_NOT_EVALUATED: 1,
   USE_ZONE_OVERLAP: 10,
+  FUNCTIONAL_ZONE_OVERLAP: 10,
   ACCESS_TIGHT: 25,
   OBSTACLE_UNREACHABLE: 100,
 } as const;

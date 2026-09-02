@@ -137,7 +137,11 @@ function obstaclesEqual(first: Obstacle, second: Obstacle): boolean {
     first.dimensions.depthCm === second.dimensions.depthCm &&
     (first.kind === "unavailable-zone" ||
       (second.kind === "obstacle" &&
-        first.dimensions.heightCm === second.dimensions.heightCm)) &&
+        first.dimensions.heightCm === second.dimensions.heightCm &&
+        first.functionalClearance.frontCm === second.functionalClearance.frontCm &&
+        first.functionalClearance.backCm === second.functionalClearance.backCm &&
+        first.functionalClearance.leftCm === second.functionalClearance.leftCm &&
+        first.functionalClearance.rightCm === second.functionalClearance.rightCm)) &&
     first.rotation === second.rotation &&
     first.locked === second.locked
   );
@@ -244,10 +248,23 @@ function applyUpdateCommand(
       "Obstacle dimensions do not match the target obstacle kind.",
     );
   }
+  if (current.kind === "unavailable-zone" && command.payload.patch.functionalClearance) {
+    return failure(
+      project,
+      "INVALID_COMMAND",
+      command.type,
+      "Functional clearance applies only to physical obstacles.",
+    );
+  }
+
+  const functionalClearance = current.kind === "obstacle" && command.payload.patch.functionalClearance
+    ? { ...current.functionalClearance, ...command.payload.patch.functionalClearance }
+    : undefined;
 
   const parsedObstacle = obstacleSchema.safeParse({
     ...current,
     ...command.payload.patch,
+    ...(functionalClearance ? { functionalClearance } : {}),
   });
   if (!parsedObstacle.success) {
     return failure(project, "EXECUTION_FAILED", command.type);

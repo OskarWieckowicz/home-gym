@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 6,
   "room": {
     "widthCm": 600,
     "depthCm": 400,
@@ -20,6 +20,12 @@
         "widthCm": 100,
         "depthCm": 50,
         "heightCm": 200
+      },
+      "functionalClearance": {
+        "frontCm": 0,
+        "backCm": 0,
+        "leftCm": 0,
+        "rightCm": 0
       }
     },
     {
@@ -36,6 +42,12 @@
         "widthCm": 120,
         "depthCm": 200,
         "heightCm": 50
+      },
+      "functionalClearance": {
+        "frontCm": 0,
+        "backCm": 0,
+        "leftCm": 0,
+        "rightCm": 0
       }
     }
   ],

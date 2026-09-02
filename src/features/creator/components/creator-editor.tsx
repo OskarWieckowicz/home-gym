@@ -214,6 +214,7 @@ function EditorWorkspace({ catalogProductId }: { readonly catalogProductId?: str
           onSelect={select}
           placementError={placementError}
           selectedId={visibleSelectedId}
+          showAllUseZones={showAllUseZones}
         /> : <ScenePreview project={project} selectedId={visibleSelectedId} issues={issues} store={store}
           cameraPreset={cameraPreset}
           showAllUseZones={showAllUseZones} presentationView={presentationView}

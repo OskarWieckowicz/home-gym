@@ -41,6 +41,7 @@ function obstacle(
     name: id,
     position: { xCm: 0, zCm: 0 },
     dimensions: { widthCm: 50, depthCm: 50, heightCm: 200 },
+    functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
     rotation: 0,
     locked: false,
     ...overrides,
@@ -80,7 +81,7 @@ function project(
   placements: TestPlacementInput[] = [],
 ): GymProject {
   return {
-    version: 5,
+    version: 6,
     room: { widthCm: 300, depthCm: 250, heightCm: 220 },
     obstacles,
     wallElements,
@@ -91,6 +92,84 @@ function project(
 }
 
 describe("validateProject", () => {
+  it("reports exact furniture functional-clearance overlaps and accepts edge touch", () => {
+    const wardrobe = obstacle("obstacle_wardrobe", {
+      position: { xCm: 0, zCm: 100 },
+      functionalClearance: { frontCm: 30, backCm: 0, leftCm: 0, rightCm: 0 },
+    });
+    const physical = validateProject(
+      project([wardrobe], [entrance()], [placement("placement_blocker", {
+        position: { xCm: 0, zCm: 179 },
+      })]),
+      validationDependencies,
+    ).filter(({ code }) => code === "FUNCTIONAL_ZONE_OVERLAP");
+    expect(physical).toEqual([{
+      code: "FUNCTIONAL_ZONE_OVERLAP",
+      severity: "error",
+      entityIds: ["obstacle_wardrobe", "placement_blocker"],
+      details: {
+        zoneOwnerId: "obstacle_wardrobe",
+        blockingEntityId: "placement_blocker",
+        overlap: { minX: 0, minZ: 179, maxX: 50, maxZ: 180 },
+      },
+    }]);
+
+    const competing = validateProject(
+      project([wardrobe], [entrance()], [placement("placement_competing", {
+        position: { xCm: 0, zCm: 159 },
+      })]),
+      validationDependencies,
+    ).filter(({ entityIds }) => {
+      const ids: readonly string[] = entityIds;
+      return ids.includes("obstacle_wardrobe") && ids.includes("placement_competing");
+    });
+    expect(competing).toHaveLength(1);
+    expect(competing[0]).toMatchObject({
+      code: "FUNCTIONAL_ZONE_OVERLAP",
+      severity: "error",
+    });
+
+    const useZoneOnly = validateProject(
+      project([wardrobe], [entrance()], [placement("placement_activity", {
+        position: { xCm: 0, zCm: 180 },
+      })]),
+      validationDependencies,
+    ).filter(({ code }) => code === "FUNCTIONAL_ZONE_OVERLAP");
+    expect(useZoneOnly).toEqual([expect.objectContaining({
+      severity: "warning",
+      details: expect.objectContaining({
+        overlap: { minX: 0, minZ: 170, maxX: 50, maxZ: 180 },
+      }),
+    })]);
+  });
+
+  it("warns once per furniture pair and lets physical collisions suppress functional duplicates", () => {
+    const wardrobe = obstacle("obstacle_wardrobe", {
+      position: { xCm: 0, zCm: 100 },
+      functionalClearance: { frontCm: 30, backCm: 0, leftCm: 0, rightCm: 0 },
+    });
+    const encroaching = obstacle("obstacle_chair", { position: { xCm: 0, zCm: 179 } });
+    const warning = validateProject(project([wardrobe, encroaching]))
+      .filter(({ code }) => code === "FUNCTIONAL_ZONE_OVERLAP");
+    expect(warning).toEqual([expect.objectContaining({
+      severity: "warning",
+      details: expect.objectContaining({
+        zoneOwnerId: "obstacle_wardrobe",
+        blockingEntityId: "obstacle_chair",
+        overlap: { minX: 0, minZ: 179, maxX: 50, maxZ: 180 },
+      }),
+    })]);
+
+    const touching = obstacle("obstacle_chair", { position: { xCm: 0, zCm: 180 } });
+    expect(validateProject(project([wardrobe, touching]))
+      .some(({ code }) => code === "FUNCTIONAL_ZONE_OVERLAP")).toBe(false);
+
+    const colliding = obstacle("obstacle_chair", { position: { xCm: 0, zCm: 149 } });
+    const suppressed = validateProject(project([wardrobe, colliding]));
+    expect(suppressed.some(({ code }) => code === "PHYSICAL_COLLISION")).toBe(true);
+    expect(suppressed.some(({ code }) => code === "FUNCTIONAL_ZONE_OVERLAP")).toBe(false);
+  });
+
   it("validates placement bounds, physical obstacles, and unavailable zones", () => {
     const issues = validateProject(
       project(
@@ -569,4 +648,3 @@ describe("analyzeProject", () => {
     ]));
   });
 });
-

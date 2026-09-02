@@ -70,7 +70,8 @@ describe("asset-independent scene picking", () => {
   it("exposes a selectable unavailable zone independently of a physical obstacle", () => {
     const project: GymProject = { ...createDefaultProject(), obstacles: [
       { id: "obstacle_solid", name: "Solid", kind: "obstacle", locked: false, rotation: 90,
-        position: { xCm: 20, zCm: 30 }, dimensions: { widthCm: 100, depthCm: 40, heightCm: 150 } },
+        position: { xCm: 20, zCm: 30 }, dimensions: { widthCm: 100, depthCm: 40, heightCm: 150 },
+        functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 } },
       { id: "obstacle_zone", name: "Zone", kind: "unavailable-zone", locked: false, rotation: 0,
         position: { xCm: 200, zCm: 180 }, dimensions: { widthCm: 60, depthCm: 70 } },
     ] };
@@ -85,7 +86,8 @@ describe("asset-independent scene picking", () => {
       { id: "obstacle_zone", name: "Zone", kind: "unavailable-zone", locked: false, rotation: 0,
         position: { xCm: 40, zCm: 40 }, dimensions: { widthCm: 120, depthCm: 100 } },
       { id: "obstacle_solid", name: "Solid", kind: "obstacle", locked: false, rotation: 0,
-        position: { xCm: 60, zCm: 60 }, dimensions: { widthCm: 50, depthCm: 40, heightCm: 100 } },
+        position: { xCm: 60, zCm: 60 }, dimensions: { widthCm: 50, depthCm: 40, heightCm: 100 },
+        functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 } },
     ] };
     expect(pickSceneEntity(downward(project, 80, 80), project)).toBe("obstacle_solid");
     expect(pickSceneEntity(downward(project, 130, 80), project)).toBe("obstacle_zone");

@@ -24,10 +24,10 @@ export function CreatorViewportToolbar({ viewMode, onViewModeChange, onCameraPre
         <button aria-pressed={viewMode === "2d"} onClick={() => onViewModeChange("2d")} type="button">2D</button>
         <button aria-pressed={viewMode === "3d"} onClick={() => onViewModeChange("3d")} type="button">3D</button>
       </div>
-      {viewMode === "3d" ? <button type="button" className="creator-zone-toggle" disabled={presentationView} aria-pressed={showAllUseZones}
+      <button type="button" className="creator-zone-toggle" disabled={presentationView} aria-pressed={showAllUseZones}
         onClick={() => onShowAllUseZonesChange(!showAllUseZones)}>
         <Layers aria-hidden="true" size={16} /> Show all use zones
-      </button> : null}
+      </button>
       {viewMode === "3d" ? <button type="button" className="creator-zone-toggle" aria-pressed={presentationView}
         onClick={() => onPresentationViewChange(!presentationView)}>
         <ImageIcon aria-hidden="true" size={16} /> Presentation view

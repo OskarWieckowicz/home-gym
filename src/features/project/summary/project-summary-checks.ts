@@ -11,7 +11,7 @@ const CHECKS: readonly {
     id: "physical-collisions", label: "No object or opening collisions",
     codes: ["PHYSICAL_COLLISION", "UNAVAILABLE_ZONE_CONFLICT", "WALL_ELEMENT_OVERLAP", "WALL_MOUNT_OVERLAPS_OPENING"],
   },
-  { id: "use-zones", label: "Use zones respected", codes: ["USE_ZONE_OVERLAP", "USE_ZONE_OUTSIDE_ROOM"] },
+  { id: "use-zones", label: "Use and furniture zones respected", codes: ["USE_ZONE_OVERLAP", "FUNCTIONAL_ZONE_OVERLAP", "USE_ZONE_OUTSIDE_ROOM"] },
   {
     id: "room-bounds", label: "Room fit, height and mounting",
     codes: ["OUTSIDE_ROOM", "OUTSIDE_WALL", "CEILING_TOO_LOW", "WALL_MOUNT_OFF_WALL"],

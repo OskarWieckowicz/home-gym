@@ -7,7 +7,8 @@ import { createSceneMoveCommand } from "./scene-move-command";
 
 function obstacleProject(): GymProject {
   return { ...createDefaultProject(), obstacles: [{ id: "obstacle_test", kind: "obstacle", name: "Test",
-    position: { xCm: 53, zCm: 27 }, dimensions: { widthCm: 30, depthCm: 20, heightCm: 100 }, rotation: 90, locked: false }] };
+    position: { xCm: 53, zCm: 27 }, dimensions: { widthCm: 30, depthCm: 20, heightCm: 100 },
+    functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 }, rotation: 90, locked: false }] };
 }
 const start = { xCm: 68, zCm: 41 };
 

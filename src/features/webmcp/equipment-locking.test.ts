@@ -35,7 +35,7 @@ describe("equipment locks through WebMCP", () => {
     const store = lockedStore();
     const before = store.getState();
     expect(createGetProjectStateHandler(store)({})).toMatchObject({
-      ok: true, project: { version: 5, placements: [{ id: placementId, locked: true }] },
+      ok: true, project: { version: 6, placements: [{ id: placementId, locked: true }] },
     });
     for (const result of [
       createUpdatePlacementHandler(store)(move.payload),

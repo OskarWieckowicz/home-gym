@@ -33,6 +33,12 @@ For example, a wardrobe can be stored as a cuboid with a position, width, depth,
 
 A physical obstacle and an unavailable zone are related editor tools but remain different domain concepts. A physical obstacle has height and participates as a volume in the spatial model. An unavailable zone is only a 2D floor constraint. Doors and windows are minimal wall elements with a name, wall, offset along that wall, and width. In the MVP they do not model hinges, opening direction, swing arcs, sill or opening height, and they do not create an unavailable zone automatically. They also do not participate in floor collision checks.
 
+Physical obstacles may also carry four directional functional-clearance margins: front, back,
+left and right relative to the obstacle's orientation. They represent measured space needed to use
+furniture, such as opening a wardrobe or moving a chair. The margins rotate with the obstacle and
+are supplied by the user or agent from measurements; they are not inferred from names and are not
+building-regulation or safety claims. Zero means that no functional clearance was specified.
+
 Gym equipment should have at least two areas:
 
 - **physical area** — the space actually occupied by the equipment,

@@ -20,12 +20,13 @@ const validObstacle = {
   name: "Power rack",
   position: { xCm: 20, zCm: 30 },
   dimensions: { widthCm: 120, depthCm: 100, heightCm: 220 },
+  functionalClearance: { frontCm: 60, backCm: 0, leftCm: 10, rightCm: 20 },
   rotation: 90,
   locked: false,
 } as const;
 
 const validProject = {
-  version: 5,
+  version: 6,
   room: { widthCm: 400, depthCm: 320, heightCm: 240 },
   obstacles: [validObstacle],
   wallElements: [],
@@ -91,18 +92,42 @@ describe("project schemas", () => {
 
   it("keeps unavailable zones strictly 2D", () => {
     const zone = {
-      ...validObstacle,
+      id: validObstacle.id,
+      name: validObstacle.name,
+      position: validObstacle.position,
+      rotation: validObstacle.rotation,
+      locked: validObstacle.locked,
       kind: "unavailable-zone",
       dimensions: { widthCm: 120, depthCm: 100 },
     } as const;
 
     expect(unavailableZoneSchema.safeParse(zone).success).toBe(true);
     expect(
+      unavailableZoneSchema.safeParse({ ...zone, functionalClearance: validObstacle.functionalClearance }).success,
+    ).toBe(false);
+    expect(
       unavailableZoneSchema.safeParse({
         ...zone,
         dimensions: { ...zone.dimensions, heightCm: 1 },
       }).success,
     ).toBe(false);
+  });
+
+  it("requires four non-negative integer functional-clearance margins on physical obstacles", () => {
+    expect(physicalObstacleSchema.parse(validObstacle).functionalClearance).toEqual(
+      validObstacle.functionalClearance,
+    );
+    expect(
+      physicalObstacleSchema.safeParse({ ...validObstacle, functionalClearance: undefined }).success,
+    ).toBe(false);
+    for (const frontCm of [-1, 1.5]) {
+      expect(
+        physicalObstacleSchema.safeParse({
+          ...validObstacle,
+          functionalClearance: { ...validObstacle.functionalClearance, frontCm },
+        }).success,
+      ).toBe(false);
+    }
   });
 
   it("parses minimal wall elements and rejects duplicate IDs", () => {

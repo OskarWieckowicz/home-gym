@@ -136,19 +136,23 @@ describe("existing creator WebMCP shared editing flow", () => {
     const added = await execute<{
       revision: number;
       obstacleId: string;
-      obstacle: { name: string };
+      obstacle: { name: string; functionalClearance: Record<string, number> };
     }>("add_obstacle", {
       kind: "obstacle",
       name: "Agent rack",
       position: { xCm: 20, zCm: 20 },
       dimensions: { widthCm: 100, depthCm: 80, heightCm: 210 },
+      functionalClearance: { frontCm: 60, backCm: 0, leftCm: 0, rightCm: 0 },
       rotation: 0,
       locked: false,
     });
     expect(added).toMatchObject({
       revision: 2,
       obstacleId: "obstacle_agent_rack",
-      obstacle: { name: "Agent rack" },
+      obstacle: {
+        name: "Agent rack",
+        functionalClearance: { frontCm: 60, backCm: 0, leftCm: 0, rightCm: 0 },
+      },
     });
     expect(
       screen.getByRole("button", { name: /Agent rack, physical obstacle/ }),
@@ -190,12 +194,22 @@ describe("existing creator WebMCP shared editing flow", () => {
 
     const corrected = await execute<{
       revision: number;
+      obstacle: { functionalClearance: Record<string, number> };
       validation: { valid: boolean };
     }>("update_obstacle", {
       obstacleId: "obstacle_agent_rack",
-      patch: { position: { xCm: 250, zCm: 20 } },
+      patch: {
+        position: { xCm: 250, zCm: 20 },
+        functionalClearance: { frontCm: 75 },
+      },
     });
-    expect(corrected).toMatchObject({ revision: 4, validation: { valid: true } });
+    expect(corrected).toMatchObject({
+      revision: 4,
+      obstacle: {
+        functionalClearance: { frontCm: 75, backCm: 0, leftCm: 0, rightCm: 0 },
+      },
+      validation: { valid: true },
+    });
     expect(container.textContent).toContain("Add a door to check access.");
 
     fireEvent.click(screen.getByRole("button", { name: /Undo/ }));

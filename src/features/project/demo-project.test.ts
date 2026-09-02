@@ -19,7 +19,7 @@ const DEMO_PRODUCT_IDS = [
 describe("bundled demo project", () => {
   it("provides the current-format strength room with five placed catalog products", () => {
     const project = createDemoProject();
-    expect(project.version).toBe(5);
+    expect(project.version).toBe(6);
     expect(project.room).toEqual({ widthCm: 600, depthCm: 400, heightCm: 240 });
     expect(project.budget).toBe(2_500);
     expect(project.trainingGoals).toEqual(["strength"]);

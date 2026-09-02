@@ -26,6 +26,7 @@ import { useProjectStore, useProjectStoreApi } from "../store/project-store-cont
 import { EQUIPMENT_DRAG_TYPE } from "./equipment-catalog-panel";
 import { EquipmentEntity } from "./equipment-entity";
 import { ObstacleEntity, WallElementEntity } from "./room-plan-entities";
+import { SceneZoneLegend } from "./scene-zone-legend";
 
 const VIEWPORT = { width: 760, height: 560 } as const;
 
@@ -39,6 +40,7 @@ type RoomPlanProps = {
   readonly onPlacementComplete: (id: string) => void;
   readonly onPlacementError: (message: string) => void;
   readonly onCancelPlacement: () => void;
+  readonly showAllUseZones?: boolean;
 };
 
 function svgPoint(event: PointerEvent<SVGElement>) {
@@ -68,6 +70,7 @@ export function RoomPlan({
   onPlacementComplete,
   onPlacementError,
   onCancelPlacement,
+  showAllUseZones = false,
 }: RoomPlanProps) {
   const store = useProjectStoreApi();
   const project = useProjectStore((state) => state.project);
@@ -365,6 +368,7 @@ export function RoomPlan({
               position={draft?.obstacleId === placement.id ? draft.position : placement.position}
               product={product}
               selectedId={selectedId}
+              showAllUseZones={showAllUseZones}
               transform={transform}
             />
           );
@@ -382,6 +386,7 @@ export function RoomPlan({
             onMoveDrag={moveDrag}
             position={draft?.obstacleId === obstacle.id ? draft.position : obstacle.position}
             selectedId={selectedId}
+            showAllUseZones={showAllUseZones}
             transform={transform}
           />
         ))}
@@ -398,6 +403,7 @@ export function RoomPlan({
           />
         ))}
       </svg>
+      <SceneZoneLegend showAll={showAllUseZones} />
       <p className="visually-hidden" id="plan-help">
         Select an element with Tab and Enter. When a placement tool or product is active, press Enter on the plan to place it or Escape to cancel. Equipment can also be dragged from the catalog onto the plan.
       </p>

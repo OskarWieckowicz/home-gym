@@ -7,6 +7,7 @@ export const VALIDATION_ISSUE_CODES = [
   "OUTSIDE_WALL",
   "WALL_ELEMENT_OVERLAP",
   "USE_ZONE_OVERLAP",
+  "FUNCTIONAL_ZONE_OVERLAP",
   "USE_ZONE_OUTSIDE_ROOM",
   "CEILING_TOO_LOW",
   "WALL_MOUNT_OFF_WALL",
@@ -78,6 +79,17 @@ export type UseZoneOverlapIssue = {
   readonly details: {
     readonly overlap: RectangleBounds;
     readonly useZonePlacementId: string;
+    readonly blockingEntityId: string;
+  };
+};
+
+export type FunctionalZoneOverlapIssue = {
+  readonly code: "FUNCTIONAL_ZONE_OVERLAP";
+  readonly severity: ValidationSeverity;
+  readonly entityIds: readonly [string, string];
+  readonly details: {
+    readonly overlap: RectangleBounds;
+    readonly zoneOwnerId: string;
     readonly blockingEntityId: string;
   };
 };
@@ -190,6 +202,7 @@ export type ValidationIssue =
   | OutsideRoomIssue
   | CollisionIssue
   | UseZoneOverlapIssue
+  | FunctionalZoneOverlapIssue
   | UseZoneOutsideRoomIssue
   | CeilingTooLowIssue
   | WallMountOffWallIssue

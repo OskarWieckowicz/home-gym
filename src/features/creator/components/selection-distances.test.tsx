@@ -26,7 +26,8 @@ describe("selected equipment distances", () => {
       { id: "obstacle_zone", kind: "unavailable-zone", name: "Zone", position: { xCm: 100, zCm: 100 },
         dimensions: { widthCm: 100, depthCm: 100 }, rotation: 0, locked: false },
       { id: "obstacle_cabinet", kind: "obstacle", name: "Cabinet", position: { xCm: 252, zCm: 100 },
-        dimensions: { widthCm: 40, depthCm: 40, heightCm: 100 }, rotation: 0, locked: false },
+        dimensions: { widthCm: 40, depthCm: 40, heightCm: 100 },
+        functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 }, rotation: 0, locked: false },
     ];
     let store!: ProjectStore;
     render(<ProjectStoreProvider initialProject={project}><Host capture={(value) => { store = value; }} /></ProjectStoreProvider>);

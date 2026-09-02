@@ -124,6 +124,39 @@ describe("suggestPlacements", () => {
     expect(result.rejectionReasons.USE_ZONE_OUTSIDE_ROOM).toBe(2);
   });
 
+  it("rejects physical functional-zone conflicts and ranks activity-only conflicts below clean poses", () => {
+    const project: GymProject = {
+      ...suggestionProject(),
+      room: { widthCm: 100, depthCm: 60, heightCm: 240 },
+      obstacles: [{
+        id: "obstacle_wardrobe",
+        kind: "obstacle",
+        name: "Wardrobe",
+        position: { xCm: 20, zCm: 20 },
+        dimensions: { widthCm: 20, depthCm: 20, heightCm: 200 },
+        functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 10 },
+        rotation: 0,
+        locked: false,
+      }],
+    };
+    const result = suggestPlacements(project, {
+      productId: "product_test",
+      rotations: [0],
+      limit: 3,
+      region: { minXCm: 40, maxXCm: 60, minZCm: 20, maxZCm: 20 },
+    }, {
+      ...suggestionDependencies,
+      resolveProduct: () => ({
+        ...suggestionProduct,
+        useZone: { ...suggestionProduct.useZone, leftCm: 10 },
+      }),
+    });
+
+    expect(result.rejectionReasons.FUNCTIONAL_ZONE_OVERLAP).toBe(1);
+    expect(result.candidates.map(({ position }) => position.xCm)).toEqual([60, 50]);
+    expect(result.candidates[1].warningCounts.FUNCTIONAL_ZONE_OVERLAP).toBe(1);
+  });
+
   it("rejects the supplied blocked left-wall pose and returns exact safe wall poses", () => {
     const project: GymProject = {
       ...suggestionProject(),
@@ -135,6 +168,7 @@ describe("suggestPlacements", () => {
           name: "Low bed",
           position: { xCm: 40, zCm: 160 },
           dimensions: { widthCm: 60, depthCm: 60, heightCm: 55 },
+          functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
           rotation: 0,
           locked: false,
         },
@@ -144,6 +178,7 @@ describe("suggestPlacements", () => {
           name: "TV console",
           position: { xCm: 30, zCm: 220 },
           dimensions: { widthCm: 50, depthCm: 50, heightCm: 65 },
+          functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
           rotation: 0,
           locked: false,
         },

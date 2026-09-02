@@ -1,7 +1,7 @@
 import { PROJECT_VERSION } from "../schemas/project";
 import { projectItemIdFromPlacementId } from "./project-item-ids";
 
-export const SUPPORTED_PROJECT_VERSIONS = [1, 2, 3, 4, PROJECT_VERSION] as const;
+export const SUPPORTED_PROJECT_VERSIONS = [1, 2, 3, 4, 5, PROJECT_VERSION] as const;
 export const CURRENT_PROJECT_VERSION = PROJECT_VERSION;
 
 export type ProjectMigrationError = {
@@ -20,6 +20,7 @@ const migrations = new Map<number, ProjectMigration>([
   [2, migrateV2ToV3],
   [3, migrateV3ToV4],
   [4, migrateV4ToV5],
+  [5, migrateV5ToV6],
 ]);
 
 function migrateV1ToV2(project: unknown): unknown {
@@ -109,6 +110,31 @@ function migrateV4ToV5(project: unknown): unknown {
         throw new Error("Version 4 placements must be objects.");
       }
       return { ...placement, locked: false };
+    }),
+  };
+}
+
+function migrateV5ToV6(project: unknown): unknown {
+  if (typeof project !== "object" || project === null || Array.isArray(project)) {
+    throw new Error("Invalid version 5 project.");
+  }
+  const obstacles = Reflect.get(project, "obstacles");
+  if (!Array.isArray(obstacles)) {
+    throw new Error("Version 5 project must include obstacles.");
+  }
+  return {
+    ...project,
+    version: 6,
+    obstacles: obstacles.map((obstacle) => {
+      if (typeof obstacle !== "object" || obstacle === null || Array.isArray(obstacle)) {
+        throw new Error("Version 5 obstacles must be objects.");
+      }
+      return Reflect.get(obstacle, "kind") === "obstacle"
+        ? {
+            ...obstacle,
+            functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
+          }
+        : obstacle;
     }),
   };
 }

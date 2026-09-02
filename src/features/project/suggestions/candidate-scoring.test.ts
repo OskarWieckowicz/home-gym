@@ -41,4 +41,28 @@ describe("candidate scoring", () => {
       warningCounts: { ACCESS_NOT_EVALUATED: 1, ACCESS_TIGHT: 2 },
     });
   });
+
+  it("rejects functional-clearance errors and penalizes warnings", () => {
+    const details = {
+      zoneOwnerId: "obstacle_wardrobe",
+      blockingEntityId: "placement_candidate",
+      overlap: { minX: 0, minZ: 0, maxX: 10, maxZ: 10 },
+    } as const;
+    expect(scoreCandidate(createProjectAnalysis([{
+      code: "FUNCTIONAL_ZONE_OVERLAP",
+      severity: "error",
+      entityIds: ["obstacle_wardrobe", "placement_candidate"],
+      details,
+    }]))).toMatchObject({ rejected: true, reasons: ["FUNCTIONAL_ZONE_OVERLAP"] });
+    expect(scoreCandidate(createProjectAnalysis([{
+      code: "FUNCTIONAL_ZONE_OVERLAP",
+      severity: "warning",
+      entityIds: ["obstacle_wardrobe", "placement_candidate"],
+      details,
+    }]))).toMatchObject({
+      rejected: false,
+      score: CANDIDATE_WARNING_WEIGHTS.FUNCTIONAL_ZONE_OVERLAP,
+      warningCounts: { FUNCTIONAL_ZONE_OVERLAP: 1 },
+    });
+  });
 });

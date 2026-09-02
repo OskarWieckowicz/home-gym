@@ -18,7 +18,7 @@ function catalogPrice(productId: string): number {
 }
 
 describe("project migrations", () => {
-  it("migrates v4 placements to unlocked v5 placements without changing their pose", () => {
+  it("migrates v4 placements and physical obstacles through version 6", () => {
     const placement = {
       id: "placement_legacy", projectItemId: "project-item_legacy",
       position: { xCm: 120, zCm: 80 }, rotation: 90,
@@ -30,23 +30,67 @@ describe("project migrations", () => {
     };
     expect(decodeProject(legacy)).toEqual({
       success: true,
-      project: { ...legacy, version: 5, placements: [{ ...placement, locked: false }] },
+      project: { ...legacy, version: 6, placements: [{ ...placement, locked: false }] },
     });
     expect(legacy.placements[0]).not.toHaveProperty("locked");
   });
 
-  it("declares version 5 as current and supports the full migration chain", () => {
-    expect(CURRENT_PROJECT_VERSION).toBe(5);
-    expect(SUPPORTED_PROJECT_VERSIONS).toEqual([1, 2, 3, 4, 5]);
+  it("declares version 6 as current and supports the full migration chain", () => {
+    expect(CURRENT_PROJECT_VERSION).toBe(6);
+    expect(SUPPORTED_PROJECT_VERSIONS).toEqual([1, 2, 3, 4, 5, 6]);
   });
 
   it("passes the current version through without changing its reference", () => {
     const project = createDefaultProject();
 
-    expect(migrateProjectToCurrent(project, 5)).toEqual({
+    expect(migrateProjectToCurrent(project, 6)).toEqual({
       success: true,
       data: project,
     });
+  });
+
+  it("migrates v5 by adding zero margins only to physical obstacles", () => {
+    const physicalObstacle = {
+      id: "obstacle_wardrobe",
+      kind: "obstacle",
+      name: "Wardrobe",
+      position: { xCm: 12, zCm: 34 },
+      dimensions: { widthCm: 180, depthCm: 60, heightCm: 220 },
+      rotation: 270,
+      locked: true,
+    } as const;
+    const unavailableZone = {
+      id: "obstacle_reserved",
+      kind: "unavailable-zone",
+      name: "Reserved",
+      position: { xCm: 50, zCm: 60 },
+      dimensions: { widthCm: 90, depthCm: 80 },
+      rotation: 90,
+      locked: false,
+    } as const;
+    const legacy = {
+      ...createDefaultProject(),
+      version: 5,
+      obstacles: [physicalObstacle, unavailableZone],
+    };
+
+    const migrated = migrateProjectToCurrent(legacy, 5);
+    expect(migrated).toEqual({
+      success: true,
+      data: {
+        ...legacy,
+        version: 6,
+        obstacles: [
+          {
+            ...physicalObstacle,
+            functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
+          },
+          unavailableZone,
+        ],
+      },
+    });
+    expect(legacy.obstacles[0]).not.toHaveProperty("functionalClearance");
+    expect(legacy.obstacles[1]).not.toHaveProperty("functionalClearance");
   });
 
   it("migrates v1 obstacles without inferring wall elements or items", () => {
@@ -81,9 +125,12 @@ describe("project migrations", () => {
       success: true,
       data: {
         ...legacyProject,
-        version: 5,
+        version: 6,
         obstacles: [
-          legacyProject.obstacles[0],
+          {
+            ...legacyProject.obstacles[0],
+            functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
+          },
           {
             ...legacyProject.obstacles[1],
             dimensions: { widthCm: 90, depthCm: 90 },
@@ -98,9 +145,13 @@ describe("project migrations", () => {
 
   it("migrates version 2 by adding empty placements and items", () => {
     const current = createDefaultProject();
-    const { placements: _placements, projectItems: _items, ...legacyProject } = {
-      ...current,
+    const legacyProject = {
       version: 2 as const,
+      room: current.room,
+      obstacles: current.obstacles,
+      wallElements: current.wallElements,
+      budget: current.budget,
+      trainingGoals: current.trainingGoals,
     };
 
     expect(migrateProjectToCurrent(legacyProject, 2)).toEqual({
@@ -123,11 +174,18 @@ describe("project migrations", () => {
       0,
     );
 
-    expect(decoded.project.version).toBe(5);
+    expect(decoded.project.version).toBe(6);
     expect(decoded.project.projectItems).toHaveLength(4);
     expect(decoded.project.placements).toHaveLength(4);
     expect(decoded.project.room).toEqual(v3FourProductRoom.room);
-    expect(decoded.project.obstacles).toEqual(v3FourProductRoom.obstacles);
+    expect(decoded.project.obstacles).toEqual(
+      v3FourProductRoom.obstacles.map((obstacle) => obstacle.kind === "obstacle"
+        ? {
+            ...obstacle,
+            functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
+          }
+        : obstacle),
+    );
     expect(decoded.project.wallElements).toEqual(v3FourProductRoom.wallElements);
     expect(decoded.project.budget).toBe(v3FourProductRoom.budget);
     expect(decoded.project.trainingGoals).toEqual(v3FourProductRoom.trainingGoals);

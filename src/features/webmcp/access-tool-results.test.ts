@@ -67,6 +67,7 @@ describe("access serialization", () => {
       name: "Bar",
       position: { xCm: 0, zCm: 160 },
       dimensions: { widthCm: 400, depthCm: 80, heightCm: 200 },
+      functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
       rotation: 0,
       locked: false,
     });
@@ -103,6 +104,7 @@ describe("access serialization", () => {
       name: "Column",
       position: { xCm: 10, zCm: 10 },
       dimensions: { widthCm: 20, depthCm: 20, heightCm: 200 },
+      functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
       rotation: 0,
       locked: false,
     });

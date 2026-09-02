@@ -29,6 +29,7 @@ function withObstacle(locked = false): GymProject {
   return { ...createDefaultProject(), obstacles: [{
     id: "obstacle_box", name: "Box", kind: "obstacle", locked, rotation: 0,
     position: { xCm: 103, zCm: 87 }, dimensions: { widthCm: 80, depthCm: 50, heightCm: 100 },
+    functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
   }] };
 }
 function startDrag(context: ReturnType<typeof setup>) {

@@ -62,6 +62,11 @@ export function describeValidationIssue(issue: ValidationIssue, names: ReadonlyM
       ? `${pair} share a use zone.`
       : `${pair} conflict with a required use zone.`;
   }
+  if (issue.code === "FUNCTIONAL_ZONE_OVERLAP") {
+    return issue.severity === "error"
+      ? `${label(issue.details.blockingEntityId)} blocks the functional clearance of ${label(issue.details.zoneOwnerId)}.`
+      : `${label(issue.details.blockingEntityId)} overlaps the functional clearance of ${label(issue.details.zoneOwnerId)}.`;
+  }
   return issue.code === "PHYSICAL_COLLISION"
     ? `${pair} physically overlap.`
     : `${pair} conflict with an unavailable zone.`;

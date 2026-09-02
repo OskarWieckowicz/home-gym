@@ -42,7 +42,7 @@ export function SummaryRoomPlan({ project, issues }: Omit<SceneContentsProps, "s
         placement={placement} position={placement.position} product={product} /> : null;
     })}
     {project.obstacles.map((obstacle) => <ObstacleEntity key={obstacle.id} {...shared} {...noDrag}
-      obstacle={obstacle} position={obstacle.position} />)}
+      obstacle={obstacle} position={obstacle.position} showAllUseZones />)}
     {project.wallElements.map((element) => <WallElementEntity key={element.id} {...shared}
       element={element} onSelect={ignoreInteraction} onKeySelect={ignoreInteraction} />)}
   </svg>

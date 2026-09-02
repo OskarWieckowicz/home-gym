@@ -118,6 +118,25 @@ export function equipmentUseZoneToScene(
   };
 }
 
+export function obstacleFunctionalClearanceToScene(
+  obstacle: Extract<Obstacle, { kind: "obstacle" }>,
+  room: Room,
+): SceneBox {
+  const { useZone } = createEquipmentFootprints(obstacle, {
+    dimensions: obstacle.dimensions,
+    useZone: obstacle.functionalClearance,
+  });
+  return {
+    position: footprintCenterToScene(useZone, room, USE_ZONE_HEIGHT_CM),
+    dimensions: {
+      x: centimetersToMeters(useZone.widthCm),
+      y: FLOOR_OVERLAY_THICKNESS_M,
+      z: centimetersToMeters(useZone.depthCm),
+    },
+    rotationY: 0,
+  };
+}
+
 export function obstacleToScene(obstacle: Obstacle, room: Room): SceneBox {
   const footprint = createRectangleFootprint(obstacle.position, obstacle.dimensions, obstacle.rotation);
   const dimensions = obstacle.kind === "obstacle"

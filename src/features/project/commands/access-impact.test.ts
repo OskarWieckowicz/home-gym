@@ -25,6 +25,7 @@ const bar = {
   name: "Bar",
   position: { xCm: 0, zCm: 160 },
   dimensions: { widthCm: 400, depthCm: 80, heightCm: 200 },
+  functionalClearance: { frontCm: 0, backCm: 0, leftCm: 0, rightCm: 0 },
   rotation: 0 as const,
   locked: false,
 };

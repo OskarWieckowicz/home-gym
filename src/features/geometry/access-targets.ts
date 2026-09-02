@@ -33,6 +33,8 @@ export type AccessPlacementInput = {
 export type AccessObstacleInput = {
   readonly id: string;
   readonly footprint: RectangleBounds;
+  readonly functionalFootprint: RectangleBounds;
+  readonly hasFunctionalClearance: boolean;
 };
 
 export function hasUseZoneMargins(useZone: {
@@ -122,7 +124,12 @@ export function collectAccessTargets(
     targets.push({
       entityId: obstacle.id,
       kind: "obstacle",
-      cells: cellsOverlappingBounds(grid, expandBounds(obstacle.footprint, REACH_CM)),
+      cells: cellsOverlappingBounds(
+        grid,
+        obstacle.hasFunctionalClearance
+          ? obstacle.functionalFootprint
+          : expandBounds(obstacle.footprint, REACH_CM),
+      ),
     });
   }
 

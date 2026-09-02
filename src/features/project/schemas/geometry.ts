@@ -25,6 +25,15 @@ export const footprintDimensionsSchema = z
   })
   .strict();
 
+export const clearanceMarginsSchema = z
+  .object({
+    frontCm: centimetersSchema,
+    backCm: centimetersSchema,
+    leftCm: centimetersSchema,
+    rightCm: centimetersSchema,
+  })
+  .strict();
+
 export const rotationSchema = z.union([
   z.literal(0),
   z.literal(90),
@@ -35,4 +44,5 @@ export const rotationSchema = z.union([
 export type Position = z.infer<typeof positionSchema>;
 export type Dimensions = z.infer<typeof dimensionsSchema>;
 export type FootprintDimensions = z.infer<typeof footprintDimensionsSchema>;
+export type ClearanceMargins = z.infer<typeof clearanceMarginsSchema>;
 export type Rotation = z.infer<typeof rotationSchema>;

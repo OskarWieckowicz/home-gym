@@ -66,7 +66,12 @@ export function validateAccess(
     })),
     items
       .filter((item) => item.obstacle.kind === "obstacle")
-      .map((item) => ({ id: item.obstacle.id, footprint: item.footprint })),
+      .map((item) => ({
+        id: item.obstacle.id,
+        footprint: item.footprint,
+        functionalFootprint: item.functionalFootprint,
+        hasFunctionalClearance: item.hasFunctionalClearance,
+      })),
   );
 
   if (!evaluation.access.evaluated) {

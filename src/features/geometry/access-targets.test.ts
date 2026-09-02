@@ -55,9 +55,36 @@ describe("access targets", () => {
       grid,
       [],
       [],
-      [{ id: "obstacle_column", footprint }],
+      [{
+        id: "obstacle_column",
+        footprint,
+        functionalFootprint: footprint,
+        hasFunctionalClearance: false,
+      }],
     );
     expect(targets).toHaveLength(1);
     expect(targets[0]?.kind).toBe("obstacle");
+  });
+
+  it("uses declared functional clearance as the obstacle access target", () => {
+    const grid = createOccupancyGrid(room.widthCm, room.depthCm);
+    const footprint = { minX: 100, minZ: 100, maxX: 150, maxZ: 150 };
+    const functionalFootprint = { minX: 100, minZ: 100, maxX: 150, maxZ: 230 };
+    const [target] = collectAccessTargets(grid, [], [], [{
+      id: "obstacle_wardrobe",
+      footprint,
+      functionalFootprint,
+      hasFunctionalClearance: true,
+    }]);
+    const legacy = collectAccessTargets(grid, [], [], [{
+      id: "obstacle_legacy",
+      footprint,
+      functionalFootprint: footprint,
+      hasFunctionalClearance: false,
+    }])[0];
+
+    expect(target?.kind).toBe("obstacle");
+    expect(target?.cells).not.toEqual(legacy?.cells);
+    expect(target?.cells.length).toBeLessThan(legacy?.cells.length ?? 0);
   });
 });

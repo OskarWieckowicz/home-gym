@@ -127,21 +127,24 @@ The `geometry` layer and most of `project` must not import React, Zustand, or Th
 ## 6. Domain model
 
 All domain dimensions and positions use integer centimeters; rotations are 0/90/180/270 degrees.
-The renderer converts them to centred scene units. The version-5 schema is defined in
+The renderer converts them to centred scene units. The version-6 schema is defined in
 [`project.ts`](../src/features/project/schemas/project.ts), with geometry primitives in
 [`geometry.ts`](../src/features/project/schemas/geometry.ts).
 
 A project contains a rectangular room, physical obstacles, unavailable zones, wall elements,
 shopping items, placements, budget and training goals. Shopping items carry product identity;
 placements refer to an item and add its pose and persistent `locked` boolean. Unplacing preserves the purchase; removing an
-item removes its placement too. Physical obstacles have height and locking; unavailable zones
-have a 2D footprint. Product mounting and planning requirements come from the catalog.
+item removes its placement too. Physical obstacles have height, locking and required directional
+`functionalClearance`; unavailable zones have a 2D footprint and never carry that field. Product
+mounting and planning requirements come from the catalog.
 
 Domain coordinates start in one corner of the room. The renderer is responsible for converting them into the Three.js scene coordinate system, which is centered.
 
 The versioned codec migrates supported saved formats before project/catalog validation.
-Version 5 adds placement locking; the v4→v5 migration gives existing placements `locked: false`
-without changing their poses. Earlier migrations continue through that step. Exports preserve locks.
+Version 5 adds placement locking. Version 6 adds obstacle functional clearance; the v5→v6
+migration assigns four zero margins only to physical obstacles without changing any ID, pose,
+dimension or lock. Earlier migrations continue through both steps. Exports preserve the canonical
+version-6 state. A zero margin means “not specified”, not “verified safe”.
 
 `offsetCm` is measured left-to-right on horizontal walls and top-to-bottom on vertical walls. Doors and windows deliberately have no hinge side, opening direction, swing arc, sill height, opening height, or derived unavailable zone in this MVP phase. They are validated against their wall and neighboring wall elements, but they do not participate in floor collision checks.
 
@@ -197,6 +200,7 @@ The MVP supports:
 - rectangular equipment footprints,
 - rotation in 90-degree steps,
 - separate physical and working zones,
+- directional furniture functional-clearance zones using the same rotation mapping as equipment,
 - a minimum ceiling height.
 
 With these constraints, collisions can be checked as AABB rectangle intersections after rotation is applied.
@@ -209,6 +213,13 @@ Checks cover room/wall bounds, physical collisions, unavailable zones, use zones
 openings, budget and deterministic access from doors. No door means access was not evaluated.
 Unavailable zones forbid equipment/use zones but remain walkable; they are not invented paths.
 Access thresholds are application conventions, not building regulations or exercise-safety claims.
+
+`FUNCTIONAL_ZONE_OVERLAP` records the zone owner, blocking entity and exact overlap bounds.
+Equipment physical footprint inside furniture clearance is an error; equipment use-zone-only and
+another obstacle's physical footprint are warnings. A physical collision is stronger and suppresses
+the duplicate functional-zone issue for that entity pair. Functional clearance is an access target,
+not an occupancy blocker: non-zero zones must be reachable from a door, while zero-clearance legacy
+obstacles keep the expanded-physical access target.
 
 A non-floor-blocking wall mount may physically project above furniture whose height is at or below
 the mount's bottom edge without creating a physical collision. That exception applies only to the
@@ -236,7 +247,7 @@ Implemented MVP algorithm (`src/features/project/suggestions/`):
 2. apply each candidate through the shared pure domain command with deterministic injected IDs;
 3. reject every layout with an error or any unreachable access fact, including obstacles whose
    global issue severity remains a warning;
-4. score warnings using `CANDIDATE_WARNING_WEIGHTS`: unevaluated access 1, use-zone overlap 10,
+4. score warnings using `CANDIDATE_WARNING_WEIGHTS`: unevaluated access 1, use-zone or functional-zone overlap 10,
    tight access 25 (unreachable obstacles are always rejected, regardless of their weight);
 5. sort by integer score, then generation index, returning 3 suggestions by default, at most 10.
 
@@ -587,6 +598,10 @@ their tests are authoritative.
 Every successful changed single mutation creates one shared undo step.
 
 Wall-element tool descriptions and results use the same canonical wall and offset convention as the project schema. They make explicit that doors and windows do not generate unavailable zones and do not participate in floor collision validation.
+
+`add_obstacle` requires all four functional-clearance margins for physical obstacles;
+`update_obstacle` accepts non-empty partial margin patches and returns the canonical merged state.
+Tool descriptions require user-supplied measurements and prohibit clearance guesses based on names.
 
 Each handler:
 
