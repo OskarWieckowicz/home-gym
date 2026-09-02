@@ -160,6 +160,12 @@ The agent is responsible for:
 
 The agent should not decide for itself whether the geometry is valid. A deterministic application engine should detect collisions and rule violations. The agent uses validation results to improve the design iteratively.
 
+Placement suggestions keep region bounds hard and expose `balanced`, `perimeter`, and `open-center`
+as soft strategies. The agent selects a strategy from user intent, explains the returned warning and
+spatial score breakdown, applies one candidate, re-runs suggestions against the changed room, and
+uses layout validation as the final verification source. This remains iterative placement, not a
+global room optimizer.
+
 ## WebMCP capabilities
 
 The creator exposes current state and summary reads, bounded catalog search and product details,

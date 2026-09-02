@@ -19,7 +19,25 @@ describe("suggest placements tool", () => {
     const before = store.getState();
     const handler = createSuggestPlacementsHandler(store);
     const result = handler(request);
-    expect(result).toMatchObject({ ok: true, revision: 0, generatedCount: 4, rejectedCount: 0 });
+    expect(result).toMatchObject({
+      ok: true,
+      revision: 0,
+      strategy: "balanced",
+      generatedCount: 4,
+      rejectedCount: 0,
+    });
+    const candidate = (result as { candidates?: readonly unknown[] }).candidates?.[0];
+    expect(candidate).toMatchObject({
+      score: expect.any(Number),
+      scoreBreakdown: {
+        warningPenalty: expect.any(Number),
+        perimeterDistanceCm: expect.any(Number),
+        cornerDistanceCm: expect.any(Number),
+        furnitureClearanceDistanceCm: null,
+        contiguousFreeAreaCells: expect.any(Number),
+        centralFreeAreaCells: expect.any(Number),
+      },
+    });
     expect(JSON.stringify(handler(request))).toBe(JSON.stringify(result));
     expect(JSON.stringify(createSuggestPlacementsHandler(createProjectStore(project))(request)))
       .toBe(JSON.stringify(result));
@@ -47,6 +65,7 @@ describe("suggest placements tool", () => {
       { ...request, projectItemId: "project-item_test" },
       { ...request, limit: 11 },
       { ...request, rotations: [45] },
+      { ...request, strategy: "nearest-door" },
     ]) {
       expect(handler(input)).toMatchObject({
         ok: false,

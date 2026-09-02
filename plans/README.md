@@ -12,14 +12,12 @@ Git preserves history; routine verification belongs in the task, PR or CI record
 
 Keep this sequence unless the user explicitly reprioritizes work.
 
-| Order | Plan                                                               | Remaining outcome                                                                                                      |
-| ----- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
-| 1     | [Placement quality](phase-31-placement-quality.md)                 | Rank equally safe candidates by explainable perimeter, furniture and contiguous-open-space preferences.               |
-| 2     | [Submission](phase-28-submission.md)                               | Final manual tests on the live build, then judge-facing README, description, video and submission.                     |
+| Order | Plan                                 | Remaining outcome                                                                                  |
+| ----- | ------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| 1     | [Submission](phase-28-submission.md) | Final manual tests on the live build, then judge-facing README, description, video and submission. |
 
-Phases 29–30 fixed mounted use-zone false negatives, exact four-wall suggestions and versioned
-furniture functional clearance. Phase 31 adds placement quality; if release timing forces a cut,
-defer that larger phase rather than weakening the completed geometry contracts.
+Phases 29–31 fixed mounted use-zone false negatives, exact four-wall suggestions, versioned
+furniture functional clearance, and explainable spatial-quality ranking.
 
 Creator polish comes before final captures so later landing captures and public checks use the finished editor.
 Remaining landing work is editorial media, not a new product-asset production queue. Implemented

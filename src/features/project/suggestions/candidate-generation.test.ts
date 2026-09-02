@@ -69,6 +69,8 @@ describe("placement candidate generation", () => {
     expect(placementSuggestionRequestSchema.safeParse({ productId: "product_test", projectItemId: "project-item_test" }).success).toBe(false);
     expect(placementSuggestionRequestSchema.safeParse({ productId: "product_test", limit: 11 }).success).toBe(false);
     expect(placementSuggestionRequestSchema.safeParse({ productId: "product_test", rotations: [] }).success).toBe(false);
+    expect(placementSuggestionRequestSchema.safeParse({ productId: "product_test", strategy: "nearest-door" }).success).toBe(false);
+    expect(placementSuggestionRequestSchema.parse({ productId: "product_test" }).strategy).toBe("balanced");
     expect(z.toJSONSchema(placementSuggestionRequestSchema)).toHaveProperty("anyOf");
   });
 

@@ -198,7 +198,7 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "suggest_placements",
       title: "Suggest safe equipment placements",
       description:
-        "Read deterministic placement candidates without mutation. Supply one productId or projectItemId, with optional rotations, region, and limit. Floor candidates use a 10 cm grid. Wall candidates use a 10 cm grid along the rotation wall and snap exactly to top, right, bottom, or left; region bounds contain the final footprint. Errors and unreachable entities reject candidates, while warnings affect score. Apply a returned pose with a placement mutation. Suggestions never unlock equipment.",
+        "Read deterministic placement candidates without mutation. Region is a hard candidate search bound; floor origins stay inside it and wall footprints must fit. Strategy is a soft ordering preference after errors, unreachable entities, and warning penalties. Choose balanced, perimeter, or open-center from user intent and inspect each scoreBreakdown. Apply one pose, re-run for the next item, then call validate_layout. Suggestions never unlock equipment.",
       inputSchema: suggestPlacementsJsonSchema,
       annotations: { readOnlyHint: true },
       execute: createSuggestPlacementsHandler(store),

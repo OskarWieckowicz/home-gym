@@ -23,7 +23,18 @@ describe("suggestPlacements", () => {
     expect(randomIds).not.toHaveBeenCalled();
     expect(first.generatedCount).toBe(49);
     expect(first.rejectedCount).toBeGreaterThan(0);
-    expect(first.candidates.map(({ candidateIndex }) => candidateIndex)).toEqual([0, 1, 2]);
+    expect(first.candidates.map(({ candidateIndex }) => candidateIndex)).toEqual([0, 4, 28]);
+    expect(first.candidates[0]).toMatchObject({
+      score: 1,
+      scoreBreakdown: {
+        warningPenalty: 1,
+        perimeterDistanceCm: 0,
+        cornerDistanceCm: 0,
+        furnitureClearanceDistanceCm: null,
+        contiguousFreeAreaCells: 32,
+        centralFreeAreaCells: 32,
+      },
+    });
     expect(suggestPlacements(project, { ...request, limit: 10 }, dependencies).candidates).toHaveLength(10);
   });
 
@@ -47,6 +58,16 @@ describe("suggestPlacements", () => {
     expect(result.candidates).toEqual([]);
     expect(result.rejectedCount).toBe(result.generatedCount);
     expect(result.rejectionReasons.OUTSIDE_ROOM).toBe(result.generatedCount);
+  });
+
+  it("bounds quality-grid allocation even in a doorless room with one candidate", () => {
+    const project = suggestionProject();
+    project.room = { widthCm: 100_000, depthCm: 100_000, heightCm: 240 };
+    expect(() => suggestPlacements(project, {
+      productId: "product_test",
+      rotations: [0],
+      region: { minXCm: 0, maxXCm: 0, minZCm: 0, maxZCm: 0 },
+    }, suggestionDependencies)).toThrow(/quality search is too large/);
   });
 
   it("can retain an already optimal pose or propose a move without duplicating the existing item", () => {
@@ -105,7 +126,9 @@ describe("suggestPlacements", () => {
       expect(analysis.access.facts.some(({ state }) => state === "unreachable")).toBe(false);
     }
   });
+});
 
+describe("placement quality ranking", () => {
   it("keeps a real use-zone overlap available below clean placements", () => {
     const project = suggestionProject();
     project.room.widthCm = 100;
@@ -118,10 +141,49 @@ describe("suggestPlacements", () => {
       ...suggestionDependencies,
       resolveProduct: () => ({ ...suggestionProduct, useZone: { ...suggestionProduct.useZone, rightCm: 20 } }),
     });
-    expect(result.candidates[0].position.xCm).toBe(40);
+    expect(result.candidates[0].position.xCm).toBe(60);
     expect(result.candidates.at(-1)?.position.xCm).toBe(30);
     expect(result.candidates.at(-1)?.warningCounts.USE_ZONE_OVERLAP).toBe(1);
     expect(result.rejectionReasons.USE_ZONE_OUTSIDE_ROOM).toBe(2);
+  });
+
+  it("produces different deterministic ordering for perimeter and open-center strategies", () => {
+    const project = suggestionProject();
+    project.room = { widthCm: 100, depthCm: 100, heightCm: 240 };
+    project.obstacles = [{
+      id: "obstacle_partition",
+      kind: "unavailable-zone",
+      name: "Partial partition",
+      position: { xCm: 20, zCm: 0 },
+      dimensions: { widthCm: 10, depthCm: 80 },
+      rotation: 0,
+      locked: false,
+    }];
+    const dependencies = {
+      ...suggestionDependencies,
+      resolveProduct: () => ({
+        ...suggestionProduct,
+        dimensions: { widthCm: 10, depthCm: 10, heightCm: 20 },
+        useZone: { frontCm: 10, backCm: 0, leftCm: 0, rightCm: 0 },
+      }),
+    };
+    const baseRequest = {
+      productId: "product_test",
+      rotations: [0 as const],
+      region: { minXCm: 20, maxXCm: 40, minZCm: 70, maxZCm: 80 },
+      limit: 5,
+    };
+    const perimeter = suggestPlacements(project, { ...baseRequest, strategy: "perimeter" }, dependencies);
+    const openCenter = suggestPlacements(project, { ...baseRequest, strategy: "open-center" }, dependencies);
+
+    expect(perimeter.candidates[0].position).toEqual({ xCm: 20, zCm: 80 });
+    expect(openCenter.candidates[0].position).toEqual({ xCm: 40, zCm: 80 });
+    expect(perimeter.candidates[0].scoreBreakdown.perimeterDistanceCm).toBe(0);
+    expect(openCenter.candidates[0].scoreBreakdown.centralFreeAreaCells)
+      .toBeGreaterThan(perimeter.candidates[0].scoreBreakdown.centralFreeAreaCells);
+    expect(JSON.stringify(suggestPlacements(structuredClone(project), {
+      ...baseRequest, strategy: "open-center",
+    }, dependencies))).toBe(JSON.stringify(openCenter));
   });
 
   it("rejects physical functional-zone conflicts and ranks activity-only conflicts below clean poses", () => {

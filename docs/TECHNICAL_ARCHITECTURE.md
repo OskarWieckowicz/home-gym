@@ -249,16 +249,41 @@ Implemented MVP algorithm (`src/features/project/suggestions/`):
    global issue severity remains a warning;
 4. score warnings using `CANDIDATE_WARNING_WEIGHTS`: unevaluated access 1, use-zone or functional-zone overlap 10,
    tight access 25 (unreachable obstacles are always rejected, regardless of their weight);
-5. sort by integer score, then generation index, returning 3 suggestions by default, at most 10.
+5. calculate spatial quality on the 10 cm reservation grid using the candidate's complete `useZone`,
+   existing equipment `useZone`s, obstacle footprints and declared furniture functional zones;
+6. sort lexicographically by warning penalty, the selected strategy tuple below, then generation
+   index, returning 3 suggestions by default, at most 10.
 
-The request identifies exactly one `productId` or `projectItemId`. Existing placed items are moved
+Lower tuple values rank first. The default is `balanced`:
+
+- `balanced`: `-contiguousFreeAreaCells`, `-centralFreeAreaCells`,
+  `-furnitureClearanceDistanceCm`, `perimeterDistanceCm`, `cornerDistanceCm`;
+- `perimeter`: `perimeterDistanceCm`, `cornerDistanceCm`,
+  `-furnitureClearanceDistanceCm`, `-contiguousFreeAreaCells`, `-centralFreeAreaCells`;
+- `open-center`: `-centralFreeAreaCells`, `-contiguousFreeAreaCells`,
+  `-furnitureClearanceDistanceCm`, `perimeterDistanceCm`, `cornerDistanceCm`.
+
+`perimeterDistanceCm` is the nearest wall gap from the reserved use zone. `cornerDistanceCm` is
+the sum of the nearest horizontal and vertical wall gaps. Furniture distance is the Manhattan gap
+to the nearest declared functional zone, or `null` when the room has none. Contiguous area is the
+largest four-connected free component; central area is the component containing the deterministic
+lower-index center cell, or zero when that cell is reserved. These are planning heuristics, not
+exercise-safety or global-optimization proofs.
+
+The request identifies exactly one `productId` or `projectItemId`. `region` is a hard candidate
+search bound: floor origins stay inside it and wall-mounted final footprints must fit inside it;
+the optional strategy is only a soft ordering preference after rejection and warning scoring.
+Existing placed items are moved
 in memory rather than duplicated. Each suggestion includes its exact command, pose, warning counts
-and warnings. Results include generated/rejected counts and rejection reasons, including an
+and warnings. `scoreBreakdown` exposes every named ranking metric. The legacy `score` remains a
+deprecated compatibility alias for `warningPenalty`; its units did not change. Results also include
+the applied strategy, generated/rejected counts and rejection reasons, including an
 explained empty list when nothing fits. No suggestion is applied automatically.
 The current pose is also a candidate for an existing placement: if it is already a best fit,
 applying that suggestion is a no-op rather than forcing an unnecessary move.
 
-Searches are bounded to 20,000 actual generated candidates after wall/region filtering. Rooms with doors also require at most 20,000 access-grid
+Searches are bounded to 20,000 actual generated candidates after wall/region filtering. Spatial
+quality scoring in every room, and access evaluation in rooms with doors, require at most 20,000 grid
 cells and 30 million candidate-cell evaluations. Oversized requests fail explicitly with advice to
 narrow the region or rotations; they are never silently truncated. No door means access was not
 evaluated, not that the layout is known to be reachable.

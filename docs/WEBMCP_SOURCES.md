@@ -211,6 +211,14 @@ WebMCP lets a web application expose its functionality as tools described by a n
 - a JavaScript function registered through the Imperative API,
 - an HTML form exposed through the Declarative API.
 
+For Home Gym Creator, `suggest_placements` is a read-only, deterministic tool. Its optional `region`
+is a hard candidate search bound (floor origins stay inside it; wall footprints must fit), while
+`strategy` (`balanced` by default, `perimeter`, or
+`open-center`) only orders candidates after invalid and unreachable candidates are rejected and
+warning penalties are compared. Each result exposes a named `scoreBreakdown`; agents should apply
+one pose, re-run after the room changes, and finish with `validate_layout`. The tool does not claim
+global optimization.
+
 An agent can discover the open page's tools, call them, and receive a structured result. Tool code runs in the page context and can reuse existing application logic and update the same interface the user sees.
 
 WebMCP is designed for local in-browser work with a human in the loop. It is not a replacement for backend MCP or an ordinary server API.

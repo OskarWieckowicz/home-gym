@@ -9,11 +9,22 @@ export const placementSuggestionRegionSchema = z.object({
   minZCm: centimetersSchema,
   maxXCm: centimetersSchema,
   maxZCm: centimetersSchema,
-}).strict();
+}).strict().describe(
+  "Hard candidate search bounds: floor placement origins stay inside the region; wall-mounted final footprints must fit inside it.",
+);
+
+export const placementSuggestionStrategySchema = z.enum([
+  "balanced",
+  "perimeter",
+  "open-center",
+]).default("balanced").describe(
+  "Soft ordering preference applied only after rejection and warning penalties. Balanced preserves open space then favors the perimeter; perimeter favors walls and corners first; open-center prioritizes a contiguous central training area.",
+);
 
 const options = {
   rotations: z.array(rotationSchema).min(1).max(4).optional(),
   region: placementSuggestionRegionSchema.optional(),
+  strategy: placementSuggestionStrategySchema,
   limit: z.number().int().min(1).max(10).default(3),
 };
 
@@ -24,3 +35,4 @@ export const placementSuggestionRequestSchema = z.union([
 ]);
 
 export type PlacementSuggestionRequest = z.input<typeof placementSuggestionRequestSchema>;
+export type PlacementSuggestionStrategy = z.output<typeof placementSuggestionStrategySchema>;

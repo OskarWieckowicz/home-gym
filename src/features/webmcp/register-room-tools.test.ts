@@ -27,10 +27,19 @@ function expectStrictObjectSchema(schema: Readonly<Record<string, unknown>>) {
 }
 
 describe("room WebMCP tool definitions", () => {
-  it("advertises the suggestion limit as optional, matching runtime defaults", () => {
+  it("advertises optional suggestion defaults and explains hard bounds versus soft strategy", () => {
     for (const branch of suggestPlacementsJsonSchema.anyOf ?? []) {
       expect(branch.required).not.toContain("limit");
+      expect(branch.required).not.toContain("strategy");
       expect(branch.properties?.limit).toMatchObject({ default: 3, minimum: 1, maximum: 10 });
+      expect(branch.properties?.strategy).toMatchObject({
+        default: "balanced",
+        enum: ["balanced", "perimeter", "open-center"],
+        description: expect.stringContaining("Soft ordering preference"),
+      });
+      expect(branch.properties?.region).toMatchObject({
+        description: expect.stringContaining("Hard candidate search bounds"),
+      });
     }
   });
   it("defines exactly twenty concise, unique, strict and correctly annotated tools", () => {
@@ -91,6 +100,12 @@ describe("room WebMCP tool definitions", () => {
       .toContain("flush");
     expect(tools.find(({ name }) => name === "remove_product")?.description)
       .toContain("projectItemId");
+    const suggestionDescription = tools.find(({ name }) => name === "suggest_placements")?.description;
+    expect(suggestionDescription).toContain("Region is a hard");
+    expect(suggestionDescription).toContain("Strategy is a soft");
+    expect(suggestionDescription).toContain("scoreBreakdown");
+    expect(suggestionDescription).toContain("re-run for the next item");
+    expect(suggestionDescription).toContain("validate_layout");
   });
 
   it("keeps complete product details available without leaving the creator", async () => {
