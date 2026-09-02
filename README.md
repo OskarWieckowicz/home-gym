@@ -24,8 +24,8 @@ operation, and keep refining the same project.
 
 ## Product captures
 
-| Room model and obstacles | Equipment arranged in the same room |
-| --- | --- |
+| Room model and obstacles                                                                                                       | Equipment arranged in the same room                                                                                                                    |
+| ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | ![A real Home Gym Creator capture showing a room, door, window, and obstacles](public/images/landing/room-with-obstacles.webp) | ![A real Home Gym Creator capture showing gym equipment arranged around the existing room obstacles](public/images/landing/equipment-arrangement.webp) |
 
 These are captures of the running prototype, not design mockups. The arranged-room image does not
@@ -49,15 +49,15 @@ that an invalid layout is acceptable.
 
 ## Main features
 
-- editable 3D room with a precise 2D view and fallback;
-- room dimensions, physical obstacles, unavailable floor zones, doors, and windows;
-- 24 fictional products with dimensions, prices, exercises, goals, and placement requirements;
-- manual and agent-driven equipment selection, placement, movement, rotation, and locking;
-- deterministic collision, bounds, use-zone, reachability, height, and budget validation;
-- deterministic placement suggestions and atomic multi-change evaluation/application;
-- shared undo/redo for manual and WebMCP changes;
-- local save/restore plus canonical JSON import/export;
-- shopping list, cost, goal coverage, validation results, and a read-only project summary.
+- editable 3D/2D room
+- room dimensions, physical obstacles, unavailable floor zones, doors, and windows
+- 24 fictional products with dimensions, prices, exercises, goals, and placement requirements
+- manual and agent-driven equipment selection, placement, movement, rotation, and locking
+- deterministic collision, bounds, use-zone, reachability, height, and budget validation
+- deterministic placement suggestions and atomic multi-change evaluation/application
+- shared undo/redo for manual and WebMCP changes
+- local save/restore plus canonical JSON import/export
+- shopping list, cost, goal coverage, validation results, and a read-only project summary
 
 ## WebMCP implementation
 
@@ -72,116 +72,121 @@ intentionally available on more than one surface.
 
 ### Creator — 20 tools
 
-| Tool | Purpose |
-| --- | --- |
-| `get_project_summary` | Read the deterministic summary shown by the application. |
-| `get_project_state` | Read the live room, settings, items, placements, and history state. |
-| `configure_room` | Set room width, depth, and height. |
-| `update_project_settings` | Update budget and training goals. |
-| `add_obstacle` | Add a physical obstacle or explicit unavailable floor zone. |
-| `update_obstacle` | Edit or unlock an existing obstacle or unavailable zone. |
-| `remove_obstacle` | Remove an unlocked obstacle or unavailable zone. |
-| `add_wall_element` | Add a door or window to a wall. |
-| `update_wall_element` | Edit an existing door or window. |
-| `remove_wall_element` | Remove a door or window. |
-| `validate_layout` | Read deterministic validation without changing the project. |
-| `search_products` | Search the catalog with bounded results and truncation metadata. |
-| `get_product_details` | Read complete spatial, commercial, and training data for one product. |
-| `place_product` | Buy and place a catalog product in one undoable operation. |
-| `add_product_to_project` | Add a product to the shopping list without placing it. |
-| `place_project_item` | Place an existing unplaced project item. |
-| `update_placement` | Move, rotate, lock, or unlock placed equipment. |
-| `unplace_product` | Remove equipment from the room while keeping it on the shopping list. |
-| `remove_product` | Remove a project item and its placement. |
-| `suggest_placements` | Generate deterministic placement candidates without mutation. |
+| Tool                      | Purpose                                                               |
+| ------------------------- | --------------------------------------------------------------------- |
+| `get_project_summary`     | Read the deterministic summary shown by the application.              |
+| `get_project_state`       | Read the live room, settings, items, placements, and history state.   |
+| `configure_room`          | Set room width, depth, and height.                                    |
+| `update_project_settings` | Update budget and training goals.                                     |
+| `add_obstacle`            | Add a physical obstacle or explicit unavailable floor zone.           |
+| `update_obstacle`         | Edit or unlock an existing obstacle or unavailable zone.              |
+| `remove_obstacle`         | Remove an unlocked obstacle or unavailable zone.                      |
+| `add_wall_element`        | Add a door or window to a wall.                                       |
+| `update_wall_element`     | Edit an existing door or window.                                      |
+| `remove_wall_element`     | Remove a door or window.                                              |
+| `validate_layout`         | Read deterministic validation without changing the project.           |
+| `search_products`         | Search the catalog with bounded results and truncation metadata.      |
+| `get_product_details`     | Read complete spatial, commercial, and training data for one product. |
+| `place_product`           | Buy and place a catalog product in one undoable operation.            |
+| `add_product_to_project`  | Add a product to the shopping list without placing it.                |
+| `place_project_item`      | Place an existing unplaced project item.                              |
+| `update_placement`        | Move, rotate, lock, or unlock placed equipment.                       |
+| `unplace_product`         | Remove equipment from the room while keeping it on the shopping list. |
+| `remove_product`          | Remove a project item and its placement.                              |
+| `suggest_placements`      | Generate deterministic placement candidates without mutation.         |
 
 ### Catalog — 2 read-only tools
 
-| Tool | Purpose |
-| --- | --- |
-| `search_products` | Search the same fictional catalog shown in the UI. |
+| Tool                  | Purpose                                                               |
+| --------------------- | --------------------------------------------------------------------- |
+| `search_products`     | Search the same fictional catalog shown in the UI.                    |
 | `get_product_details` | Read complete commercial, spatial, and training data for one product. |
 
 ### Summary — 1 read-only tool
 
-| Tool | Purpose |
-| --- | --- |
+| Tool                  | Purpose                                                                                  |
+| --------------------- | ---------------------------------------------------------------------------------------- |
 | `get_project_summary` | Read the same cost, goals, checks, recommendations, and floor figures shown on the page. |
 
 The concrete registration adapter is in
 [`src/features/webmcp/register-tool-set.ts`](src/features/webmcp/register-tool-set.ts), with
 route tool sets in [`src/features/webmcp`](src/features/webmcp).
 
-## Demo prompts
+## Reproduce the recorded demo
 
-Open the [prepared project](https://home-gym-coral.vercel.app/creator?start=demo) in a WebMCP-capable
-browser and try:
+The [demo video](https://youtu.be/K0T5CqgSxZQ) starts from a fresh project and uses this room image
+as visual context for the agent:
 
-> Read the current project. Summarize the room, locked obstacles, equipment, budget, and layout
-> issues. Do not change anything yet.
+![Example room used as input for the recorded demo](public/assets/example-room.png)
 
-Then make a manual change in the editor and continue:
+Open [a new project](https://home-gym-coral.vercel.app/creator?start=new) in a WebMCP-capable browser,
+attach the image to the agent, and use the following prompts.
 
-> Read the project again and identify what changed. Keep my manual placement, find a suitable cardio
-> product within the remaining budget, evaluate the required changes, and apply them only if the
-> final layout has no validation errors. Explain any warnings.
+### 1. Recreate the room
 
-To demonstrate shared history:
+> Help me recreate this 4 × 6 m room using the Home Gym Creator WebMCP tools. Do not perform manual
+> UI interactions.
+>
+> Analyze the attached photo and create an approximate room model with the visible furniture, door,
+> and windows, including furniture clearance zones (functional zones).
+>
+> Keep the room items unlocked for now. When the room is ready, stop and wait for me to review it.
+> Lock the items only after I approve the layout, and before selecting any gym equipment.
 
-> Move one unlocked item to a valid placement and tell me the resulting revision and validation
-> counts. I will undo the change manually afterward.
+### 2. Propose the equipment
 
-On the catalog route:
+> I approve the room.
+>
+> Now propose a home gym setup for:
+>
+> - Training focus: strength
+> - Exercises: pull-ups, squats, bench press, and deadlifts
+> - Experience level: intermediate
+> - Installation: wall drilling is allowed, but floor anchoring is not
+> - Budget: $5,000
+>
+> First, present the proposed equipment list and wait for my approval. After I approve it, place the
+> equipment using WebMCP and validate the final layout.
 
-> Find strength equipment under $1,000 that fits within 140 × 140 cm. Compare the footprints and
-> required exercise space of the best options.
+### 3. Place and validate
 
-On the summary route:
-
-> Read the project summary and verify the displayed total cost, placement status, training-goal
-> coverage, and validation result. Do not modify the project.
+> I approve the equipment list. Place it in the room and validate the final layout.
 
 ## Testing WebMCP
 
-WebMCP is experimental, so verify current browser support and setup against the linked official
-documentation before judging or recording a demo.
+No account or credentials are required. Project data is stored locally in the browser. Judges can
+open the prepared demo for a quick test or start a new project to reproduce the complete workflow
+described above.
 
-### ChatGPT or Codex in-app browser
+### ChatGPT in-app browser
 
-1. Start a fresh agent session with a WebMCP-capable model.
-2. Open the [live application](https://home-gym-coral.vercel.app/) in the in-app browser.
-3. Navigate to the desired surface: `/catalog`, `/creator?start=demo`, or `/summary`.
-4. Ask the agent to discover the tools exposed by the currently open page.
-5. Run a read-only prompt first, then a mutation on the creator route.
-6. Confirm that the visible UI changes in the same page and that manual undo reverses the agent
-   change.
+1. Start a new chat with a WebMCP-capable model.
+2. Open either the [prepared demo project](https://home-gym-coral.vercel.app/creator?start=demo) or
+   [a new project](https://home-gym-coral.vercel.app/creator?start=new) in ChatGPT's in-app browser.
+3. Ask the agent to read the current project and validate the layout. For a new project, attach the
+   example room image and follow the recorded demo prompts above.
+4. Move an unlocked item manually, then ask the agent to read the updated state and adapt the layout.
+5. Confirm that the agent's changes appear in the editor and can be reversed with the manual Undo
+   control.
 
 ### Google Chrome
 
 1. Install a Chrome version that supports WebMCP.
 2. Open `chrome://flags/#enable-webmcp-testing`.
 3. Set the WebMCP testing flag to **Enabled** and restart Chrome.
-4. Open the live application on its HTTPS origin.
-5. Inspect the registered tools, input schemas, structured responses, and error cases.
-6. Repeat the shared-editing flow in a fresh browser profile or cleared site session.
-
-The exact browser and host versions used for the submitted build must be recorded after final live
-acceptance. See [`docs/WEBMCP_SOURCES.md`](docs/WEBMCP_SOURCES.md) for dated implementation notes,
-official documentation links, and runtime caveats.
+4. Open either the prepared demo or a new project using one of the links above.
+5. Repeat the same read, manual edit, agent update, validation, and Undo flow.
 
 ## Architecture
 
 ```text
-Next.js routes and React UI
-        │
-        ├── manual interactions ──┐
-        │                         ▼
-        └── WebMCP tool handlers → shared project commands → Zustand project store
-                                                   │
-                                                   ├── undo/redo history
-                                                   ├── deterministic geometry and validation
-                                                   ├── local persistence and JSON codec
-                                                   └── summary and structured tool results
+Manual UI interactions ──┐
+                         ├──→ shared Zustand project store ──→ shared project commands
+WebMCP tool handlers ────┘                  │                            │
+                                           ├── shared undo/redo         ├── deterministic geometry
+                                           ├── local persistence        │   and validation
+                                           │   and JSON codec            └── structured WebMCP results
+                                           └── derived project summary
 ```
 
 Important boundaries:
@@ -194,23 +199,23 @@ Important boundaries:
   and manual interaction adapters.
 - [`src/features/webmcp`](src/features/webmcp) validates tool arguments and adapts them to the same
   project commands.
-- [`src/features/summary`](src/features/summary) renders the same deterministic summary exposed to
-  the agent.
+- [`src/features/summary`](src/features/summary) renders the summary UI from the deterministic model
+  calculated in [`src/features/project/summary`](src/features/project/summary).
 
 The full design and command flow are documented in
 [`docs/TECHNICAL_ARCHITECTURE.md`](docs/TECHNICAL_ARCHITECTURE.md).
 
 ## Routes
 
-| Route | Purpose |
-| --- | --- |
-| `/` | Landing page and agent setup guide. |
-| `/catalog` | Searchable fictional equipment catalog. |
-| `/catalog/[slug]` | Product details and planning entry. |
-| `/creator` | Resume the project saved in this browser. |
-| `/creator?start=demo` | Open the prepared room and equipment scenario. |
-| `/creator?start=new` | Start an empty project. |
-| `/summary` | Read-only summary of the locally saved project. |
+| Route                 | Purpose                                         |
+| --------------------- | ----------------------------------------------- |
+| `/`                   | Landing page and agent setup guide.             |
+| `/catalog`            | Searchable fictional equipment catalog.         |
+| `/catalog/[slug]`     | Product details and planning entry.             |
+| `/creator`            | Resume the project saved in this browser.       |
+| `/creator?start=demo` | Open the prepared room and equipment scenario.  |
+| `/creator?start=new`  | Start an empty project.                         |
+| `/summary`            | Read-only summary of the locally saved project. |
 
 Explicit demo/new starts ask before replacing an existing saved project. A fresh session starts
 directly; refreshing after edits restores those edits instead of resetting the room.
@@ -264,12 +269,3 @@ this README as evidence of application output. Dependency licenses remain govern
 respective packages.
 
 This project is released under the [MIT License](LICENSE).
-
-## Project documentation
-
-- [Product concept](docs/PRODUCT_CONCEPT.md)
-- [Technical architecture](docs/TECHNICAL_ARCHITECTURE.md)
-- [WebMCP sources and runtime notes](docs/WEBMCP_SOURCES.md)
-- [Hackathon requirements](docs/HACKATHON_REQUIREMENTS.md)
-- [Landing-page specification](docs/LANDING_PAGE.md)
-- [Editor specification](docs/EDITOR_MOCKUP.md)
