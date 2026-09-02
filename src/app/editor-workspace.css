@@ -188,7 +188,7 @@
 .webmcp-json-section pre:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
 .webmcp-truncation { margin: 0.35rem 0 0; color: #92400e; font-size: 0.68rem; }
 
-@media (max-width: 74rem) {
+@media (max-width: 64rem) {
   .creator-project-cost { position: static; }
   .creator-editor { block-size: auto; min-block-size: 100dvh; }
   .creator-layout { grid-template-columns: 16rem minmax(0, 1fr); }

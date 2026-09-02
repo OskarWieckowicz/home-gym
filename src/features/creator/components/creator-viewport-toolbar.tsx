@@ -40,11 +40,11 @@ export function CreatorViewportToolbar({ viewMode, onViewModeChange, onCameraPre
     <div className="creator-viewport-secondary">
       <span>{room.widthCm} × {room.depthCm} cm</span>
       {viewMode === "3d" ? <div className="creator-camera-actions">
-        <button type="button" disabled={!canFocusSelection} onClick={() => onCameraPreset("selection")}>
-          <Focus aria-hidden="true" size={16} /> Focus selected
-        </button>
-        <button type="button" onClick={() => onCameraPreset("fit")}><Maximize aria-hidden="true" size={16} /> Fit view</button>
-        <EditorPopover label="Camera views" icon={<ChevronDown aria-hidden="true" size={16} />}>
+        <EditorPopover label="Camera controls" icon={<ChevronDown aria-hidden="true" size={16} />}>
+          <button type="button" disabled={!canFocusSelection} onClick={() => onCameraPreset("selection")}>
+            <Focus aria-hidden="true" size={16} /> Focus selected
+          </button>
+          <button type="button" onClick={() => onCameraPreset("fit")}><Maximize aria-hidden="true" size={16} /> Fit view</button>
           <button type="button" onClick={() => onCameraPreset("top")}>Top view</button>
         </EditorPopover>
       </div> : null}

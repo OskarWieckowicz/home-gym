@@ -377,7 +377,7 @@ body {
 .creator-issue > span,
 .creator-valid > span { font-weight: 900; }
 
-@media (max-width: 70rem) {
+@media (max-width: 64rem) {
   .creator-layout { grid-template-columns: 13rem minmax(22rem, 1fr); }
   .creator-properties { grid-column: 1 / -1; border-block-start: 1px solid var(--line); border-inline-start: 0; }
 }

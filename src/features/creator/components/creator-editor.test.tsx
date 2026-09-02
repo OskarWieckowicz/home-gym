@@ -48,6 +48,12 @@ function change(name: string, value: string) {
   fireEvent.change(screen.getByRole("spinbutton", { name }), { target: { value } });
 }
 
+function openCameraControls() {
+  const trigger = screen.getByRole("button", { name: "Camera controls" });
+  if (trigger.getAttribute("aria-expanded") === "false") fireEvent.click(trigger);
+  return trigger;
+}
+
 describe("CreatorEditor", () => {
   it("uses the normal placement command for a catalog intent, reuses an unplaced item and supports undo", async () => {
     const project = createDefaultProject();
@@ -90,6 +96,7 @@ describe("CreatorEditor", () => {
     for (const name of ["Apply changes", "Rotate 90°", "Remove from project"]) {
       expect(screen.getByRole("button", { name })).toHaveProperty("disabled", true);
     }
+    openCameraControls();
     expect(screen.getByRole("button", { name: "Focus selected" })).toHaveProperty("disabled", false);
     const revision = before.store.getState().revision;
     act(() => { expect(before.store.getState().dispatch({ type: "PLACEMENT_UPDATED", payload: {
@@ -142,6 +149,7 @@ describe("CreatorEditor", () => {
     const toggle = screen.getByRole("button", { name: "Show all use zones" });
     expect(toggle.getAttribute("aria-pressed")).toBe("false");
     expect(initial.showAllUseZones).toBe(false);
+    openCameraControls();
     expect(screen.getByRole("button", { name: "Focus selected" })).toHaveProperty("disabled", true);
     fireEvent.click(toggle);
     expect(sceneProps.mock.lastCall![0]).toMatchObject({ showAllUseZones: true, selectedId: null, cameraPreset: initial.cameraPreset });
@@ -165,6 +173,7 @@ describe("CreatorEditor", () => {
     const state = initial.store.getState();
     fireEvent.click(screen.getByRole("button", { name: "Scene select first" }));
     expect(sceneProps.mock.lastCall![0]).toMatchObject({ cameraPreset: initial.cameraPreset });
+    openCameraControls();
     const focus = screen.getByRole("button", { name: "Focus selected" });
     expect(focus).toHaveProperty("disabled", false);
     fireEvent.click(focus);
@@ -209,6 +218,7 @@ describe("CreatorEditor", () => {
     fireEvent.click(keep);
     expect(document.activeElement).toBe(screen.getByRole("complementary", { name: "Properties and validation" }));
     expect(screen.getByRole("button", { name: "Place on plan" })).toBeTruthy();
+    openCameraControls();
     expect(screen.getByRole("button", { name: "Focus selected" })).toHaveProperty("disabled", true);
     expect(store.getState().project.placements).toHaveLength(0);
     expect(cost.getByRole("status").textContent).toBe(totalBefore);
@@ -481,15 +491,18 @@ describe("CreatorEditor", () => {
   it("groups view, history and camera controls with the viewport without editing the project", () => {
     render(<CreatorEditor initialProject={createDefaultProject()} />);
     const controls = screen.getByRole("group", { name: "View controls" });
-    for (const name of ["2D", "3D", "Undo", "Redo", "Fit view"]) {
+    for (const name of ["2D", "3D", "Undo", "Redo", "Camera controls"]) {
       expect(within(controls).getByRole("button", { name })).toBeTruthy();
     }
-    expect(screen.queryByRole("button", { name: "Top view" })).toBeNull();
+    for (const name of ["Focus selected", "Fit view", "Top view"]) {
+      expect(screen.queryByRole("button", { name })).toBeNull();
+    }
     expect(screen.queryByRole("button", { name: "Reset view" })).toBeNull();
     const store = (sceneProps.mock.lastCall![0] as ScenePreviewProps).store;
+    fireEvent.click(within(controls).getByRole("button", { name: "Camera controls" }));
+    expect(screen.getByRole("button", { name: "Focus selected" })).toHaveProperty("disabled", true);
     fireEvent.click(within(controls).getByRole("button", { name: "Fit view" }));
     expect(sceneProps.mock.lastCall![0]).toMatchObject({ cameraPreset: { kind: "fit" } });
-    fireEvent.click(within(controls).getByRole("button", { name: "Camera views" }));
     fireEvent.click(screen.getByRole("button", { name: "Top view" }));
     expect(sceneProps.mock.lastCall![0]).toMatchObject({ cameraPreset: { kind: "top" } });
     expect(store.getState()).toMatchObject({ revision: 0, canUndo: false });
