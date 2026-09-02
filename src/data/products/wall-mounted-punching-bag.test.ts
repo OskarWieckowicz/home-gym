@@ -123,7 +123,7 @@ describe("Wall-Mounted Punching Bag domain integration", () => {
     };
     expect(validateProject(placed, overheadDependencies).some(({ code }) => code === "DOOR_UNREACHABLE")).toBe(false);
     const suggestions = suggestPlacements(corridor, {
-      productId, rotations: [90], region: { minXCm: 60, maxXCm: 60, minZCm: 170, maxZCm: 170 },
+      productId, rotations: [90], region: { minXCm: 60, maxXCm: 180, minZCm: 170, maxZCm: 230 },
     }, { ...dependencies, candidateIdPrefix: "bag-access" });
     expect(suggestions.candidates).toEqual([]);
     expect(suggestions.rejectionReasons.DOOR_UNREACHABLE).toBe(1);
@@ -131,7 +131,7 @@ describe("Wall-Mounted Punching Bag domain integration", () => {
 
   it("rejects suggestions above even a one-centimeter obstacle", () => {
     const suggestions = suggestPlacements({ ...createDefaultProject(), obstacles: [lowObstacle(1)] }, {
-      productId, rotations: [0], region: { minXCm: 170, maxXCm: 170, minZCm: 0, maxZCm: 0 },
+      productId, rotations: [0], region: { minXCm: 170, maxXCm: 230, minZCm: 0, maxZCm: 120 },
     }, { ...dependencies, candidateIdPrefix: "bag-collision" });
     expect(suggestions.candidates).toEqual([]);
     expect(suggestions.rejectionReasons.PHYSICAL_COLLISION).toBe(1);

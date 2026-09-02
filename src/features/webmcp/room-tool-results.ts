@@ -357,12 +357,26 @@ export function serializeValidation(analysis: ProjectAnalysis) {
   };
 }
 
-export function serializeValidationSummary(analysis: ProjectAnalysis) {
+export function serializeValidationSummary(
+  analysis: ProjectAnalysis,
+  affectedEntityIds: readonly string[],
+) {
+  const affected = new Set(affectedEntityIds);
+  const uniqueCodes = (severity: ValidationIssue["severity"]) => [...new Set(
+    analysis.issues
+      .filter((issue) => issue.severity === severity)
+      .map((issue) => issue.code),
+  )].sort();
   return {
     valid: analysis.errorCount === 0,
     errorCount: analysis.errorCount,
     warningCount: analysis.warningCount,
     issueCount: analysis.issues.length,
+    errorCodes: uniqueCodes("error"),
+    warningCodes: uniqueCodes("warning"),
+    affectedIssues: analysis.issues
+      .filter((issue) => issue.entityIds.some((id) => affected.has(id)))
+      .map(serializeValidationIssue),
     access: {
       evaluated: analysis.access.evaluated,
       reason: analysis.access.reason,

@@ -105,7 +105,7 @@ describe("Loop Wall Cable Trainer domain integration", () => {
 
   it("rejects suggestions above even a one-centimeter obstacle", () => {
     const suggestions = suggestPlacements({ ...createDefaultProject(), obstacles: [lowObstacle(1)] }, {
-      productId, rotations: [0], region: { minXCm: 170, maxXCm: 170, minZCm: 0, maxZCm: 0 },
+      productId, rotations: [0], region: { minXCm: 170, maxXCm: 232, minZCm: 0, maxZCm: 28 },
     }, { ...dependencies, candidateIdPrefix: "loop-collision" });
     expect(suggestions.candidates).toEqual([]);
     expect(suggestions.rejectionReasons.PHYSICAL_COLLISION).toBe(1);

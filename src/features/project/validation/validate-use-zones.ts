@@ -1,7 +1,12 @@
 import { intersectRectangles, type RectangleBounds } from "@/features/geometry/rectangles";
+import { getUseZoneMarginRectangles } from "@/features/geometry/equipment-footprints";
 
 import type { UseZoneOverlapIssue, ValidationIssue } from "./validation-issues";
 import type { ObstacleWithFootprint, ResolvedPlacement } from "./validation-model";
+import {
+  placementPairReaches,
+  placementReachesObstacle,
+} from "./validate-collisions";
 
 function createUseZoneOverlapIssue(
   useZonePlacementId: string,
@@ -17,12 +22,38 @@ function createUseZoneOverlapIssue(
   };
 }
 
+function firstMarginOverlap(
+  placement: ResolvedPlacement,
+  blocker: RectangleBounds,
+): RectangleBounds | null {
+  return getUseZoneMarginRectangles(
+    placement.footprints.useZone,
+    placement.footprints.physical,
+  ).map((margin) => intersectRectangles(margin, blocker))
+    .find((candidate): candidate is RectangleBounds => candidate !== null) ?? null;
+}
+
 function placementPairUseZoneIssue(
   first: ResolvedPlacement,
   second: ResolvedPlacement,
 ): UseZoneOverlapIssue | null {
-  if (intersectRectangles(first.footprints.physical, second.footprints.physical)) {
-    return null;
+  const physicalOverlap = intersectRectangles(
+    first.footprints.physical,
+    second.footprints.physical,
+  );
+  if (physicalOverlap) {
+    if (placementPairReaches(first, second)) return null;
+    const overheadMount = first.mounting.kind === "wall" ? first : second;
+    const blocker = overheadMount === first ? second : first;
+    const overlap = firstMarginOverlap(overheadMount, blocker.footprints.physical);
+    return overlap
+      ? createUseZoneOverlapIssue(
+          overheadMount.placement.id,
+          blocker.placement.id,
+          overlap,
+          "warning",
+        )
+      : null;
   }
 
   const firstOverlap = intersectRectangles(
@@ -61,6 +92,28 @@ function placementPairUseZoneIssue(
   );
 }
 
+function obstacleUseZoneIssue(
+  placement: ResolvedPlacement,
+  obstacle: ObstacleWithFootprint,
+): UseZoneOverlapIssue | null {
+  const physicalOverlap = intersectRectangles(
+    placement.footprints.physical,
+    obstacle.footprint,
+  );
+  if (physicalOverlap && placementReachesObstacle(placement, obstacle)) return null;
+  const overlap = physicalOverlap
+    ? firstMarginOverlap(placement, obstacle.footprint)
+    : intersectRectangles(placement.footprints.useZone, obstacle.footprint);
+  return overlap
+    ? createUseZoneOverlapIssue(
+        placement.placement.id,
+        obstacle.obstacle.id,
+        overlap,
+        "error",
+      )
+    : null;
+}
+
 export function validateUseZones(
   obstacles: readonly ObstacleWithFootprint[],
   placements: readonly ResolvedPlacement[],
@@ -88,23 +141,8 @@ export function validateUseZones(
 
   for (const placement of sortedPlacements) {
     for (const obstacle of obstacles) {
-      if (intersectRectangles(placement.footprints.physical, obstacle.footprint)) {
-        continue;
-      }
-      const overlap = intersectRectangles(
-        placement.footprints.useZone,
-        obstacle.footprint,
-      );
-      if (overlap) {
-        issues.push(
-          createUseZoneOverlapIssue(
-            placement.placement.id,
-            obstacle.obstacle.id,
-            overlap,
-            "error",
-          ),
-        );
-      }
+      const issue = obstacleUseZoneIssue(placement, obstacle);
+      if (issue) issues.push(issue);
     }
   }
 

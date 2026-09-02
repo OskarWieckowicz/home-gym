@@ -60,7 +60,10 @@ export function validateObstacleCollisions(
   return issues;
 }
 
-function placementPairReaches(first: ResolvedPlacement, second: ResolvedPlacement): boolean {
+export function placementPairReaches(
+  first: ResolvedPlacement,
+  second: ResolvedPlacement,
+): boolean {
   if (first.mounting.kind === "wall" && second.mounting.kind === "wall") {
     return true;
   }
@@ -75,7 +78,7 @@ function placementPairReaches(first: ResolvedPlacement, second: ResolvedPlacemen
   return true;
 }
 
-function placementReachesObstacle(
+export function placementReachesObstacle(
   placement: ResolvedPlacement,
   obstacle: ObstacleWithFootprint,
 ): boolean {

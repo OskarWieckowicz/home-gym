@@ -5,6 +5,19 @@ import { generatePlacementCandidates, PlacementSuggestionError } from "./candida
 import { placementSuggestionRequestSchema } from "./request-schema";
 import { suggestionDependencies, suggestionProject } from "./test-fixtures";
 
+const mountedProduct = {
+  id: "product_wall_test",
+  price: 175,
+  dimensions: { widthCm: 112, depthCm: 54, heightCm: 38 },
+  useZone: { frontCm: 70, backCm: 0, leftCm: 30, rightCm: 30 },
+  mounting: { kind: "wall" as const, bottomHeightCm: 195 },
+};
+
+const mountedDependencies = {
+  ...suggestionDependencies,
+  resolveProduct: (id: string) => id === mountedProduct.id ? mountedProduct : undefined,
+};
+
 describe("placement candidate generation", () => {
   it("rejects a locked target before allocating even an oversized search", () => {
     const project = suggestionProject();
@@ -87,5 +100,62 @@ describe("placement candidate generation", () => {
     expect(() => generatePlacementCandidates(project, {
       productId: "product_test", rotations: [0], region: { minXCm: 0, maxXCm: 0, minZCm: 0, maxZCm: 0 },
     }, suggestionDependencies)).toThrow(/access cells/);
+  });
+
+  it("snaps wall-mounted candidates exactly to all four walls", () => {
+    const project = suggestionProject();
+    project.room = { widthCm: 400, depthCm: 600, heightCm: 250 };
+    const candidates = generatePlacementCandidates(project, {
+      productId: mountedProduct.id,
+    }, mountedDependencies);
+
+    expect(candidates).toHaveLength(156);
+    expect(candidates).toEqual(expect.arrayContaining([
+      expect.objectContaining({ position: { xCm: 140, zCm: 0 }, rotation: 0 }),
+      expect.objectContaining({ position: { xCm: 346, zCm: 140 }, rotation: 90 }),
+      expect.objectContaining({ position: { xCm: 140, zCm: 546 }, rotation: 180 }),
+      expect.objectContaining({ position: { xCm: 0, zCm: 140 }, rotation: 270 }),
+    ]));
+    expect(candidates.map(({ candidateIndex }) => candidateIndex))
+      .toEqual(candidates.map((_, index) => index));
+  });
+
+  it("contains the final exact wall footprint inside an optional region", () => {
+    const project = suggestionProject();
+    project.room = { widthCm: 400, depthCm: 600, heightCm: 250 };
+    expect(generatePlacementCandidates(project, {
+      productId: mountedProduct.id,
+      rotations: [90, 90],
+      region: { minXCm: 346, maxXCm: 400, minZCm: 140, maxZCm: 252 },
+    }, mountedDependencies).map(({ position, rotation }) => ({ position, rotation }))).toEqual([
+      { position: { xCm: 346, zCm: 140 }, rotation: 90 },
+    ]);
+    expect(generatePlacementCandidates(project, {
+      productId: mountedProduct.id,
+      rotations: [90],
+      region: { minXCm: 347, maxXCm: 400, minZCm: 140, maxZCm: 252 },
+    }, mountedDependencies)).toEqual([]);
+    expect(generatePlacementCandidates(project, {
+      productId: mountedProduct.id,
+      rotations: [180],
+      region: { minXCm: 140, maxXCm: 252, minZCm: 546, maxZCm: 600 },
+    }, mountedDependencies)[0]).toMatchObject({
+      position: { xCm: 140, zCm: 546 },
+      rotation: 180,
+    });
+  });
+
+  it("uses actual along-wall work for mounted search limits", () => {
+    const project = suggestionProject();
+    project.room = { widthCm: 1_000_000_000, depthCm: 600, heightCm: 250 };
+    expect(() => generatePlacementCandidates(project, {
+      productId: mountedProduct.id,
+      rotations: [0],
+    }, mountedDependencies)).toThrow(/search is too large/);
+    expect(generatePlacementCandidates(project, {
+      productId: mountedProduct.id,
+      rotations: [270],
+      region: { minXCm: 0, maxXCm: 54, minZCm: 140, maxZCm: 252 },
+    }, mountedDependencies)).toHaveLength(1);
   });
 });

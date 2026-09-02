@@ -276,14 +276,75 @@ describe("placement WebMCP handlers", () => {
       validation: {
         valid: false,
         errorCount: 1,
+        errorCodes: ["WALL_MOUNT_OFF_WALL"],
+        affectedIssues: [{
+          code: "WALL_MOUNT_OFF_WALL",
+          entityIds: ["placement_agent-bar"],
+          details: { wall: "right", gapCm: 46 },
+        }],
       },
     });
-    expect(createValidateLayoutHandler(store)({})).toMatchObject({
+    const validation = createValidateLayoutHandler(store)({});
+    expect(validation).toMatchObject({
       issueCounts: { wallMountOffWall: 1 },
       issues: [{
         code: "WALL_MOUNT_OFF_WALL",
         details: { wall: "right", gapCm: 46 },
       }],
+    });
+    if (!placed || !validation || !placed.ok || !validation.ok || !("validation" in placed)) {
+      throw new Error("Expected successful tool results.");
+    }
+    expect(placed.validation.affectedIssues[0]).toEqual(validation.issues[0]);
+  });
+
+  it("accepts exact non-grid wall snaps through every placement mutation", () => {
+    const room = { widthCm: 400, depthCm: 600, heightCm: 250 };
+    const newStore = () => createProjectStore({ ...createDefaultProject(), room }, {
+      dependencies: {
+        generatePlacementId: () => "placement_wall",
+        generateProjectItemId: () => "project-item_wall",
+      },
+    });
+
+    const productStore = newStore();
+    expect(createPlaceProductHandler(productStore)({
+      productId: "product_anchor_pullup_bar",
+      position: { xCm: 346, zCm: 140 },
+      rotation: 90,
+    })).toMatchObject({
+      ok: true,
+      placement: { position: { xCm: 346, zCm: 140 }, rotation: 90 },
+      validation: { errorCodes: [] },
+    });
+
+    const itemStore = newStore();
+    expect(createAddProductToProjectHandler(itemStore)({
+      productId: "product_anchor_pullup_bar",
+    })).toMatchObject({ ok: true, projectItemId: "project-item_wall" });
+    expect(createPlaceProjectItemHandler(itemStore)({
+      projectItemId: "project-item_wall",
+      position: { xCm: 140, zCm: 546 },
+      rotation: 180,
+    })).toMatchObject({
+      ok: true,
+      placement: { position: { xCm: 140, zCm: 546 }, rotation: 180 },
+      validation: { errorCodes: [] },
+    });
+
+    const updateStore = newStore();
+    createPlaceProductHandler(updateStore)({
+      productId: "product_anchor_pullup_bar",
+      position: { xCm: 140, zCm: 0 },
+      rotation: 0,
+    });
+    expect(createUpdatePlacementHandler(updateStore)({
+      placementId: "placement_wall",
+      patch: { position: { xCm: 346, zCm: 140 }, rotation: 90 },
+    })).toMatchObject({
+      ok: true,
+      placement: { position: { xCm: 346, zCm: 140 }, rotation: 90 },
+      validation: { errorCodes: [] },
     });
   });
 });

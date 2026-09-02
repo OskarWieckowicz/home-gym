@@ -416,7 +416,17 @@ describe("room mutation handlers", () => {
       revision: 1,
       obstacleId: "obstacle_generated",
       obstacle: { id: "obstacle_generated", name: "Column" },
-      validation: { valid: false, issueCount: 2 },
+      validation: {
+        valid: false,
+        issueCount: 2,
+        errorCodes: ["OUTSIDE_ROOM"],
+        warningCodes: ["ACCESS_NOT_EVALUATED"],
+        affectedIssues: [{
+          code: "OUTSIDE_ROOM",
+          severity: "error",
+          entityIds: ["obstacle_generated"],
+        }],
+      },
     });
 
     const updated = createUpdateObstacleHandler(store)({
@@ -431,7 +441,12 @@ describe("room mutation handlers", () => {
         name: "Support column",
         position: { xCm: 100, zCm: 100 },
       },
-      validation: { valid: true },
+      validation: {
+        valid: true,
+        errorCodes: [],
+        warningCodes: ["ACCESS_NOT_EVALUATED"],
+        affectedIssues: [],
+      },
     });
 
     const removed = createRemoveObstacleHandler(store)({

@@ -2,6 +2,8 @@ import type { Placement } from "@/features/project/schemas/project";
 
 import {
   createRectangleFootprint,
+  intersectRectangles,
+  type RectangleBounds,
   type RectangleFootprint,
 } from "./rectangles";
 
@@ -24,6 +26,30 @@ export type EquipmentFootprints = {
   readonly physical: RectangleFootprint;
   readonly useZone: RectangleFootprint;
 };
+
+function hasArea(rectangle: RectangleBounds): boolean {
+  return rectangle.maxX > rectangle.minX && rectangle.maxZ > rectangle.minZ;
+}
+
+/**
+ * Returns a deterministic, non-overlapping partition of useZone - physical.
+ * Edge-touching rectangles do not subtract area, matching rectangle collision
+ * semantics throughout the geometry layer.
+ */
+export function getUseZoneMarginRectangles(
+  useZone: RectangleBounds,
+  physical: RectangleBounds,
+): readonly RectangleBounds[] {
+  const overlap = intersectRectangles(useZone, physical);
+  if (!overlap) return hasArea(useZone) ? [{ ...useZone }] : [];
+
+  return [
+    { minX: useZone.minX, minZ: useZone.minZ, maxX: useZone.maxX, maxZ: overlap.minZ },
+    { minX: useZone.minX, minZ: overlap.minZ, maxX: overlap.minX, maxZ: overlap.maxZ },
+    { minX: overlap.maxX, minZ: overlap.minZ, maxX: useZone.maxX, maxZ: overlap.maxZ },
+    { minX: useZone.minX, minZ: overlap.maxZ, maxX: useZone.maxX, maxZ: useZone.maxZ },
+  ].filter(hasArea);
+}
 
 type FootprintInsets = {
   readonly minX: number;

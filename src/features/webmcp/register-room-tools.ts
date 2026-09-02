@@ -55,7 +55,7 @@ import type { WebMcpTool } from "./types";
 const SPATIAL_NOTE =
   "Positions are minimum footprint corners. Use integer centimeters and rotation 0, 90, 180, or 270.";
 const VALIDATION_NOTE =
-  "The mutation may leave an invalid layout. Inspect validation counts and call validate_layout for details.";
+  "Mutations return validation code lists and affected-entity issue details; call validate_layout for the complete issue set.";
 
 export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[] {
   return [
@@ -152,7 +152,7 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
     {
       name: "place_product",
       title: "Place catalog equipment in the room",
-      description: `Buy and place one floor-capable catalog product in one undo step. Use add_product_to_project for an unplaced or selection-only item. Wall-mounted products must be flush with the rotation wall (0 top, 90 right, 180 bottom, 270 left) and cannot cross openings. IDs are generated. ${SPATIAL_NOTE} ${VALIDATION_NOTE}`,
+      description: `Buy and place one placeable catalog product in one undo step; use add_product_to_project for an unplaced or selection-only item. Wall mounts must be flush to the rotation wall (0 top, 90 right, 180 bottom, 270 left) and clear of openings. IDs are generated. ${SPATIAL_NOTE} ${VALIDATION_NOTE}`,
       inputSchema: placeProductJsonSchema,
       execute: createPlaceProductHandler(store),
     },
@@ -198,7 +198,7 @@ export function createRoomWebMcpTools(store: ProjectStore): readonly WebMcpTool[
       name: "suggest_placements",
       title: "Suggest safe equipment placements",
       description:
-        "Read deterministic placement candidates without mutation. Supply exactly one productId or projectItemId, with optional rotations, region, and limit. Candidates use a 10 cm grid; errors and unreachable entities reject them, while warnings affect score. Apply a returned pose with place_product, place_project_item, or update_placement. Suggestions never unlock equipment.",
+        "Read deterministic placement candidates without mutation. Supply one productId or projectItemId, with optional rotations, region, and limit. Floor candidates use a 10 cm grid. Wall candidates use a 10 cm grid along the rotation wall and snap exactly to top, right, bottom, or left; region bounds contain the final footprint. Errors and unreachable entities reject candidates, while warnings affect score. Apply a returned pose with a placement mutation. Suggestions never unlock equipment.",
       inputSchema: suggestPlacementsJsonSchema,
       annotations: { readOnlyHint: true },
       execute: createSuggestPlacementsHandler(store),

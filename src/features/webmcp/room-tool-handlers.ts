@@ -1,5 +1,6 @@
 import type { ProjectStore } from "@/features/creator/store/project-store";
 import type { DispatchResult } from "@/features/project/commands/command-results";
+import type { ProjectAnalysis } from "@/features/project/validation/analyze-project";
 
 import {
   addObstacleInputSchema,
@@ -88,8 +89,15 @@ function domainFailure(tool: RoomToolName, result: Extract<DispatchResult, { ok:
   return createRoomToolError(tool, result.error.code, result.error.message);
 }
 
-function mutationBase(tool: RoomToolName, result: Extract<DispatchResult, { ok: true }>) {
-  return serializeMutationBase(tool, result);
+function mutationBase(
+  tool: RoomToolName,
+  result: Extract<DispatchResult, { ok: true }>,
+  analysis: ProjectAnalysis,
+) {
+  return {
+    ...serializeMutationBase(tool, result),
+    validation: serializeValidationSummary(analysis, result.affectedEntityIds),
+  };
 }
 
 function readInput<T>(
@@ -205,9 +213,8 @@ export function createConfigureRoomHandler(store: ProjectStore) {
       });
       if ("error" in execution) return execution.error;
       return {
-        ...mutationBase("configure_room", execution.result),
+        ...mutationBase("configure_room", execution.result, execution.state.validation),
         room: serializeRoom(execution.state.project.room),
-        validation: serializeValidationSummary(execution.state.validation),
       };
     } catch {
       return unexpected("configure_room");
@@ -232,9 +239,8 @@ export function createUpdateProjectSettingsHandler(store: ProjectStore) {
       });
       if ("error" in execution) return execution.error;
       return {
-        ...mutationBase("update_project_settings", execution.result),
+        ...mutationBase("update_project_settings", execution.result, execution.state.validation),
         settings: serializeSettings(execution.state.project),
-        validation: serializeValidationSummary(execution.state.validation),
       };
     } catch {
       return unexpected("update_project_settings");
@@ -262,10 +268,9 @@ export function createAddObstacleHandler(store: ProjectStore) {
       const obstacle = execution.state.project.obstacles.find(({ id }) => id === obstacleId);
       if (!obstacle) return unexpected("add_obstacle");
       return {
-        ...mutationBase("add_obstacle", execution.result),
+        ...mutationBase("add_obstacle", execution.result, execution.state.validation),
         obstacleId,
         obstacle: serializeObstacle(obstacle),
-        validation: serializeValidationSummary(execution.state.validation),
       };
     } catch {
       return unexpected("add_obstacle");
@@ -294,10 +299,9 @@ export function createUpdateObstacleHandler(store: ProjectStore) {
       );
       if (!obstacle) return unexpected("update_obstacle");
       return {
-        ...mutationBase("update_obstacle", execution.result),
+        ...mutationBase("update_obstacle", execution.result, execution.state.validation),
         obstacleId: obstacle.id,
         obstacle: serializeObstacle(obstacle),
-        validation: serializeValidationSummary(execution.state.validation),
       };
     } catch {
       return unexpected("update_obstacle");
@@ -325,9 +329,8 @@ export function createRemoveObstacleHandler(store: ProjectStore) {
         return unexpected("remove_obstacle");
       }
       return {
-        ...mutationBase("remove_obstacle", execution.result),
+        ...mutationBase("remove_obstacle", execution.result, execution.state.validation),
         removedObstacleId: parsed.obstacleId,
-        validation: serializeValidationSummary(execution.state.validation),
       };
     } catch {
       return unexpected("remove_obstacle");
@@ -357,10 +360,9 @@ export function createAddWallElementHandler(store: ProjectStore) {
       );
       if (!wallElement) return unexpected("add_wall_element");
       return {
-        ...mutationBase("add_wall_element", execution.result),
+        ...mutationBase("add_wall_element", execution.result, execution.state.validation),
         wallElementId,
         wallElement: serializeWallElement(wallElement),
-        validation: serializeValidationSummary(execution.state.validation),
       };
     } catch {
       return unexpected("add_wall_element");
@@ -389,10 +391,9 @@ export function createUpdateWallElementHandler(store: ProjectStore) {
       );
       if (!wallElement) return unexpected("update_wall_element");
       return {
-        ...mutationBase("update_wall_element", execution.result),
+        ...mutationBase("update_wall_element", execution.result, execution.state.validation),
         wallElementId: wallElement.id,
         wallElement: serializeWallElement(wallElement),
-        validation: serializeValidationSummary(execution.state.validation),
       };
     } catch {
       return unexpected("update_wall_element");
@@ -424,9 +425,8 @@ export function createRemoveWallElementHandler(store: ProjectStore) {
         return unexpected("remove_wall_element");
       }
       return {
-        ...mutationBase("remove_wall_element", execution.result),
+        ...mutationBase("remove_wall_element", execution.result, execution.state.validation),
         removedWallElementId: parsed.wallElementId,
-        validation: serializeValidationSummary(execution.state.validation),
       };
     } catch {
       return unexpected("remove_wall_element");

@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { createEquipmentFootprints } from "./equipment-footprints";
+import {
+  createEquipmentFootprints,
+  getUseZoneMarginRectangles,
+} from "./equipment-footprints";
 
 const product = {
   dimensions: { widthCm: 100, depthCm: 50 },
@@ -38,5 +41,42 @@ describe("createEquipmentFootprints", () => {
         depthCm: 100,
       },
     });
+  });
+});
+
+describe("getUseZoneMarginRectangles", () => {
+  it("partitions an asymmetric use zone around the physical footprint", () => {
+    expect(getUseZoneMarginRectangles(
+      { minX: 70, minZ: 190, maxX: 230, maxZ: 290 },
+      { minX: 100, minZ: 200, maxX: 200, maxZ: 250 },
+    )).toEqual([
+      { minX: 70, minZ: 190, maxX: 230, maxZ: 200 },
+      { minX: 70, minZ: 200, maxX: 100, maxZ: 250 },
+      { minX: 200, minZ: 200, maxX: 230, maxZ: 250 },
+      { minX: 70, minZ: 250, maxX: 230, maxZ: 290 },
+    ]);
+  });
+
+  it("excludes zero-area strips for an edge-aligned rotated footprint", () => {
+    const footprints = createEquipmentFootprints(
+      { position: { xCm: 0, zCm: 140 }, rotation: 270 },
+      product,
+    );
+    expect(getUseZoneMarginRectangles(
+      footprints.useZone,
+      footprints.physical,
+    )).toEqual([
+      { minX: -10, minZ: 110, maxX: 90, maxZ: 140 },
+      { minX: -10, minZ: 140, maxX: 0, maxZ: 240 },
+      { minX: 50, minZ: 140, maxX: 90, maxZ: 240 },
+      { minX: -10, minZ: 240, maxX: 90, maxZ: 260 },
+    ]);
+  });
+
+  it("preserves an untouched rectangle when physical only touches its edge", () => {
+    expect(getUseZoneMarginRectangles(
+      { minX: 0, minZ: 0, maxX: 20, maxZ: 20 },
+      { minX: 20, minZ: 0, maxX: 30, maxZ: 20 },
+    )).toEqual([{ minX: 0, minZ: 0, maxX: 20, maxZ: 20 }]);
   });
 });

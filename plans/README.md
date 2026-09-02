@@ -14,15 +14,13 @@ Keep this sequence unless the user explicitly reprioritizes work.
 
 | Order | Plan                                                               | Remaining outcome                                                                                                      |
 | ----- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
-| 1     | [Safe wall placement](phase-29-safe-wall-placement.md)             | Fix mounted use-zone false negatives, exact four-wall suggestion snaps and actionable mutation validation feedback.   |
-| 2     | [Furniture functional clearance](phase-30-furniture-functional-clearance.md) | Add versioned directional furniture access zones shared by validation, suggestions, UI and WebMCP.                    |
-| 3     | [Placement quality](phase-31-placement-quality.md)                 | Rank equally safe candidates by explainable perimeter, furniture and contiguous-open-space preferences.               |
-| 4     | [Submission](phase-28-submission.md)                               | Final manual tests on the live build, then judge-facing README, description, video and submission.                     |
+| 1     | [Furniture functional clearance](phase-30-furniture-functional-clearance.md) | Add versioned directional furniture access zones shared by validation, suggestions, UI and WebMCP.                    |
+| 2     | [Placement quality](phase-31-placement-quality.md)                 | Rank equally safe candidates by explainable perimeter, furniture and contiguous-open-space preferences.               |
+| 3     | [Submission](phase-28-submission.md)                               | Final manual tests on the live build, then judge-facing README, description, video and submission.                     |
 
-The Phase 29 correctness slice comes first because the supplied furnished-room project currently
-reports a blocked wall-mounted use zone as valid and the grid cannot suggest exact right/bottom
-wall snaps. Phases 30–31 add broader furniture semantics and placement quality; if release timing
-forces a cut, defer those larger phases rather than weakening Phase 29 verification.
+Phase 29 fixed mounted use-zone false negatives and exact four-wall suggestions. Phases 30–31 add
+broader furniture semantics and placement quality; if release timing forces a cut, defer those
+larger phases rather than weakening the completed wall-placement contracts.
 
 Creator polish comes before final captures so later landing captures and public checks use the finished editor.
 Remaining landing work is editorial media, not a new product-asset production queue. Implemented

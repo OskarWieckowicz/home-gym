@@ -331,6 +331,82 @@ describe("mounted collision filter", () => {
 });
 
 describe("mounted use zones and ceiling", () => {
+  it.each([
+    [0, { xCm: 144, zCm: 0 }, { xCm: 150, zCm: 40 }],
+    [90, { xCm: 346, zCm: 200 }, { xCm: 330, zCm: 210 }],
+    [180, { xCm: 144, zCm: 546 }, { xCm: 150, zCm: 530 }],
+    [270, { xCm: 0, zCm: 200 }, { xCm: 40, zCm: 210 }],
+  ] as const)("reports a low obstacle entering the mounted margin at rotation %s", (
+    rotation,
+    barPosition,
+    blockerPosition,
+  ) => {
+    const issues = validateProject(
+      project([{
+        id: "placement_bar",
+        productId: mountedBar.id,
+        position: barPosition,
+        rotation,
+      }], {
+        widthCm: 400,
+        depthCm: 600,
+        wallElements: [],
+        obstacles: [obstacle("obstacle_low", {
+          position: blockerPosition,
+          dimensions: { widthCm: 40, depthCm: 40, heightCm: 60 },
+        })],
+      }),
+      dependencies,
+    );
+
+    expect(issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        code: "USE_ZONE_OVERLAP",
+        severity: "error",
+        entityIds: ["obstacle_low", "placement_bar"],
+      }),
+    ]));
+    expect(issues.some(({ code }) => code === "PHYSICAL_COLLISION")).toBe(false);
+  });
+
+  it.each([
+    [0, { xCm: 144, zCm: 0 }, { xCm: 150, zCm: 40 }],
+    [90, { xCm: 346, zCm: 200 }, { xCm: 330, zCm: 210 }],
+    [180, { xCm: 144, zCm: 546 }, { xCm: 150, zCm: 530 }],
+    [270, { xCm: 0, zCm: 200 }, { xCm: 40, zCm: 210 }],
+  ] as const)("warns for low equipment entering the mounted margin at rotation %s", (
+    rotation,
+    barPosition,
+    blockerPosition,
+  ) => {
+    const issues = validateProject(
+      project([
+        {
+          id: "placement_bar",
+          productId: mountedBar.id,
+          position: barPosition,
+          rotation,
+        },
+        {
+          id: "placement_plates",
+          productId: plates.id,
+          position: blockerPosition,
+          rotation: 0,
+        },
+      ], { widthCm: 400, depthCm: 600, wallElements: [] }),
+      dependencies,
+    );
+
+    expect(issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        code: "USE_ZONE_OVERLAP",
+        severity: "warning",
+        entityIds: ["placement_bar", "placement_plates"],
+      }),
+    ]));
+    expect(issues.some(({ code }) => code === "PHYSICAL_COLLISION")).toBe(false);
+  });
+
   it("keeps plates under the bracket silent and plates in the landing as a warning", () => {
     const underBracket = validateProject(
       project([
@@ -436,5 +512,62 @@ describe("supplied mounted-bar project", () => {
       kind: "wall",
       bottomHeightCm: 195,
     });
+  });
+
+  it("reports the low bed and TV console blocking the left-wall operational margin", () => {
+    const supplied: GymProject = {
+      version: 5,
+      room: { widthCm: 400, depthCm: 600, heightCm: 250 },
+      obstacles: [
+        obstacle("obstacle_bed", {
+          name: "Low bed",
+          position: { xCm: 40, zCm: 160 },
+          dimensions: { widthCm: 60, depthCm: 60, heightCm: 55 },
+        }),
+        obstacle("obstacle_tv_console", {
+          name: "TV console",
+          position: { xCm: 30, zCm: 220 },
+          dimensions: { widthCm: 50, depthCm: 50, heightCm: 65 },
+        }),
+      ],
+      wallElements: [],
+      ...toProjectItemsAndPlacements([{
+        id: "placement_anchor_bar",
+        productId: "product_anchor_pullup_bar",
+        position: { xCm: 0, zCm: 140 },
+        rotation: 270,
+      }]),
+      budget: 10_000,
+      trainingGoals: [],
+    };
+
+    const analysis = analyzeProject(supplied, { resolveProduct: catalogProductResolver });
+    expect(analysis.valid).toBe(false);
+    expect(analysis.issues.filter(({ code, entityIds }) =>
+      code === "PHYSICAL_COLLISION" && entityIds.includes("placement_anchor_bar")))
+      .toEqual([]);
+    expect(analysis.issues.filter(({ code }) => code === "USE_ZONE_OVERLAP"))
+      .toEqual([
+        {
+          code: "USE_ZONE_OVERLAP",
+          severity: "error",
+          entityIds: ["obstacle_bed", "placement_anchor_bar"],
+          details: {
+            overlap: { minX: 54, minZ: 160, maxX: 100, maxZ: 220 },
+            useZonePlacementId: "placement_anchor_bar",
+            blockingEntityId: "obstacle_bed",
+          },
+        },
+        {
+          code: "USE_ZONE_OVERLAP",
+          severity: "error",
+          entityIds: ["obstacle_tv_console", "placement_anchor_bar"],
+          details: {
+            overlap: { minX: 54, minZ: 220, maxX: 80, maxZ: 252 },
+            useZonePlacementId: "placement_anchor_bar",
+            blockingEntityId: "obstacle_tv_console",
+          },
+        },
+      ]);
   });
 });

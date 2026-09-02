@@ -210,6 +210,14 @@ openings, budget and deterministic access from doors. No door means access was n
 Unavailable zones forbid equipment/use zones but remain walkable; they are not invented paths.
 Access thresholds are application conventions, not building regulations or exercise-safety claims.
 
+A non-floor-blocking wall mount may physically project above furniture whose height is at or below
+the mount's bottom edge without creating a physical collision. That exception applies only to the
+wall-side physical projection: if the low obstacle enters any non-overlapping operational margin in
+the equipment use zone, validation returns `USE_ZONE_OVERLAP` as an error. Equipment entering the
+same mounted margin retains the existing warning policy. A height-reaching blocker, another wall
+mount, an unavailable zone, or a mount with `blocksFloor` still produces the stronger collision or
+zone-conflict issue without a duplicate use-zone issue.
+
 Single commands may commit a spatially invalid layout and return its errors/warnings so a user or
 agent can correct it. Batch application and suggestions use the stricter policy below. Physical,
 height and budget errors must not be described as harmless warnings.
@@ -220,8 +228,11 @@ The agent should not guess all coordinates on its own. The application exposes a
 
 Implemented MVP algorithm (`src/features/project/suggestions/`):
 
-1. generate origin-aligned 10 cm grid positions in ascending Z, X, then rotation
-   `0`, `90`, `180`, `270`, filtered by optional rotations and inclusive region bounds;
+1. resolve the product, then generate floor products on the origin-aligned 10 cm grid in ascending
+   Z, X and rotation order; wall-mounted products instead scan a 10 cm grid only along each selected
+   rotation's wall and snap the perpendicular coordinate exactly (`0` top, `90` right, `180` bottom,
+   `270` left), including non-grid right/bottom origins such as `x=346` or `z=546`; optional regions
+   must contain the final wall footprint rather than a rounded substitute;
 2. apply each candidate through the shared pure domain command with deterministic injected IDs;
 3. reject every layout with an error or any unreachable access fact, including obstacles whose
    global issue severity remains a warning;
@@ -236,7 +247,7 @@ explained empty list when nothing fits. No suggestion is applied automatically.
 The current pose is also a candidate for an existing placement: if it is already a best fit,
 applying that suggestion is a no-op rather than forcing an unnecessary move.
 
-Searches are bounded to 20,000 candidates. Rooms with doors also require at most 20,000 access-grid
+Searches are bounded to 20,000 actual generated candidates after wall/region filtering. Rooms with doors also require at most 20,000 access-grid
 cells and 30 million candidate-cell evaluations. Oversized requests fail explicitly with advice to
 narrow the region or rotations; they are never silently truncated. No door means access was not
 evaluated, not that the layout is known to be reachable.
@@ -583,7 +594,9 @@ Each handler:
 2. calls catalog logic or a domain command,
 3. re-validates the project,
 4. returns the operation result and the most important fragment of the new state,
-5. returns compact validation counts for mutations; `validate_layout` returns full issues on demand.
+5. returns compact validation counts, sorted unique error/warning code arrays, and structured issues
+   involving the mutation's affected entity IDs; `validate_layout` returns the complete issue set on
+   demand from the same project analysis.
 
 `get_project_state` returns canonical project data, revision and undo/redo availability without
 duplicating validation. `search_products` returns at most five products by default (ten when

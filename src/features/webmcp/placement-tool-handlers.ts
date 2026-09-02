@@ -1,5 +1,6 @@
 import type { ProjectStore } from "@/features/creator/store/project-store";
 import type { DispatchResult } from "@/features/project/commands/command-results";
+import type { ProjectAnalysis } from "@/features/project/validation/analyze-project";
 import { findPlacementForItem, findProjectItem } from "@/features/project/project-lookups";
 
 import {
@@ -98,8 +99,12 @@ function execute(store: ProjectStore, tool: PlacementToolName, command: unknown)
 function mutationBase(
   tool: PlacementToolName,
   result: Extract<DispatchResult, { ok: true }>,
+  analysis: ProjectAnalysis,
 ) {
-  return serializeMutationBase(tool, result);
+  return {
+    ...serializeMutationBase(tool, result),
+    validation: serializeValidationSummary(analysis, result.affectedEntityIds),
+  };
 }
 
 export function createPlaceProductHandler(store: ProjectStore) {
@@ -127,12 +132,11 @@ export function createPlaceProductHandler(store: ProjectStore) {
         : undefined;
       if (!placement || !item) return failure("place_product");
       return {
-        ...mutationBase("place_product", execution.result),
+        ...mutationBase("place_product", execution.result, execution.state.validation),
         placementId,
         projectItemId: item.id,
         placement: serializePlacement(placement, execution.state.project),
         item: serializeProjectItem(item, execution.state.project),
-        validation: serializeValidationSummary(execution.state.validation),
       };
     } catch {
       return failure("place_product");
@@ -160,10 +164,9 @@ export function createAddProductToProjectHandler(store: ProjectStore) {
       const item = findProjectItem(execution.state.project, projectItemId ?? "");
       if (!item) return failure("add_product_to_project");
       return {
-        ...mutationBase("add_product_to_project", execution.result),
+        ...mutationBase("add_product_to_project", execution.result, execution.state.validation),
         projectItemId: item.id,
         item: serializeProjectItem(item, execution.state.project),
-        validation: serializeValidationSummary(execution.state.validation),
       };
     } catch {
       return failure("add_product_to_project");
@@ -194,12 +197,11 @@ export function createPlaceProjectItemHandler(store: ProjectStore) {
       const item = findProjectItem(execution.state.project, parsed.projectItemId);
       if (!placement || !item) return failure("place_project_item");
       return {
-        ...mutationBase("place_project_item", execution.result),
+        ...mutationBase("place_project_item", execution.result, execution.state.validation),
         placementId,
         projectItemId: item.id,
         placement: serializePlacement(placement, execution.state.project),
         item: serializeProjectItem(item, execution.state.project),
-        validation: serializeValidationSummary(execution.state.validation),
       };
     } catch {
       return failure("place_project_item");
@@ -228,10 +230,9 @@ export function createUpdatePlacementHandler(store: ProjectStore) {
       );
       if (!placement) return failure("update_placement");
       return {
-        ...mutationBase("update_placement", execution.result),
+        ...mutationBase("update_placement", execution.result, execution.state.validation),
         placementId: placement.id,
         placement: serializePlacement(placement, execution.state.project),
-        validation: serializeValidationSummary(execution.state.validation),
       };
     } catch {
       return failure("update_placement");
@@ -269,11 +270,10 @@ export function createUnplaceProductHandler(store: ProjectStore) {
         return failure("unplace_product");
       }
       return {
-        ...mutationBase("unplace_product", execution.result),
+        ...mutationBase("unplace_product", execution.result, execution.state.validation),
         unplacedPlacementId: existing.id,
         projectItemId: item.id,
         item: serializeProjectItem(item, execution.state.project),
-        validation: serializeValidationSummary(execution.state.validation),
       };
     } catch {
       return failure("unplace_product");
@@ -308,7 +308,7 @@ export function createRemoveProductHandler(store: ProjectStore) {
         return failure("remove_product");
       }
       return {
-        ...mutationBase("remove_product", execution.result),
+        ...mutationBase("remove_product", execution.result, execution.state.validation),
         removedProjectItemId: existing.id,
         removedProductId: existing.productId,
         removedPlacementId: existingPlacement?.id ?? null,
@@ -316,7 +316,6 @@ export function createRemoveProductHandler(store: ProjectStore) {
           projectItemId: existing.id,
           placementIds: existingPlacement ? [existingPlacement.id] : [],
         },
-        validation: serializeValidationSummary(execution.state.validation),
       };
     } catch {
       return failure("remove_product");

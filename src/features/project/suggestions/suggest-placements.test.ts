@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { applyProjectCommand } from "../commands/apply-project-command";
+import { catalogProductResolver } from "@/features/creator/store/catalog-product-resolver";
+import type { GymProject } from "../schemas/project";
 import { analyzeProject } from "../validation/analyze-project";
 import { createProjectAnalysis } from "../validation/project-analysis";
 import { suggestPlacements } from "./suggest-placements";
@@ -120,5 +122,63 @@ describe("suggestPlacements", () => {
     expect(result.candidates.at(-1)?.position.xCm).toBe(30);
     expect(result.candidates.at(-1)?.warningCounts.USE_ZONE_OVERLAP).toBe(1);
     expect(result.rejectionReasons.USE_ZONE_OUTSIDE_ROOM).toBe(2);
+  });
+
+  it("rejects the supplied blocked left-wall pose and returns exact safe wall poses", () => {
+    const project: GymProject = {
+      ...suggestionProject(),
+      room: { widthCm: 400, depthCm: 600, heightCm: 250 },
+      obstacles: [
+        {
+          id: "obstacle_bed",
+          kind: "obstacle",
+          name: "Low bed",
+          position: { xCm: 40, zCm: 160 },
+          dimensions: { widthCm: 60, depthCm: 60, heightCm: 55 },
+          rotation: 0,
+          locked: false,
+        },
+        {
+          id: "obstacle_tv_console",
+          kind: "obstacle",
+          name: "TV console",
+          position: { xCm: 30, zCm: 220 },
+          dimensions: { widthCm: 50, depthCm: 50, heightCm: 65 },
+          rotation: 0,
+          locked: false,
+        },
+      ],
+    };
+    const dependencies = {
+      ...suggestionDependencies,
+      resolveProduct: catalogProductResolver,
+    };
+    const blocked = suggestPlacements(project, {
+      productId: "product_anchor_pullup_bar",
+      rotations: [270],
+      region: { minXCm: 0, maxXCm: 54, minZCm: 140, maxZCm: 252 },
+    }, dependencies);
+    expect(blocked).toMatchObject({
+      candidates: [],
+      generatedCount: 1,
+      rejectedCount: 1,
+      rejectionReasons: { USE_ZONE_OVERLAP: 1 },
+    });
+
+    const clearProject = { ...project, obstacles: [] };
+    for (const [rotation, region, position] of [
+      [90, { minXCm: 346, maxXCm: 400, minZCm: 140, maxZCm: 252 }, { xCm: 346, zCm: 140 }],
+      [180, { minXCm: 140, maxXCm: 252, minZCm: 546, maxZCm: 600 }, { xCm: 140, zCm: 546 }],
+    ] as const) {
+      const result = suggestPlacements(clearProject, {
+        productId: "product_anchor_pullup_bar",
+        rotations: [rotation],
+        region,
+        limit: 1,
+      }, dependencies);
+      expect(result.candidates[0]).toMatchObject({ position, rotation });
+      expect(applyProjectCommand(clearProject, result.candidates[0].command, dependencies).result)
+        .toMatchObject({ ok: true });
+    }
   });
 });
