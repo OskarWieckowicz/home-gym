@@ -46,7 +46,6 @@
 .creator-viewport-secondary > span { color: var(--ink-subtle); font-size: 0.75rem; white-space: nowrap; }
 .creator-history { padding-inline-start: 0.7rem; border-inline-start: 1px solid var(--line); }
 .creator-history button { inline-size: 2.25rem; min-block-size: 2.25rem; border-color: transparent; background: transparent; }
-.creator-camera-actions > button { padding-inline: 0.75rem; font-size: 0.78rem; }
 .creator-camera-actions .editor-popover > button { inline-size: 2rem; }
 .creator-scene-shell, .creator-plan-shell { display: flex; flex: 1; flex-direction: column; min-block-size: 0; padding: 0 1rem; }
 .creator-scene-canvas { flex: 1; min-block-size: 0; border: 0; border-radius: 0.8rem; }
@@ -141,6 +140,7 @@
 .editor-popover-content .creator-file-action-buttons :is(a, button) { justify-content: flex-start; }
 .creator-camera-actions .editor-popover-content { inline-size: 10rem; }
 .creator-camera-actions .editor-popover-content button { inline-size: 100%; }
+.creator-camera-actions .editor-popover-content button + button { margin-block-start: 0.4rem; }
 
 .webmcp-activity-trigger { position: relative; gap: 0.45rem; padding-inline: 0.7rem; white-space: nowrap; }
 .webmcp-registration-state { display: inline-flex; align-items: center; gap: 0.3rem; color: var(--ink-muted); font-size: 0.68rem; }

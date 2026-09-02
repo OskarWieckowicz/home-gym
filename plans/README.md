@@ -1,6 +1,6 @@
 # Home Gym Creator — remaining work
 
-> Updated: 1 September 2026.
+> Updated: 2 September 2026.
 > Recorded submission deadline: 3 September 2026, 22:00 CEST; recheck official requirements before release.
 > Deployment URL: <https://home-gym-coral.vercel.app/> — verify the submitted revision.
 
@@ -12,11 +12,19 @@ Git preserves history; routine verification belongs in the task, PR or CI record
 
 Keep this sequence unless the user explicitly reprioritizes work.
 
-| Order | Plan                                 | Remaining outcome                                                                                  |
-| ----- | ------------------------------------ | -------------------------------------------------------------------------------------------------- |
-| 4     | [Submission](phase-28-submission.md) | Final manual tests on the live build, then judge-facing README, description, video and submission. |
+| Order | Plan                                                               | Remaining outcome                                                                                                      |
+| ----- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| 1     | [Safe wall placement](phase-29-safe-wall-placement.md)             | Fix mounted use-zone false negatives, exact four-wall suggestion snaps and actionable mutation validation feedback.   |
+| 2     | [Furniture functional clearance](phase-30-furniture-functional-clearance.md) | Add versioned directional furniture access zones shared by validation, suggestions, UI and WebMCP.                    |
+| 3     | [Placement quality](phase-31-placement-quality.md)                 | Rank equally safe candidates by explainable perimeter, furniture and contiguous-open-space preferences.               |
+| 4     | [Submission](phase-28-submission.md)                               | Final manual tests on the live build, then judge-facing README, description, video and submission.                     |
 
-Creator polish comes first so later landing captures and public checks use the finished editor.
+The Phase 29 correctness slice comes first because the supplied furnished-room project currently
+reports a blocked wall-mounted use zone as valid and the grid cannot suggest exact right/bottom
+wall snaps. Phases 30–31 add broader furniture semantics and placement quality; if release timing
+forces a cut, defer those larger phases rather than weakening Phase 29 verification.
+
+Creator polish comes before final captures so later landing captures and public checks use the finished editor.
 Remaining landing work is editorial media, not a new product-asset production queue. Implemented
 copy, hierarchy and safe entry are documented in the landing specification. Real creator captures
 demonstrate functionality; optional AI room imagery must be labelled as illustration, never an app render. The active catalog
