@@ -106,12 +106,12 @@ WebMCP flag and the ChatGPT in-app browser. Record actual browser/host versions,
 do not infer hosted support from local registration or an iframe. Identify any Codex host used as
 additional evidence without silently substituting it for a required target.
 
-- Discover schemas and the complete surface-specific tool sets: currently 21 creator tools,
-  two catalog tools and three summary tools. Reconcile the README list with actual registration.
+- Discover schemas and the complete surface-specific tool sets: currently 20 creator tools,
+  two catalog tools and one summary tool. Reconcile the README list with actual registration.
 - Run the rehearsed shared-editing script to completion in both targets. Confirm the agent reads
   manual changes, its mutations appear in the same editor, validation explains the conflict and
   the correction, and shared undo/redo works.
-- On `/summary`, discover exactly `get_project_summary`, `get_project_state`, `validate_layout`.
+- On `/summary`, discover exactly `get_project_summary`.
   Confirm summary-tool payloads match displayed shopping list, budget, goals and check results.
   Include this surface in README and the recording's closing shot.
 
