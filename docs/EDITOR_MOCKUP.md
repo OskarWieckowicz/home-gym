@@ -233,9 +233,8 @@ The main interaction rule: **both views edit one room, through one command path 
 - The toolbar's 2D switch remains available during loading. Whole-scene errors and context loss
   expose Continue in 2D without remounting the project store or WebMCP bridge.
 
-Outstanding device/deployment acceptance is tracked in the
-[submission plan](../plans/phase-28-submission.md). Local automated coverage does not establish
-physical-device, assistive-technology or public-build acceptance.
+Local automated coverage does not establish physical-device, assistive-technology or public-build
+acceptance; verify those environments directly before release.
 
 ## Source of truth
 

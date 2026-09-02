@@ -2,9 +2,8 @@
 
 > Updated: 31 August 2026. Process-first hackathon introduction, not a sales page or
 > a walkthrough of the bundled demo. Copy, section order, mobile layout and guarded project entry
-> are implemented locally; public-build acceptance is tracked in the [submission plan](../plans/phase-28-submission.md).
-> The labeled hero concept was added on 31 August 2026. Current product captures and a possible
-> recording remain in the [landing plan](../plans/phase-25-landing-polish.md).
+> are implemented. Local checks do not establish public-build acceptance.
+> The labeled hero concept and current product captures were added on 31 August 2026.
 
 ## Visual reference
 
@@ -147,9 +146,9 @@ The deterministic engine checks geometry; the agent interprets results and trade
 
 Heading: **Ready to plan your space?**
 Primary **Start planning**; secondary **Explore sample project**.
-Reuse the shared footer with prototype identification and a verified public **Repository** link.
-The implementation omits that link while the configured URL returns logged-out HTTP 404;
-confirm public access before adding it. This remains a release gate, not a placeholder link.
+Reuse the shared footer with prototype identification and application navigation. Do not add a
+**Repository** link to the product footer; repository discovery belongs in the README and Devpost
+submission rather than the application navigation.
 Note: **Fictional equipment catalog. Simplified geometry. Not a professional safety assessment.**
 No fabricated demo-video link or extra promotional section.
 

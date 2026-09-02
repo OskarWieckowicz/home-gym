@@ -1,8 +1,8 @@
 # Project documentation
 
-Keep current contracts, constraints, source references and asset provenance here. Unfinished work
-belongs in the [active plans](../plans/README.md); completed execution history belongs in Git and
-task/PR/CI records, not a new report for each phase.
+Keep current contracts, constraints, source references and asset provenance here. Detailed plans
+are temporary working documents; completed execution history belongs in Git and task/PR/CI records,
+not a new report for each phase.
 
 ## Product and implementation
 
@@ -29,6 +29,5 @@ task/PR/CI records, not a new report for each phase.
   [Punching Bag](WALL_MOUNTED_PUNCHING_BAG_MODEL.md).
 - [Image provenance metadata](../scripts/catalog-image-provenance/): original prompts and sources.
 
-Public-build, agent-host and device acceptance are tracked in the submission plan; this index
-does not claim they have passed. Per-model browser recognizability and complete-room runtime
-metrics are not remaining production work and must not be inferred from this index.
+This index does not claim public-build, agent-host or physical-device acceptance. Per-model browser
+recognizability and complete-room runtime metrics must not be inferred from this index.

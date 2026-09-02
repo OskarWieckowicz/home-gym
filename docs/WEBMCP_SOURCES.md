@@ -395,10 +395,10 @@ browser version. The optional execution-signal adapter supports both the observe
 omits callback options and runtimes that pass `{ signal }`. Diagnostic `executeTool()` signatures
 are host-specific; production handlers and registration must not depend on that helper.
 
-The [submission plan](../plans/phase-28-submission.md) owns public secure-origin checks, fresh
-Chrome and ChatGPT/Codex discovery, navigation/cleanup, actual calls and the shared-editing loop.
-Keep local logic tests separate from those checks. Registration errors must preserve manual use;
-do not work around a host limitation by creating a second backend planning path.
+Before submission, verify the public secure origin, fresh Chrome and ChatGPT/Codex discovery,
+navigation/cleanup, actual calls and the shared-editing loop. Keep local logic tests separate from
+those checks. Registration errors must preserve manual use; do not work around a host limitation
+by creating a second backend planning path.
 
 Refresh implementation status, browser versions, available models, origin-trial/header requirements
 and the judge environment immediately before recording and submitting. The dated source findings
